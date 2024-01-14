@@ -105,6 +105,7 @@ private:
 
 	void UpdateOldPosition(void);			// 過去位置の更新
 	EMotion UpdateMove(void);				// 移動量・目標向きの更新
+	EMotion UpdateJump(void);				// ジャンプの更新
 	void UpdateGravity(void);				// 重力の更新
 	bool UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
 	void UpdatePosition(D3DXVECTOR3 *pPos);	// 位置の更新

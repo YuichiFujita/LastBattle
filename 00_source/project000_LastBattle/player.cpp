@@ -60,21 +60,17 @@ namespace
 	const char *SETUP_TXT = "data\\TXT\\player.txt";	// セットアップテキスト相対パス
 
 	const int	PRIORITY	= 3;		// プレイヤーの優先順位
-	const float	MOVE		= 2.8f;		// 移動量
-	const float	JUMP		= 21.0f;	// ジャンプ上昇量
-	const float	GRAVITY		= 1.0f;		// 重力
+	const float	JUMP		= 18.0f;	// ジャンプ上昇量
+	const float	GRAVITY		= 0.85f;	// 重力
 	const float	RADIUS		= 20.0f;	// 半径
 	const float	HEIGHT		= 100.0f;	// 縦幅
 	const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
-	const float	ADD_MOVE	= 0.08f;	// 非アクション時の速度加算量
+	const float	MOVE_REV	= 0.5f;		// 移動量の補正係数
 	const float	JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
 	const float	LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
-	const float	SPAWN_ADD_ALPHA	= 0.03f;	// スポーン状態時の透明度の加算量
+	const float	STICK_REV	= 0.00015f;	// 移動操作スティックの傾き量の補正係数
 
-	const float	STICK_REV = 0.00015f;					// スティックの傾き量の補正係数
-	const float	DEAD_ZONE = (float)USHRT_MAX * 0.01f;	// スティックの無視する傾き量
-
-	const D3DXVECTOR3 DMG_ADDROT	= D3DXVECTOR3(0.04f, 0.0f, -0.02f);	// ダメージ状態時のプレイヤー回転量
+	const float	SPAWN_ADD_ALPHA		= 0.03f;	// スポーン状態時の透明度の加算量
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
 
 	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 15.0f, 0.0f), D3DXVECTOR3(0.0f, -15.0f, 0.0f), XCOL_CYAN);	// オフセット情報
@@ -542,6 +538,9 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	// 重力の更新
 	UpdateGravity();
 
+	// ジャンプ操作
+	currentMotion = UpdateJump();
+
 	// 位置更新
 	UpdatePosition(&posPlayer);
 
@@ -586,7 +585,7 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 	D3DXVECTOR3 vecLStick = D3DXVECTOR3((float)pPad->GetPressLStickX(), (float)pPad->GetPressLStickY(), 0.0f);	// スティック各軸の倒し量
 	float fLStick = sqrtf(vecLStick.x * vecLStick.x + vecLStick.y * vecLStick.y) * 0.5f;	// スティックの倒し量
 
-	if (DEAD_ZONE < fLStick)
+	if (pad::DEAD_ZONE < fLStick)
 	{ // デッドゾーン以上の場合
 
 		// 変数を宣言
@@ -596,8 +595,8 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 		{ // ダッシュ中ではない場合
 
 			// 移動量を更新
-			m_move.x += sinf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove;
-			m_move.z += cosf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove;
+			m_move.x += sinf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
+			m_move.z += cosf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
 
 			// 移動モーションを設定
 			//currentMotion = MOTION_MOVE;
@@ -615,6 +614,26 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 
 		// 目標向きを設定
 		m_destRot.y = atan2f(-m_move.x, -m_move.z);
+	}
+
+	// 待機モーションを返す
+	return MOTION_IDOL;
+}
+
+//============================================================
+//	ジャンプの更新処理
+//============================================================
+CPlayer::EMotion CPlayer::UpdateJump(void)
+{
+	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_A))
+	{
+		if (!m_bJump)
+		{ // ジャンプしていない場合
+
+			// ジャンプさせる
+			m_move.y += JUMP;
+			m_bJump = true;
+		}
 	}
 
 	// 待機モーションを返す
