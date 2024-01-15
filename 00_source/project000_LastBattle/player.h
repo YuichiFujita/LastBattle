@@ -17,12 +17,20 @@
 #include "scene.h"
 
 //************************************************************
+//	定数宣言
+//************************************************************
+namespace player
+{
+	const int NUM_ORBIT = 2;	// 軌跡の数
+}
+
+//************************************************************
 //	前方宣言
 //************************************************************
 class CObjectChara;	// オブジェクトキャラクタークラス
 class CMultiModel;	// マルチモデルクラス
-class CShadow;		// 影クラス
 class COrbit;		// 軌跡クラス
+class CShadow;		// 影クラス
 
 //************************************************************
 //	クラス定義
@@ -135,8 +143,8 @@ private:
 
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
+	COrbit	*m_apOrbit[player::NUM_ORBIT];			// 軌跡の情報
 	CShadow	*m_pShadow;			// 影の情報
-	COrbit	*m_pOrbit;			// 軌跡の情報
 	D3DXVECTOR3	m_oldPos;		// 過去位置
 	D3DXVECTOR3	m_move;			// 移動量
 	D3DXVECTOR3	m_destRot;		// 目標向き

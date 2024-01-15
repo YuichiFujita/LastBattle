@@ -92,8 +92,8 @@ namespace
 	const float	SPAWN_ADD_ALPHA		= 0.03f;	// スポーン状態時の透明度の加算量
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
 
-	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 15.0f, 0.0f), D3DXVECTOR3(0.0f, -15.0f, 0.0f), XCOL_CYAN);	// オフセット情報
-	const int ORBIT_PART = 20;	// 分割数
+	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 0.0f, -10.0f), D3DXVECTOR3(0.0f, 0.0f, -65.0f), XCOL_CYAN);	// オフセット情報
+	const int ORBIT_PART = 40;	// 分割数
 }
 
 //************************************************************
@@ -118,7 +118,6 @@ static_assert(NUM_ARRAY(SPAWN_MOTION) == CPlayer::BODY_MAX, "ERROR : Body Count 
 //============================================================
 CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRIORITY),
 	m_pShadow		(nullptr),		// 影の情報
-	m_pOrbit		(nullptr),		// 軌跡の情報
 	m_oldPos		(VEC3_ZERO),	// 過去位置
 	m_move			(VEC3_ZERO),	// 移動量
 	m_destRot		(VEC3_ZERO),	// 目標向き
@@ -126,7 +125,7 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_bJump			(false),		// ジャンプ状況
 	m_nCounterState	(0)				// 状態管理カウンター
 {
-
+	memset(&m_apOrbit[0], 0, sizeof(m_apOrbit));	// 軌跡の情報
 }
 
 //============================================================
@@ -143,8 +142,8 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
+	memset(&m_apOrbit[0], 0, sizeof(m_apOrbit));	// 軌跡の情報
 	m_pShadow		= nullptr;		// 影の情報
-	m_pOrbit		= nullptr;		// 軌跡の情報
 	m_oldPos		= VEC3_ZERO;	// 過去位置
 	m_move			= VEC3_ZERO;	// 移動量
 	m_destRot		= VEC3_ZERO;	// 目標向き
@@ -171,24 +170,28 @@ HRESULT CPlayer::Init(void)
 	// 上半身の親インデックスの設定
 	SetUpperParentID(L_MODEL_WAIST);
 
+	for (int nCntOrbit = 0; nCntOrbit < player::NUM_ORBIT; nCntOrbit++)
+	{ // 軌跡の数分繰り返す
+
+		// 軌跡の生成
+		m_apOrbit[nCntOrbit] = COrbit::Create
+		( // 引数
+			GetMultiModel(BODY_UPPER, U_MODEL_SWORDL + nCntOrbit)->GetPtrMtxWorld(),	// 親マトリックス
+			ORBIT_OFFSET,	// オフセット情報
+			ORBIT_PART		// 分割数
+		);
+		if (m_apOrbit[nCntOrbit] == nullptr)
+		{ // 非使用中の場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+	}
+
 	// 影の生成
 	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, SHADOW_SIZE, this);
 	if (m_pShadow == nullptr)
-	{ // 非使用中の場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// 軌跡の生成
-	m_pOrbit = COrbit::Create
-	( // 引数
-		GetMultiModel(BODY_UPPER, U_MODEL_BODY)->GetPtrMtxWorld(),	// 親マトリックス
-		ORBIT_OFFSET,	// オフセット情報
-		ORBIT_PART		// 分割数
-	);
-	if (m_pOrbit == nullptr)
 	{ // 非使用中の場合
 
 		// 失敗を返す
@@ -222,12 +225,16 @@ HRESULT CPlayer::Init(void)
 //============================================================
 void CPlayer::Uninit(void)
 {
+	for (int nCntOrbit = 0; nCntOrbit < player::NUM_ORBIT; nCntOrbit++)
+	{ // 軌跡の数分繰り返す
+
+		// 軌跡の終了
+		SAFE_UNINIT(m_apOrbit[nCntOrbit]);
+	}
+
 	// 影の終了
 	m_pShadow->DeleteObjectParent();	// 親オブジェクトを削除
 	SAFE_UNINIT(m_pShadow);
-
-	// 軌跡の終了
-	SAFE_UNINIT(m_pOrbit);
 
 	// リストから自身のオブジェクトを削除
 	m_pList->DeleteList(m_iterator);
@@ -279,11 +286,15 @@ void CPlayer::Update(void)
 		break;
 	}
 
+	for (int nCntOrbit = 0; nCntOrbit < player::NUM_ORBIT; nCntOrbit++)
+	{ // 軌跡の数分繰り返す
+
+		// 軌跡の更新
+		m_apOrbit[nCntOrbit]->Update();
+	}
+
 	// 影の更新
 	m_pShadow->Update();
-
-	// 軌跡の更新
-	m_pOrbit->Update();
 
 	// モーション・オブジェクトキャラクターの更新
 	UpdateMotion(curLowMotion, curUpMotion);
