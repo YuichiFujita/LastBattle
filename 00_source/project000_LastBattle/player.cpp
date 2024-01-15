@@ -168,6 +168,9 @@ HRESULT CPlayer::Init(void)
 	// モデル情報の設定
 	SetModelInfo();
 
+	// 上半身の親インデックスの設定
+	SetUpperParentID(L_MODEL_WAIST);
+
 	// 影の生成
 	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, SHADOW_SIZE, this);
 	if (m_pShadow == nullptr)
