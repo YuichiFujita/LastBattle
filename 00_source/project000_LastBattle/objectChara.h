@@ -48,7 +48,7 @@ public:
 	D3DXMATRIX *GetPtrMtxWorld(void) override;				// マトリックスポインタ取得
 
 	// 静的メンバ関数
-	static CObjectChara *Create(void);	// 生成
+	static CObjectChara *Create(const D3DXVECTOR3 &rPos, const D3DXVECTOR3 &rRot = VEC3_ZERO);	// 生成
 
 	// メンバ関数
 	void SetPartsInfo	// パーツ情報設定
@@ -82,6 +82,7 @@ public:
 	void SetAlpha(const float fAlpha);	// 透明度設定
 	float GetAlpha(void) const;			// 透明度取得
 	float GetMaxAlpha(void) const;		// 最大透明度取得
+	int GetNumModel(void) const;		// パーツ総数取得
 
 private:
 	// オーバーライド関数

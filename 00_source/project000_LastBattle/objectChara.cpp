@@ -199,7 +199,7 @@ D3DXMATRIX *CObjectChara::GetPtrMtxWorld(void)
 //============================================================
 //	生成処理
 //============================================================
-CObjectChara *CObjectChara::Create(void)
+CObjectChara *CObjectChara::Create(const D3DXVECTOR3 &rPos, const D3DXVECTOR3 &rRot)
 {
 	// オブジェクトキャラクターの生成
 	CObjectChara *pObjectChara = new CObjectChara;
@@ -219,6 +219,12 @@ CObjectChara *CObjectChara::Create(void)
 			SAFE_DELETE(pObjectChara);
 			return nullptr;
 		}
+
+		// 位置を設定
+		pObjectChara->SetVec3Position(rPos);
+
+		// 向きを設定
+		pObjectChara->SetVec3Rotation(rRot);
 
 		// 確保したアドレスを返す
 		return pObjectChara;
@@ -486,6 +492,15 @@ float CObjectChara::GetMaxAlpha(void) const
 
 	// 全パーツ内で最も不透明だったマテリアルの透明度を返す
 	return fAlpha;
+}
+
+//============================================================
+//	パーツ総数取得処理
+//============================================================
+int CObjectChara::GetNumModel(void) const
+{
+	// パーツの総数を返す
+	return m_nNumModel;
 }
 
 //============================================================
