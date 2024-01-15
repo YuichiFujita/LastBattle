@@ -62,6 +62,7 @@ public:
 	void SetModelInfo(void);						// モデル情報設定
 	void SetMotionInfo(CMotion::SMotionInfo info);	// モーション情報設定
 	void SetMotion(const int nType);				// モーション設定
+	void SetMtxWorld(const D3DXMATRIX &rMtxWorld);	// マトリックス設定
 	void SetEnableMotionUpdate(const bool bUpdate);	// 更新状況設定
 
 	void SetPartsPosition(const int nID, const D3DXVECTOR3& rPos);	// パーツ位置設定

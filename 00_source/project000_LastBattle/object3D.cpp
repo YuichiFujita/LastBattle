@@ -39,7 +39,7 @@ CObject3D::CObject3D(const CObject::ELabel label, const CObject::EDim dimension,
 	m_nTextureID	(0)					// テクスチャインデックス
 {
 	// メンバ変数をクリア
-	memset(&m_mtxWorld, 0, sizeof(m_mtxWorld));	// ワールドマトリックス
+	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 }
 
 //============================================================
@@ -59,7 +59,7 @@ HRESULT CObject3D::Init(void)
 	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// メンバ変数を初期化
-	memset(&m_mtxWorld, 0, sizeof(m_mtxWorld));	// ワールドマトリックス
+	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 	m_pVtxBuff		= nullptr;			// 頂点バッファへのポインタ
 	m_pRenderState	= nullptr;			// レンダーステートの情報
 	m_pPosGapBuff	= nullptr;			// 座標のずれバッファ

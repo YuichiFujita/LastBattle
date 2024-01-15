@@ -119,10 +119,8 @@ static_assert(NUM_ARRAY(SPAWN_MOTION) == CPlayer::BODY_MAX, "ERROR : Body Count 
 CPlayer::CPlayer() : CObject(CObject::LABEL_PLAYER, CObject::DIM_3D, PRIORITY),
 	m_pShadow		(nullptr),		// 影の情報
 	m_pOrbit		(nullptr),		// 軌跡の情報
-	m_pos			(VEC3_ZERO),	// 位置
 	m_oldPos		(VEC3_ZERO),	// 過去位置
 	m_move			(VEC3_ZERO),	// 移動量
-	m_rot			(VEC3_ZERO),	// 向き
 	m_destRot		(VEC3_ZERO),	// 目標向き
 	m_state			(STATE_NONE),	// 状態
 	m_bJump			(false),		// ジャンプ状況
@@ -149,10 +147,8 @@ HRESULT CPlayer::Init(void)
 	memset(&m_apBody[0], 0, sizeof(m_apBody));	// 身体の情報
 	m_pShadow		= nullptr;		// 影の情報
 	m_pOrbit		= nullptr;		// 軌跡の情報
-	m_pos			= VEC3_ZERO;	// 位置
 	m_oldPos		= VEC3_ZERO;	// 過去位置
 	m_move			= VEC3_ZERO;	// 移動量
-	m_rot			= VEC3_ZERO;	// 向き
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NONE;	// 状態
 	m_bJump			= true;			// ジャンプ状況
@@ -176,6 +172,9 @@ HRESULT CPlayer::Init(void)
 
 		// モデル情報の設定
 		m_apBody[i]->SetModelInfo();
+
+		// 自動描画をOFFにする
+		m_apBody[i]->SetEnableDraw(false);
 	}
 
 	// 影の生成
@@ -308,7 +307,47 @@ void CPlayer::Update(void)
 //============================================================
 void CPlayer::Draw(void)
 {
+	// 変数を宣言
+	D3DXVECTOR3 pos = GetVec3Position();	// 下半身の位置
+	D3DXVECTOR3 rot = GetVec3Rotation();	// 下半身の向き
+	D3DXMATRIX  mtxRot, mtxTrans, mtxWorld;	// 計算用マトリックス
 
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&mtxWorld);
+
+	// 向きを反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, rot.y, rot.x, rot.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxRot);
+
+	// 位置を反映
+	D3DXMatrixTranslation(&mtxTrans, pos.x, pos.y, pos.z);
+	D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxTrans);
+
+	// ワールドマトリックスの反映
+	m_apBody[BODY_LOWER]->SetMtxWorld(mtxWorld);
+
+	// ワールドマトリックスの設定
+	pDevice->SetTransform(D3DTS_WORLD, &mtxWorld);
+
+	for (int nCntParts = 0; nCntParts < MODEL_MAX[BODY_LOWER]; nCntParts++)
+	{ // パーツの総数分繰り返す
+
+		// パーツの描画
+		GetMultiModel(BODY_LOWER, nCntParts)->Draw();
+	}
+
+	// ワールドマトリックスの設定
+	pDevice->SetTransform(D3DTS_WORLD, GetMultiModel(BODY_LOWER, L_MODEL_WAIST)->GetPtrMtxWorld());
+
+	for (int nCntParts = 0; nCntParts < MODEL_MAX[BODY_UPPER]; nCntParts++)
+	{ // パーツの総数分繰り返す
+
+		// パーツの描画
+		GetMultiModel(BODY_UPPER, nCntParts)->Draw();
+	}
 }
 
 //============================================================
@@ -351,14 +390,7 @@ void CPlayer::Hit(void)
 void CPlayer::SetVec3Position(const D3DXVECTOR3 &rPos)
 {
 	// 引数の位置を設定
-	m_pos = rPos;
-
-	for (int i = 0; i < BODY_MAX; i++)
-	{ // 分割した身体の数分繰り返す
-
-		// 引数の位置を設定
-		m_apBody[i]->SetVec3Position(m_pos + (float)i * D3DXVECTOR3(0.0f, 50.0f, 0.0f));
-	}
+	m_apBody[BODY_LOWER]->SetVec3Position(rPos);
 }
 
 //============================================================
@@ -367,7 +399,7 @@ void CPlayer::SetVec3Position(const D3DXVECTOR3 &rPos)
 D3DXVECTOR3 CPlayer::GetVec3Position(void) const
 {
 	// 位置を返す
-	return m_pos;
+	return m_apBody[BODY_LOWER]->GetVec3Position();
 }
 
 //============================================================
@@ -376,17 +408,7 @@ D3DXVECTOR3 CPlayer::GetVec3Position(void) const
 void CPlayer::SetVec3Rotation(const D3DXVECTOR3 &rRot)
 {
 	// 引数の向きを設定
-	m_rot = rRot;
-
-	// 向きの正規化
-	useful::Vec3NormalizeRot(m_rot);
-
-	for (int i = 0; i < BODY_MAX; i++)
-	{ // 分割した身体の数分繰り返す
-
-		// 引数の向きを設定
-		m_apBody[i]->SetVec3Rotation(m_rot);
-	}
+	m_apBody[BODY_LOWER]->SetVec3Rotation(rRot);
 }
 
 //============================================================
@@ -395,7 +417,7 @@ void CPlayer::SetVec3Rotation(const D3DXVECTOR3 &rRot)
 D3DXVECTOR3 CPlayer::GetVec3Rotation(void) const
 {
 	// 向きを返す
-	return m_rot;
+	return m_apBody[BODY_LOWER]->GetVec3Rotation();
 }
 
 //============================================================

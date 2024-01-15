@@ -155,10 +155,8 @@ private:
 	CObjectChara *m_apBody[BODY_MAX];	// 身体の情報
 	CShadow	*m_pShadow;			// 影の情報
 	COrbit	*m_pOrbit;			// 軌跡の情報
-	D3DXVECTOR3	m_pos;			// 位置
 	D3DXVECTOR3	m_oldPos;		// 過去位置
 	D3DXVECTOR3	m_move;			// 移動量
-	D3DXVECTOR3	m_rot;			// 向き
 	D3DXVECTOR3	m_destRot;		// 目標向き
 	EState	m_state;			// 状態
 	int		m_nCounterState;	// 状態管理カウンター

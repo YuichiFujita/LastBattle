@@ -27,6 +27,7 @@ CObjectChara::CObjectChara(const CObject::ELabel label, const CObject::EDim dime
 {
 	// メンバ変数をクリア
 	memset(&m_apMultiModel[0], 0, sizeof(m_apMultiModel));	// モデルの情報
+	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 }
 
 //============================================================
@@ -44,6 +45,7 @@ HRESULT CObjectChara::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_apMultiModel[0], 0, sizeof(m_apMultiModel));	// モデルの情報
+	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 	m_pMotion	= nullptr;		// モーションの情報
 	m_pos		= VEC3_ZERO;	// 位置
 	m_rot		= VEC3_ZERO;	// 向き
@@ -288,6 +290,15 @@ void CObjectChara::SetMotion(const int nType)
 {
 	// モーションの設定
 	m_pMotion->Set(nType);
+}
+
+//============================================================
+//	マトリックスの設定処理
+//============================================================
+void CObjectChara::SetMtxWorld(const D3DXMATRIX &rMtxWorld)
+{
+	// 引数のマトリックスを設定
+	m_mtxWorld = rMtxWorld;
 }
 
 //============================================================
