@@ -59,8 +59,8 @@ public:
 	);
 
 	// メンバ関数
-	void SetMaterial(const D3DXMATERIAL& rMat, const int nID);	// マテリアル設定
-	D3DXMATERIAL GetMaterial(const int nID) const;		// マテリアル取得
+	void SetMaterial(const D3DXMATERIAL& rMat, const int nMatID);	// マテリアル設定
+	D3DXMATERIAL GetMaterial(const int nMatID) const;				// マテリアル取得
 	void SetAlpha(const float fAlpha);					// 透明度設定
 	float GetAlpha(void) const;							// 透明度取得
 	float GetMaxAlpha(void) const;						// 最大透明度取得

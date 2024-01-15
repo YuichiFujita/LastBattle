@@ -373,13 +373,13 @@ CObjectModel *CObjectModel::Create(const D3DXVECTOR3& rPos, const D3DXVECTOR3& r
 //============================================================
 //	マテリアル設定処理
 //============================================================
-void CObjectModel::SetMaterial(const D3DXMATERIAL& rMat, const int nID)
+void CObjectModel::SetMaterial(const D3DXMATERIAL& rMat, const int nMatID)
 {
-	if (nID > NONE_IDX && nID < (int)m_modelData.dwNumMat)
+	if (nMatID > NONE_IDX && nMatID < (int)m_modelData.dwNumMat)
 	{ // 引数インデックスがマテリアルの最大数を超えていない場合
 
 		// 引数インデックスのマテリアルを設定
-		m_pMat[nID] = rMat;
+		m_pMat[nMatID] = rMat;
 	}
 	else { assert(false); }	// 範囲外
 }
@@ -387,13 +387,13 @@ void CObjectModel::SetMaterial(const D3DXMATERIAL& rMat, const int nID)
 //============================================================
 //	マテリアル取得処理
 //============================================================
-D3DXMATERIAL CObjectModel::GetMaterial(const int nID) const
+D3DXMATERIAL CObjectModel::GetMaterial(const int nMatID) const
 {
-	if (nID > NONE_IDX && nID < (int)m_modelData.dwNumMat)
+	if (nMatID > NONE_IDX && nMatID < (int)m_modelData.dwNumMat)
 	{ // 引数インデックスがマテリアルの最大数を超えていない場合
 
 		// 引数インデックスのマテリアルを返す
-		return m_pMat[nID];
+		return m_pMat[nMatID];
 	}
 	else
 	{ // 引数インデックスがマテリアルの最大数を超えている場合

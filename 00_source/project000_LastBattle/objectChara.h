@@ -44,6 +44,7 @@ public:
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
 	void SetAllMaterial(const D3DXMATERIAL& rMat) override;	// マテリアル全設定
+	void ResetMaterial(void) override;						// マテリアル再設定
 	D3DXMATRIX GetMtxWorld(void) const override;			// マトリックス取得
 	D3DXMATRIX *GetPtrMtxWorld(void) override;				// マトリックスポインタ取得
 
@@ -59,30 +60,29 @@ public:
 		const D3DXVECTOR3& rRot,	// 向き
 		const char *pFileName		// ファイル名
 	);
+
 	void SetModelInfo(void);						// モデル情報設定
 	void SetMotionInfo(CMotion::SMotionInfo info);	// モーション情報設定
 	void SetMotion(const int nType);				// モーション設定
 	void SetMtxWorld(const D3DXMATRIX &rMtxWorld);	// マトリックス設定
 	void SetEnableMotionUpdate(const bool bUpdate);	// 更新状況設定
 
-	void SetPartsPosition(const int nID, const D3DXVECTOR3& rPos);	// パーツ位置設定
-	D3DXVECTOR3 GetPartsPosition(const int nID) const;				// パーツ位置取得
-	void SetPartsRotation(const int nID, const D3DXVECTOR3& rRot);	// パーツ向き設定
-	D3DXVECTOR3 GetPartsRotation(const int nID) const;				// パーツ向き取得
-	CMultiModel *GetMultiModel(const int nID) const;				// マルチモデル取得
+	void SetPartsPosition(const int nPartsID, const D3DXVECTOR3& rPos);	// パーツ位置設定
+	D3DXVECTOR3 GetPartsPosition(const int nPartsID) const;				// パーツ位置取得
+	void SetPartsRotation(const int nPartsID, const D3DXVECTOR3& rRot);	// パーツ向き設定
+	D3DXVECTOR3 GetPartsRotation(const int nPartsID) const;				// パーツ向き取得
+	CMultiModel *GetMultiModel(const int nPartsID) const;				// マルチモデル取得
 
-	int  GetMotionType(void) const;				// モーション種類取得
-	int  GetMotionPose(void) const;				// モーションポーズ番号取得
-	int  GetMotionCounter(void) const;			// モーションカウンター取得
-	bool IsMotionFinish(void) const;			// モーション終了取得
-	bool IsMotionLoop(const int nType) const;	// モーションループ取得
-
-	void SetMaterial(const D3DXMATERIAL& rMat, const int nParts, const int nID);	// マテリアル設定
-	void ResetMaterial(void);			// マテリアル再設定
+	void SetMaterial(const D3DXMATERIAL& rMat, const int nPartsID, const int nMatID);	// マテリアル設定
 	void SetAlpha(const float fAlpha);	// 透明度設定
 	float GetAlpha(void) const;			// 透明度取得
 	float GetMaxAlpha(void) const;		// 最大透明度取得
 	int GetNumModel(void) const;		// パーツ総数取得
+	int GetMotionType(void) const;		// モーション種類取得
+	int GetMotionPose(void) const;		// モーションポーズ番号取得
+	int GetMotionCounter(void) const;	// モーションカウンター取得
+	bool IsMotionFinish(void) const;	// モーション終了取得
+	bool IsMotionLoop(void) const;		// モーションループ取得
 
 private:
 	// オーバーライド関数

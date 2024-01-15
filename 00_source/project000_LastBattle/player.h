@@ -13,7 +13,7 @@
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "object.h"
+#include "objectDivChara.h"
 #include "scene.h"
 
 //************************************************************
@@ -28,17 +28,9 @@ class COrbit;		// 軌跡クラス
 //	クラス定義
 //************************************************************
 // プレイヤークラス
-class CPlayer : public CObject
+class CPlayer : public CObjectDivChara
 {
 public:
-	// 身体列挙
-	enum EBody
-	{
-		BODY_LOWER = 0,	// 下半身
-		BODY_UPPER,		// 上半身
-		BODY_MAX		// この列挙型の総数
-	};
-
 	// 下半身モデル列挙
 	enum ELowerModel
 	{
@@ -103,14 +95,9 @@ public:
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
 	void Hit(void) override;		// ヒット
-	void SetVec3Position(const D3DXVECTOR3 &rPos) override;	// 位置設定
-	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
-	void SetVec3Rotation(const D3DXVECTOR3 &rRot) override;	// 向き設定
-	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
-	void SetAllMaterial(const D3DXMATERIAL &rMat) override;	// マテリアル全設定
 
 	void SetState(const int nState) override;	// 状態設定
-	int GetState(void) const override;			// 状態取得
+	int  GetState(void) const override;			// 状態取得
 	float GetRadius(void) const override;		// 半径取得
 	float GetHeight(void) const override;		// 縦幅取得
 
@@ -123,13 +110,9 @@ public:
 	static CListManager<CPlayer> *GetList(void);	// リスト取得
 
 	// メンバ関数
-	CMultiModel *GetMultiModel(const EBody bodyID, const int nModelID) const;	// マルチモデル取得
 	void SetSpawn(void);	// 出現設定
 
 private:
-	// オーバーライド関数
-	void Release(void) override;	// 破棄
-
 	// メンバ関数
 	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
@@ -152,7 +135,6 @@ private:
 
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
-	CObjectChara *m_apBody[BODY_MAX];	// 身体の情報
 	CShadow	*m_pShadow;			// 影の情報
 	COrbit	*m_pOrbit;			// 軌跡の情報
 	D3DXVECTOR3	m_oldPos;		// 過去位置

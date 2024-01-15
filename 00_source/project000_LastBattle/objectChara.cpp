@@ -179,6 +179,19 @@ void CObjectChara::SetAllMaterial(const D3DXMATERIAL& rMat)
 }
 
 //============================================================
+//	マテリアルの再設定処理
+//============================================================
+void CObjectChara::ResetMaterial(void)
+{
+	for (int nCntObjectChara = 0; nCntObjectChara < m_nNumModel; nCntObjectChara++)
+	{ // パーツの総数分繰り返す
+
+		// 全マテリアルに初期マテリアルを再設定
+		m_apMultiModel[nCntObjectChara]->ResetMaterial();
+	}
+}
+
+//============================================================
 //	マトリックス取得処理
 //============================================================
 D3DXMATRIX CObjectChara::GetMtxWorld(void) const
@@ -319,51 +332,162 @@ void CObjectChara::SetEnableMotionUpdate(const bool bUpdate)
 //============================================================
 //	パーツ位置の設定処理
 //============================================================
-void CObjectChara::SetPartsPosition(const int nID, const D3DXVECTOR3& rPos)
+void CObjectChara::SetPartsPosition(const int nPartsID, const D3DXVECTOR3& rPos)
 {
-	// 引数のインデックスの位置を設定
-	m_apMultiModel[nID]->SetVec3Position(rPos);
+	if (nPartsID < m_nNumModel)
+	{ // 使用可能なインデックスの場合
+
+		// 引数のインデックスの位置を設定
+		m_apMultiModel[nPartsID]->SetVec3Position(rPos);
+	}
+	else { assert(false); }
 }
 
 //============================================================
 //	パーツ位置取得処理
 //============================================================
-D3DXVECTOR3 CObjectChara::GetPartsPosition(const int nID) const
+D3DXVECTOR3 CObjectChara::GetPartsPosition(const int nPartsID) const
 {
-	// 引数インデックスのパーツの位置を返す
-	return m_apMultiModel[nID]->GetVec3Position();
+	if (nPartsID < m_nNumModel)
+	{ // 使用可能なインデックスの場合
+
+		// 引数インデックスのパーツの位置を返す
+		return m_apMultiModel[nPartsID]->GetVec3Position();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return VEC3_ZERO;
 }
 
 //============================================================
 //	パーツ向きの設定処理
 //============================================================
-void CObjectChara::SetPartsRotation(const int nID, const D3DXVECTOR3& rRot)
+void CObjectChara::SetPartsRotation(const int nPartsID, const D3DXVECTOR3& rRot)
 {
-	// 引数のインデックスの向きを設定
-	m_apMultiModel[nID]->SetVec3Rotation(rRot);
+	if (nPartsID < m_nNumModel)
+	{ // 使用可能なインデックスの場合
+
+		// 引数のインデックスの向きを設定
+		m_apMultiModel[nPartsID]->SetVec3Rotation(rRot);
+	}
+	else { assert(false); }
 }
 
 //============================================================
 //	パーツ向き取得処理
 //============================================================
-D3DXVECTOR3 CObjectChara::GetPartsRotation(const int nID) const
+D3DXVECTOR3 CObjectChara::GetPartsRotation(const int nPartsID) const
 {
-	// 引数インデックスのパーツの向きを返す
-	return m_apMultiModel[nID]->GetVec3Rotation();
+	if (nPartsID < m_nNumModel)
+	{ // 使用可能なインデックスの場合
+
+		// 引数インデックスのパーツの向きを返す
+		return m_apMultiModel[nPartsID]->GetVec3Rotation();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return VEC3_ZERO;
 }
 
 //============================================================
 //	マルチモデル取得処理
 //============================================================
-CMultiModel *CObjectChara::GetMultiModel(const int nID) const
+CMultiModel *CObjectChara::GetMultiModel(const int nPartsID) const
 {
-	if (nID < m_nNumModel)
+	if (nPartsID < m_nNumModel)
 	{ // 使用可能なインデックスの場合
 
 		// マルチモデルの情報を返す
-		return m_apMultiModel[nID];
+		return m_apMultiModel[nPartsID];
 	}
 	else { assert(false); return m_apMultiModel[0]; }
+}
+
+//============================================================
+//	マテリアルの設定処理
+//============================================================
+void CObjectChara::SetMaterial(const D3DXMATERIAL& rMat, const int nPartsID, const int nMatID)
+{
+	if (nPartsID < m_nNumModel)
+	{ // 使用可能なインデックスの場合
+
+		// 引数のマテリアルを設定
+		m_apMultiModel[nPartsID]->SetMaterial(rMat, nMatID);
+	}
+	else { assert(false); }
+}
+
+//============================================================
+//	透明度の設定処理
+//============================================================
+void CObjectChara::SetAlpha(const float fAlpha)
+{
+	for (int nCntParts = 0; nCntParts < m_nNumModel; nCntParts++)
+	{ // パーツの最大数分繰り返す
+
+		// 引数の透明度を設定
+		m_apMultiModel[nCntParts]->SetAlpha(fAlpha);
+	}
+}
+
+//============================================================
+//	透明度取得処理
+//============================================================
+float CObjectChara::GetAlpha(void) const
+{
+	// 変数を宣言
+	float fAlpha = 0.0f;	// 最も不透明なマテリアルの透明度
+
+	// 最も不透明な透明度を探す
+	for (int nCntParts = 0; nCntParts < m_nNumModel; nCntParts++)
+	{ // パーツの最大数分繰り返す
+
+		float fCurAlpha = m_apMultiModel[nCntParts]->GetAlpha();	// 現在のモデルの透明度
+		if (fCurAlpha > fAlpha)
+		{ // マテリアルの透明度がより不透明だった場合
+
+			// 現在のマテリアルの透明度を保存
+			fAlpha = fCurAlpha;
+		}
+	}
+
+	// 全パーツ内で最も不透明だったマテリアルの透明度を返す
+	return fAlpha;
+}
+
+//============================================================
+//	最大透明度取得処理
+//============================================================
+float CObjectChara::GetMaxAlpha(void) const
+{
+	// 変数を宣言
+	float fAlpha = 0.0f;	// 最も不透明なマテリアルの透明度
+
+	// 最も不透明な透明度を探す
+	for (int nCntParts = 0; nCntParts < m_nNumModel; nCntParts++)
+	{ // パーツの最大数分繰り返す
+
+		if (m_apMultiModel[nCntParts]->GetMaxAlpha() > fAlpha)
+		{ // マテリアルの透明度がより不透明だった場合
+
+			// 現在のマテリアルの透明度を保存
+			fAlpha = m_apMultiModel[nCntParts]->GetMaxAlpha();
+		}
+	}
+
+	// 全パーツ内で最も不透明だったマテリアルの透明度を返す
+	return fAlpha;
+}
+
+//============================================================
+//	パーツ総数取得処理
+//============================================================
+int CObjectChara::GetNumModel(void) const
+{
+	// パーツの総数を返す
+	return m_nNumModel;
 }
 
 //============================================================
@@ -405,102 +529,10 @@ bool CObjectChara::IsMotionFinish(void) const
 //============================================================
 //	モーションループ取得処理
 //============================================================
-bool CObjectChara::IsMotionLoop(const int nType) const
+bool CObjectChara::IsMotionLoop(void) const
 {
 	// 引数の種類のモーションループ状況を返す
-	return m_pMotion->IsLoop(nType);
-}
-
-//============================================================
-//	マテリアルの設定処理
-//============================================================
-void CObjectChara::SetMaterial(const D3DXMATERIAL& rMat, const int nParts, const int nID)
-{
-	// 引数のマテリアルを設定
-	m_apMultiModel[nParts]->SetMaterial(rMat, nID);
-}
-
-//============================================================
-//	マテリアルの再設定処理
-//============================================================
-void CObjectChara::ResetMaterial(void)
-{
-	for (int nCntObjectChara = 0; nCntObjectChara < m_nNumModel; nCntObjectChara++)
-	{ // パーツの総数分繰り返す
-
-		// 全マテリアルに初期マテリアルを再設定
-		m_apMultiModel[nCntObjectChara]->ResetMaterial();
-	}
-}
-
-//============================================================
-//	透明度の設定処理
-//============================================================
-void CObjectChara::SetAlpha(const float fAlpha)
-{
-	for (int nCntParts = 0; nCntParts < m_nNumModel; nCntParts++)
-	{ // パーツの最大数分繰り返す
-
-		// 引数の透明度を設定
-		m_apMultiModel[nCntParts]->SetAlpha(fAlpha);
-	}
-}
-
-//============================================================
-//	透明度取得処理
-//============================================================
-float CObjectChara::GetAlpha(void) const
-{
-	// 変数を宣言
-	float fAlpha = 0.0f;	// 最も不透明なマテリアルの透明度
-
-	// 最も不透明な透明度を探す
-	for (int nCntParts = 0; nCntParts < m_nNumModel; nCntParts++)
-	{ // パーツの最大数分繰り返す
-
-		if (m_apMultiModel[nCntParts]->GetAlpha() > fAlpha)
-		{ // マテリアルの透明度がより不透明だった場合
-
-			// 現在のマテリアルの透明度を保存
-			fAlpha = m_apMultiModel[nCntParts]->GetAlpha();
-		}
-	}
-
-	// 全パーツ内で最も不透明だったマテリアルの透明度を返す
-	return fAlpha;
-}
-
-//============================================================
-//	最大透明度取得処理
-//============================================================
-float CObjectChara::GetMaxAlpha(void) const
-{
-	// 変数を宣言
-	float fAlpha = 0.0f;	// 最も不透明なマテリアルの透明度
-
-	// 最も不透明な透明度を探す
-	for (int nCntParts = 0; nCntParts < m_nNumModel; nCntParts++)
-	{ // パーツの最大数分繰り返す
-
-		if (m_apMultiModel[nCntParts]->GetMaxAlpha() > fAlpha)
-		{ // マテリアルの透明度がより不透明だった場合
-
-			// 現在のマテリアルの透明度を保存
-			fAlpha = m_apMultiModel[nCntParts]->GetMaxAlpha();
-		}
-	}
-
-	// 全パーツ内で最も不透明だったマテリアルの透明度を返す
-	return fAlpha;
-}
-
-//============================================================
-//	パーツ総数取得処理
-//============================================================
-int CObjectChara::GetNumModel(void) const
-{
-	// パーツの総数を返す
-	return m_nNumModel;
+	return m_pMotion->IsLoop(m_pMotion->GetType());
 }
 
 //============================================================

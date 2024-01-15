@@ -123,11 +123,11 @@ void CObjectDivChara::Draw(void)
 	// 下半身のワールドマトリックスの反映
 	m_apBody[BODY_LOWER]->SetMtxWorld(mtxWorld);
 
-	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &mtxWorld);
-
 	for (int nCntChara = 0; nCntChara < BODY_MAX; nCntChara++)
 	{ // 分割した身体の数分繰り返す
+
+		// ワールドマトリックスの設定
+		pDevice->SetTransform(D3DTS_WORLD, apMtxWorld[nCntChara]);
 
 		for (int nCntParts = 0; nCntParts < m_apBody[nCntChara]->GetNumModel(); nCntParts++)
 		{ // パーツの総数分繰り返す
@@ -184,6 +184,19 @@ void CObjectDivChara::SetAllMaterial(const D3DXMATERIAL &rMat)
 
 		// 引数のマテリアルを全マテリアルに設定
 		m_apBody[i]->SetAllMaterial(rMat);
+	}
+}
+
+//============================================================
+//	マテリアル再設定処理
+//============================================================
+void CObjectDivChara::ResetMaterial(void)
+{
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// 全マテリアルに初期マテリアルを再設定
+		m_apBody[i]->ResetMaterial();
 	}
 }
 
@@ -258,6 +271,319 @@ CObjectDivChara *CObjectDivChara::Create
 		// 確保したアドレスを返す
 		return pObjectDivChara;
 	}
+}
+
+//============================================================
+//	パーツ情報の設定処理
+//============================================================
+void CObjectDivChara::SetPartsInfo
+(
+	const EBody bodyID,			// 身体インデックス
+	const int nID,				// パーツインデックス
+	const int nParentID,		// 親インデックス
+	const D3DXVECTOR3 &rPos,	// 位置
+	const D3DXVECTOR3 &rRot,	// 向き
+	const char *pFileName		// ファイル名
+)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのパーツ情報を設定
+		m_apBody[bodyID]->SetPartsInfo
+		( // 引数
+			nID,		// パーツインデックス
+			nParentID,	// 親インデックス
+			rPos,		// 位置
+			rRot,		// 向き
+			pFileName	// ファイル名
+		);
+	}
+	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
+//	マテリアルの設定処理
+//============================================================
+void CObjectDivChara::SetMaterial
+(
+	const D3DXMATERIAL &rMat,	// 設定マテリアル
+	const EBody bodyID,			// 身体インデックス
+	const int nPartsID,			// パーツインデックス
+	const int nMatID			// マテリアルインデックス
+)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのマテリアルを設定
+		m_apBody[bodyID]->SetMaterial(rMat, nPartsID, nMatID);
+	}
+	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
+//	モデル情報の設定処理
+//============================================================
+void CObjectDivChara::SetModelInfo(void)
+{
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// モデル情報の設定
+		m_apBody[i]->SetModelInfo();
+	}
+}
+
+//============================================================
+//	モーションの更新状況の設定処理
+//============================================================
+void CObjectDivChara::SetEnableMotionUpdate(const bool bUpdate)
+{
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// モーションの更新状況を設定
+		m_apBody[i]->SetEnableMotionUpdate(bUpdate);
+	}
+}
+
+//============================================================
+//	モーション情報の設定処理
+//============================================================
+void CObjectDivChara::SetMotionInfo(const EBody bodyID, CMotion::SMotionInfo info)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーション情報を設定
+		m_apBody[bodyID]->SetMotionInfo(info);
+	}
+	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
+//	モーションの設定処理
+//============================================================
+void CObjectDivChara::SetMotion(const EBody bodyID, const int nType)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションを設定
+		m_apBody[bodyID]->SetMotion(nType);
+	}
+	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
+//	モーション種類取得処理
+//============================================================
+int CObjectDivChara::GetMotionType(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーション種類を返す
+		return m_apBody[bodyID]->GetMotionType();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return NONE_IDX;
+}
+
+//============================================================
+//	モーションポーズ番号取得処理
+//============================================================
+int CObjectDivChara::GetMotionPose(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションポーズ番号を返す
+		return m_apBody[bodyID]->GetMotionPose();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return NONE_IDX;
+}
+
+//============================================================
+//	モーションカウンター取得処理
+//============================================================
+int CObjectDivChara::GetMotionCounter(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションカウンターを返す
+		return m_apBody[bodyID]->GetMotionCounter();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return NONE_IDX;
+}
+
+//============================================================
+//	モーション終了状況の取得処理
+//============================================================
+bool CObjectDivChara::IsMotionFinish(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーション終了を返す
+		return m_apBody[bodyID]->IsMotionFinish();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return false;
+}
+
+//============================================================
+//	モーションループ状況の取得処理
+//============================================================
+bool CObjectDivChara::IsMotionLoop(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションループを返す
+		return m_apBody[bodyID]->IsMotionLoop();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return false;
+}
+
+//============================================================
+//	パーツ位置の設定処理
+//============================================================
+void CObjectDivChara::SetPartsPosition(const EBody bodyID, const int nPartsID, const D3DXVECTOR3 &rPos)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのパーツ位置を設定
+		m_apBody[bodyID]->SetPartsPosition(nPartsID, rPos);
+	}
+	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
+//	パーツ位置取得処理
+//============================================================
+D3DXVECTOR3 CObjectDivChara::GetPartsPosition(const EBody bodyID, const int nPartsID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのパーツ位置を返す
+		return m_apBody[bodyID]->GetPartsPosition(nPartsID);
+	}
+
+	// インデックスエラー
+	assert(false);
+	return VEC3_ZERO;
+}
+
+//============================================================
+//	パーツ向きの設定処理
+//============================================================
+void CObjectDivChara::SetPartsRotation(const EBody bodyID, const int nPartsID, const D3DXVECTOR3 &rRot)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのパーツ向きを設定
+		m_apBody[bodyID]->SetPartsRotation(nPartsID, rRot);
+	}
+	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
+//	パーツ向き取得処理
+//============================================================
+D3DXVECTOR3 CObjectDivChara::GetPartsRotation(const EBody bodyID, const int nPartsID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのパーツ向きを返す
+		return m_apBody[bodyID]->GetPartsRotation(nPartsID);
+	}
+
+	// インデックスエラー
+	assert(false);
+	return VEC3_ZERO;
+}
+
+//============================================================
+//	透明度の設定処理
+//============================================================
+void CObjectDivChara::SetAlpha(const float fAlpha)
+{
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// 透明度の設定
+		m_apBody[i]->SetAlpha(fAlpha);
+	}
+}
+
+//============================================================
+//	透明度の取得処理
+//============================================================
+float CObjectDivChara::GetAlpha(void) const
+{
+	// 変数を宣言
+	float fAlpha = 0.0f;	// 最も不透明なマテリアルの透明度
+
+	// 最も不透明な透明度を探す
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		float fCurAlpha = m_apBody[i]->GetAlpha();	// 現在のモデルの透明度
+		if (fCurAlpha > fAlpha)
+		{ // マテリアルの透明度がより不透明だった場合
+
+			// 現在のキャラクターの透明度を保存
+			fAlpha = fCurAlpha;
+		}
+	}
+
+	// 全キャラクター内で最も不透明だったマテリアルの透明度を返す
+	return fAlpha;
+}
+
+//============================================================
+//	最大透明度の取得処理
+//============================================================
+float CObjectDivChara::GetMaxAlpha(void) const
+{
+	// 変数を宣言
+	float fAlpha = 0.0f;	// 最も不透明なマテリアルの透明度
+
+	// 最も不透明な透明度を探す
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		float fCurAlpha = m_apBody[i]->GetMaxAlpha();	// 現在のモデルの透明度
+		if (fCurAlpha > fAlpha)
+		{ // マテリアルの透明度がより不透明だった場合
+
+			// 現在のキャラクターの透明度を保存
+			fAlpha = fCurAlpha;
+		}
+	}
+
+	// 全キャラクター内で最も不透明だったマテリアルの透明度を返す
+	return fAlpha;
 }
 
 //============================================================

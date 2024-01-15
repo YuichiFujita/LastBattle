@@ -14,6 +14,7 @@
 //	インクルードファイル
 //************************************************************
 #include "object.h"
+#include "motion.h"
 
 //************************************************************
 //	前方宣言
@@ -52,6 +53,7 @@ public:
 	void SetVec3Rotation(const D3DXVECTOR3 &rRot) override;	// 向き設定
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
 	void SetAllMaterial(const D3DXMATERIAL &rMat) override;	// マテリアル全設定
+	void ResetMaterial(void) override;						// マテリアル再設定
 	void SetEnableUpdate(const bool bUpdate) override;		// 更新状況設定
 	void SetEnableDraw(const bool bDraw) override;			// 描画状況設定
 
@@ -64,6 +66,42 @@ public:
 	);
 
 	// メンバ関数
+	void SetPartsInfo	// パーツ情報設定
+	( // 引数
+		const EBody bodyID,			// 身体インデックス
+		const int nID,				// パーツインデックス
+		const int nParentID,		// 親インデックス
+		const D3DXVECTOR3 &rPos,	// 位置
+		const D3DXVECTOR3 &rRot,	// 向き
+		const char *pFileName		// ファイル名
+	);
+	void SetMaterial	// マテリアル設定
+	( // 引数
+		const D3DXMATERIAL &rMat,	// 設定マテリアル
+		const EBody bodyID,			// 身体インデックス
+		const int nPartsID,			// パーツインデックス
+		const int nMatID			// マテリアルインデックス
+	);
+
+	void SetModelInfo(void);	// モデル情報設定
+	void SetEnableMotionUpdate(const bool bUpdate);	// 更新状況設定
+	void SetMotionInfo(const EBody bodyID, CMotion::SMotionInfo info);	// モーション情報設定
+	void SetMotion(const EBody bodyID, const int nType);				// モーション設定
+
+	int  GetMotionType(const EBody bodyID) const;		// モーション種類取得
+	int  GetMotionPose(const EBody bodyID) const;		// モーションポーズ番号取得
+	int  GetMotionCounter(const EBody bodyID) const;	// モーションカウンター取得
+	bool IsMotionFinish(const EBody bodyID) const;		// モーション終了取得
+	bool IsMotionLoop(const EBody bodyID) const;		// モーションループ取得
+
+	void SetPartsPosition(const EBody bodyID, const int nPartsID, const D3DXVECTOR3 &rPos);	// パーツ位置設定
+	D3DXVECTOR3 GetPartsPosition(const EBody bodyID, const int nPartsID) const;				// パーツ位置取得
+	void SetPartsRotation(const EBody bodyID, const int nPartsID, const D3DXVECTOR3 &rRot);	// パーツ向き設定
+	D3DXVECTOR3 GetPartsRotation(const EBody bodyID, const int nPartsID) const;				// パーツ向き取得
+
+	void SetAlpha(const float fAlpha);	// 透明度設定
+	float GetAlpha(void) const;			// 透明度取得
+	float GetMaxAlpha(void) const;		// 最大透明度取得
 	void SetUpperParentID(const int nUpperParentID);		// 上半身の親インデックス設定
 	CObjectChara *GetObjectChara(const EBody bodyID) const;	// オブジェクトキャラクター取得
 	CMultiModel *GetMultiModel(const EBody bodyID, const int nModelID) const;	// マルチモデル取得
