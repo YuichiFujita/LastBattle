@@ -58,9 +58,9 @@ namespace
 		const D3DXVECTOR3 REV_POSV = D3DXVECTOR3(0.4f, 0.45f, 0.4f);	// カメラ視点の補正係数
 		const D3DXVECTOR3 REV_POSR = D3DXVECTOR3(1.0f, 0.35f, 1.0f);	// カメラ注視点の補正係数
 
-		const float	STICK_REV	= 0.000002f;	// カメラ操作スティックの傾き量の補正係数
+		const float	STICK_REV	= 0.00000225f;	// カメラ操作スティックの傾き量の補正係数
 
-		const float	ROTX_REV	= 0.6f;		// カメラピッチ回転の補正係数
+		const float	ROTX_REV	= 0.5f;		// カメラピッチ回転の補正係数
 		const float REV_ROT		= 1.0f;		// カメラ向きの補正係数
 		const float INIT_DIS	= 400.0f;	// 追従カメラの距離
 		const float INIT_ROTX	= 1.8f;		// 追従カメラの向きX初期値
