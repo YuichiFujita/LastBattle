@@ -72,6 +72,7 @@ public:
 	enum ELowerMotion
 	{
 		L_MOTION_IDOL = 0,	// 待機モーション
+		L_MOTION_MOVE,		// 歩行モーション
 		L_MOTION_MAX		// この列挙型の総数
 	};
 
