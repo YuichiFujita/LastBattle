@@ -18,13 +18,10 @@
 #include "collision.h"
 #include "fade.h"
 
+#include "objectChara.h"
 #include "multiModel.h"
 #include "orbit.h"
 #include "shadow.h"
-#include "orbit.h"
-#include "object2D.h"
-#include "timerManager.h"
-#include "rankingManager.h"
 #include "stage.h"
 #include "field.h"
 
@@ -36,9 +33,18 @@
 //************************************************************
 namespace
 {
-	const char *MODEL_FILE[] =	// モデルファイル
+	const char *LOWER_MODEL_FILE[] =	// 下半身モデルファイル
 	{
 		"data\\MODEL\\PLAYER\\00_waist.x",	// 腰
+		"data\\MODEL\\PLAYER\\09_legUL.x",	// 左太もも
+		"data\\MODEL\\PLAYER\\10_legUR.x",	// 右太もも
+		"data\\MODEL\\PLAYER\\11_legDL.x",	// 左脛
+		"data\\MODEL\\PLAYER\\12_legDR.x",	// 右脛
+		"data\\MODEL\\PLAYER\\13_footL.x",	// 左足
+		"data\\MODEL\\PLAYER\\14_footR.x",	// 右足
+	};
+	const char *UPPER_MODEL_FILE[] =	// 上半身モデルファイル
+	{
 		"data\\MODEL\\PLAYER\\01_body.x",	// 体
 		"data\\MODEL\\PLAYER\\02_head.x",	// 頭
 		"data\\MODEL\\PLAYER\\03_armUL.x",	// 左上腕
@@ -47,17 +53,30 @@ namespace
 		"data\\MODEL\\PLAYER\\06_armDR.x",	// 右下腕
 		"data\\MODEL\\PLAYER\\07_handL.x",	// 左手
 		"data\\MODEL\\PLAYER\\08_handR.x",	// 右手
-		"data\\MODEL\\PLAYER\\09_legUL.x",	// 左太もも
-		"data\\MODEL\\PLAYER\\10_legUR.x",	// 右太もも
-		"data\\MODEL\\PLAYER\\11_legDL.x",	// 左脛
-		"data\\MODEL\\PLAYER\\12_legDR.x",	// 右脛
-		"data\\MODEL\\PLAYER\\13_footL.x",	// 左足
-		"data\\MODEL\\PLAYER\\14_footR.x",	// 右足
 		"data\\MODEL\\PLAYER\\15_sword.x",	// 左剣
 		"data\\MODEL\\PLAYER\\15_sword.x",	// 右剣
 	};
 
-	const char *SETUP_TXT = "data\\TXT\\player.txt";	// セットアップテキスト相対パス
+	const char *SETUP_TXT[] =	// セットアップテキスト相対パス
+	{
+		"data\\TXT\\playerMotionLower.txt",	// 下半身
+		"data\\TXT\\playerMotionUpper.txt",	// 上半身
+	};
+	const char **MODEL_PASS[] =	// モデル最大数
+	{
+		&LOWER_MODEL_FILE[0],	// 下半身
+		&UPPER_MODEL_FILE[0],	// 上半身
+	};
+	const int MODEL_MAX[] =	// モデル最大数
+	{
+		CPlayer::L_MODEL_MAX,	// 下半身
+		CPlayer::U_MODEL_MAX,	// 上半身
+	};
+	const int SPAWN_MOTION[] =	// スポーンモーション
+	{
+		CPlayer::L_MOTION_IDOL,	// 下半身
+		CPlayer::U_MOTION_IDOL,	// 上半身
+	};
 
 	const int	PRIORITY	= 3;		// プレイヤーの優先順位
 	const float	JUMP		= 18.0f;	// ジャンプ上昇量
@@ -85,7 +104,11 @@ CListManager<CPlayer> *CPlayer::m_pList = nullptr;	// オブジェクトリスト
 //************************************************************
 //	スタティックアサート
 //************************************************************
-static_assert(NUM_ARRAY(MODEL_FILE) == CPlayer::MODEL_MAX, "ERROR : Model Count Mismatch");
+static_assert(NUM_ARRAY(LOWER_MODEL_FILE) == CPlayer::L_MODEL_MAX, "ERROR : Model Count Mismatch");
+static_assert(NUM_ARRAY(UPPER_MODEL_FILE) == CPlayer::U_MODEL_MAX, "ERROR : Model Count Mismatch");
+
+static_assert(NUM_ARRAY(SETUP_TXT)    == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
+static_assert(NUM_ARRAY(SPAWN_MOTION) == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
 
 //************************************************************
 //	子クラス [CPlayer] のメンバ関数
@@ -93,17 +116,20 @@ static_assert(NUM_ARRAY(MODEL_FILE) == CPlayer::MODEL_MAX, "ERROR : Model Count 
 //============================================================
 //	コンストラクタ
 //============================================================
-CPlayer::CPlayer() : CObjectChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRIORITY),
+CPlayer::CPlayer() : CObject(CObject::LABEL_PLAYER, CObject::DIM_3D, PRIORITY),
 	m_pShadow		(nullptr),		// 影の情報
 	m_pOrbit		(nullptr),		// 軌跡の情報
+	m_pos			(VEC3_ZERO),	// 位置
 	m_oldPos		(VEC3_ZERO),	// 過去位置
 	m_move			(VEC3_ZERO),	// 移動量
+	m_rot			(VEC3_ZERO),	// 向き
 	m_destRot		(VEC3_ZERO),	// 目標向き
 	m_state			(STATE_NONE),	// 状態
 	m_bJump			(false),		// ジャンプ状況
 	m_nCounterState	(0)				// 状態管理カウンター
 {
-
+	// メンバ変数をクリア
+	memset(&m_apBody[0], 0, sizeof(m_apBody));	// 身体の情報
 }
 
 //============================================================
@@ -120,29 +146,37 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
+	memset(&m_apBody[0], 0, sizeof(m_apBody));	// 身体の情報
 	m_pShadow		= nullptr;		// 影の情報
 	m_pOrbit		= nullptr;		// 軌跡の情報
+	m_pos			= VEC3_ZERO;	// 位置
 	m_oldPos		= VEC3_ZERO;	// 過去位置
 	m_move			= VEC3_ZERO;	// 移動量
+	m_rot			= VEC3_ZERO;	// 向き
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NONE;	// 状態
 	m_bJump			= true;			// ジャンプ状況
 	m_nCounterState	= 0;			// 状態管理カウンター
 
-	// オブジェクトキャラクターの初期化
-	if (FAILED(CObjectChara::Init()))
-	{ // 初期化に失敗した場合
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
 
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
+		// オブジェクトキャラクターの生成
+		m_apBody[i] = CObjectChara::Create();
+		if (m_apBody[i] == nullptr)
+		{ // 生成に失敗した場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+
+		// セットアップの読込
+		LoadSetup((EBody)i, MODEL_PASS[i]);
+
+		// モデル情報の設定
+		m_apBody[i]->SetModelInfo();
 	}
-
-	// セットアップの読み込み
-	LoadSetup();
-
-	// モデル情報の設定
-	SetModelInfo();
 
 	// 影の生成
 	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, SHADOW_SIZE, this);
@@ -157,7 +191,7 @@ HRESULT CPlayer::Init(void)
 	// 軌跡の生成
 	m_pOrbit = COrbit::Create
 	( // 引数
-		GetMultiModel(MODEL_BODY)->GetPtrMtxWorld(),	// 親マトリックス
+		GetMultiModel(BODY_UPPER, U_MODEL_BODY)->GetPtrMtxWorld(),	// 親マトリックス
 		ORBIT_OFFSET,	// オフセット情報
 		ORBIT_PART		// 分割数
 	);
@@ -195,6 +229,13 @@ HRESULT CPlayer::Init(void)
 //============================================================
 void CPlayer::Uninit(void)
 {
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// オブジェクトキャラクターの終了
+		m_apBody[i]->Uninit();
+	}
+
 	// 影の終了
 	m_pShadow->DeleteObjectParent();	// 親オブジェクトを削除
 	SAFE_UNINIT(m_pShadow);
@@ -212,8 +253,8 @@ void CPlayer::Uninit(void)
 		m_pList->Release(m_pList);
 	}
 
-	// オブジェクトキャラクターの終了
-	CObjectChara::Uninit();
+	// プレイヤーを破棄
+	Release();
 }
 
 //============================================================
@@ -222,7 +263,8 @@ void CPlayer::Uninit(void)
 void CPlayer::Update(void)
 {
 	// 変数を宣言
-	EMotion currentMotion = MOTION_IDOL;	// 現在のモーション
+	ELowerMotion curLowMotion = L_MOTION_IDOL;	// 現在の下半身モーション
+	EUpperMotion curUpMotion  = U_MOTION_IDOL;	// 現在の上半身モーション
 
 	// 過去位置の更新
 	UpdateOldPosition();
@@ -235,14 +277,14 @@ void CPlayer::Update(void)
 	case STATE_SPAWN:
 
 		// スポーン状態時の更新
-		currentMotion = UpdateSpawn();
+		UpdateSpawn((int*)&curLowMotion, (int*)&curUpMotion);
 
 		break;
 
 	case STATE_NORMAL:
 
 		// 通常状態の更新
-		currentMotion = UpdateNormal();
+		UpdateNormal((int*)&curLowMotion, (int*)&curUpMotion);
 
 		break;
 
@@ -258,7 +300,7 @@ void CPlayer::Update(void)
 	m_pOrbit->Update();
 
 	// モーション・オブジェクトキャラクターの更新
-	UpdateMotion(currentMotion);
+	UpdateMotion(curLowMotion, curUpMotion);
 }
 
 //============================================================
@@ -266,8 +308,7 @@ void CPlayer::Update(void)
 //============================================================
 void CPlayer::Draw(void)
 {
-	// オブジェクトキャラクターの描画
-	CObjectChara::Draw();
+
 }
 
 //============================================================
@@ -302,6 +343,72 @@ void CPlayer::Hit(void)
 	}
 
 #endif
+}
+
+//============================================================
+//	位置の設定処理
+//============================================================
+void CPlayer::SetVec3Position(const D3DXVECTOR3 &rPos)
+{
+	// 引数の位置を設定
+	m_pos = rPos;
+
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// 引数の位置を設定
+		m_apBody[i]->SetVec3Position(m_pos + (float)i * D3DXVECTOR3(0.0f, 50.0f, 0.0f));
+	}
+}
+
+//============================================================
+//	位置取得処理
+//============================================================
+D3DXVECTOR3 CPlayer::GetVec3Position(void) const
+{
+	// 位置を返す
+	return m_pos;
+}
+
+//============================================================
+//	向きの設定処理
+//============================================================
+void CPlayer::SetVec3Rotation(const D3DXVECTOR3 &rRot)
+{
+	// 引数の向きを設定
+	m_rot = rRot;
+
+	// 向きの正規化
+	useful::Vec3NormalizeRot(m_rot);
+
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// 引数の向きを設定
+		m_apBody[i]->SetVec3Rotation(m_rot);
+	}
+}
+
+//============================================================
+//	向き取得処理
+//============================================================
+D3DXVECTOR3 CPlayer::GetVec3Rotation(void) const
+{
+	// 向きを返す
+	return m_rot;
+}
+
+//============================================================
+//	マテリアル全設定処理
+//============================================================
+void CPlayer::SetAllMaterial(const D3DXMATERIAL &rMat)
+{
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// 引数のマテリアルを全マテリアルに設定
+		m_apBody[i]->SetAllMaterial(rMat);
+	}
 }
 
 //============================================================
@@ -452,38 +559,64 @@ CListManager<CPlayer> *CPlayer::GetList(void)
 }
 
 //============================================================
+//	マルチモデル取得処理
+//============================================================
+CMultiModel *CPlayer::GetMultiModel(const EBody bodyID, const int nModelID) const
+{
+	if (bodyID   > NONE_IDX && bodyID   < BODY_MAX
+	&&  nModelID > NONE_IDX && nModelID < MODEL_MAX[bodyID])
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのパーツを返す
+		return m_apBody[bodyID]->GetMultiModel(nModelID);
+	}
+	else { assert(false); return nullptr; }	// インデックスエラー
+}
+
+//============================================================
 //	出現の設定処理
 //============================================================
 void CPlayer::SetSpawn(void)
 {
 	// 変数を宣言
-	D3DXVECTOR3 set = VEC3_ZERO;	// 引数設定用
+	D3DXVECTOR3 setPos = VEC3_ZERO;	// 位置設定用
+	D3DXVECTOR3 setRot = VEC3_ZERO;	// 向き設定用
 
 	// 情報を初期化
-	SetState(STATE_SPAWN);		// スポーン状態の設定
-	SetMotion(MOTION_IDOL);		// 待機モーションを設定
+	SetState(STATE_SPAWN);	// スポーン状態の設定
 
 	// カウンターを初期化
 	m_nCounterState = 0;	// 状態管理カウンター
 
+	// 着地判定
+	UpdateLanding(&setPos);
+
 	// 位置を設定
-	SetVec3Position(set);
+	SetVec3Position(setPos);
+	m_oldPos = setPos;
 
 	// 向きを設定
-	SetVec3Rotation(set);
-	m_destRot = set;
+	SetVec3Rotation(setRot);
+	m_destRot = setRot;
 
 	// 移動量を初期化
 	m_move = VEC3_ZERO;
 
-	// マテリアルを再設定
-	ResetMaterial();
-
-	// 透明度を透明に再設定
-	SetAlpha(0.0f);
-
 	// 描画を再開
 	SetEnableDraw(true);
+
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		// 待機モーションを設定
+		m_apBody[i]->SetMotion(SPAWN_MOTION[i]);
+
+		// マテリアルを再設定
+		m_apBody[i]->ResetMaterial();
+
+		// 透明度を透明に再設定
+		m_apBody[i]->SetAlpha(0.0f);
+	}
 
 	// 追従カメラの目標位置の設定
 	GET_MANAGER->GetCamera()->SetDestFollow();
@@ -495,51 +628,18 @@ void CPlayer::SetSpawn(void)
 //============================================================
 //	スポーン状態時の更新処理
 //============================================================
-CPlayer::EMotion CPlayer::UpdateSpawn(void)
+void CPlayer::UpdateSpawn(int *pLowMotion, int *pUpMotion)
 {
 	// 変数を宣言
-	EMotion currentMotion = MOTION_IDOL;	// 現在のモーション
-
-	// フェードアウト状態時の更新
-	if (UpdateFadeOut(SPAWN_ADD_ALPHA))
-	{ // 不透明になり切った場合
-
-		// 状態を設定
-		SetState(STATE_NORMAL);
-	}
-
-	// 現在のモーションを返す
-	return currentMotion;
-}
-
-//============================================================
-//	通常状態時の更新処理
-//============================================================
-CPlayer::EMotion CPlayer::UpdateNormal(void)
-{
-	// 変数を宣言
-	EMotion currentMotion = MOTION_IDOL;		// 現在のモーション
 	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
 	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
 
 	// ポインタを宣言
-	CStage *pStage = CScene::GetStage();	// ステージ情報
-	if (pStage == nullptr)
-	{ // ステージが使用されていない場合
-
-		// 処理を抜ける
-		assert(false);
-		return MOTION_IDOL;
-	}
-
-	// 移動操作
-	currentMotion = UpdateMove();
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
 
 	// 重力の更新
 	UpdateGravity();
-
-	// ジャンプ操作
-	currentMotion = UpdateJump();
 
 	// 位置更新
 	UpdatePosition(&posPlayer);
@@ -559,8 +659,86 @@ CPlayer::EMotion CPlayer::UpdateNormal(void)
 	// 向きを反映
 	SetVec3Rotation(rotPlayer);
 
-	// 現在のモーションを返す
-	return currentMotion;
+	// フェードアウト状態時の更新
+	if (UpdateFadeOut(SPAWN_ADD_ALPHA))
+	{ // 不透明になり切った場合
+
+		// 状態を設定
+		SetState(STATE_NORMAL);
+	}
+}
+
+//============================================================
+//	通常状態時の更新処理
+//============================================================
+void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
+
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 移動操作
+	UpdateMove();
+
+	// 重力の更新
+	UpdateGravity();
+
+	// ジャンプ操作
+	UpdateJump();
+
+	// 位置更新
+	UpdatePosition(&posPlayer);
+
+	// 着地判定
+	UpdateLanding(&posPlayer);
+
+	// 向き更新
+	UpdateRotation(&rotPlayer);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posPlayer, RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+
+	// 向きを反映
+	SetVec3Rotation(rotPlayer);
+}
+
+//============================================================
+//	モーション・オブジェクトキャラクターの更新処理
+//============================================================
+void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
+{
+	if (IsDeath()) { return; }	// 死亡している場合
+
+	int aMotion[] = { nLowMotion, nUpMotion };	// モーション情報
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
+
+		int nAnimMotion = m_apBody[i]->GetMotionType();	// 現在再生中のモーション
+		if (aMotion[i] != NONE_IDX)
+		{ // モーションが設定されている場合
+
+			if (m_apBody[i]->IsMotionLoop(nAnimMotion))
+			{ // ループするモーションだった場合
+
+				if (nAnimMotion != aMotion[i])
+				{ // 現在のモーションが再生中のモーションと一致しない場合
+
+					// 現在のモーションの設定
+					m_apBody[i]->SetMotion(aMotion[i]);
+				}
+			}
+		}
+
+		// オブジェクトキャラクターの更新
+		m_apBody[i]->Update();
+	}
 }
 
 //============================================================
@@ -575,7 +753,7 @@ void CPlayer::UpdateOldPosition(void)
 //============================================================
 //	移動量・目標向きの更新処理
 //============================================================
-CPlayer::EMotion CPlayer::UpdateMove(void)
+void CPlayer::UpdateMove(void)
 {
 	// ポインタを宣言
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド
@@ -615,29 +793,25 @@ CPlayer::EMotion CPlayer::UpdateMove(void)
 		// 目標向きを設定
 		m_destRot.y = atan2f(-m_move.x, -m_move.z);
 	}
-
-	// 待機モーションを返す
-	return MOTION_IDOL;
 }
 
 //============================================================
 //	ジャンプの更新処理
 //============================================================
-CPlayer::EMotion CPlayer::UpdateJump(void)
+void CPlayer::UpdateJump(void)
 {
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_A))
 	{
 		if (!m_bJump)
 		{ // ジャンプしていない場合
 
-			// ジャンプさせる
+			// 上移動量を与える
 			m_move.y += JUMP;
+
+			// ジャンプ中にする
 			m_bJump = true;
 		}
 	}
-
-	// 待機モーションを返す
-	return MOTION_IDOL;
 }
 
 //============================================================
@@ -724,64 +898,44 @@ void CPlayer::UpdateRotation(D3DXVECTOR3 *pRot)
 }
 
 //============================================================
-//	モーション・オブジェクトキャラクターの更新処理
-//============================================================
-void CPlayer::UpdateMotion(int nMotion)
-{
-	if (IsDeath()) { return; }	// 死亡している場合
-
-	// 変数を宣言
-	int nAnimMotion = GetMotionType();	// 現在再生中のモーション
-
-	if (nMotion != NONE_IDX)
-	{ // モーションが設定されている場合
-
-		if (IsMotionLoop(nAnimMotion))
-		{ // ループするモーションだった場合
-
-			if (nAnimMotion != nMotion)
-			{ // 現在のモーションが再生中のモーションと一致しない場合
-
-				// 現在のモーションの設定
-				SetMotion(nMotion);
-			}
-		}
-	}
-
-	// オブジェクトキャラクターの更新
-	CObjectChara::Update();
-}
-
-//============================================================
 //	フェードアウト状態時の更新処理
 //============================================================
 bool CPlayer::UpdateFadeOut(const float fAdd)
 {
 	// 変数を宣言
-	bool bAlpha = false;		// 透明状況
-	float fAlpha = GetAlpha();	// 透明度
+	bool bMaxAlpha = true;	// 透明状況
 
-	// プレイヤー自身の描画を再開
-	CObject::SetEnableDraw(true);
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
 
-	// 透明度を上げる
-	fAlpha += fAdd;
+		// 変数を宣言
+		float fAlpha = m_apBody[i]->GetAlpha();	// 透明度
 
-	if (fAlpha >= GetMaxAlpha())
-	{ // 透明度が上がり切った場合
+		// プレイヤー自身の描画を再開
+		CObject::SetEnableDraw(true);
 
-		// 透明度を補正
-		fAlpha = GetMaxAlpha();
+		// 透明度を上げる
+		fAlpha += fAdd;
 
-		// 不透明になり切った状態にする
-		bAlpha = true;
+		if (fAlpha >= m_apBody[i]->GetMaxAlpha())
+		{ // 透明度が上がり切った場合
+
+			// 透明度を補正
+			fAlpha = m_apBody[i]->GetMaxAlpha();
+		}
+		else
+		{ // 透明度が上がり切っていない場合
+
+			// まだ透明なのでフラグOFF
+			bMaxAlpha = false;
+		}
+
+		// 透明度を設定
+		m_apBody[i]->SetAlpha(fAlpha);
 	}
 
-	// 透明度を設定
-	SetAlpha(fAlpha);
-
 	// 透明状況を返す
-	return bAlpha;
+	return bMaxAlpha;
 }
 
 //============================================================
@@ -790,36 +944,58 @@ bool CPlayer::UpdateFadeOut(const float fAdd)
 bool CPlayer::UpdateFadeIn(const float fSub)
 {
 	// 変数を宣言
-	bool bAlpha = false;		// 透明状況
-	float fAlpha = GetAlpha();	// 透明度
+	bool bMinAlpha = true;	// 透明状況
 
-	// 透明度を下げる
-	fAlpha -= fSub;
+	for (int i = 0; i < BODY_MAX; i++)
+	{ // 分割した身体の数分繰り返す
 
-	if (fAlpha <= 0.0f)
-	{ // 透明度が下がり切った場合
+		// 変数を宣言
+		float fAlpha = m_apBody[i]->GetAlpha();	// 透明度
 
-		// 透明度を補正
-		fAlpha = 0.0f;
+		// 透明度を下げる
+		fAlpha -= fSub;
 
-		// 透明になり切った状態にする
-		bAlpha = true;
+		if (fAlpha <= 0.0f)
+		{ // 透明度が下がり切った場合
+
+			// 透明度を補正
+			fAlpha = 0.0f;
+		}
+		else
+		{ // 透明度が下がり切っていない場合
+
+			// まだ不透明なのでフラグOFF
+			bMinAlpha = false;
+		}
+
+		// 透明度を設定
+		m_apBody[i]->SetAlpha(fAlpha);
+	}
+
+	if (bMinAlpha)
+	{ // 透明になった場合
 
 		// プレイヤー自身の描画を停止
 		CObject::SetEnableDraw(false);
 	}
 
-	// 透明度を設定
-	SetAlpha(fAlpha);
-
 	// 透明状況を返す
-	return bAlpha;
+	return bMinAlpha;
+}
+
+//============================================================
+//	破棄処理
+//============================================================
+void CPlayer::Release(void)
+{
+	// オブジェクトの破棄
+	CObject::Release();
 }
 
 //============================================================
 //	セットアップ処理
 //============================================================
-void CPlayer::LoadSetup(void)
+void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 {
 	// 変数を宣言
 	CMotion::SMotionInfo info;		// ポーズの代入用
@@ -842,7 +1018,7 @@ void CPlayer::LoadSetup(void)
 	memset(&info, 0, sizeof(info));
 
 	// ファイルを読み込み形式で開く
-	pFile = fopen(SETUP_TXT, "r");
+	pFile = fopen(SETUP_TXT[bodyID], "r");
 
 	if (pFile != nullptr)
 	{ // ファイルが開けた場合
@@ -903,7 +1079,7 @@ void CPlayer::LoadSetup(void)
 						} while (strcmp(&aString[0], "END_PARTSSET") != 0);	// 読み込んだ文字列が END_PARTSSET ではない場合ループ
 
 						// パーツ情報の設定
-						CObjectChara::SetPartsInfo(nID, nParentID, pos, rot, MODEL_FILE[nID]);
+						m_apBody[bodyID]->SetPartsInfo(nID, nParentID, pos, rot, ppModelPass[nID]);
 					}
 				} while (strcmp(&aString[0], "END_CHARACTERSET") != 0);		// 読み込んだ文字列が END_CHARACTERSET ではない場合ループ
 			}
@@ -972,7 +1148,7 @@ void CPlayer::LoadSetup(void)
 										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.z);	// Z位置を読み込む
 
 										// 読み込んだ位置にパーツの初期位置を加算
-										info.aKeyInfo[nNowPose].aKey[nNowKey].pos += GetPartsPosition(nNowKey);
+										info.aKeyInfo[nNowPose].aKey[nNowKey].pos += m_apBody[bodyID]->GetPartsPosition(nNowKey);
 									}
 									else if (strcmp(&aString[0], "ROT") == 0)
 									{ // 読み込んだ文字列が ROT の場合
@@ -983,7 +1159,7 @@ void CPlayer::LoadSetup(void)
 										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);	// Z向きを読み込む
 
 										// 読み込んだ向きにパーツの初期向きを加算
-										info.aKeyInfo[nNowPose].aKey[nNowKey].rot += GetPartsRotation(nNowKey);
+										info.aKeyInfo[nNowPose].aKey[nNowKey].rot += m_apBody[bodyID]->GetPartsRotation(nNowKey);
 
 										// 初期向きを正規化
 										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);
@@ -1004,7 +1180,7 @@ void CPlayer::LoadSetup(void)
 				} while (strcmp(&aString[0], "END_MOTIONSET") != 0);	// 読み込んだ文字列が END_MOTIONSET ではない場合ループ
 
 				// モーション情報の設定
-				CObjectChara::SetMotionInfo(info);
+				m_apBody[bodyID]->SetMotionInfo(info);
 			}
 		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
 		

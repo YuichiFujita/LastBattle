@@ -44,7 +44,11 @@ public:
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
 	void SetAllMaterial(const D3DXMATERIAL& rMat) override;	// マテリアル全設定
+	D3DXMATRIX GetMtxWorld(void) const override;			// マトリックス取得
 	D3DXMATRIX *GetPtrMtxWorld(void) override;				// マトリックスポインタ取得
+
+	// 静的メンバ関数
+	static CObjectChara *Create(void);	// 生成
 
 	// メンバ関数
 	void SetPartsInfo	// パーツ情報設定

@@ -177,12 +177,50 @@ void CObjectChara::SetAllMaterial(const D3DXMATERIAL& rMat)
 }
 
 //============================================================
+//	マトリックス取得処理
+//============================================================
+D3DXMATRIX CObjectChara::GetMtxWorld(void) const
+{
+	// マトリックスを返す
+	return m_mtxWorld;
+}
+
+//============================================================
 //	マトリックスポインタ取得処理
 //============================================================
 D3DXMATRIX *CObjectChara::GetPtrMtxWorld(void)
 {
 	// マトリックスのポインタを返す
 	return &m_mtxWorld;
+}
+
+//============================================================
+//	生成処理
+//============================================================
+CObjectChara *CObjectChara::Create(void)
+{
+	// オブジェクトキャラクターの生成
+	CObjectChara *pObjectChara = new CObjectChara;
+	if (pObjectChara == nullptr)
+	{ // 生成に失敗した場合
+
+		return nullptr;
+	}
+	else
+	{ // 生成に成功した場合
+
+		// オブジェクトキャラクターの初期化
+		if (FAILED(pObjectChara->Init()))
+		{ // 初期化に失敗した場合
+
+			// オブジェクトキャラクターの破棄
+			SAFE_DELETE(pObjectChara);
+			return nullptr;
+		}
+
+		// 確保したアドレスを返す
+		return pObjectChara;
+	}
 }
 
 //============================================================
