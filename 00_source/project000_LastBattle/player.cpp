@@ -86,8 +86,8 @@ namespace
 	const float	JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
 	const float	LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
 	const float	STICK_REV	= 0.00015f;	// 移動操作スティックの傾き量の補正係数
+	const float	ADD_ALPHA	= 0.03f;	// 透明度の加算量
 
-	const float	SPAWN_ADD_ALPHA		= 0.03f;	// スポーン状態時の透明度の加算量
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
 }
 
@@ -573,7 +573,7 @@ void CPlayer::UpdateSpawn(void)
 	SetVec3Rotation(rotPlayer);
 
 	// フェードアウト状態時の更新
-	if (UpdateFadeOut(SPAWN_ADD_ALPHA))
+	if (UpdateFadeOut(ADD_ALPHA))
 	{ // 不透明になり切った場合
 
 		// 状態を設定
