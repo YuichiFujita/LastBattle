@@ -21,7 +21,7 @@
 //************************************************************
 namespace player
 {
-	const int NUM_ORBIT = 2;	// 軌跡の数
+	const int NUM_SWORD = 2;	// 剣の数
 }
 
 //************************************************************
@@ -29,7 +29,7 @@ namespace player
 //************************************************************
 class CObjectChara;	// オブジェクトキャラクタークラス
 class CMultiModel;	// マルチモデルクラス
-class COrbit;		// 軌跡クラス
+class CSword;		// 剣クラス
 class CShadow;		// 影クラス
 
 //************************************************************
@@ -63,8 +63,6 @@ public:
 		U_MODEL_ARMDR,		// 右下腕
 		U_MODEL_HANDL,		// 左手
 		U_MODEL_HANDR,		// 右手
-		U_MODEL_SWORDL,		// 左剣
-		U_MODEL_SWORDR,		// 右剣
 		U_MODEL_MAX			// この列挙型の総数
 	};
 
@@ -80,6 +78,7 @@ public:
 	enum EUpperMotion
 	{
 		U_MOTION_IDOL = 0,	// 待機モーション
+		U_MOTION_MOVE,		// 歩行モーション
 		U_MOTION_MAX		// この列挙型の総数
 	};
 
@@ -120,16 +119,17 @@ public:
 
 	// メンバ関数
 	void SetSpawn(void);	// 出現設定
+	void SetSwordDisp(const bool bDisp);	// 剣の表示設定
 
 private:
 	// メンバ関数
-	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
+	void UpdateSpawn(void);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
 	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション・オブジェクトキャラクターの更新
 
+	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動量・目標向きの更新
+	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプの更新
 	void UpdateOldPosition(void);			// 過去位置の更新
-	void UpdateMove(void);					// 移動量・目標向きの更新
-	void UpdateJump(void);					// ジャンプの更新
 	void UpdateGravity(void);				// 重力の更新
 	bool UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
 	void UpdatePosition(D3DXVECTOR3 *pPos);	// 位置の更新
@@ -144,8 +144,8 @@ private:
 
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
-	COrbit	*m_apOrbit[player::NUM_ORBIT];			// 軌跡の情報
-	CShadow	*m_pShadow;			// 影の情報
+	CSword		*m_apSowrd[player::NUM_SWORD];		// 剣の情報
+	CShadow		*m_pShadow;		// 影の情報
 	D3DXVECTOR3	m_oldPos;		// 過去位置
 	D3DXVECTOR3	m_move;			// 移動量
 	D3DXVECTOR3	m_destRot;		// 目標向き

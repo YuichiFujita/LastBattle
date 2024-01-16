@@ -19,7 +19,7 @@
 //============================================================
 //	コンストラクタ
 //============================================================
-CMultiModel::CMultiModel() : CObjectModel(LABEL_NONE, DIM_3D, object::DEFAULT_PRIO), m_pParent(nullptr)
+CMultiModel::CMultiModel(const CObject::ELabel label, const CObject::EDim dimension, const int nPriority) : CObjectModel(label, dimension, nPriority), m_pParent(nullptr)
 {
 
 }

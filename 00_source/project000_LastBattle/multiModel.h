@@ -23,7 +23,7 @@ class CMultiModel : public CObjectModel
 {
 public:
 	// コンストラクタ
-	CMultiModel();
+	explicit CMultiModel(const CObject::ELabel label = LABEL_NONE, const CObject::EDim dimension = DIM_3D, const int nPriority = object::DEFAULT_PRIO);
 
 	// デストラクタ
 	~CMultiModel() override;

@@ -574,7 +574,7 @@ void CCamera::Follow(void)
 	//	位置の更新
 	//----------------------------------------------------
 	// 注視点をプレイヤーの頭の位置にする
-	m_aCamera[TYPE_MAIN].destPosR = useful::GetMtxWorldPosition(player->GetMultiModel(CPlayer::BODY_UPPER, CPlayer::U_MODEL_HEAD)->GetMtxWorld());
+	m_aCamera[TYPE_MAIN].destPosR = player->GetVec3Position() + D3DXVECTOR3(0.0f, player->GetHeight(), 0.0f);
 
 	// 視点の更新
 	m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].destPosR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));

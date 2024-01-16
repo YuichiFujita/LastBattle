@@ -20,7 +20,7 @@
 
 #include "objectChara.h"
 #include "multiModel.h"
-#include "orbit.h"
+#include "sword.h"
 #include "shadow.h"
 #include "stage.h"
 #include "field.h"
@@ -53,8 +53,6 @@ namespace
 		"data\\MODEL\\PLAYER\\06_armDR.x",	// 右下腕
 		"data\\MODEL\\PLAYER\\07_handL.x",	// 左手
 		"data\\MODEL\\PLAYER\\08_handR.x",	// 右手
-		"data\\MODEL\\PLAYER\\15_sword.x",	// 左剣
-		"data\\MODEL\\PLAYER\\15_sword.x",	// 右剣
 	};
 
 	const char *SETUP_TXT[] =	// セットアップテキスト相対パス
@@ -91,9 +89,6 @@ namespace
 
 	const float	SPAWN_ADD_ALPHA		= 0.03f;	// スポーン状態時の透明度の加算量
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
-
-	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 0.0f, -10.0f), D3DXVECTOR3(0.0f, 0.0f, -65.0f), XCOL_CYAN);	// オフセット情報
-	const int ORBIT_PART = 40;	// 分割数
 }
 
 //************************************************************
@@ -106,7 +101,6 @@ CListManager<CPlayer> *CPlayer::m_pList = nullptr;	// オブジェクトリスト
 //************************************************************
 static_assert(NUM_ARRAY(LOWER_MODEL_FILE) == CPlayer::L_MODEL_MAX, "ERROR : Model Count Mismatch");
 static_assert(NUM_ARRAY(UPPER_MODEL_FILE) == CPlayer::U_MODEL_MAX, "ERROR : Model Count Mismatch");
-
 static_assert(NUM_ARRAY(SETUP_TXT)    == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
 static_assert(NUM_ARRAY(SPAWN_MOTION) == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
 
@@ -125,7 +119,7 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_bJump			(false),		// ジャンプ状況
 	m_nCounterState	(0)				// 状態管理カウンター
 {
-	memset(&m_apOrbit[0], 0, sizeof(m_apOrbit));	// 軌跡の情報
+
 }
 
 //============================================================
@@ -142,7 +136,6 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
-	memset(&m_apOrbit[0], 0, sizeof(m_apOrbit));	// 軌跡の情報
 	m_pShadow		= nullptr;		// 影の情報
 	m_oldPos		= VEC3_ZERO;	// 過去位置
 	m_move			= VEC3_ZERO;	// 移動量
@@ -170,17 +163,15 @@ HRESULT CPlayer::Init(void)
 	// 上半身の親インデックスの設定
 	SetUpperParentID(L_MODEL_WAIST);
 
-	for (int nCntOrbit = 0; nCntOrbit < player::NUM_ORBIT; nCntOrbit++)
-	{ // 軌跡の数分繰り返す
+	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+	{ // 剣の数分繰り返す
 
-		// 軌跡の生成
-		m_apOrbit[nCntOrbit] = COrbit::Create
+		// 剣の生成
+		m_apSowrd[nCntOrbit] = CSword::Create
 		( // 引数
-			GetMultiModel(BODY_UPPER, U_MODEL_SWORDL + nCntOrbit)->GetPtrMtxWorld(),	// 親マトリックス
-			ORBIT_OFFSET,	// オフセット情報
-			ORBIT_PART		// 分割数
+			GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntOrbit)	// 親オブジェクト
 		);
-		if (m_apOrbit[nCntOrbit] == nullptr)
+		if (m_apSowrd[nCntOrbit] == nullptr)
 		{ // 非使用中の場合
 
 			// 失敗を返す
@@ -225,11 +216,11 @@ HRESULT CPlayer::Init(void)
 //============================================================
 void CPlayer::Uninit(void)
 {
-	for (int nCntOrbit = 0; nCntOrbit < player::NUM_ORBIT; nCntOrbit++)
-	{ // 軌跡の数分繰り返す
+	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+	{ // 剣の数分繰り返す
 
-		// 軌跡の終了
-		SAFE_UNINIT(m_apOrbit[nCntOrbit]);
+		// 剣の終了
+		SAFE_UNINIT(m_apSowrd[nCntOrbit]);
 	}
 
 	// 影の終了
@@ -270,7 +261,7 @@ void CPlayer::Update(void)
 	case STATE_SPAWN:
 
 		// スポーン状態時の更新
-		UpdateSpawn((int*)&curLowMotion, (int*)&curUpMotion);
+		UpdateSpawn();
 
 		break;
 
@@ -286,11 +277,19 @@ void CPlayer::Update(void)
 		break;
 	}
 
-	for (int nCntOrbit = 0; nCntOrbit < player::NUM_ORBIT; nCntOrbit++)
-	{ // 軌跡の数分繰り返す
+	// TODO
+	if (GET_INPUTKEY->IsTrigger(DIK_0))
+	{
+		static bool b = true;
+		b = !b;
+		SetSwordDisp(b);
+	}
 
-		// 軌跡の更新
-		m_apOrbit[nCntOrbit]->Update();
+	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+	{ // 剣の数分繰り返す
+
+		// 剣の更新
+		m_apSowrd[nCntOrbit]->Update();
 	}
 
 	// 影の更新
@@ -307,6 +306,13 @@ void CPlayer::Draw(void)
 {
 	// オブジェクト分割キャラクターの描画
 	CObjectDivChara::Draw();
+
+	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+	{ // 剣の数分繰り返す
+
+		// 剣の描画
+		m_apSowrd[nCntOrbit]->Draw();
+	}
 }
 
 //============================================================
@@ -542,7 +548,7 @@ void CPlayer::SetSpawn(void)
 //============================================================
 //	スポーン状態時の更新処理
 //============================================================
-void CPlayer::UpdateSpawn(int *pLowMotion, int *pUpMotion)
+void CPlayer::UpdateSpawn(void)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
@@ -596,13 +602,13 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
 
 	// 移動操作
-	UpdateMove();
+	UpdateMove(pLowMotion, pUpMotion);
 
 	// 重力の更新
 	UpdateGravity();
 
 	// ジャンプ操作
-	UpdateJump();
+	UpdateJump(pLowMotion, pUpMotion);
 
 	// 位置更新
 	UpdatePosition(&posPlayer);
@@ -656,18 +662,36 @@ void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
 }
 
 //============================================================
-//	過去位置の更新処理
+//	剣の表示設定処理
 //============================================================
-void CPlayer::UpdateOldPosition(void)
+void CPlayer::SetSwordDisp(const bool bDisp)
 {
-	// 過去位置を更新
-	m_oldPos = GetVec3Position();
+	if (bDisp)
+	{ // 見える設定された場合
+
+		for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+		{ // 剣の数分繰り返す
+
+			// 剣を出す
+			m_apSowrd[nCntOrbit]->SetState(CSword::STATE_NORMAL);
+		}
+	}
+	else
+	{ // 見えない設定された場合
+
+		for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+		{ // 剣の数分繰り返す
+
+			// 剣を消す
+			m_apSowrd[nCntOrbit]->SetState(CSword::STATE_VANISH);
+		}
+	}
 }
 
 //============================================================
 //	移動量・目標向きの更新処理
 //============================================================
-void CPlayer::UpdateMove(void)
+void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 {
 	// ポインタを宣言
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド
@@ -683,36 +707,23 @@ void CPlayer::UpdateMove(void)
 		// 変数を宣言
 		float fMove = fLStick * STICK_REV;	// プレイヤー移動量
 
-		//if (!m_bDash)
-		{ // ダッシュ中ではない場合
-
-			// 移動量を更新
-			m_move.x += sinf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
-			m_move.z += cosf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
-
-			// 移動モーションを設定
-			//currentMotion = MOTION_MOVE;
-		}
-		//else
-		//{ // ダッシュ中の場合
-
-		//	// 移動量を更新
-		//	m_move.x += sinf(m_dashRot.y) * fMove;
-		//	m_move.z += cosf(m_dashRot.y) * fMove;
-
-		//	// ダッシュモーションを設定
-		//	currentMotion = MOTION_DASH;
-		//}
+		// 移動量を更新
+		m_move.x += sinf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
+		m_move.z += cosf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
 
 		// 目標向きを設定
 		m_destRot.y = atan2f(-m_move.x, -m_move.z);
+
+		// 上下に移動モーションを設定
+		*pLowMotion = L_MOTION_MOVE;
+		*pUpMotion  = U_MOTION_MOVE;
 	}
 }
 
 //============================================================
 //	ジャンプの更新処理
 //============================================================
-void CPlayer::UpdateJump(void)
+void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 {
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_A))
 	{
@@ -726,6 +737,15 @@ void CPlayer::UpdateJump(void)
 			m_bJump = true;
 		}
 	}
+}
+
+//============================================================
+//	過去位置の更新処理
+//============================================================
+void CPlayer::UpdateOldPosition(void)
+{
+	// 過去位置を更新
+	m_oldPos = GetVec3Position();
 }
 
 //============================================================
