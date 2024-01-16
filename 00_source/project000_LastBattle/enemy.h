@@ -46,9 +46,10 @@ public:
 	// ステータス構造体
 	struct SStatusInfo
 	{
-		float fRadius;	// 半径
-		float fHeight;	// 縦幅
-		float fLookRev;	// 視認の補正係数
+		float fRadius;		// 半径
+		float fHeight;		// 縦幅
+		float fLookRev;		// 視認の補正係数
+		float fCollRadius;	// 判定半径
 	};
 
 	// オーバーライド関数
@@ -69,6 +70,7 @@ public:
 		const D3DXVECTOR3& rPos,	// 位置
 		const D3DXVECTOR3& rRot		// 向き
 	);
+	static CListManager<CEnemy> *GetList(void);			// リスト取得
 	static SStatusInfo GetStatusInfo(const int nType);	// ステータス情報取得
 
 	// メンバ関数
@@ -98,9 +100,11 @@ protected:
 
 private:
 	// 静的メンバ変数
+	static CListManager<CEnemy> *m_pList;		// オブジェクトリスト
 	static SStatusInfo m_aStatusInfo[TYPE_MAX];	// ステータス情報
 
 	// メンバ変数
+	CListManager<CEnemy>::AIterator m_iterator;	// イテレーター
 	D3DXVECTOR3	m_oldPos;		// 過去位置
 	D3DXVECTOR3	m_move;			// 移動量
 	EState	m_state;			// 状態

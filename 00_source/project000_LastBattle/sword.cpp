@@ -21,11 +21,16 @@ namespace
 	{
 		"data\\MODEL\\PLAYER\\15_sword.x",	// 剣
 	};
-
-	const float SUB_ALPHA	= 0.05f;	// 透明度の減算量
+	const char *SETUP_TXT	= "data\\TXT\\sword.txt";	// セットアップテキスト相対パス
+	const float	SUB_ALPHA	= 0.05f;	// 透明度の減算量
 	const int	ORBIT_PART	= 25;		// 分割数
 	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 0.0f, -10.0f), D3DXVECTOR3(0.0f, 0.0f, -65.0f), XCOL_CYAN);	// オフセット情報
 }
+
+//************************************************************
+//	静的メンバ変数宣言
+//************************************************************
+CSword::SCollInfo CSword::m_collInfo = {};	// 判定情報
 
 //************************************************************
 //	スタティックアサート
@@ -244,5 +249,129 @@ void CSword::SetState(const EState state)
 	default:	// 例外状態
 		assert(false);
 		break;
+	}
+}
+
+//============================================================
+//	セットアップ処理
+//============================================================
+void CSword::LoadSetup(void)
+{
+	// 変数を宣言
+	int nCurrentID = 0;	// 現在の読み込み数の保存用
+	int nEnd = 0;		// テキスト読み込み終了の確認用
+
+	// 変数配列を宣言
+	char aString[MAX_STRING];	// テキストの文字列の代入用
+
+	// ポインタを宣言
+	FILE *pFile;	// ファイルポインタ
+
+	// 静的メンバ変数の情報をクリア
+	memset(&m_collInfo, 0, sizeof(m_collInfo));	// 判定情報
+
+	// ファイルを読み込み形式で開く
+	pFile = fopen(SETUP_TXT, "r");
+
+	if (pFile != nullptr)
+	{ // ファイルが開けた場合
+
+		do
+		{ // 読み込んだ文字列が EOF ではない場合ループ
+
+			// ファイルから文字列を読み込む
+			nEnd = fscanf(pFile, "%s", &aString[0]);	// テキストを読み込みきったら EOF を返す
+
+			// 判定の設定
+			if (strcmp(&aString[0], "COLLISION_SET") == 0)
+			{ // 読み込んだ文字列が COLLISION_SET の場合
+
+				// 現在の読み込み数を初期化
+				nCurrentID = 0;
+
+				do
+				{ // 読み込んだ文字列が END_COLLISION_SET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "NUMCOLL") == 0)
+					{ // 読み込んだ文字列が NUMCOLL の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &m_collInfo.nNumColl);	// 判定数を読み込む
+
+						if (m_collInfo.nNumColl > 0)
+						{ // 判定がある場合
+
+							if (m_collInfo.pColl == nullptr)
+							{ // 判定情報が使用されていない場合
+
+								// 判定情報の読み込み数分メモリ確保
+								m_collInfo.pColl = new SColl[m_collInfo.nNumColl];
+
+								if (m_collInfo.pColl != nullptr)
+								{ // 確保に成功した場合
+
+									// メモリクリア
+									memset(m_collInfo.pColl, 0, sizeof(SColl) * m_collInfo.nNumColl);
+								}
+								else { assert(false); }	// 確保失敗
+							}
+							else { assert(false); }	// 使用中
+						}
+						else
+						{ // 読み込むものがない場合
+
+							// 処理を抜ける
+							break;
+						}
+					}
+					else if (strcmp(&aString[0], "COLLSET") == 0)
+					{ // 読み込んだ文字列が COLLSET の場合
+			
+						do
+						{ // 読み込んだ文字列が END_COLLSET ではない場合ループ
+			
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+			
+							if (strcmp(&aString[0], "OFFSET") == 0)
+							{ // 読み込んだ文字列が OFFSET の場合
+
+								fscanf(pFile, "%s", &aString[0]);								// = を読み込む (不要)
+								fscanf(pFile, "%f", &m_collInfo.pColl[nCurrentID].offset.x);	// 判定オフセットXを読み込む
+								fscanf(pFile, "%f", &m_collInfo.pColl[nCurrentID].offset.y);	// 判定オフセットYを読み込む
+								fscanf(pFile, "%f", &m_collInfo.pColl[nCurrentID].offset.z);	// 判定オフセットZを読み込む
+							}
+							else if (strcmp(&aString[0], "RADIUS") == 0)
+							{ // 読み込んだ文字列が RADIUS の場合
+
+								fscanf(pFile, "%s", &aString[0]);							// = を読み込む (不要)
+								fscanf(pFile, "%f", &m_collInfo.pColl[nCurrentID].fRadius);	// 判定半径を読み込む
+							}
+						} while (strcmp(&aString[0], "END_COLLSET") != 0);	// 読み込んだ文字列が END_COLLSET ではない場合ループ
+
+						// 読込総数オーバー
+						assert(nCurrentID < m_collInfo.nNumColl);
+
+						// 現在の読み込み数を加算
+						nCurrentID++;
+					}
+				} while (strcmp(&aString[0], "END_COLLISION_SET") != 0);	// 読み込んだ文字列が END_COLLISION_SET ではない場合ループ
+
+				// 読込総数の不一致
+				assert(nCurrentID == m_collInfo.nNumColl);
+			}
+		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
+		
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{ // ファイルが開けなかった場合
+
+		// エラーメッセージボックス
+		MessageBox(nullptr, "剣セットアップの読み込みに失敗！", "警告！", MB_ICONWARNING);
 	}
 }

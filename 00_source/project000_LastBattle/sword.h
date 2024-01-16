@@ -49,6 +49,20 @@ public:
 	// デストラクタ
 	~CSword() override;
 
+	// 判定構造体
+	struct SColl
+	{
+		D3DXVECTOR3 offset;	// 判定オフセット
+		float fRadius;		// 判定半径
+	};
+
+	// 判定情報構造体
+	struct SCollInfo
+	{
+		int nNumColl;	// 判定数
+		SColl *pColl;	// 判定情報
+	};
+
 	// オーバーライド関数
 	HRESULT Init(void) override;		// 初期化
 	void Uninit(void) override;			// 終了
@@ -57,6 +71,7 @@ public:
 	int GetState(void) const override;	// 状態取得
 
 	// 静的メンバ関数
+	static void LoadSetup(void);	// セットアップ
 	static CSword *Create	// 生成
 	( // 引数
 		CObject *pObject,						// 親オブジェクト
@@ -68,6 +83,9 @@ public:
 	void SetState(const EState state);	// 状態設定
 
 private:
+	// 静的メンバ変数
+	static SCollInfo m_collInfo;	// 判定情報
+
 	// メンバ変数
 	COrbit	*m_pOrbit;			// 軌跡の情報
 	EState	m_state;			// 状態

@@ -28,13 +28,15 @@ namespace
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
+CListManager<CEnemy> *CEnemy::m_pList = nullptr;	// オブジェクトリスト
 CEnemy::SStatusInfo CEnemy::m_aStatusInfo[CEnemy::TYPE_MAX] =	// ステータス情報
 {
 	// ミニドラゴンのステータス情報
 	{
 		50.0f,	// 半径
 		40.0f,	// 縦幅
-		0.25f	// 視認の補正係数
+		0.25f,	// 視認の補正係数
+		75.0f,	// 判定半径
 	},
 };
 
@@ -85,6 +87,23 @@ HRESULT CEnemy::Init(void)
 		return E_FAIL;
 	}
 
+	if (m_pList == nullptr)
+	{ // リストマネージャーが存在しない場合
+
+		// リストマネージャーの生成
+		m_pList = CListManager<CEnemy>::Create();
+		if (m_pList == nullptr)
+		{ // 生成に失敗した場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+	}
+
+	// リストに自身のオブジェクトを追加・イテレーターを取得
+	m_iterator = m_pList->AddList(this);
+
 	// 成功を返す
 	return S_OK;
 }
@@ -94,6 +113,16 @@ HRESULT CEnemy::Init(void)
 //============================================================
 void CEnemy::Uninit(void)
 {
+	// リストから自身のオブジェクトを削除
+	m_pList->DeleteList(m_iterator);
+
+	if (m_pList->GetNumAll() == 0)
+	{ // オブジェクトが一つもない場合
+
+		// リストマネージャーの破棄
+		m_pList->Release(m_pList);
+	}
+
 	// オブジェクトモデルの終了
 	CObjectModel::Uninit();
 }
@@ -249,6 +278,15 @@ CEnemy *CEnemy::Create(const EType type, const D3DXVECTOR3& rPos, const D3DXVECT
 }
 
 //============================================================
+//	リスト取得処理
+//============================================================
+CListManager<CEnemy> *CEnemy::GetList(void)
+{
+	// オブジェクトリストを返す
+	return m_pList;
+}
+
+//============================================================
 //	ステータス情報取得処理
 //============================================================
 CEnemy::SStatusInfo CEnemy::GetStatusInfo(const int nType)
@@ -307,6 +345,32 @@ CEnemy::SStatusInfo CEnemy::GetStatusInfo(void) const
 //============================================================
 void CEnemy::UpdateSpawn(void)
 {
+	// 変数を宣言
+	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
+
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 位置更新
+	UpdatePosition(&posEnemy);
+
+	// 着地判定
+	UpdateLanding(&posEnemy);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posEnemy, m_status.fRadius);
+
+	// 位置を反映
+	SetVec3Position(posEnemy);
+
+	// 向きを反映
+	SetVec3Rotation(rotEnemy);
+
 	// フェードアウト状態時の更新
 	if (UpdateFadeOut(ADD_ALPHA))
 	{ // 不透明になり切った場合

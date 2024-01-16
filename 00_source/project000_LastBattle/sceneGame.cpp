@@ -123,8 +123,10 @@ HRESULT CSceneGame::Init(void)
 		return E_FAIL;
 	}
 
-	// ìGÇÃê∂ê¨
+	// TODOÅFìGÇÃê∂ê¨
 	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
 
 	//--------------------------------------------------------
 	//	èâä˙ê›íË

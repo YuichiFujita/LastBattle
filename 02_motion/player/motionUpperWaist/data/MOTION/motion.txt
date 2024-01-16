@@ -122,6 +122,18 @@ MOTIONSET
 	LOOP = 1		# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 10	# キー数
 
+	COLLISION = 10 0.0 0.0 -68.0 10.0 0 100	# 当たり判定
+	COLLISION_DAMAGE = 12.0 8.0				# ダメージ
+	
+	COLLISION = 10 0.0 0.0 -48.0 10.0 0 100	# 当たり判定
+	COLLISION_DAMAGE = 12.0 8.0				# ダメージ
+	
+	COLLISION = 10 0.0 0.0 -28.0 10.0 0 100	# 当たり判定
+	COLLISION_DAMAGE = 12.0 8.0				# ダメージ
+	
+	COLLISION = 10 0.0 0.0 -8.0 10.0 0 100	# 当たり判定
+	COLLISION_DAMAGE = 12.0 8.0				# ダメージ
+
 	KEYSET
 	
 		FRAME = 30
