@@ -10,12 +10,8 @@
 #include "enemy.h"
 #include "manager.h"
 #include "renderer.h"
-#include "sound.h"
-#include "scene.h"
-#include "sceneGame.h"
 #include "stage.h"
-#include "player.h"
-#include "collision.h"
+#include "enemyMiniDragon.h"
 
 //************************************************************
 //	定数宣言
@@ -52,8 +48,7 @@ CEnemy::CEnemy(const EType type) : CObjectModel(CObject::LABEL_ENEMY, CObject::D
 	m_type			(type),					// 種類定数
 	m_status		(m_aStatusInfo[type]),	// ステータス定数
 	m_oldPos		(VEC3_ZERO),			// 過去位置
-	m_movePos		(VEC3_ZERO),			// 位置移動量
-	m_moveRot		(VEC3_ZERO),			// 向き変更量
+	m_move			(VEC3_ZERO),			// 移動量
 	m_state			(STATE_SPAWN),			// 状態
 	m_bJump			(false),				// ジャンプ状況
 	m_nCounterState	(0)						// 状態管理カウンター
@@ -76,8 +71,7 @@ HRESULT CEnemy::Init(void)
 {
 	// メンバ変数を初期化
 	m_oldPos	= VEC3_ZERO;	// 過去位置
-	m_movePos	= VEC3_ZERO;	// 位置移動量
-	m_moveRot	= VEC3_ZERO;	// 向き変更量
+	m_move		= VEC3_ZERO;	// 移動量
 	m_state		= STATE_SPAWN;	// 状態
 	m_bJump		= false;		// ジャンプ状況
 	m_nCounterState	= 0;		// 状態管理カウンター
@@ -159,133 +153,12 @@ void CEnemy::HitKnockBack(const int nDmg, const D3DXVECTOR3&vecKnock)
 #endif
 
 //============================================================
-//	生成処理
-//============================================================
-CEnemy *CEnemy::Create(const EType type, const D3DXVECTOR3& rPos, const D3DXVECTOR3& rRot)
-{
-	// ポインタを宣言
-	CEnemy *pEnemy = nullptr;	// 敵生成用
-
-	if (pEnemy == nullptr)
-	{ // 使用されていない場合
-
-		// メモリ確保
-		switch (type)
-		{ // 種類ごとの処理
-		case TYPE_MINI_DRAGON:
-
-			// ミニドラゴンを生成
-			pEnemy = new (type);
-
-			break;
-
-		default:	// 例外処理
-			assert(false);
-			break;
-		}
-	}
-	else { assert(false); return nullptr; }	// 使用中
-
-	if (pEnemy != nullptr)
-	{ // 使用されている場合
-		
-		// 敵の初期化
-		if (FAILED(pEnemy->Init()))
-		{ // 初期化に失敗した場合
-
-			// メモリ開放
-			delete pEnemy;
-			pEnemy = NULL;
-
-			// 失敗を返す
-			return NULL;
-		}
-
-		// 位置を設定
-		pEnemy->SetVec3Position(rPos);
-
-		// 向きを設定
-		pEnemy->SetVec3Rotation(rRot);
-
-		// 確保したアドレスを返す
-		return pEnemy;
-	}
-	else { assert(false); return NULL; }	// 確保失敗
-}
-
-//============================================================
-//	ステータス情報取得処理
-//============================================================
-CEnemy::SStatusInfo CEnemy::GetStatusInfo(const int nType)
-{
-	// 引数の種類のステータス情報を返す
-	return m_aStatusInfo[nType];
-}
-
-//============================================================
-//	過去位置の更新処理
-//============================================================
-void CEnemy::UpdateOldPosition(void)
-{
-	// 過去位置を更新
-	m_oldPos = GetVec3Position();
-}
-
-//============================================================
-//	位置移動量の設定処理
-//============================================================
-void CEnemy::SetMovePosition(const D3DXVECTOR3& rMove)
-{
-	// 引数の位置移動量を設定
-	m_movePos = rMove;
-}
-
-//============================================================
-//	向き変更量の設定処理
-//============================================================
-void CEnemy::SetMoveRotation(const D3DXVECTOR3& rMove)
-{
-	// 引数の向きを設定
-	m_moveRot = rMove;
-
-	// 向きの正規化
-	useful::Vec3NormalizeRot(m_moveRot);
-}
-
-//============================================================
 //	状態の設定処理
 //============================================================
 void CEnemy::SetState(const int nState)
 {
 	// 引数の状態を設定
 	m_state = (EState)nState;
-}
-
-//============================================================
-//	過去位置取得処理
-//============================================================
-D3DXVECTOR3 CEnemy::GetOldPosition(void) const
-{
-	// 過去位置を返す
-	return m_oldPos;
-}
-
-//============================================================
-//	位置移動量取得処理
-//============================================================
-D3DXVECTOR3 CEnemy::GetMovePosition(void) const
-{
-	// 位置移動量を返す
-	return m_movePos;
-}
-
-//============================================================
-//	向き変更量取得処理
-//============================================================
-D3DXVECTOR3 CEnemy::GetMoveRotation(void) const
-{
-	// 向き変更量を返す
-	return m_moveRot;
 }
 
 //============================================================
@@ -325,6 +198,102 @@ float CEnemy::GetHeight(void) const
 }
 
 //============================================================
+//	生成処理
+//============================================================
+CEnemy *CEnemy::Create(const EType type, const D3DXVECTOR3& rPos, const D3DXVECTOR3& rRot)
+{
+	// ポインタを宣言
+	CEnemy *pEnemy = nullptr;	// 敵情報
+
+	// 敵の生成
+	switch (type)
+	{ // 種類ごとの処理
+	case TYPE_MINI_DRAGON:
+
+		// ミニドラゴンを生成
+		pEnemy = new CEnemyMiniDragon(type);
+
+		break;
+
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
+
+	if (pEnemy == nullptr)
+	{ // 生成に失敗した場合
+
+		return nullptr;
+	}
+	else
+	{ // 生成に成功した場合
+
+		// 敵の初期化
+		if (FAILED(pEnemy->Init()))
+		{ // 初期化に失敗した場合
+
+			// 敵の破棄
+			SAFE_DELETE(pEnemy);
+			return nullptr;
+		}
+
+		// 位置を設定
+		pEnemy->SetVec3Position(rPos);
+
+		// 向きを設定
+		pEnemy->SetVec3Rotation(rRot);
+
+		// 確保したアドレスを返す
+		return pEnemy;
+	}
+}
+
+//============================================================
+//	ステータス情報取得処理
+//============================================================
+CEnemy::SStatusInfo CEnemy::GetStatusInfo(const int nType)
+{
+	// 引数の種類のステータス情報を返す
+	return m_aStatusInfo[nType];
+}
+
+//============================================================
+//	過去位置の更新処理
+//============================================================
+void CEnemy::UpdateOldPosition(void)
+{
+	// 過去位置を更新
+	m_oldPos = GetVec3Position();
+}
+
+//============================================================
+//	過去位置取得処理
+//============================================================
+D3DXVECTOR3 CEnemy::GetOldPosition(void) const
+{
+	// 過去位置を返す
+	return m_oldPos;
+}
+
+//============================================================
+//	移動量の設定処理
+//============================================================
+void CEnemy::SetMovePosition(const D3DXVECTOR3 &rMove)
+{
+	// 引数の移動量を設定
+	m_move = rMove;
+}
+
+//============================================================
+//	移動量取得処理
+//============================================================
+D3DXVECTOR3 CEnemy::GetMovePosition(void) const
+{
+	// 移動量を返す
+	return m_move;
+}
+
+//============================================================
 //	ステータス情報取得処理
 //============================================================
 CEnemy::SStatusInfo CEnemy::GetStatusInfo(void) const
@@ -352,7 +321,31 @@ void CEnemy::UpdateSpawn(void)
 //============================================================
 void CEnemy::UpdateNormal(void)
 {
+	// 変数を宣言
+	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
 
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 位置更新
+	UpdatePosition(&posEnemy);
+
+	// 着地判定
+	UpdateLanding(&posEnemy);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posEnemy, m_status.fRadius);
+
+	// 位置を反映
+	SetVec3Position(posEnemy);
+
+	// 向きを反映
+	SetVec3Rotation(rotEnemy);
 }
 
 //============================================================
@@ -374,6 +367,65 @@ void CEnemy::UpdateLook(const D3DXVECTOR3& rPosLook, const D3DXVECTOR3& rPosEnem
 	// 向きの更新
 	pRotEnemy->y += fDiffRot * m_status.fLookRev;
 	useful::NormalizeRot(pRotEnemy->y);	// 向きの正規化
+}
+
+//============================================================
+//	重力の更新処理
+//============================================================
+void CEnemy::UpdateGravity(void)
+{
+	// 重力を加算
+	m_move.y -= GRAVITY;
+}
+
+//============================================================
+//	着地状況の更新処理
+//============================================================
+bool CEnemy::UpdateLanding(D3DXVECTOR3 *pPos)
+{
+	// 変数を宣言
+	bool bLand = false;	// 着地状況
+
+	// ジャンプしている状態にする
+	m_bJump = true;
+
+	// 地面・制限位置の着地判定
+	if (CScene::GetStage()->LandFieldPosition(*pPos, m_move)
+	||  CScene::GetStage()->LandLimitPosition(*pPos, m_move, 0.0f))
+	{ // プレイヤーが着地していた場合
+
+		// 着地している状態にする
+		bLand = true;
+
+		// ジャンプしていない状態にする
+		m_bJump = false;
+	}
+
+	// 着地状況を返す
+	return bLand;
+}
+
+//============================================================
+//	位置の更新処理
+//============================================================
+void CEnemy::UpdatePosition(D3DXVECTOR3 *pPos)
+{
+	// 位置を移動
+	*pPos += m_move;
+
+	// 移動量を減衰
+	if (m_bJump)
+	{ // 空中の場合
+
+		m_move.x += (0.0f - m_move.x) * JUMP_REV;
+		m_move.z += (0.0f - m_move.z) * JUMP_REV;
+	}
+	else
+	{ // 地上の場合
+
+		m_move.x += (0.0f - m_move.x) * LAND_REV;
+		m_move.z += (0.0f - m_move.z) * LAND_REV;
+	}
 }
 
 //============================================================

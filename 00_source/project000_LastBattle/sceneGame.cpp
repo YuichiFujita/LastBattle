@@ -17,6 +17,7 @@
 #include "stage.h"
 #include "pause.h"
 #include "player.h"
+#include "enemy.h"
 
 //************************************************************
 //	’è”éŒ¾
@@ -121,6 +122,9 @@ HRESULT CSceneGame::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+
+	// “G‚Ì¶¬
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
 
 	//--------------------------------------------------------
 	//	‰Šúİ’è
