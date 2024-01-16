@@ -33,8 +33,8 @@ CEnemy::SStatusInfo CEnemy::m_aStatusInfo[CEnemy::TYPE_MAX] =	// ステータス情報
 {
 	// ミニドラゴンのステータス情報
 	{
-		50.0f,	// 半径
-		40.0f,	// 縦幅
+		45.0f,	// 半径
+		100.0f,	// 縦幅
 		0.25f,	// 視認の補正係数
 		75.0f,	// 判定半径
 	},

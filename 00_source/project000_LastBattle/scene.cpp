@@ -20,6 +20,7 @@
 
 #include "stage.h"
 #include "player.h"
+#include "sword.h"
 
 //************************************************************
 //	静的メンバ変数宣言
@@ -62,6 +63,9 @@ HRESULT CScene::Init(void)
 
 	// プレイヤーの生成
 	CPlayer::Create(m_mode);
+
+	// 剣のセットアップ読込
+	CSword::LoadSetup();
 
 	// 成功を返す
 	return S_OK;

@@ -83,6 +83,9 @@ public:
 	void SetState(const EState state);	// ó‘Ôİ’è
 
 private:
+	// ƒƒ“ƒoŠÖ”
+	void CollisionEnemy(void);	// “G‚Æ‚Ì“–‚½‚è”»’è
+
 	// Ã“Iƒƒ“ƒo•Ï”
 	static SCollInfo m_collInfo;	// ”»’èî•ñ
 

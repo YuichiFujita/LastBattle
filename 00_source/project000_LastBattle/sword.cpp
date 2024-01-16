@@ -10,7 +10,11 @@
 #include "sword.h"
 #include "manager.h"
 #include "renderer.h"
+#include "collision.h"
 #include "orbit.h"
+#include "enemy.h"
+
+#include "effect3D.h"
 
 //************************************************************
 //	定数宣言
@@ -105,6 +109,9 @@ HRESULT CSword::Init(void)
 //============================================================
 void CSword::Uninit(void)
 {
+	// 判定情報の破棄
+	SAFE_DEL_ARRAY(m_collInfo.pColl);
+
 	// 軌跡の終了
 	SAFE_UNINIT(m_pOrbit);
 
@@ -139,6 +146,9 @@ void CSword::Update(void)
 		// 透明度を反映
 		SetAlpha(fAlpha);
 	}
+
+	// 敵との当たり判定
+	CollisionEnemy();
 
 	// 軌跡の更新
 	m_pOrbit->Update();
@@ -253,6 +263,52 @@ void CSword::SetState(const EState state)
 }
 
 //============================================================
+//	敵との当たり判定
+//============================================================
+void CSword::CollisionEnemy(void)
+{
+	CListManager<CEnemy> *pList = CEnemy::GetList();	// リストマネージャー
+	if (pList == nullptr)		 { return; }	// リスト未使用
+	if (pList->GetNumAll() <= 0) { return; }	// 敵が存在しない
+
+	D3DXMATRIX mtxWorld = GetMtxWorld();		// ワールドマトリックス
+	std::list<CEnemy*> list = pList->GetList();	// 敵リスト
+	for (auto enemy : list)
+	{ // リストのすべてを繰り返す
+
+		for (int i = 0; i < m_collInfo.nNumColl; i++)
+		{ // 判定数分繰り返す
+
+			D3DXVECTOR3 posEnemy, posColl;	// 判定位置
+			D3DXMATRIX mtxTrans, mtxColl;	// マトリックス計算用
+
+			// オフセットマトリックスを作成
+			D3DXMatrixTranslation
+			( // 引数
+				&mtxTrans,
+				m_collInfo.pColl[i].offset.x,
+				m_collInfo.pColl[i].offset.y,
+				m_collInfo.pColl[i].offset.z
+			);
+
+			// 剣のマトリックスと掛け合わせる
+			D3DXMatrixMultiply(&mtxColl, &mtxTrans, &mtxWorld);
+
+			// 判定位置を設定
+			posEnemy = enemy->GetVec3Position() + D3DXVECTOR3(0.0f, enemy->GetHeight() * 0.5f, 0.0f);
+			posColl = useful::GetMtxWorldPosition(mtxColl);
+
+			if (collision::Circle3D(posColl, posEnemy, m_collInfo.pColl[i].fRadius, enemy->GetStatusInfo().fCollRadius))
+			{
+
+				CEffect3D::Create(posColl, m_collInfo.pColl[i].fRadius * 2.0f);
+				CEffect3D::Create(posEnemy, enemy->GetStatusInfo().fCollRadius * 2.0f, CEffect3D::TYPE_BUBBLE);
+			}
+		}
+	}
+}
+
+//============================================================
 //	セットアップ処理
 //============================================================
 void CSword::LoadSetup(void)
@@ -266,6 +322,9 @@ void CSword::LoadSetup(void)
 
 	// ポインタを宣言
 	FILE *pFile;	// ファイルポインタ
+
+	// 判定情報の破棄
+	SAFE_DEL_ARRAY(m_collInfo.pColl);
 
 	// 静的メンバ変数の情報をクリア
 	memset(&m_collInfo, 0, sizeof(m_collInfo));	// 判定情報
