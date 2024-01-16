@@ -57,7 +57,12 @@ public:
 	int GetState(void) const override;	// 状態取得
 
 	// 静的メンバ関数
-	static CSword *Create(CObject *pObject);	// 生成
+	static CSword *Create	// 生成
+	( // 引数
+		CObject *pObject,						// 親オブジェクト
+		const D3DXVECTOR3 &rPos = VEC3_ZERO,	// 位置
+		const D3DXVECTOR3 &rRot = VEC3_ZERO		// 向き
+	);
 
 	// メンバ関数
 	void SetState(const EState state);	// 状態設定

@@ -70,10 +70,10 @@ namespace
 		CPlayer::L_MODEL_MAX,	// 下半身
 		CPlayer::U_MODEL_MAX,	// 上半身
 	};
-	const int SPAWN_MOTION[] =	// スポーンモーション
+	const D3DXVECTOR3 SWORD_OFFSET[] =	// 剣のオフセット位置
 	{
-		CPlayer::L_MOTION_IDOL,	// 下半身
-		CPlayer::U_MOTION_IDOL,	// 上半身
+		D3DXVECTOR3(-5.0f, 0.0f, 0.0f),	// 右剣
+		D3DXVECTOR3(5.0f, 0.0f, 0.0f),	// 左剣
 	};
 
 	const int	PRIORITY	= 3;		// プレイヤーの優先順位
@@ -101,8 +101,8 @@ CListManager<CPlayer> *CPlayer::m_pList = nullptr;	// オブジェクトリスト
 //************************************************************
 static_assert(NUM_ARRAY(LOWER_MODEL_FILE) == CPlayer::L_MODEL_MAX, "ERROR : Model Count Mismatch");
 static_assert(NUM_ARRAY(UPPER_MODEL_FILE) == CPlayer::U_MODEL_MAX, "ERROR : Model Count Mismatch");
-static_assert(NUM_ARRAY(SETUP_TXT)    == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
-static_assert(NUM_ARRAY(SPAWN_MOTION) == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
+static_assert(NUM_ARRAY(SETUP_TXT) == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
+static_assert(NUM_ARRAY(SWORD_OFFSET) == player::NUM_SWORD, "ERROR : Body Count Mismatch");
 
 //************************************************************
 //	子クラス [CPlayer] のメンバ関数
@@ -169,7 +169,8 @@ HRESULT CPlayer::Init(void)
 		// 剣の生成
 		m_apSowrd[nCntOrbit] = CSword::Create
 		( // 引数
-			GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntOrbit)	// 親オブジェクト
+			GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntOrbit),	// 親オブジェクト
+			SWORD_OFFSET[nCntOrbit]
 		);
 		if (m_apSowrd[nCntOrbit] == nullptr)
 		{ // 非使用中の場合
@@ -275,14 +276,6 @@ void CPlayer::Update(void)
 	default:
 		assert(false);
 		break;
-	}
-
-	// TODO
-	if (GET_INPUTKEY->IsTrigger(DIK_0))
-	{
-		static bool b = true;
-		b = !b;
-		SetSwordDisp(b);
 	}
 
 	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)

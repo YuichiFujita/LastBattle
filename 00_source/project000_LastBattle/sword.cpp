@@ -22,8 +22,8 @@ namespace
 		"data\\MODEL\\PLAYER\\15_sword.x",	// 剣
 	};
 
-	const float SUB_ALPHA	= 0.1f;	// 透明度の減算量
-	const int	ORBIT_PART	= 25;	// 分割数
+	const float SUB_ALPHA	= 0.05f;	// 透明度の減算量
+	const int	ORBIT_PART	= 25;		// 分割数
 	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 0.0f, -10.0f), D3DXVECTOR3(0.0f, 0.0f, -65.0f), XCOL_CYAN);	// オフセット情報
 }
 
@@ -167,7 +167,12 @@ int CSword::GetState(void) const
 //============================================================
 //	生成処理
 //============================================================
-CSword *CSword::Create(CObject *pObject)
+CSword *CSword::Create
+(
+	CObject *pObject,			// 親オブジェクト
+	const D3DXVECTOR3 &rPos,	// 位置
+	const D3DXVECTOR3 &rRot		// 向き
+)
 {
 	// 剣の生成
 	CSword *pSword = new CSword;
@@ -190,6 +195,12 @@ CSword *CSword::Create(CObject *pObject)
 
 		// 親オブジェクトを設定
 		pSword->SetParentObject(pObject);
+
+		// 位置を設定
+		pSword->SetVec3Position(rPos);
+
+		// 向きを設定
+		pSword->SetVec3Rotation(rRot);
 
 		// 確保したアドレスを返す
 		return pSword;
