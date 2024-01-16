@@ -72,8 +72,8 @@ namespace
 	};
 	const D3DXVECTOR3 SWORD_OFFSET[] =	// 剣のオフセット位置
 	{
-		D3DXVECTOR3(-5.0f, 0.0f, 0.0f),	// 右剣
-		D3DXVECTOR3(5.0f, 0.0f, 0.0f),	// 左剣
+		D3DXVECTOR3(-5.8f, 0.0f, 0.0f),	// 右剣
+		D3DXVECTOR3(5.8f, 0.0f, 0.0f),	// 左剣
 	};
 
 	const int	PRIORITY	= 3;		// プレイヤーの優先順位
