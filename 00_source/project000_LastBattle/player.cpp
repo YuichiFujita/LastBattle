@@ -163,16 +163,16 @@ HRESULT CPlayer::Init(void)
 	// 上半身の親インデックスの設定
 	SetUpperParentID(L_MODEL_WAIST);
 
-	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 	{ // 剣の数分繰り返す
 
 		// 剣の生成
-		m_apSowrd[nCntOrbit] = CSword::Create
+		m_apSowrd[nCntSword] = CSword::Create
 		( // 引数
-			GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntOrbit),	// 親オブジェクト
-			SWORD_OFFSET[nCntOrbit]
+			GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntSword),	// 親オブジェクト
+			SWORD_OFFSET[nCntSword]
 		);
-		if (m_apSowrd[nCntOrbit] == nullptr)
+		if (m_apSowrd[nCntSword] == nullptr)
 		{ // 非使用中の場合
 
 			// 失敗を返す
@@ -217,11 +217,11 @@ HRESULT CPlayer::Init(void)
 //============================================================
 void CPlayer::Uninit(void)
 {
-	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 	{ // 剣の数分繰り返す
 
 		// 剣の終了
-		SAFE_UNINIT(m_apSowrd[nCntOrbit]);
+		SAFE_UNINIT(m_apSowrd[nCntSword]);
 	}
 
 	// 影の終了
@@ -293,11 +293,19 @@ void CPlayer::Update(void)
 		SetMotion(BODY_UPPER, curUpMotion);
 	}
 
-	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+	bool bColl[] =	// 判定ON/OFF状況
+	{
+		IsLeftWeaponCollision(BODY_UPPER),	// 左手の武器の攻撃判定
+		IsRightWeaponCollision(BODY_UPPER),	// 右手の武器の攻撃判定
+	};
+	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 	{ // 剣の数分繰り返す
 
+		// 剣の攻撃判定を設定
+		m_apSowrd[nCntSword]->SetEnableAttack(bColl[nCntSword]);
+
 		// 剣の更新
-		m_apSowrd[nCntOrbit]->Update();
+		m_apSowrd[nCntSword]->Update();
 	}
 
 	// 影の更新
@@ -315,11 +323,11 @@ void CPlayer::Draw(void)
 	// オブジェクト分割キャラクターの描画
 	CObjectDivChara::Draw();
 
-	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 	{ // 剣の数分繰り返す
 
 		// 剣の描画
-		m_apSowrd[nCntOrbit]->Draw();
+		m_apSowrd[nCntSword]->Draw();
 	}
 }
 
@@ -648,21 +656,21 @@ void CPlayer::SetSwordDisp(const bool bDisp)
 	if (bDisp)
 	{ // 見える設定された場合
 
-		for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 		{ // 剣の数分繰り返す
 
 			// 剣を出す
-			m_apSowrd[nCntOrbit]->SetState(CSword::STATE_NORMAL);
+			m_apSowrd[nCntSword]->SetState(CSword::STATE_NORMAL);
 		}
 	}
 	else
 	{ // 見えない設定された場合
 
-		for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
+		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 		{ // 剣の数分繰り返す
 
 			// 剣を消す
-			m_apSowrd[nCntOrbit]->SetState(CSword::STATE_VANISH);
+			m_apSowrd[nCntSword]->SetState(CSword::STATE_VANISH);
 		}
 	}
 }
@@ -897,9 +905,6 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 	// ポインタを宣言
 	FILE *pFile;	// ファイルポインタ
 
-	// ポーズ代入用の変数を初期化
-	memset(&info, 0, sizeof(info));
-
 	// ファイルを読み込み形式で開く
 	pFile = fopen(SETUP_TXT[bodyID], "r");
 
@@ -974,6 +979,9 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 				// 現在のポーズ番号を初期化
 				nNowPose = 0;
 
+				// ポーズ代入用の変数を初期化
+				memset(&info, 0, sizeof(info));
+
 				do
 				{ // 読み込んだ文字列が END_MOTIONSET ではない場合ループ
 
@@ -1001,6 +1009,16 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 						// 現在のキー番号を初期化
 						nNowKey = 0;
 
+						for (int nCntKey = 0; nCntKey < motion::MAX_KEY; nCntKey++)
+						{ // キーの最大数分繰り返す
+
+							// 攻撃判定情報を初期化
+							info.aKeyInfo[nNowPose].nLeftMinColl  = NONE_IDX;
+							info.aKeyInfo[nNowPose].nLeftMaxColl  = NONE_IDX;
+							info.aKeyInfo[nNowPose].nRightMinColl = NONE_IDX;
+							info.aKeyInfo[nNowPose].nRightMaxColl = NONE_IDX;
+						}
+
 						do
 						{ // 読み込んだ文字列が END_KEYSET ではない場合ループ
 
@@ -1012,6 +1030,20 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 
 								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
 								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nFrame);	// キーが切り替わるまでのフレーム数を読み込む
+							}
+							else if (strcmp(&aString[0], "LEFT_COLL") == 0)
+							{ // 読み込んだ文字列が LEFT_COLL の場合
+
+								fscanf(pFile, "%s", &aString[0]);								// = を読み込む (不要)
+								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nLeftMinColl);		// 判定を出す開始フレームを読み込む
+								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nLeftMaxColl);		// 判定を消す終了フレームを読み込む
+							}
+							else if (strcmp(&aString[0], "RIGHT_COLL") == 0)
+							{ // 読み込んだ文字列が RIGHT_COLL の場合
+
+								fscanf(pFile, "%s", &aString[0]);								// = を読み込む (不要)
+								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nRightMinColl);	// 判定を出す開始フレームを読み込む
+								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nRightMaxColl);	// 判定を消す終了フレームを読み込む
 							}
 							else if (strcmp(&aString[0], "KEY") == 0)
 							{ // 読み込んだ文字列が KEY の場合

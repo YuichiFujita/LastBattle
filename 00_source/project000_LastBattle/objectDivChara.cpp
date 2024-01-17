@@ -462,6 +462,40 @@ bool CObjectDivChara::IsMotionLoop(const EBody bodyID) const
 }
 
 //============================================================
+//	左の攻撃判定状況の取得処理
+//============================================================
+bool CObjectDivChara::IsLeftWeaponCollision(const EBody bodyID)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスの左の攻撃判定状況を返す
+		return m_apBody[bodyID]->IsLeftWeaponCollision();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return false;
+}
+
+//============================================================
+//	右の攻撃判定状況の取得処理
+//============================================================
+bool CObjectDivChara::IsRightWeaponCollision(const EBody bodyID)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスの右の攻撃判定状況を返す
+		return m_apBody[bodyID]->IsRightWeaponCollision();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return false;
+}
+
+//============================================================
 //	パーツ位置の設定処理
 //============================================================
 void CObjectDivChara::SetPartsPosition(const EBody bodyID, const int nPartsID, const D3DXVECTOR3 &rPos)

@@ -80,7 +80,8 @@ public:
 	);
 
 	// ƒƒ“ƒoŠÖ”
-	void SetState(const EState state);	// ó‘Ôİ’è
+	void SetState(const EState state);			// ó‘Ôİ’è
+	void SetEnableAttack(const bool bAttack);	// UŒ‚ó‹µİ’è
 
 private:
 	// ƒƒ“ƒoŠÖ”

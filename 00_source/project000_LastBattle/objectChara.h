@@ -83,6 +83,8 @@ public:
 	int GetMotionCounter(void) const;	// モーションカウンター取得
 	bool IsMotionFinish(void) const;	// モーション終了取得
 	bool IsMotionLoop(void) const;		// モーションループ取得
+	bool IsLeftWeaponCollision(void);	// 左の攻撃判定状況
+	bool IsRightWeaponCollision(void);	// 右の攻撃判定状況
 
 private:
 	// オーバーライド関数

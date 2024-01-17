@@ -55,6 +55,20 @@ HRESULT CMotion::Init(void)
 	// モーションを終了状態にする
 	m_info.bFinish = true;
 
+	// 攻撃判定情報を初期化
+	for (int nCntMotion = 0; nCntMotion < motion::MAX_MOTION; nCntMotion++)
+	{ // モーションの最大数分繰り返す
+
+		for (int nCntKey = 0; nCntKey < motion::MAX_KEY; nCntKey++)
+		{ // キーの最大数分繰り返す
+
+			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nLeftMinColl  = NONE_IDX;
+			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nLeftMaxColl  = NONE_IDX;
+			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nRightMinColl = NONE_IDX;
+			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nRightMaxColl = NONE_IDX;
+		}
+	}
+
 	// 成功を返す
 	return S_OK;
 }
@@ -258,6 +272,48 @@ bool CMotion::IsLoop(const int nType) const
 {
 	// 現在のループのON/OFF状況を返す
 	return m_info.aMotionInfo[nType].bLoop;
+}
+
+//============================================================
+//	左の攻撃判定状況の取得処理
+//============================================================
+bool CMotion::IsLeftWeaponCollision(void)
+{
+	// ポインタを宣言
+	SKeyInfo *pKeyInfo = &m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nPose];	// 現在のポーズ情報
+
+	if (pKeyInfo->nLeftMinColl == NONE_IDX) { return false; }	// 開始カウント未設定
+	if (pKeyInfo->nLeftMaxColl == NONE_IDX) { return false; }	// 終了カウント未設定
+
+	if (m_info.nCounter >= pKeyInfo->nLeftMinColl
+	&&  m_info.nCounter <= pKeyInfo->nLeftMaxColl)
+	{ // カウンターが開始と終了の範囲内の場合
+
+		return true;
+	}
+
+	return false;
+}
+
+//============================================================
+//	右の攻撃判定状況の取得処理
+//============================================================
+bool CMotion::IsRightWeaponCollision(void)
+{
+	// ポインタを宣言
+	SKeyInfo *pKeyInfo = &m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nPose];	// 現在のポーズ情報
+
+	if (pKeyInfo->nRightMinColl == NONE_IDX) { return false; }	// 開始カウント未設定
+	if (pKeyInfo->nRightMaxColl == NONE_IDX) { return false; }	// 終了カウント未設定
+
+	if (m_info.nCounter >= pKeyInfo->nRightMinColl
+	&&  m_info.nCounter <= pKeyInfo->nRightMaxColl)
+	{ // カウンターが開始と終了の範囲内の場合
+
+		return true;
+	}
+
+	return false;
 }
 
 //============================================================

@@ -949,6 +949,7 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 4
+		LEFT_COLL = 0 4
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -995,6 +996,7 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 4
+		LEFT_COLL = 0 4
 
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -1041,6 +1043,7 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 4
+		LEFT_COLL = 0 4
 
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00

@@ -49,7 +49,11 @@ public:
 	struct SKeyInfo
 	{
 		SKey aKey[motion::MAX_PARTS];	// キーモデル情報
-		int  nFrame;	// キー再生フレーム数
+		int  nFrame;		// キー再生フレーム数
+		int  nLeftMinColl;	// 左攻撃判定の開始カウント
+		int  nLeftMaxColl;	// 左攻撃判定の終了カウント
+		int  nRightMinColl;	// 右攻撃判定の開始カウント
+		int  nRightMaxColl;	// 右攻撃判定の終了カウント
 	};
 
 	// キー管理構造体
@@ -84,6 +88,8 @@ public:
 	int  GetCounter(void) const;		// モーションカウンター取得
 	bool IsFinish(void) const;			// 終了取得
 	bool IsLoop(const int nType) const;	// ループ取得
+	bool IsLeftWeaponCollision(void);	// 左の攻撃判定状況
+	bool IsRightWeaponCollision(void);	// 右の攻撃判定状況
 
 	// 静的メンバ関数
 	static CMotion *Create(void);				// 生成
@@ -93,7 +99,7 @@ private:
 	// メンバ変数
 	SInfo m_info;				// モーション情報
 	CMultiModel **m_ppModel;	// モデル情報
-	int m_nNumModel;			// モデルのパーツ数
+	int  m_nNumModel;			// モデルのパーツ数
 	bool m_bUpdate;				// 更新状況
 };
 
