@@ -71,6 +71,7 @@ public:
 	{
 		L_MOTION_IDOL = 0,	// 待機モーション
 		L_MOTION_MOVE,		// 歩行モーション
+		L_MOTION_ATTACK_00,	// 攻撃モーション一段階目
 		L_MOTION_MAX		// この列挙型の総数
 	};
 
@@ -79,6 +80,7 @@ public:
 	{
 		U_MOTION_IDOL = 0,	// 待機モーション
 		U_MOTION_MOVE,		// 歩行モーション
+		U_MOTION_ATTACK_00,	// 攻撃モーション一段階目
 		U_MOTION_MAX		// この列挙型の総数
 	};
 
@@ -123,7 +125,7 @@ public:
 
 private:
 	// メンバ関数
-	void UpdateSpawn(void);	// スポーン状態時の更新
+	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
 	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション・オブジェクトキャラクターの更新
 

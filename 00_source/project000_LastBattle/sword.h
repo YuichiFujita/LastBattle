@@ -93,6 +93,7 @@ private:
 	COrbit	*m_pOrbit;			// 軌跡の情報
 	EState	m_state;			// 状態
 	int		m_nCounterState;	// 状態管理カウンター
+	bool	m_bAttack;			// 攻撃状況
 	bool	m_bDisp;			// 表示状況
 };
 

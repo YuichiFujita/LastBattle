@@ -194,6 +194,7 @@ namespace material
 	D3DXMATERIAL Green(void);		// 緑マテリアル取得
 	D3DXMATERIAL Blue(void);		// 青マテリアル取得
 	D3DXMATERIAL Yellow(void);		// 黄マテリアル取得
+	D3DXMATERIAL DamageRed(void);	// ダメージ赤マテリアル取得
 	D3DXMATERIAL GlowGreen(void);	// 発光緑マテリアル取得
 }
 

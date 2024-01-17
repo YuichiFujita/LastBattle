@@ -27,6 +27,7 @@ namespace
 	};
 	const char *SETUP_TXT	= "data\\TXT\\sword.txt";	// セットアップテキスト相対パス
 	const float	SUB_ALPHA	= 0.05f;	// 透明度の減算量
+	const int	DMG_HIT		= 10;		// ヒット時のダメージ量
 	const int	ORBIT_PART	= 25;		// 分割数
 	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 0.0f, -10.0f), D3DXVECTOR3(0.0f, 0.0f, -65.0f), XCOL_CYAN);	// オフセット情報
 }
@@ -49,6 +50,7 @@ static_assert(NUM_ARRAY(MODEL_FILE) == CSword::MODEL_MAX, "ERROR : Model Count M
 //============================================================
 CSword::CSword() : CMultiModel(LABEL_NONE, DIM_3D, object::DEFAULT_PRIO),
 	m_state			(STATE_NORMAL),	// 状態
+	m_bAttack		(false),		// 攻撃状況
 	m_bDisp			(false),		// 表示状況
 	m_nCounterState	(0)				// 状態管理カウンター
 {
@@ -69,9 +71,10 @@ CSword::~CSword()
 HRESULT CSword::Init(void)
 {
 	// メンバ変数を初期化
-	m_state = STATE_NORMAL;	// 状態
-	m_bDisp = true;			// 表示状況
-	m_nCounterState = 0;	// 状態管理カウンター
+	m_state		= STATE_NORMAL;	// 状態
+	m_bAttack	= true;			// 攻撃状況
+	m_bDisp		= true;			// 表示状況
+	m_nCounterState = 0;		// 状態管理カウンター
 
 	// マルチモデルの初期化
 	if (FAILED(CMultiModel::Init()))
@@ -270,16 +273,20 @@ void CSword::CollisionEnemy(void)
 	CListManager<CEnemy> *pList = CEnemy::GetList();	// リストマネージャー
 	if (pList == nullptr)		 { return; }	// リスト未使用
 	if (pList->GetNumAll() <= 0) { return; }	// 敵が存在しない
+	if (!m_bAttack)				 { return; }	// 攻撃OFF
 
 	D3DXMATRIX mtxWorld = GetMtxWorld();		// ワールドマトリックス
 	std::list<CEnemy*> list = pList->GetList();	// 敵リスト
 	for (auto enemy : list)
 	{ // リストのすべてを繰り返す
 
+		// 敵の判定中心位置を求める
+		D3DXVECTOR3 posCollEnemy = enemy->GetVec3Position() + D3DXVECTOR3(0.0f, enemy->GetHeight() * 0.5f, 0.0f);
+
 		for (int i = 0; i < m_collInfo.nNumColl; i++)
 		{ // 判定数分繰り返す
 
-			D3DXVECTOR3 posEnemy, posColl;	// 判定位置
+			D3DXVECTOR3 posCollSword;		// 剣の判定位置
 			D3DXMATRIX mtxTrans, mtxColl;	// マトリックス計算用
 
 			// オフセットマトリックスを作成
@@ -294,15 +301,22 @@ void CSword::CollisionEnemy(void)
 			// 剣のマトリックスと掛け合わせる
 			D3DXMatrixMultiply(&mtxColl, &mtxTrans, &mtxWorld);
 
-			// 判定位置を設定
-			posEnemy = enemy->GetVec3Position() + D3DXVECTOR3(0.0f, enemy->GetHeight() * 0.5f, 0.0f);
-			posColl = useful::GetMtxWorldPosition(mtxColl);
+			// 武器の判定中心位置を設定
+			posCollSword = useful::GetMtxWorldPosition(mtxColl);
 
-			if (collision::Circle3D(posColl, posEnemy, m_collInfo.pColl[i].fRadius, enemy->GetStatusInfo().fCollRadius))
-			{
+			// 攻撃の当たり判定
+			bool bHit = collision::Circle3D
+			( // 引数
+				posCollSword,	// 判定位置
+				posCollEnemy,	// 判定目標位置
+				m_collInfo.pColl[i].fRadius,		// 判定半径
+				enemy->GetStatusInfo().fCollRadius	// 判定目標半径
+			);
+			if (bHit)
+			{ // 攻撃が当たった場合
 
-				CEffect3D::Create(posColl, m_collInfo.pColl[i].fRadius * 2.0f);
-				CEffect3D::Create(posEnemy, enemy->GetStatusInfo().fCollRadius * 2.0f, CEffect3D::TYPE_BUBBLE);
+				// 敵のヒット処理
+				enemy->Hit(DMG_HIT);
 			}
 		}
 	}

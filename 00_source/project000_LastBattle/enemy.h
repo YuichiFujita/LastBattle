@@ -16,6 +16,11 @@
 #include "objectModel.h"
 
 //************************************************************
+//	前方宣言
+//************************************************************
+class CGauge3D;	// ゲージ3Dクラス
+
+//************************************************************
 //	クラス定義
 //************************************************************
 // 敵クラス
@@ -34,6 +39,9 @@ public:
 	{
 		STATE_SPAWN = 0,	// スポーン状態
 		STATE_NORMAL,		// 通常状態
+		STATE_DAMAGE,		// ダメージ状態
+		STATE_INVULN,		// 無敵状態
+		STATE_DEATH,		// 死亡状態
 		STATE_MAX			// この列挙型の総数
 	};
 
@@ -46,6 +54,7 @@ public:
 	// ステータス構造体
 	struct SStatusInfo
 	{
+		int   nMaxLife;		// 最大体力
 		float fRadius;		// 半径
 		float fHeight;		// 縦幅
 		float fLookRev;		// 視認の補正係数
@@ -74,6 +83,9 @@ public:
 	static SStatusInfo GetStatusInfo(const int nType);	// ステータス情報取得
 
 	// メンバ関数
+	void Hit(const int nDamage);	// ヒット
+	void HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKnock);	// ノックバックヒット
+
 	void UpdateOldPosition(void);					// 過去位置更新
 	D3DXVECTOR3 GetOldPosition(void) const;			// 過去位置取得
 	void SetMovePosition(const D3DXVECTOR3& rMove);	// 位置移動量設定
@@ -82,8 +94,13 @@ public:
 
 protected:
 	// 仮想関数
+	virtual void SetSpawn(void);		// スポーン状態の設定
+	virtual void SetInvuln(void);		// 無敵状態の設定
 	virtual void UpdateSpawn(void);		// スポーン状態時の更新
 	virtual void UpdateNormal(void);	// 通常状態時の更新
+	virtual void UpdateDamage(void);	// ダメージ状態時の更新
+	virtual void UpdateInvuln(void);	// 無敵状態時の更新
+	virtual void UpdateDeath(void);		// 死亡状態時の更新
 
 	// メンバ関数
 	void UpdateLook	// 対象視認
@@ -105,10 +122,12 @@ private:
 
 	// メンバ変数
 	CListManager<CEnemy>::AIterator m_iterator;	// イテレーター
+	CGauge3D	*m_pLife;		// 体力の情報
 	D3DXVECTOR3	m_oldPos;		// 過去位置
 	D3DXVECTOR3	m_move;			// 移動量
 	EState	m_state;			// 状態
 	int		m_nCounterState;	// 状態管理カウンター
+	float	m_fSinAlpha;		// 透明向き
 	bool	m_bJump;			// ジャンプ状況
 	const EType m_type;			// 種類定数
 	const SStatusInfo m_status;	// ステータス定数

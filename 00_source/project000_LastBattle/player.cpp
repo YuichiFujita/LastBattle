@@ -254,6 +254,9 @@ void CPlayer::Update(void)
 	// 過去位置の更新
 	UpdateOldPosition();
 
+	// 重力の更新
+	UpdateGravity();
+
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_NONE:
@@ -262,7 +265,7 @@ void CPlayer::Update(void)
 	case STATE_SPAWN:
 
 		// スポーン状態時の更新
-		UpdateSpawn();
+		UpdateSpawn((int*)&curLowMotion, (int*)&curUpMotion);
 
 		break;
 
@@ -276,6 +279,18 @@ void CPlayer::Update(void)
 	default:
 		assert(false);
 		break;
+	}
+
+	// TODO：攻撃モーションデバッグ用
+	if (GET_INPUTKEY->IsTrigger(DIK_0))
+	{
+		curLowMotion = L_MOTION_ATTACK_00;	// 現在の下半身モーション
+		curUpMotion  = U_MOTION_ATTACK_00;	// 現在の上半身モーション
+	}
+	if (GET_INPUTKEY->IsTrigger(DIK_9))
+	{
+		SetMotion(BODY_LOWER, curLowMotion);
+		SetMotion(BODY_UPPER, curUpMotion);
 	}
 
 	for (int nCntOrbit = 0; nCntOrbit < player::NUM_SWORD; nCntOrbit++)
@@ -541,37 +556,8 @@ void CPlayer::SetSpawn(void)
 //============================================================
 //	スポーン状態時の更新処理
 //============================================================
-void CPlayer::UpdateSpawn(void)
+void CPlayer::UpdateSpawn(int *pLowMotion, int *pUpMotion)
 {
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
-
-	// ポインタを宣言
-	CStage *pStage = CScene::GetStage();				// ステージ情報
-	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
-
-	// 重力の更新
-	UpdateGravity();
-
-	// 位置更新
-	UpdatePosition(&posPlayer);
-
-	// 着地判定
-	UpdateLanding(&posPlayer);
-
-	// 向き更新
-	UpdateRotation(&rotPlayer);
-
-	// ステージ範囲外の補正
-	pStage->LimitPosition(posPlayer, RADIUS);
-
-	// 位置を反映
-	SetVec3Position(posPlayer);
-
-	// 向きを反映
-	SetVec3Rotation(rotPlayer);
-
 	// フェードアウト状態時の更新
 	if (UpdateFadeOut(ADD_ALPHA))
 	{ // 不透明になり切った場合
@@ -579,6 +565,9 @@ void CPlayer::UpdateSpawn(void)
 		// 状態を設定
 		SetState(STATE_NORMAL);
 	}
+
+	// 通常状態の更新
+	UpdateNormal(pLowMotion, pUpMotion);
 }
 
 //============================================================
@@ -596,9 +585,6 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 
 	// 移動操作
 	UpdateMove(pLowMotion, pUpMotion);
-
-	// 重力の更新
-	UpdateGravity();
 
 	// ジャンプ操作
 	UpdateJump(pLowMotion, pUpMotion);

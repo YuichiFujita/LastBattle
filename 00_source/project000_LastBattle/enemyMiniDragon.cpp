@@ -63,6 +63,9 @@ HRESULT CEnemyMiniDragon::Init(void)
 	// モデルの登録・割当
 	BindModel(MODEL_FILE[MODEL_NORMAL]);
 
+	// スポーン状態にする
+	SetState(STATE_SPAWN);
+
 	// 成功を返す
 	return S_OK;
 }
@@ -81,19 +84,46 @@ void CEnemyMiniDragon::Uninit(void)
 //============================================================
 void CEnemyMiniDragon::Update(void)
 {
+	// 過去位置の更新
+	UpdateOldPosition();
+
+	// 重力の更新
+	UpdateGravity();
+
 	switch (GetState())
 	{ // 状態ごとの処理
-	case STATE_SPAWN:
+	case STATE_SPAWN:	// 無敵状態
 
 		// スポーン動作の更新
 		UpdateSpawn();
 
 		break;
 
-	case STATE_NORMAL:
+	case STATE_NORMAL:	// 通常状態
 
 		// 通常動作の更新
 		UpdateNormal();
+
+		break;
+
+	case STATE_DAMAGE:	// ダメージ状態
+
+		// ダメージ動作の更新
+		UpdateDamage();
+
+		break;
+
+	case STATE_INVULN:	// 無敵状態
+
+		// 無敵動作時の更新
+		UpdateInvuln();
+
+		break;
+
+	case STATE_DEATH:	// 死亡状態
+
+		// 死亡動作時の更新
+		UpdateDeath();
 
 		break;
 
