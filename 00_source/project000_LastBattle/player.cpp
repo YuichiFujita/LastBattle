@@ -1000,10 +1000,10 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 				memset(&info, 0, sizeof(info));
 
 				// 攻撃判定情報を初期化
-				info.nLeftMinColl  = NONE_IDX;
-				info.nLeftMaxColl  = NONE_IDX;
-				info.nRightMinColl = NONE_IDX;
-				info.nRightMaxColl = NONE_IDX;
+				info.collLeft.nMin  = NONE_IDX;
+				info.collLeft.nMax  = NONE_IDX;
+				info.collRight.nMin = NONE_IDX;
+				info.collRight.nMax = NONE_IDX;
 
 				do
 				{ // 読み込んだ文字列が END_MOTIONSET ではない場合ループ
@@ -1039,15 +1039,15 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 					{ // 読み込んだ文字列が LEFT_COLL の場合
 
 						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.nLeftMinColl);	// 判定を出す開始フレームを読み込む
-						fscanf(pFile, "%d", &info.nLeftMaxColl);	// 判定を消す終了フレームを読み込む
+						fscanf(pFile, "%d", &info.collLeft.nMin);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &info.collLeft.nMax);	// 判定を消す終了フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "RIGHT_COLL") == 0)
 					{ // 読み込んだ文字列が RIGHT_COLL の場合
 
 						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.nRightMinColl);	// 判定を出す開始フレームを読み込む
-						fscanf(pFile, "%d", &info.nRightMaxColl);	// 判定を消す終了フレームを読み込む
+						fscanf(pFile, "%d", &info.collRight.nMin);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &info.collRight.nMax);	// 判定を消す終了フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "KEYSET") == 0)
 					{ // 読み込んだ文字列が KEYSET の場合

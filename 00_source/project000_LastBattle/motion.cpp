@@ -51,10 +51,10 @@ HRESULT CMotion::Init(void)
 	{ // モーションの最大数分繰り返す
 
 		// 攻撃判定情報を初期化
-		m_info.aMotionInfo[nCntMotion].nLeftMinColl  = NONE_IDX;
-		m_info.aMotionInfo[nCntMotion].nLeftMaxColl  = NONE_IDX;
-		m_info.aMotionInfo[nCntMotion].nRightMinColl = NONE_IDX;
-		m_info.aMotionInfo[nCntMotion].nRightMaxColl = NONE_IDX;
+		m_info.aMotionInfo[nCntMotion].collLeft.nMin  = NONE_IDX;
+		m_info.aMotionInfo[nCntMotion].collLeft.nMax  = NONE_IDX;
+		m_info.aMotionInfo[nCntMotion].collRight.nMin = NONE_IDX;
+		m_info.aMotionInfo[nCntMotion].collRight.nMax = NONE_IDX;
 
 		// 武器表示をOFFにする
 		m_info.aMotionInfo[nCntMotion].bWeaponDisp = false;
@@ -294,11 +294,11 @@ bool CMotion::IsWeaponDisp(const int nType) const
 bool CMotion::IsLeftWeaponCollision(void)
 {
 	SMotionInfo *pMotionInfo = &m_info.aMotionInfo[m_info.nType];	// 現在のモーション情報
-	if (pMotionInfo->nLeftMinColl == NONE_IDX) { return false; }	// 開始カウント未設定
-	if (pMotionInfo->nLeftMaxColl == NONE_IDX) { return false; }	// 終了カウント未設定
+	if (pMotionInfo->collLeft.nMin == NONE_IDX) { return false; }	// 開始カウント未設定
+	if (pMotionInfo->collLeft.nMax == NONE_IDX) { return false; }	// 終了カウント未設定
 
-	if (m_info.nWholeCounter >= pMotionInfo->nLeftMinColl
-	&&  m_info.nWholeCounter <= pMotionInfo->nLeftMaxColl)
+	if (m_info.nWholeCounter >= pMotionInfo->collLeft.nMin
+	&&  m_info.nWholeCounter <= pMotionInfo->collLeft.nMax)
 	{ // カウンターが開始と終了の範囲内の場合
 
 		return true;
@@ -313,11 +313,11 @@ bool CMotion::IsLeftWeaponCollision(void)
 bool CMotion::IsRightWeaponCollision(void)
 {
 	SMotionInfo *pMotionInfo = &m_info.aMotionInfo[m_info.nType];	// 現在のモーション情報
-	if (pMotionInfo->nRightMinColl == NONE_IDX) { return false; }	// 開始カウント未設定
-	if (pMotionInfo->nRightMaxColl == NONE_IDX) { return false; }	// 終了カウント未設定
+	if (pMotionInfo->collRight.nMin == NONE_IDX) { return false; }	// 開始カウント未設定
+	if (pMotionInfo->collRight.nMax == NONE_IDX) { return false; }	// 終了カウント未設定
 
-	if (m_info.nWholeCounter >= pMotionInfo->nRightMinColl
-	&&  m_info.nWholeCounter <= pMotionInfo->nRightMaxColl)
+	if (m_info.nWholeCounter >= pMotionInfo->collRight.nMin
+	&&  m_info.nWholeCounter <= pMotionInfo->collRight.nMax)
 	{ // カウンターが開始と終了の範囲内の場合
 
 		return true;

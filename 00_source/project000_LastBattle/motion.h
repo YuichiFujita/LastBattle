@@ -45,6 +45,13 @@ public:
 		D3DXVECTOR3 rot;	// モデル向き
 	};
 
+	// 判定カウント管理構造体
+	struct SCollTime
+	{
+		int nMin;	// 攻撃判定の開始カウント
+		int nMax;	// 攻撃判定の終了カウント
+	};
+
 	// ポーズ管理構造体
 	struct SKeyInfo
 	{
@@ -56,13 +63,11 @@ public:
 	struct SMotionInfo
 	{
 		SKeyInfo aKeyInfo[motion::MAX_KEY];	// キー情報
-		int  nLeftMinColl;	// 左攻撃判定の開始カウント
-		int  nLeftMaxColl;	// 左攻撃判定の終了カウント
-		int  nRightMinColl;	// 右攻撃判定の開始カウント
-		int  nRightMaxColl;	// 右攻撃判定の終了カウント
-		int  nNumKey;		// キー総数
-		bool bLoop;			// ループ ON/OFF
-		bool bWeaponDisp;	// 武器表示 ON/OFF
+		SCollTime collLeft;		// 左攻撃判定のカウント
+		SCollTime collRight;	// 右攻撃判定のカウント
+		int  nNumKey;			// キー総数
+		bool bLoop;				// ループ ON/OFF
+		bool bWeaponDisp;		// 武器表示 ON/OFF
 	};
 
 	// モーション管理構造体
