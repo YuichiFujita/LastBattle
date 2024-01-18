@@ -599,15 +599,17 @@ void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
 	for (int nCntBody = 0; nCntBody < BODY_MAX; nCntBody++)
 	{ // 分割した身体の数分繰り返す
 
-		if (aMotion[nCntBody] == NONE_IDX)  { continue; }	// モーションが設定されていない
-		if (!IsMotionLoop((EBody)nCntBody)) { continue; }	// ループしないモーションだった
-		int nAnimMotion = GetMotionType((EBody)nCntBody);	// 現在再生中のモーション
+		if (aMotion[nCntBody] == NONE_IDX) { assert(false); continue; }	// モーションが設定されていない
 
-		if (nAnimMotion != aMotion[nCntBody])
-		{ // 現在のモーションが再生中のモーションと一致しない場合
+		if (IsMotionLoop((EBody)nCntBody))
+		{ // ループするモーションの場合
 
-			// 現在のモーションの設定
-			SetMotion((EBody)nCntBody, aMotion[nCntBody]);
+			if (GetMotionType((EBody)nCntBody) != aMotion[nCntBody])
+			{ // 現在のモーションが再生中のモーションと一致しない場合
+
+				// 現在のモーションの設定
+				SetMotion((EBody)nCntBody, aMotion[nCntBody]);
+			}
 		}
 
 		// 各半身ごとのモーション更新
@@ -649,6 +651,17 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		}
 	
 		break;
+
+	case L_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
+
+		if (IsMotionFinish(BODY_LOWER))
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_LOWER, nMotion);
+		}
+
+		break;
 	
 	default:	// 例外処理
 		assert(false);
@@ -676,6 +689,17 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 			SetMotion(BODY_UPPER, nMotion);
 		}
 	
+		break;
+
+	case U_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
+
+		if (IsMotionFinish(BODY_UPPER))
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_UPPER, nMotion);
+		}
+
 		break;
 	
 	default:	// 例外処理
