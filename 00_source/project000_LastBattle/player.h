@@ -72,6 +72,7 @@ public:
 		L_MOTION_IDOL = 0,	// 待機モーション
 		L_MOTION_MOVE,		// 歩行モーション
 		L_MOTION_ATTACK_00,	// 攻撃モーション一段階目
+		L_MOTION_ATTACK_01,	// 攻撃モーション二段階目
 		L_MOTION_MAX		// この列挙型の総数
 	};
 
@@ -81,6 +82,7 @@ public:
 		U_MOTION_IDOL = 0,	// 待機モーション
 		U_MOTION_MOVE,		// 歩行モーション
 		U_MOTION_ATTACK_00,	// 攻撃モーション一段階目
+		U_MOTION_ATTACK_01,	// 攻撃モーション二段階目
 		U_MOTION_MAX		// この列挙型の総数
 	};
 
