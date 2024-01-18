@@ -445,6 +445,23 @@ int CObjectDivChara::GetMotionWholeCounter(const EBody bodyID) const
 }
 
 //============================================================
+//	モーション全体フレーム数取得処理
+//============================================================
+int CObjectDivChara::GetMotionWholeFrame(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーション全体フレーム数を返す
+		return m_apBody[bodyID]->GetMotionWholeFrame();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return NONE_IDX;
+}
+
+//============================================================
 //	モーション終了状況の取得処理
 //============================================================
 bool CObjectDivChara::IsMotionFinish(const EBody bodyID) const
@@ -452,7 +469,7 @@ bool CObjectDivChara::IsMotionFinish(const EBody bodyID) const
 	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
 	{ // 正規インデックスの場合
 
-		// 引数インデックスのモーション終了を返す
+		// 引数インデックスのモーション終了状況を返す
 		return m_apBody[bodyID]->IsMotionFinish();
 	}
 
@@ -469,8 +486,25 @@ bool CObjectDivChara::IsMotionLoop(const EBody bodyID) const
 	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
 	{ // 正規インデックスの場合
 
-		// 引数インデックスのモーションループを返す
+		// 引数インデックスのモーションループ状況を返す
 		return m_apBody[bodyID]->IsMotionLoop();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return false;
+}
+
+//============================================================
+//	モーションキャンセル取得処理
+//============================================================
+bool CObjectDivChara::IsMotionCancel(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションキャンセル状況を返す
+		return m_apBody[bodyID]->IsMotionCancel();
 	}
 
 	// インデックスエラー

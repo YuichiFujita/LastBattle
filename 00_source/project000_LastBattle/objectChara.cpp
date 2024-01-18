@@ -527,6 +527,15 @@ int CObjectChara::GetMotionWholeCounter(void) const
 }
 
 //============================================================
+//	モーション全体フレーム数取得処理
+//============================================================
+int CObjectChara::GetMotionWholeFrame(void) const
+{
+	// 現在モーションの全体フレーム数を返す
+	return m_pMotion->GetWholeFrame(m_pMotion->GetType());
+}
+
+//============================================================
 //	モーション終了取得処理
 //============================================================
 bool CObjectChara::IsMotionFinish(void) const
@@ -542,6 +551,15 @@ bool CObjectChara::IsMotionLoop(void) const
 {
 	// 現在モーションのループ状況を返す
 	return m_pMotion->IsLoop(m_pMotion->GetType());
+}
+
+//============================================================
+//	モーションキャンセル取得処理
+//============================================================
+bool CObjectChara::IsMotionCancel(void) const
+{
+	// 現在モーションのキャンセル状況を返す
+	return m_pMotion->IsCancel(m_pMotion->GetType());
 }
 
 //============================================================

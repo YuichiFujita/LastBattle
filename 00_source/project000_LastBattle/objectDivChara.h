@@ -94,8 +94,10 @@ public:
 	int  GetMotionPose(const EBody bodyID) const;			// モーションポーズ番号取得
 	int  GetMotionKeyCounter(const EBody bodyID) const;		// モーションキーカウンター取得
 	int  GetMotionWholeCounter(const EBody bodyID) const;	// モーション全体カウンター取得
+	int  GetMotionWholeFrame(const EBody bodyID) const;		// モーション全体フレーム数取得
 	bool IsMotionFinish(const EBody bodyID) const;			// モーション終了取得
 	bool IsMotionLoop(const EBody bodyID) const;			// モーションループ取得
+	bool IsMotionCancel(const EBody bodyID) const;			// モーションキャンセル取得
 	bool IsWeaponDisp(const EBody bodyID) const;			// モーション武器表示取得
 	bool IsLeftWeaponCollision(const EBody bodyID);			// 左の攻撃判定フラグ取得
 	bool IsRightWeaponCollision(const EBody bodyID);		// 右の攻撃判定フラグ取得

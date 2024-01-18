@@ -123,6 +123,7 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_destRot		(VEC3_ZERO),	// 目標向き
 	m_state			(STATE_NONE),	// 状態
 	m_bJump			(false),		// ジャンプ状況
+	m_bInputAttack	(false),		// 攻撃の先行入力
 	m_nCounterState	(0)				// 状態管理カウンター
 {
 
@@ -148,6 +149,7 @@ HRESULT CPlayer::Init(void)
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NONE;	// 状態
 	m_bJump			= true;			// ジャンプ状況
+	m_bInputAttack	= false;		// 攻撃の先行入力
 	m_nCounterState	= 0;			// 状態管理カウンター
 
 	// オブジェクト分割キャラクターの初期化
@@ -593,13 +595,13 @@ void CPlayer::SetMotion(const EBody bodyID, const int nType)
 //============================================================
 void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
 {
+	if (nLowMotion <= NONE_IDX || nLowMotion >= L_MOTION_MAX) { assert(false); return; }	// 下半身のモーションが未設定
+	if (nUpMotion  <= NONE_IDX || nUpMotion  >= L_MOTION_MAX) { assert(false); return; }	// 上半身のモーションが未設定
 	if (IsDeath()) { return; }	// 死亡している
 
 	const int aMotion[] = { nLowMotion, nUpMotion };	// モーション情報
 	for (int nCntBody = 0; nCntBody < BODY_MAX; nCntBody++)
 	{ // 分割した身体の数分繰り返す
-
-		if (aMotion[nCntBody] == NONE_IDX) { assert(false); continue; }	// モーションが設定されていない
 
 		if (IsMotionLoop((EBody)nCntBody))
 		{ // ループするモーションの場合
@@ -628,12 +630,15 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 	switch (GetMotionType(BODY_LOWER))
 	{ // モーションごとの処理
 	case L_MOTION_IDOL:	// 待機モーション：ループON
+		assert(!m_bInputAttack);
+
 		break;
 
 	case L_MOTION_MOVE:	// 移動モーション：ループON
 
 		if (GetMotionPose(BODY_LOWER) % WALK_SOUND == 0 && GetMotionKeyCounter(BODY_LOWER) == 0)
 		{ // 足がついたタイミングの場合
+			assert(!m_bInputAttack);
 
 			// 歩行音の再生
 			PLAY_SOUND(CSound::LABEL_SE_WALK_BUILD);
@@ -643,13 +648,33 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 	
 	case L_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
 	
+		if (IsMotionCancel(BODY_LOWER))
+		{ // モーションキャンセルができる場合
+
+			if (m_bInputAttack)
+			{ // 攻撃が先行入力されている場合
+
+				// 現在のモーションの設定
+				SetMotion(BODY_LOWER, L_MOTION_ATTACK_01);
+
+				// 先行入力を初期化
+				m_bInputAttack = false;
+
+				// 処理を抜ける
+				break;
+			}
+		}
+
 		if (IsMotionFinish(BODY_LOWER))
-		{ // モーションが終了していた場合
-	
+		{ // モーションが終了した場合
+
 			// 現在のモーションの設定
 			SetMotion(BODY_LOWER, nMotion);
+
+			// 先行入力を初期化
+			m_bInputAttack = false;
 		}
-	
+
 		break;
 
 	case L_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
@@ -678,15 +703,37 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 	{ // モーションごとの処理
 	case U_MOTION_IDOL:	// 待機モーション：ループON
 	case U_MOTION_MOVE:	// 移動モーション：ループON
+		assert(!m_bInputAttack);
+
 		break;
 	
 	case U_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
 	
+		if (IsMotionCancel(BODY_UPPER))
+		{ // モーションキャンセルができる場合
+
+			if (m_bInputAttack)
+			{ // 攻撃が先行入力されている場合
+
+				// 現在のモーションの設定
+				SetMotion(BODY_UPPER, U_MOTION_ATTACK_01);
+
+				// 先行入力を初期化
+				m_bInputAttack = false;
+
+				// 処理を抜ける
+				break;
+			}
+		}
+
 		if (IsMotionFinish(BODY_UPPER))
-		{ // モーションが終了していた場合
-	
+		{ // モーションが終了した場合
+
 			// 現在のモーションの設定
 			SetMotion(BODY_UPPER, nMotion);
+
+			// 先行入力を初期化
+			m_bInputAttack = false;
 		}
 	
 		break;
@@ -851,7 +898,33 @@ void CPlayer::UpdateAttack(int *pLowMotion, int *pUpMotion)
 {
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
 	{
+		// 現在のモーションを取得
+		EUpperMotion curMotion = (EUpperMotion)GetMotionType(BODY_UPPER);
 
+		if (curMotion != U_MOTION_ATTACK_00
+		&&  curMotion != U_MOTION_ATTACK_01)
+		{ // 攻撃中ではない場合	// TODO：攻撃追加したら記述
+
+			// 攻撃モーションを指定
+			*pLowMotion = L_MOTION_ATTACK_00;
+			*pUpMotion  = U_MOTION_ATTACK_00;
+		}
+		else
+		{ // 攻撃中の場合
+
+			if (curMotion != U_MOTION_ATTACK_01)	// TODO：一番最後の攻撃にする
+			{ // 最終攻撃モーションではない場合
+
+				// 現在のモーションの残りフレームを計算
+				int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
+				if (nWholeFrame < 10)	// TODO：マジックナンバー
+				{ // 先行入力が可能な場合
+
+					// 先行入力を受け付ける
+					m_bInputAttack = true;
+				}
+			}
+		}
 	}
 }
 
@@ -1112,11 +1185,17 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 				// ポーズ代入用の変数を初期化
 				memset(&info, 0, sizeof(info));
 
+				// キャンセルフレームをなしにする
+				info.nCancelFrame = NONE_IDX;
+
 				// 攻撃判定情報を初期化
 				info.collLeft.nMin  = NONE_IDX;
 				info.collLeft.nMax  = NONE_IDX;
 				info.collRight.nMin = NONE_IDX;
 				info.collRight.nMax = NONE_IDX;
+
+				// 武器表示をOFFにする
+				info.bWeaponDisp = false;
 
 				do
 				{ // 読み込んだ文字列が END_MOTIONSET ではない場合ループ
@@ -1147,6 +1226,12 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 
 						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
 						fscanf(pFile, "%d", &info.nNumKey);	// キーの総数を読み込む
+					}
+					else if (strcmp(&aString[0], "CANCEL") == 0)
+					{ // 読み込んだ文字列が CANCEL の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &info.nCancelFrame);	// キャンセル可能フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "LEFT_COLL") == 0)
 					{ // 読み込んだ文字列が LEFT_COLL の場合

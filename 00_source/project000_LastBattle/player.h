@@ -166,6 +166,7 @@ private:
 	EState	m_state;			// 状態
 	int		m_nCounterState;	// 状態管理カウンター
 	bool	m_bJump;			// ジャンプ状況
+	bool	m_bInputAttack;		// 攻撃の先行入力
 };
 
 #endif	// _PLAYER_H_

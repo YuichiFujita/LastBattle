@@ -50,6 +50,9 @@ HRESULT CMotion::Init(void)
 	for (int nCntMotion = 0; nCntMotion < motion::MAX_MOTION; nCntMotion++)
 	{ // モーションの最大数分繰り返す
 
+		// キャンセルフレームをなしにする
+		m_info.aMotionInfo[nCntMotion].nCancelFrame = NONE_IDX;
+
 		// 攻撃判定情報を初期化
 		m_info.aMotionInfo[nCntMotion].collLeft.nMin  = NONE_IDX;
 		m_info.aMotionInfo[nCntMotion].collLeft.nMax  = NONE_IDX;
@@ -194,6 +197,16 @@ void CMotion::SetInfo(const SMotionInfo info)
 	// 引数のモーション情報を設定
 	m_info.aMotionInfo[m_info.nNumMotion] = info;
 
+	// モーション全体フレーム数を設定
+	int nSubKey = (m_info.aMotionInfo[m_info.nNumMotion].bLoop) ? 0 : 1;	// ループしない場合最後のキーは含まない
+	int nLoop = m_info.aMotionInfo[m_info.nNumMotion].nNumKey - nSubKey;	// 繰り返し数を求める
+	for (int nCntKey = 0; nCntKey < nLoop; nCntKey++)
+	{ // キーの総数分繰り返す
+
+		// キーのフレーム数を加算
+		m_info.aMotionInfo[m_info.nNumMotion].nWholeFrame += m_info.aMotionInfo[m_info.nNumMotion].aKeyInfo[nCntKey].nFrame;
+	}
+
 	// モーションの情報数を加算
 	m_info.nNumMotion++;
 
@@ -262,6 +275,15 @@ int CMotion::GetWholeCounter(void) const
 }
 
 //============================================================
+//	モーション全体フレーム数取得処理
+//============================================================
+int CMotion::GetWholeFrame(const int nType) const
+{
+	// 引数モーションの全体フレーム数を返す
+	return m_info.aMotionInfo[nType].nWholeFrame;
+}
+
+//============================================================
 //	終了取得処理
 //============================================================
 bool CMotion::IsFinish(void) const
@@ -277,6 +299,25 @@ bool CMotion::IsLoop(const int nType) const
 {
 	// 引数モーションのループのON/OFF状況を返す
 	return m_info.aMotionInfo[nType].bLoop;
+}
+
+//============================================================
+//	キャンセル取得処理
+//============================================================
+bool CMotion::IsCancel(const int nType) const
+{
+	if (m_info.aMotionInfo[nType].nCancelFrame != NONE_IDX)
+	{ // キャンセルフレームが設定されている場合
+
+		// 引数モーションのキャンセル状況を返す
+		return (m_info.aMotionInfo[nType].nWholeFrame >= m_info.aMotionInfo[nType].nCancelFrame) ? true : false;
+	}
+	else
+	{ // キャンセルフレームが設定されていない場合
+
+		// キャンセル不可を返す
+		return false;
+	}
 }
 
 //============================================================

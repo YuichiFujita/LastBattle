@@ -65,6 +65,8 @@ public:
 		SKeyInfo aKeyInfo[motion::MAX_KEY];	// キー情報
 		SCollTime collLeft;		// 左攻撃判定のカウント
 		SCollTime collRight;	// 右攻撃判定のカウント
+		int  nWholeFrame;		// モーション全体フレーム数
+		int  nCancelFrame;		// キャンセル可能フレーム
 		int  nNumKey;			// キー総数
 		bool bLoop;				// ループ ON/OFF
 		bool bWeaponDisp;		// 武器表示 ON/OFF
@@ -94,8 +96,10 @@ public:
 	int  GetPose(void) const;					// ポーズ番号取得
 	int  GetKeyCounter(void) const;				// モーションキーカウンター取得
 	int  GetWholeCounter(void) const;			// モーション全体カウンター取得
+	int  GetWholeFrame(const int nType) const;	// モーション全体フレーム数取得
 	bool IsFinish(void) const;					// 終了取得
 	bool IsLoop(const int nType) const;			// ループ取得
+	bool IsCancel(const int nType) const;		// キャンセル取得
 	bool IsWeaponDisp(const int nType) const;	// 武器表示取得
 	bool IsLeftWeaponCollision(void);			// 左の攻撃判定フラグ取得
 	bool IsRightWeaponCollision(void);			// 右の攻撃判定フラグ取得
