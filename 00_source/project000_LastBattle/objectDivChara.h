@@ -90,14 +90,15 @@ public:
 	void SetEnableMotionUpdate(const bool bUpdate);	// 更新状況設定
 	void SetMotionInfo(const EBody bodyID, CMotion::SMotionInfo info);	// モーション情報設定
 
-	int  GetMotionType(const EBody bodyID) const;		// モーション種類取得
-	int  GetMotionPose(const EBody bodyID) const;		// モーションポーズ番号取得
-	int  GetMotionCounter(const EBody bodyID) const;	// モーションカウンター取得
-	bool IsMotionFinish(const EBody bodyID) const;		// モーション終了取得
-	bool IsMotionLoop(const EBody bodyID) const;		// モーションループ取得
-	bool IsWeaponDisp(const EBody bodyID) const;		// モーション武器表示取得
-	bool IsLeftWeaponCollision(const EBody bodyID);		// 左の攻撃判定フラグ取得
-	bool IsRightWeaponCollision(const EBody bodyID);	// 右の攻撃判定フラグ取得
+	int  GetMotionType(const EBody bodyID) const;			// モーション種類取得
+	int  GetMotionPose(const EBody bodyID) const;			// モーションポーズ番号取得
+	int  GetMotionKeyCounter(const EBody bodyID) const;		// モーションキーカウンター取得
+	int  GetMotionWholeCounter(const EBody bodyID) const;	// モーション全体カウンター取得
+	bool IsMotionFinish(const EBody bodyID) const;			// モーション終了取得
+	bool IsMotionLoop(const EBody bodyID) const;			// モーションループ取得
+	bool IsWeaponDisp(const EBody bodyID) const;			// モーション武器表示取得
+	bool IsLeftWeaponCollision(const EBody bodyID);			// 左の攻撃判定フラグ取得
+	bool IsRightWeaponCollision(const EBody bodyID);		// 右の攻撃判定フラグ取得
 
 	void SetPartsPosition(const EBody bodyID, const int nPartsID, const D3DXVECTOR3 &rPos);	// パーツ位置設定
 	D3DXVECTOR3 GetPartsPosition(const EBody bodyID, const int nPartsID) const;				// パーツ位置取得

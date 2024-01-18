@@ -49,17 +49,17 @@ public:
 	struct SKeyInfo
 	{
 		SKey aKey[motion::MAX_PARTS];	// キーモデル情報
-		int  nFrame;		// キー再生フレーム数
-		int  nLeftMinColl;	// 左攻撃判定の開始カウント
-		int  nLeftMaxColl;	// 左攻撃判定の終了カウント
-		int  nRightMinColl;	// 右攻撃判定の開始カウント
-		int  nRightMaxColl;	// 右攻撃判定の終了カウント
+		int  nFrame;	// キー再生フレーム数
 	};
 
 	// キー管理構造体
 	struct SMotionInfo
 	{
 		SKeyInfo aKeyInfo[motion::MAX_KEY];	// キー情報
+		int  nLeftMinColl;	// 左攻撃判定の開始カウント
+		int  nLeftMaxColl;	// 左攻撃判定の終了カウント
+		int  nRightMinColl;	// 右攻撃判定の開始カウント
+		int  nRightMaxColl;	// 右攻撃判定の終了カウント
 		int  nNumKey;		// キー総数
 		bool bLoop;			// ループ ON/OFF
 		bool bWeaponDisp;	// 武器表示 ON/OFF
@@ -72,7 +72,8 @@ public:
 		int  nNumMotion;	// モーション総数
 		int  nType;			// モーション種類
 		int  nPose;			// モーションポーズ番号
-		int  nCounter;		// モーションカウンター
+		int  nKeyCounter;	// モーションキーカウンター
+		int  nWholeCounter;	// モーション全体カウンター
 		bool bFinish;		// モーション終了状況
 	};
 
@@ -86,7 +87,8 @@ public:
 	void SetModel(CMultiModel **ppModel, const int nNum);	// モデル情報設定
 	int  GetType(void) const;					// 種類取得
 	int  GetPose(void) const;					// ポーズ番号取得
-	int  GetCounter(void) const;				// モーションカウンター取得
+	int  GetKeyCounter(void) const;				// モーションキーカウンター取得
+	int  GetWholeCounter(void) const;			// モーション全体カウンター取得
 	bool IsFinish(void) const;					// 終了取得
 	bool IsLoop(const int nType) const;			// ループ取得
 	bool IsWeaponDisp(const int nType) const;	// 武器表示取得

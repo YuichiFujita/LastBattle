@@ -509,12 +509,21 @@ int CObjectChara::GetMotionPose(void) const
 }
 
 //============================================================
-//	モーションカウンター取得処理
+//	モーションキーカウンター取得処理
 //============================================================
-int CObjectChara::GetMotionCounter(void) const
+int CObjectChara::GetMotionKeyCounter(void) const
 {
-	// モーションのカウンターを返す
-	return m_pMotion->GetCounter();
+	// モーションのキーカウンターを返す
+	return m_pMotion->GetKeyCounter();
+}
+
+//============================================================
+//	モーション全体カウンター取得処理
+//============================================================
+int CObjectChara::GetMotionWholeCounter(void) const
+{
+	// モーションの全体カウンターを返す
+	return m_pMotion->GetWholeCounter();
 }
 
 //============================================================

@@ -948,11 +948,12 @@ MOTIONSET
 	WEAPON = 1	# 武器を表示するかどうか[0:表示しない / 1:表示する]
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 3	# キー数
+	
+	LEFT_COLL = 0 8	# 左攻撃の判定時間[MIN, MAX]
 
 	KEYSET
 	
 		FRAME = 4
-		LEFT_COLL = 0 4
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -999,7 +1000,6 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 4
-		LEFT_COLL = 0 4
 
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -1046,7 +1046,6 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 4
-		LEFT_COLL = 0 4
 
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00

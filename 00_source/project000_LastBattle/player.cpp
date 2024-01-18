@@ -999,6 +999,12 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 				// ポーズ代入用の変数を初期化
 				memset(&info, 0, sizeof(info));
 
+				// 攻撃判定情報を初期化
+				info.nLeftMinColl  = NONE_IDX;
+				info.nLeftMaxColl  = NONE_IDX;
+				info.nRightMinColl = NONE_IDX;
+				info.nRightMaxColl = NONE_IDX;
+
 				do
 				{ // 読み込んだ文字列が END_MOTIONSET ではない場合ループ
 
@@ -1029,21 +1035,25 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
 						fscanf(pFile, "%d", &info.nNumKey);	// キーの総数を読み込む
 					}
+					else if (strcmp(&aString[0], "LEFT_COLL") == 0)
+					{ // 読み込んだ文字列が LEFT_COLL の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &info.nLeftMinColl);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &info.nLeftMaxColl);	// 判定を消す終了フレームを読み込む
+					}
+					else if (strcmp(&aString[0], "RIGHT_COLL") == 0)
+					{ // 読み込んだ文字列が RIGHT_COLL の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &info.nRightMinColl);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &info.nRightMaxColl);	// 判定を消す終了フレームを読み込む
+					}
 					else if (strcmp(&aString[0], "KEYSET") == 0)
 					{ // 読み込んだ文字列が KEYSET の場合
 
 						// 現在のキー番号を初期化
 						nNowKey = 0;
-
-						for (int nCntKey = 0; nCntKey < motion::MAX_KEY; nCntKey++)
-						{ // キーの最大数分繰り返す
-
-							// 攻撃判定情報を初期化
-							info.aKeyInfo[nNowPose].nLeftMinColl  = NONE_IDX;
-							info.aKeyInfo[nNowPose].nLeftMaxColl  = NONE_IDX;
-							info.aKeyInfo[nNowPose].nRightMinColl = NONE_IDX;
-							info.aKeyInfo[nNowPose].nRightMaxColl = NONE_IDX;
-						}
 
 						do
 						{ // 読み込んだ文字列が END_KEYSET ではない場合ループ
@@ -1056,20 +1066,6 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 
 								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
 								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nFrame);	// キーが切り替わるまでのフレーム数を読み込む
-							}
-							else if (strcmp(&aString[0], "LEFT_COLL") == 0)
-							{ // 読み込んだ文字列が LEFT_COLL の場合
-
-								fscanf(pFile, "%s", &aString[0]);								// = を読み込む (不要)
-								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nLeftMinColl);		// 判定を出す開始フレームを読み込む
-								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nLeftMaxColl);		// 判定を消す終了フレームを読み込む
-							}
-							else if (strcmp(&aString[0], "RIGHT_COLL") == 0)
-							{ // 読み込んだ文字列が RIGHT_COLL の場合
-
-								fscanf(pFile, "%s", &aString[0]);								// = を読み込む (不要)
-								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nRightMinColl);	// 判定を出す開始フレームを読み込む
-								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nRightMaxColl);	// 判定を消す終了フレームを読み込む
 							}
 							else if (strcmp(&aString[0], "KEY") == 0)
 							{ // 読み込んだ文字列が KEY の場合

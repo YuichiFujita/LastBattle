@@ -11,14 +11,6 @@
 #include "multiModel.h"
 
 //************************************************************
-//	定数宣言
-//************************************************************
-namespace
-{
-	const int SUB_STOP = 2;	// ループしないモーションの停止カウントの減算用
-}
-
-//************************************************************
 //	親クラス [CMotion] のメンバ関数
 //************************************************************
 //============================================================
@@ -58,18 +50,14 @@ HRESULT CMotion::Init(void)
 	for (int nCntMotion = 0; nCntMotion < motion::MAX_MOTION; nCntMotion++)
 	{ // モーションの最大数分繰り返す
 
+		// 攻撃判定情報を初期化
+		m_info.aMotionInfo[nCntMotion].nLeftMinColl  = NONE_IDX;
+		m_info.aMotionInfo[nCntMotion].nLeftMaxColl  = NONE_IDX;
+		m_info.aMotionInfo[nCntMotion].nRightMinColl = NONE_IDX;
+		m_info.aMotionInfo[nCntMotion].nRightMaxColl = NONE_IDX;
+
 		// 武器表示をOFFにする
 		m_info.aMotionInfo[nCntMotion].bWeaponDisp = false;
-
-		for (int nCntKey = 0; nCntKey < motion::MAX_KEY; nCntKey++)
-		{ // キーの最大数分繰り返す
-
-			// 攻撃判定情報を初期化
-			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nLeftMinColl  = NONE_IDX;
-			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nLeftMaxColl  = NONE_IDX;
-			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nRightMinColl = NONE_IDX;
-			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nRightMaxColl = NONE_IDX;
-		}
 	}
 
 	// 成功を返す
@@ -89,6 +77,9 @@ void CMotion::Uninit(void)
 //============================================================
 void CMotion::Update(void)
 {
+	if (!m_bUpdate)										{ return; }	// 更新しない
+	if (m_info.aMotionInfo[m_info.nType].nNumKey <= 0)	{ return; }	// キー数未設定
+
 	// 変数を宣言
 	D3DXVECTOR3 diffPos;		// 次ポーズまでの差分位置
 	D3DXVECTOR3 diffRot;		// 次ポーズまでの差分向き
@@ -98,70 +89,71 @@ void CMotion::Update(void)
 	int nPose = m_info.nPose;	// モーションポーズ番号
 	int nNextPose;				// 次のモーションポーズ番号
 
-	if (m_bUpdate)
-	{ // 更新する状況の場合
+	// 次のモーションポーズ番号を求める
+	nNextPose = (nPose + 1) % m_info.aMotionInfo[nType].nNumKey;
 
-		if (m_info.aMotionInfo[nType].nNumKey > 0)
-		{ // キーが設定されている場合
+	// パーツの位置の更新
+	for (int nCntKey = 0; nCntKey < m_nNumModel; nCntKey++)
+	{ // モデルのパーツ数分繰り返す
 
-			// 次のモーションポーズ番号を求める
-			nNextPose = (nPose + 1) % m_info.aMotionInfo[nType].nNumKey;
+		// 位置・向きの差分を求める
+		diffPos = m_info.aMotionInfo[nType].aKeyInfo[nNextPose].aKey[nCntKey].pos - m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].pos;
+		diffRot = m_info.aMotionInfo[nType].aKeyInfo[nNextPose].aKey[nCntKey].rot - m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].rot;
 
-			// パーツの位置の更新
-			for (int nCntKey = 0; nCntKey < m_nNumModel; nCntKey++)
-			{ // モデルのパーツ数分繰り返す
+		// 差分向きの正規化
+		useful::Vec3NormalizeRot(diffRot);
 
-				// 位置・向きの差分を求める
-				diffPos = m_info.aMotionInfo[nType].aKeyInfo[nNextPose].aKey[nCntKey].pos - m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].pos;
-				diffRot = m_info.aMotionInfo[nType].aKeyInfo[nNextPose].aKey[nCntKey].rot - m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].rot;
+		// 現在のパーツの位置・向きを更新
+		float fRate = (float)m_info.nKeyCounter / (float)m_info.aMotionInfo[nType].aKeyInfo[nPose].nFrame;	// キーフレーム割合
+		m_ppModel[nCntKey]->SetVec3Position(m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].pos + diffPos * fRate);
+		m_ppModel[nCntKey]->SetVec3Rotation(m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].rot + diffRot * fRate);
+	}
 
-				// 差分向きの正規化
-				useful::Vec3NormalizeRot(diffRot);
+	// モーションの遷移の更新
+	if (m_info.nKeyCounter < m_info.aMotionInfo[nType].aKeyInfo[nPose].nFrame)
+	{ // 現在のポーズの再生が終了しない場合
 
-				// 現在のパーツの位置・向きを更新
-				m_ppModel[nCntKey]->SetVec3Position(m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].pos + diffPos * ((float)m_info.nCounter / (float)m_info.aMotionInfo[nType].aKeyInfo[nPose].nFrame));
-				m_ppModel[nCntKey]->SetVec3Rotation(m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].rot + diffRot * ((float)m_info.nCounter / (float)m_info.aMotionInfo[nType].aKeyInfo[nPose].nFrame));
+		// カウンターを加算
+		m_info.nKeyCounter++;
+		m_info.nWholeCounter++;
+	}
+	else
+	{ // 現在のポーズの再生が終了した場合
+
+		// 次のポーズに移行
+		if (m_info.aMotionInfo[nType].bLoop)
+		{ // モーションがループする場合
+
+			// キーカウンターを初期化
+			m_info.nKeyCounter = 0;
+
+			// ポーズカウントを加算
+			m_info.nPose = (m_info.nPose + 1) % m_info.aMotionInfo[nType].nNumKey;	// 最大値で0に戻す
+
+			if (m_info.nPose == 0)
+			{ // ポーズが最初に戻った場合
+
+				// 全体カウンターを初期化
+				m_info.nWholeCounter = 0;
 			}
+		}
+		else
+		{ // モーションがループしない場合
 
-			// モーションの遷移の更新
-			if (m_info.nCounter >= m_info.aMotionInfo[nType].aKeyInfo[nPose].nFrame)
-			{ // 現在のモーションカウンターが現在のポーズの再生フレーム数を超えている場合
+			if (m_info.nPose < m_info.aMotionInfo[nType].nNumKey - 2)
+			{ // 現在のポーズが最終のポーズではない場合
 
-				// 次のポーズに移行
-				if (m_info.aMotionInfo[nType].bLoop == true)
-				{ // モーションがループする設定の場合
+				// キーカウンターを初期化
+				m_info.nKeyCounter = 0;
 
-					// モーションカウンターを初期化
-					m_info.nCounter = 0;
-
-					// ポーズカウントを加算 (総数に達した場合 0に戻す)
-					m_info.nPose = (m_info.nPose + 1) % m_info.aMotionInfo[nType].nNumKey;
-				}
-				else
-				{ // モーションがループしない設定の場合
-
-					if (m_info.nPose < m_info.aMotionInfo[nType].nNumKey - SUB_STOP)
-					{ // 現在のポーズが最終のポーズではない場合
-
-						// モーションカウンターを初期化
-						m_info.nCounter = 0;
-
-						// ポーズカウントを加算
-						m_info.nPose++;
-					}
-					else
-					{ // 現在のポーズが最終のポーズの場合
-
-						// モーションを終了状態にする
-						m_info.bFinish = true;
-					}
-				}
+				// ポーズカウントを加算
+				m_info.nPose++;
 			}
 			else
-			{ // 現在のモーションカウンターが現在のポーズの再生フレーム数を超えていない場合
+			{ // 現在のポーズが最終のポーズの場合
 
-				// モーションカウンターを加算
-				m_info.nCounter++;
+				// モーションを終了状態にする
+				m_info.bFinish = true;
 			}
 		}
 	}
@@ -173,9 +165,10 @@ void CMotion::Update(void)
 void CMotion::Set(const int nType)
 {
 	// モーション情報を初期化
-	m_info.nPose	= 0;		// モーションポーズ番号
-	m_info.nCounter	= 0;		// モーションカウンター
-	m_info.bFinish	= false;	// モーション終了状況
+	m_info.nPose		 = 0;		// モーションポーズ番号
+	m_info.nKeyCounter	 = 0;		// モーションキーカウンター
+	m_info.nWholeCounter = 0;		// モーション全体カウンター
+	m_info.bFinish		 = false;	// モーション終了状況
 
 	// 引数のモーションの種類を設定
 	m_info.nType = nType;
@@ -251,12 +244,21 @@ int CMotion::GetPose(void) const
 }
 
 //============================================================
-//	モーションカウンター取得処理
+//	モーションキーカウンター取得処理
 //============================================================
-int CMotion::GetCounter(void) const
+int CMotion::GetKeyCounter(void) const
 {
-	// 現在のモーションカウンターを返す
-	return m_info.nCounter;
+	// 現在のモーションキーカウンターを返す
+	return m_info.nKeyCounter;
+}
+
+//============================================================
+//	モーション全体カウンター取得処理
+//============================================================
+int CMotion::GetWholeCounter(void) const
+{
+	// 現在のモーション全体カウンターを返す
+	return m_info.nWholeCounter;
 }
 
 //============================================================
@@ -291,14 +293,12 @@ bool CMotion::IsWeaponDisp(const int nType) const
 //============================================================
 bool CMotion::IsLeftWeaponCollision(void)
 {
-	// ポインタを宣言
-	SKeyInfo *pKeyInfo = &m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nPose];	// 現在のポーズ情報
+	SMotionInfo *pMotionInfo = &m_info.aMotionInfo[m_info.nType];	// 現在のモーション情報
+	if (pMotionInfo->nLeftMinColl == NONE_IDX) { return false; }	// 開始カウント未設定
+	if (pMotionInfo->nLeftMaxColl == NONE_IDX) { return false; }	// 終了カウント未設定
 
-	if (pKeyInfo->nLeftMinColl == NONE_IDX) { return false; }	// 開始カウント未設定
-	if (pKeyInfo->nLeftMaxColl == NONE_IDX) { return false; }	// 終了カウント未設定
-
-	if (m_info.nCounter >= pKeyInfo->nLeftMinColl
-	&&  m_info.nCounter <= pKeyInfo->nLeftMaxColl)
+	if (m_info.nWholeCounter >= pMotionInfo->nLeftMinColl
+	&&  m_info.nWholeCounter <= pMotionInfo->nLeftMaxColl)
 	{ // カウンターが開始と終了の範囲内の場合
 
 		return true;
@@ -312,14 +312,12 @@ bool CMotion::IsLeftWeaponCollision(void)
 //============================================================
 bool CMotion::IsRightWeaponCollision(void)
 {
-	// ポインタを宣言
-	SKeyInfo *pKeyInfo = &m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nPose];	// 現在のポーズ情報
+	SMotionInfo *pMotionInfo = &m_info.aMotionInfo[m_info.nType];	// 現在のモーション情報
+	if (pMotionInfo->nRightMinColl == NONE_IDX) { return false; }	// 開始カウント未設定
+	if (pMotionInfo->nRightMaxColl == NONE_IDX) { return false; }	// 終了カウント未設定
 
-	if (pKeyInfo->nRightMinColl == NONE_IDX) { return false; }	// 開始カウント未設定
-	if (pKeyInfo->nRightMaxColl == NONE_IDX) { return false; }	// 終了カウント未設定
-
-	if (m_info.nCounter >= pKeyInfo->nRightMinColl
-	&&  m_info.nCounter <= pKeyInfo->nRightMaxColl)
+	if (m_info.nWholeCounter >= pMotionInfo->nRightMinColl
+	&&  m_info.nWholeCounter <= pMotionInfo->nRightMaxColl)
 	{ // カウンターが開始と終了の範囲内の場合
 
 		return true;

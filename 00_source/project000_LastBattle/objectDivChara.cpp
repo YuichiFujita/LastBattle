@@ -411,15 +411,32 @@ int CObjectDivChara::GetMotionPose(const EBody bodyID) const
 }
 
 //============================================================
-//	モーションカウンター取得処理
+//	モーションキーカウンター取得処理
 //============================================================
-int CObjectDivChara::GetMotionCounter(const EBody bodyID) const
+int CObjectDivChara::GetMotionKeyCounter(const EBody bodyID) const
 {
 	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
 	{ // 正規インデックスの場合
 
-		// 引数インデックスのモーションカウンターを返す
-		return m_apBody[bodyID]->GetMotionCounter();
+		// 引数インデックスのモーションキーカウンターを返す
+		return m_apBody[bodyID]->GetMotionKeyCounter();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return NONE_IDX;
+}
+
+//============================================================
+//	モーション全体カウンター取得処理
+//============================================================
+int CObjectDivChara::GetMotionWholeCounter(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーション全体カウンターを返す
+		return m_apBody[bodyID]->GetMotionWholeCounter();
 	}
 
 	// インデックスエラー

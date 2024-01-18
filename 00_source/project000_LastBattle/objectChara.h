@@ -76,18 +76,19 @@ public:
 	CMultiModel *GetMultiModel(const int nPartsID) const;				// マルチモデル取得
 
 	void SetMaterial(const D3DXMATERIAL& rMat, const int nPartsID, const int nMatID);	// マテリアル設定
-	void SetAlpha(const float fAlpha);	// 透明度設定
-	float GetAlpha(void) const;			// 透明度取得
-	float GetMaxAlpha(void) const;		// 最大透明度取得
-	int GetNumModel(void) const;		// パーツ総数取得
-	int GetMotionType(void) const;		// モーション種類取得
-	int GetMotionPose(void) const;		// モーションポーズ番号取得
-	int GetMotionCounter(void) const;	// モーションカウンター取得
-	bool IsMotionFinish(void) const;	// モーション終了取得
-	bool IsMotionLoop(void) const;		// モーションループ取得
-	bool IsWeaponDisp(void) const;		// モーション武器表示取得
-	bool IsLeftWeaponCollision(void);	// 左の攻撃判定フラグ取得
-	bool IsRightWeaponCollision(void);	// 右の攻撃判定フラグ取得
+	void SetAlpha(const float fAlpha);		// 透明度設定
+	float GetAlpha(void) const;				// 透明度取得
+	float GetMaxAlpha(void) const;			// 最大透明度取得
+	int GetNumModel(void) const;			// パーツ総数取得
+	int GetMotionType(void) const;			// モーション種類取得
+	int GetMotionPose(void) const;			// モーションポーズ番号取得
+	int GetMotionKeyCounter(void) const;	// モーションキーカウンター取得
+	int GetMotionWholeCounter(void) const;	// モーション全体カウンター取得
+	bool IsMotionFinish(void) const;		// モーション終了取得
+	bool IsMotionLoop(void) const;			// モーションループ取得
+	bool IsWeaponDisp(void) const;			// モーション武器表示取得
+	bool IsLeftWeaponCollision(void);		// 左の攻撃判定フラグ取得
+	bool IsRightWeaponCollision(void);		// 右の攻撃判定フラグ取得
 
 private:
 	// オーバーライド関数
