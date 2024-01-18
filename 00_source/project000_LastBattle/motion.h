@@ -60,8 +60,9 @@ public:
 	struct SMotionInfo
 	{
 		SKeyInfo aKeyInfo[motion::MAX_KEY];	// キー情報
-		int  nNumKey;	// キー総数
-		bool bLoop;		// ループ ON/OFF
+		int  nNumKey;		// キー総数
+		bool bLoop;			// ループ ON/OFF
+		bool bWeaponDisp;	// 武器表示 ON/OFF
 	};
 
 	// モーション管理構造体
@@ -83,13 +84,14 @@ public:
 	void SetInfo(const SMotionInfo info);					// モーション情報設定
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
 	void SetModel(CMultiModel **ppModel, const int nNum);	// モデル情報設定
-	int  GetType(void) const;			// 種類取得
-	int  GetPose(void) const;			// ポーズ番号取得
-	int  GetCounter(void) const;		// モーションカウンター取得
-	bool IsFinish(void) const;			// 終了取得
-	bool IsLoop(const int nType) const;	// ループ取得
-	bool IsLeftWeaponCollision(void);	// 左の攻撃判定状況
-	bool IsRightWeaponCollision(void);	// 右の攻撃判定状況
+	int  GetType(void) const;					// 種類取得
+	int  GetPose(void) const;					// ポーズ番号取得
+	int  GetCounter(void) const;				// モーションカウンター取得
+	bool IsFinish(void) const;					// 終了取得
+	bool IsLoop(const int nType) const;			// ループ取得
+	bool IsWeaponDisp(const int nType) const;	// 武器表示取得
+	bool IsLeftWeaponCollision(void);			// 左の攻撃判定フラグ取得
+	bool IsRightWeaponCollision(void);			// 右の攻撃判定フラグ取得
 
 	// 静的メンバ関数
 	static CMotion *Create(void);				// 生成

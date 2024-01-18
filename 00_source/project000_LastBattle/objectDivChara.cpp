@@ -274,6 +274,20 @@ CObjectDivChara *CObjectDivChara::Create
 }
 
 //============================================================
+//	モーションの設定処理
+//============================================================
+void CObjectDivChara::SetMotion(const EBody bodyID, const int nType)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションを設定
+		m_apBody[bodyID]->SetMotion(nType);
+	}
+	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
 //	パーツ情報の設定処理
 //============================================================
 void CObjectDivChara::SetPartsInfo
@@ -358,20 +372,6 @@ void CObjectDivChara::SetMotionInfo(const EBody bodyID, CMotion::SMotionInfo inf
 
 		// 引数インデックスのモーション情報を設定
 		m_apBody[bodyID]->SetMotionInfo(info);
-	}
-	else { assert(false); }	// インデックスエラー
-}
-
-//============================================================
-//	モーションの設定処理
-//============================================================
-void CObjectDivChara::SetMotion(const EBody bodyID, const int nType)
-{
-	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
-	{ // 正規インデックスの場合
-
-		// 引数インデックスのモーションを設定
-		m_apBody[bodyID]->SetMotion(nType);
 	}
 	else { assert(false); }	// インデックスエラー
 }
@@ -462,7 +462,24 @@ bool CObjectDivChara::IsMotionLoop(const EBody bodyID) const
 }
 
 //============================================================
-//	左の攻撃判定状況の取得処理
+//	モーション武器表示の取得処理
+//============================================================
+bool CObjectDivChara::IsWeaponDisp(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーション武器表示状況を返す
+		return m_apBody[bodyID]->IsWeaponDisp();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return false;
+}
+
+//============================================================
+//	左の攻撃判定フラグの取得処理
 //============================================================
 bool CObjectDivChara::IsLeftWeaponCollision(const EBody bodyID)
 {
@@ -479,7 +496,7 @@ bool CObjectDivChara::IsLeftWeaponCollision(const EBody bodyID)
 }
 
 //============================================================
-//	右の攻撃判定状況の取得処理
+//	右の攻撃判定フラグの取得処理
 //============================================================
 bool CObjectDivChara::IsRightWeaponCollision(const EBody bodyID)
 {

@@ -51,6 +51,9 @@ public:
 	// 静的メンバ関数
 	static CObjectChara *Create(const D3DXVECTOR3 &rPos, const D3DXVECTOR3 &rRot = VEC3_ZERO);	// 生成
 
+	// 仮想関数
+	virtual void SetMotion(const int nType);	// モーション設定
+
 	// メンバ関数
 	void SetPartsInfo	// パーツ情報設定
 	( // 引数
@@ -63,7 +66,6 @@ public:
 
 	void SetModelInfo(void);						// モデル情報設定
 	void SetMotionInfo(CMotion::SMotionInfo info);	// モーション情報設定
-	void SetMotion(const int nType);				// モーション設定
 	void SetMtxWorld(const D3DXMATRIX &rMtxWorld);	// マトリックス設定
 	void SetEnableMotionUpdate(const bool bUpdate);	// 更新状況設定
 
@@ -83,8 +85,9 @@ public:
 	int GetMotionCounter(void) const;	// モーションカウンター取得
 	bool IsMotionFinish(void) const;	// モーション終了取得
 	bool IsMotionLoop(void) const;		// モーションループ取得
-	bool IsLeftWeaponCollision(void);	// 左の攻撃判定状況
-	bool IsRightWeaponCollision(void);	// 右の攻撃判定状況
+	bool IsWeaponDisp(void) const;		// モーション武器表示取得
+	bool IsLeftWeaponCollision(void);	// 左の攻撃判定フラグ取得
+	bool IsRightWeaponCollision(void);	// 右の攻撃判定フラグ取得
 
 private:
 	// オーバーライド関数

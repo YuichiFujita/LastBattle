@@ -443,6 +443,13 @@ void COrbit::SetState(const EState state)
 		return;
 	}
 
+	if (m_state == STATE_NONE && state == STATE_VANISH)
+	{ // ‚·‚Å‚ÉÁ‚¦‚Ä‚¢‚é‚Ì‚ÉÁ¸‚³‚¹‚æ‚¤‚Æ‚µ‚Ä‚¢‚éê‡
+
+		// ˆ—‚ğ”²‚¯‚é
+		return;
+	}
+
 	// ˆø”‚Ìó‘Ô‚ğİ’è
 	m_state = state;
 

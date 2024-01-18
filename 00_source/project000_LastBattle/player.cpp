@@ -562,6 +562,54 @@ void CPlayer::SetSpawn(void)
 }
 
 //============================================================
+//	モーション・オブジェクトキャラクターの更新処理
+//============================================================
+void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
+{
+	if (IsDeath()) { return; }	// 死亡している
+
+	int aMotion[] = { nLowMotion, nUpMotion };		// モーション情報
+	for (int nCntBody = 0; nCntBody < BODY_MAX; nCntBody++)
+	{ // 分割した身体の数分繰り返す
+
+		if (aMotion[nCntBody] == NONE_IDX)  { continue; }	// モーションが設定されていない
+		if (!IsMotionLoop((EBody)nCntBody)) { continue; }	// ループしないモーションだった
+		int nAnimMotion = GetMotionType((EBody)nCntBody);	// 現在再生中のモーション
+
+		if (nAnimMotion != aMotion[nCntBody])
+		{ // 現在のモーションが再生中のモーションと一致しない場合
+
+			// 現在のモーションの設定
+			SetMotion((EBody)nCntBody, aMotion[nCntBody]);
+		}
+	}
+
+	// オブジェクト分割キャラクターの更新
+	CObjectDivChara::Update();
+}
+
+//============================================================
+//	モーションの設定処理
+//============================================================
+void CPlayer::SetMotion(const EBody bodyID, const int nType)
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションを設定
+		CObjectDivChara::SetMotion(bodyID, nType);
+
+		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
+		{ // 剣の数分繰り返す
+
+			// 剣の状態を設定
+			m_apSowrd[nCntSword]->SetState((IsWeaponDisp(BODY_UPPER)) ? CSword::STATE_NORMAL : CSword::STATE_VANISH);
+		}
+	}
+	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
 //	スポーン状態時の更新処理
 //============================================================
 void CPlayer::UpdateSpawn(int *pLowMotion, int *pUpMotion)
@@ -614,38 +662,6 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 
 	// 向きを反映
 	SetVec3Rotation(rotPlayer);
-}
-
-//============================================================
-//	モーション・オブジェクトキャラクターの更新処理
-//============================================================
-void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
-{
-	if (IsDeath()) { return; }	// 死亡している
-
-	int aMotion[] = { nLowMotion, nUpMotion };	// モーション情報
-	for (int nCntBody = 0; nCntBody < BODY_MAX; nCntBody++)
-	{ // 分割した身体の数分繰り返す
-
-		int nAnimMotion = GetMotionType((EBody)nCntBody);	// 現在再生中のモーション
-		if (aMotion[nCntBody] != NONE_IDX)
-		{ // モーションが設定されている場合
-
-			if (IsMotionLoop((EBody)nCntBody))
-			{ // ループするモーションだった場合
-
-				if (nAnimMotion != aMotion[nCntBody])
-				{ // 現在のモーションが再生中のモーションと一致しない場合
-
-					// 現在のモーションの設定
-					SetMotion((EBody)nCntBody, aMotion[nCntBody]);
-				}
-			}
-		}
-	}
-
-	// オブジェクト分割キャラクターの更新
-	CObjectDivChara::Update();
 }
 
 //============================================================
@@ -896,6 +912,7 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 	int nParentID	= 0;	// 親インデックスの代入用
 	int nNowPose	= 0;	// 現在のポーズ番号
 	int nNowKey		= 0;	// 現在のキー番号
+	int nWeapon		= 0;	// 武器表示のON/OFFの変換用
 	int nLoop		= 0;	// ループのON/OFFの変換用
 	int nEnd		= 0;	// テキスト読み込み終了の確認用
 
@@ -988,7 +1005,16 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 					// ファイルから文字列を読み込む
 					fscanf(pFile, "%s", &aString[0]);
 
-					if (strcmp(&aString[0], "LOOP") == 0)
+					if (strcmp(&aString[0], "WEAPON") == 0)
+					{ // 読み込んだ文字列が WEAPON の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%d", &nWeapon);		// 武器表示のON/OFFを読み込む
+
+						// 読み込んだ値をbool型に変換
+						info.bWeaponDisp = (nWeapon == 0) ? false : true;
+					}
+					else if (strcmp(&aString[0], "LOOP") == 0)
 					{ // 読み込んだ文字列が LOOP の場合
 
 						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)

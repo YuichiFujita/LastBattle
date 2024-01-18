@@ -245,6 +245,15 @@ CObjectChara *CObjectChara::Create(const D3DXVECTOR3 &rPos, const D3DXVECTOR3 &r
 }
 
 //============================================================
+//	モーションの設定処理
+//============================================================
+void CObjectChara::SetMotion(const int nType)
+{
+	// モーションの設定
+	m_pMotion->Set(nType);
+}
+
+//============================================================
 //	パーツ情報の設定処理
 //============================================================
 void CObjectChara::SetPartsInfo
@@ -300,15 +309,6 @@ void CObjectChara::SetMotionInfo(CMotion::SMotionInfo info)
 {
 	// モーション情報の設定
 	m_pMotion->SetInfo(info);
-}
-
-//============================================================
-//	モーションの設定処理
-//============================================================
-void CObjectChara::SetMotion(const int nType)
-{
-	// モーションの設定
-	m_pMotion->Set(nType);
 }
 
 //============================================================
@@ -531,12 +531,21 @@ bool CObjectChara::IsMotionFinish(void) const
 //============================================================
 bool CObjectChara::IsMotionLoop(void) const
 {
-	// 引数の種類のモーションループ状況を返す
+	// 現在モーションのループ状況を返す
 	return m_pMotion->IsLoop(m_pMotion->GetType());
 }
 
 //============================================================
-//	左の攻撃判定状況の取得処理
+//	モーション武器表示の取得処理
+//============================================================
+bool CObjectChara::IsWeaponDisp(void) const
+{
+	// 現在モーションの武器表示状況を返す
+	return m_pMotion->IsWeaponDisp(m_pMotion->GetType());
+}
+
+//============================================================
+//	左の攻撃判定フラグの取得処理
 //============================================================
 bool CObjectChara::IsLeftWeaponCollision(void)
 {
@@ -545,7 +554,7 @@ bool CObjectChara::IsLeftWeaponCollision(void)
 }
 
 //============================================================
-//	右の攻撃判定状況の取得処理
+//	右の攻撃判定フラグの取得処理
 //============================================================
 bool CObjectChara::IsRightWeaponCollision(void)
 {

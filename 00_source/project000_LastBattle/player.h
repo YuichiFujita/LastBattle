@@ -124,13 +124,18 @@ public:
 	void SetSwordDisp(const bool bDisp);	// 剣の表示設定
 
 private:
+	// オーバーライド関数
+	void SetMotion(const EBody bodyID, const int nType) override;	// モーション設定
+
 	// メンバ関数
-	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
-	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
+	void LoadSetup(const EBody bodyID, const char **ppModelPass);	// セットアップ
 	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション・オブジェクトキャラクターの更新
 
+	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
+	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動量・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプの更新
+
 	void UpdateOldPosition(void);			// 過去位置の更新
 	void UpdateGravity(void);				// 重力の更新
 	bool UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
@@ -139,7 +144,6 @@ private:
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
 
-	void LoadSetup(const EBody bodyID, const char **ppModelPass);	// セットアップ
 
 	// 静的メンバ変数
 	static CListManager<CPlayer> *m_pList;	// オブジェクトリスト

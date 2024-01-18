@@ -47,9 +47,8 @@ static_assert(NUM_ARRAY(MODEL_FILE) == CSword::MODEL_MAX, "ERROR : Model Count M
 //	コンストラクタ
 //============================================================
 CSword::CSword() : CMultiModel(LABEL_NONE, DIM_3D, object::DEFAULT_PRIO),
-	m_state			(STATE_NORMAL),	// 状態
+	m_state			(STATE_NONE),	// 状態
 	m_bAttack		(false),		// 攻撃状況
-	m_bDisp			(false),		// 表示状況
 	m_nCounterState	(0)				// 状態管理カウンター
 {
 
@@ -69,9 +68,8 @@ CSword::~CSword()
 HRESULT CSword::Init(void)
 {
 	// メンバ変数を初期化
-	m_state		= STATE_NORMAL;	// 状態
+	m_state		= STATE_NONE;	// 状態
 	m_bAttack	= true;			// 攻撃状況
-	m_bDisp		= true;			// 表示状況
 	m_nCounterState = 0;		// 状態管理カウンター
 
 	// マルチモデルの初期化
@@ -100,6 +98,9 @@ HRESULT CSword::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+
+	// 軌跡を消す
+	m_pOrbit->SetState(COrbit::STATE_NONE);
 
 	// 成功を返す
 	return S_OK;
@@ -137,8 +138,8 @@ void CSword::Update(void)
 		if (fAlpha <= 0.0f)
 		{ // 透明になり切った場合
 
-			// 表示をOFFにする
-			m_bDisp = false;
+			// 何もしない状態にする
+			SetState(STATE_NONE);
 
 			// 軌跡を消す
 			m_pOrbit->SetState(COrbit::STATE_VANISH);
@@ -163,8 +164,8 @@ void CSword::Update(void)
 //============================================================
 void CSword::Draw(void)
 {
-	if (m_bDisp)
-	{ // 表示がONの場合
+	if (m_state != STATE_NONE)
+	{ // 何もしない場合
 
 		// マルチモデルの描画
 		CMultiModel::Draw();
@@ -235,6 +236,13 @@ void CSword::SetState(const EState state)
 		return;
 	}
 
+	if (m_state == STATE_NONE && state == STATE_VANISH)
+	{ // すでに消えているのに消失させようとしている場合
+
+		// 処理を抜ける
+		return;
+	}
+
 	// 引数の状態を設定
 	m_state = state;
 
@@ -249,9 +257,6 @@ void CSword::SetState(const EState state)
 		// 不透明にする
 		SetAlpha(1.0f);
 
-		// 表示をONにする
-		m_bDisp = true;
-
 		// 軌跡を出す
 		m_pOrbit->SetState(COrbit::STATE_NORMAL);
 
@@ -261,15 +266,6 @@ void CSword::SetState(const EState state)
 		assert(false);
 		break;
 	}
-}
-
-//============================================================
-//	攻撃状況の設定処理
-//============================================================
-void CSword::SetEnableAttack(const bool bAttack)
-{
-	// 引数の攻撃状況を設定
-	m_bAttack = bAttack;
 }
 
 //============================================================

@@ -80,8 +80,9 @@ public:
 	);
 
 	// メンバ関数
-	void SetState(const EState state);			// 状態設定
-	void SetEnableAttack(const bool bAttack);	// 攻撃状況設定
+	void SetState(const EState state);	// 状態設定
+	void SetEnableAttack(const bool bAttack) { m_bAttack = bAttack; }	// 攻撃状況設定
+	bool IsAttack(void) const				 { return m_bAttack; }		// 攻撃状況取得
 
 private:
 	// メンバ関数
@@ -95,7 +96,6 @@ private:
 	EState	m_state;			// 状態
 	int		m_nCounterState;	// 状態管理カウンター
 	bool	m_bAttack;			// 攻撃状況
-	bool	m_bDisp;			// 表示状況
 };
 
 #endif	// _SWORD_H_

@@ -55,13 +55,16 @@ HRESULT CMotion::Init(void)
 	// モーションを終了状態にする
 	m_info.bFinish = true;
 
-	// 攻撃判定情報を初期化
 	for (int nCntMotion = 0; nCntMotion < motion::MAX_MOTION; nCntMotion++)
 	{ // モーションの最大数分繰り返す
+
+		// 武器表示をOFFにする
+		m_info.aMotionInfo[nCntMotion].bWeaponDisp = false;
 
 		for (int nCntKey = 0; nCntKey < motion::MAX_KEY; nCntKey++)
 		{ // キーの最大数分繰り返す
 
+			// 攻撃判定情報を初期化
 			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nLeftMinColl  = NONE_IDX;
 			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nLeftMaxColl  = NONE_IDX;
 			m_info.aMotionInfo[nCntMotion].aKeyInfo[nCntKey].nRightMinColl = NONE_IDX;
@@ -270,12 +273,21 @@ bool CMotion::IsFinish(void) const
 //============================================================
 bool CMotion::IsLoop(const int nType) const
 {
-	// 現在のループのON/OFF状況を返す
+	// 引数モーションのループのON/OFF状況を返す
 	return m_info.aMotionInfo[nType].bLoop;
 }
 
 //============================================================
-//	左の攻撃判定状況の取得処理
+//	武器表示の取得処理
+//============================================================
+bool CMotion::IsWeaponDisp(const int nType) const
+{
+	// 引数モーションの武器表示のON/OFF状況を返す
+	return m_info.aMotionInfo[nType].bWeaponDisp;
+}
+
+//============================================================
+//	左の攻撃判定フラグの取得処理
 //============================================================
 bool CMotion::IsLeftWeaponCollision(void)
 {
@@ -296,7 +308,7 @@ bool CMotion::IsLeftWeaponCollision(void)
 }
 
 //============================================================
-//	右の攻撃判定状況の取得処理
+//	右の攻撃判定フラグの取得処理
 //============================================================
 bool CMotion::IsRightWeaponCollision(void)
 {
