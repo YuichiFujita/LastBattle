@@ -44,9 +44,10 @@
 #define GET_INPUTKEY	(CManager::GetInstance()->GetKeyboard())	// キーボード情報取得
 #define GET_INPUTMOUSE	(CManager::GetInstance()->GetMouse())		// マウス情報取得
 #define GET_INPUTPAD	(CManager::GetInstance()->GetPad())			// パッド情報取得
-
 #define GET_DEVICE		(CManager::GetInstance()->GetRenderer()->GetDevice())	// デバイス情報取得
 #define GET_RETENTION	(CManager::GetInstance()->GetRetention())				// データ保存情報取得
+
+#define PLAY_SOUND(label)	(CManager::GetInstance()->GetSound()->Play(label))	// サウンド再生
 
 // D3DXVECTOR2関係
 #define VEC2_ZERO	(D3DXVECTOR2(0.0f, 0.0f))	// 0クリア

@@ -28,7 +28,7 @@ public:
 	// デストラクタ
 	~CListManager();
 
-	// イテレーター型エイリアス宣言
+	// イテレーター型エイリアス定義
 	using AIterator = std::_List_iterator<std::_List_val<std::_List_simple_types<T*>>>;
 
 	// メンバ関数

@@ -87,6 +87,7 @@ namespace
 	const float	LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
 	const float	STICK_REV	= 0.00015f;	// 移動操作スティックの傾き量の補正係数
 	const float	ADD_ALPHA	= 0.03f;	// 透明度の加算量
+	const int	WALK_SOUND	= 4;		// 歩行の効果音のキータイミング
 
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
 }
@@ -94,7 +95,12 @@ namespace
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
-CListManager<CPlayer> *CPlayer::m_pList = nullptr;	// オブジェクトリスト
+CListManager<CPlayer> *CPlayer::m_pList = nullptr;			// オブジェクトリスト
+CPlayer::AFuncUpdateMotion CPlayer::m_aFuncUpdateMotion[] =	// モーション更新関数
+{
+	&CPlayer::UpdateMotionLower,	// 下半身モーションの更新
+	&CPlayer::UpdateMotionUpper,	// 上半身モーションの更新
+};
 
 //************************************************************
 //	スタティックアサート
@@ -562,33 +568,6 @@ void CPlayer::SetSpawn(void)
 }
 
 //============================================================
-//	モーション・オブジェクトキャラクターの更新処理
-//============================================================
-void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
-{
-	if (IsDeath()) { return; }	// 死亡している
-
-	int aMotion[] = { nLowMotion, nUpMotion };		// モーション情報
-	for (int nCntBody = 0; nCntBody < BODY_MAX; nCntBody++)
-	{ // 分割した身体の数分繰り返す
-
-		if (aMotion[nCntBody] == NONE_IDX)  { continue; }	// モーションが設定されていない
-		if (!IsMotionLoop((EBody)nCntBody)) { continue; }	// ループしないモーションだった
-		int nAnimMotion = GetMotionType((EBody)nCntBody);	// 現在再生中のモーション
-
-		if (nAnimMotion != aMotion[nCntBody])
-		{ // 現在のモーションが再生中のモーションと一致しない場合
-
-			// 現在のモーションの設定
-			SetMotion((EBody)nCntBody, aMotion[nCntBody]);
-		}
-	}
-
-	// オブジェクト分割キャラクターの更新
-	CObjectDivChara::Update();
-}
-
-//============================================================
 //	モーションの設定処理
 //============================================================
 void CPlayer::SetMotion(const EBody bodyID, const int nType)
@@ -607,6 +586,102 @@ void CPlayer::SetMotion(const EBody bodyID, const int nType)
 		}
 	}
 	else { assert(false); }	// インデックスエラー
+}
+
+//============================================================
+//	モーション・オブジェクトキャラクターの更新処理
+//============================================================
+void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
+{
+	if (IsDeath()) { return; }	// 死亡している
+
+	const int aMotion[] = { nLowMotion, nUpMotion };	// モーション情報
+	for (int nCntBody = 0; nCntBody < BODY_MAX; nCntBody++)
+	{ // 分割した身体の数分繰り返す
+
+		if (aMotion[nCntBody] == NONE_IDX)  { continue; }	// モーションが設定されていない
+		if (!IsMotionLoop((EBody)nCntBody)) { continue; }	// ループしないモーションだった
+		int nAnimMotion = GetMotionType((EBody)nCntBody);	// 現在再生中のモーション
+
+		if (nAnimMotion != aMotion[nCntBody])
+		{ // 現在のモーションが再生中のモーションと一致しない場合
+
+			// 現在のモーションの設定
+			SetMotion((EBody)nCntBody, aMotion[nCntBody]);
+		}
+
+		// 各半身ごとのモーション更新
+		(this->*(m_aFuncUpdateMotion[nCntBody]))(aMotion[nCntBody]);
+	}
+
+	// オブジェクト分割キャラクターの更新
+	CObjectDivChara::Update();
+}
+
+//============================================================
+//	下半身モーションの更新処理
+//============================================================
+void CPlayer::UpdateMotionLower(const int nMotion)
+{
+	switch (GetMotionType(BODY_LOWER))
+	{ // モーションごとの処理
+	case L_MOTION_IDOL:	// 待機モーション：ループON
+		break;
+
+	case L_MOTION_MOVE:	// 移動モーション：ループON
+
+		if (GetMotionPose(BODY_LOWER) % WALK_SOUND == 0 && GetMotionKeyCounter(BODY_LOWER) == 0)
+		{ // 足がついたタイミングの場合
+
+			// 歩行音の再生
+			PLAY_SOUND(CSound::LABEL_SE_WALK_BUILD);
+		}
+
+		break;
+	
+	case L_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
+	
+		if (IsMotionFinish(BODY_LOWER))
+		{ // モーションが終了していた場合
+	
+			// 現在のモーションの設定
+			SetMotion(BODY_LOWER, nMotion);
+		}
+	
+		break;
+	
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
+}
+
+//============================================================
+//	上半身モーションの更新処理
+//============================================================
+void CPlayer::UpdateMotionUpper(const int nMotion)
+{
+	switch (GetMotionType(BODY_UPPER))
+	{ // モーションごとの処理
+	case U_MOTION_IDOL:	// 待機モーション：ループON
+	case U_MOTION_MOVE:	// 移動モーション：ループON
+		break;
+	
+	case U_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
+	
+		if (IsMotionFinish(BODY_UPPER))
+		{ // モーションが終了していた場合
+	
+			// 現在のモーションの設定
+			SetMotion(BODY_UPPER, nMotion);
+		}
+	
+		break;
+	
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
 }
 
 //============================================================
@@ -639,8 +714,11 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	CStage *pStage = CScene::GetStage();				// ステージ情報
 	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
 
-	// 移動操作
+	// 移動操作・目標向き設定
 	UpdateMove(pLowMotion, pUpMotion);
+
+	// 攻撃操作
+	UpdateAttack(pLowMotion, pUpMotion);
 
 	// ジャンプ操作
 	UpdateJump(pLowMotion, pUpMotion);
@@ -692,7 +770,7 @@ void CPlayer::SetSwordDisp(const bool bDisp)
 }
 
 //============================================================
-//	移動量・目標向きの更新処理
+//	移動操作・目標向きの更新処理
 //============================================================
 void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 {
@@ -724,7 +802,7 @@ void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 }
 
 //============================================================
-//	ジャンプの更新処理
+//	ジャンプ操作の更新処理
 //============================================================
 void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 {
@@ -739,6 +817,17 @@ void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 			// ジャンプ中にする
 			m_bJump = true;
 		}
+	}
+}
+
+//============================================================
+//	攻撃操作の更新処理
+//============================================================
+void CPlayer::UpdateAttack(int *pLowMotion, int *pUpMotion)
+{
+	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
+	{
+
 	}
 }
 

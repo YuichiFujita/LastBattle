@@ -99,6 +99,9 @@ public:
 	// デストラクタ
 	~CPlayer() override;
 
+	// モーション更新の関数ポインタ型エイリアス定義
+	typedef void (CPlayer::*AFuncUpdateMotion)(const int);
+
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
@@ -130,11 +133,14 @@ private:
 	// メンバ関数
 	void LoadSetup(const EBody bodyID, const char **ppModelPass);	// セットアップ
 	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション・オブジェクトキャラクターの更新
+	void UpdateMotionLower(const int nMotion);	// 下半身モーションの更新
+	void UpdateMotionUpper(const int nMotion);	// 上半身モーションの更新
 
 	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
-	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動量・目標向きの更新
-	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプの更新
+	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
+	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
+	void UpdateAttack(int *pLowMotion, int *pUpMotion);	// 攻撃操作の更新
 
 	void UpdateOldPosition(void);			// 過去位置の更新
 	void UpdateGravity(void);				// 重力の更新
@@ -144,9 +150,9 @@ private:
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
 
-
 	// 静的メンバ変数
-	static CListManager<CPlayer> *m_pList;	// オブジェクトリスト
+	static CListManager<CPlayer> *m_pList;			// オブジェクトリスト
+	static AFuncUpdateMotion m_aFuncUpdateMotion[];	// モーション更新関数
 
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
