@@ -140,13 +140,27 @@ void CSword::Update(void)
 
 			// ‰½‚à‚µ‚È‚¢ó‘Ô‚É‚·‚é
 			SetState(STATE_NONE);
-
-			// ‹OÕ‚ðÁ‚·
-			m_pOrbit->SetState(COrbit::STATE_VANISH);
 		}
 
 		// “§–¾“x‚ð”½‰f
 		SetAlpha(fAlpha);
+	}
+
+	if (m_bAttack)
+	{ // UŒ‚”»’è‚ªON‚Ìê‡
+
+		if (m_pOrbit->GetState() != STATE_NORMAL)
+		{ // ‚Ü‚¾•\Ž¦‚³‚ê‚Ä‚¢‚È‚¢ê‡
+
+			// ‹OÕ‚ðo‚·
+			m_pOrbit->SetState(COrbit::STATE_NORMAL);
+		}
+	}
+	else
+	{ // UŒ‚”»’è‚ªOFF‚Ìê‡
+
+		// ‹OÕ‚ðÁ‚·
+		m_pOrbit->SetState(COrbit::STATE_VANISH);
 	}
 
 	// “G‚Æ‚Ì“–‚½‚è”»’è
@@ -256,9 +270,6 @@ void CSword::SetState(const EState state)
 
 		// •s“§–¾‚É‚·‚é
 		SetAlpha(1.0f);
-
-		// ‹OÕ‚ðo‚·
-		m_pOrbit->SetState(COrbit::STATE_NORMAL);
 
 		break;
 
