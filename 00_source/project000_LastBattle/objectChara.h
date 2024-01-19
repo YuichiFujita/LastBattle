@@ -85,6 +85,7 @@ public:
 	int GetMotionKeyCounter(void) const;	// モーションキーカウンター取得
 	int GetMotionWholeCounter(void) const;	// モーション全体カウンター取得
 	int GetMotionWholeFrame(void) const;	// モーション全体フレーム数取得
+	int GetMotionCancelFrame(void) const;	// モーションキャンセルフレーム取得
 	bool IsMotionFinish(void) const;		// モーション終了取得
 	bool IsMotionLoop(void) const;			// モーションループ取得
 	bool IsMotionCancel(void) const;		// モーションキャンセル取得

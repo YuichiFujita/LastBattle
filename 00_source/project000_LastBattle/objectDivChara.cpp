@@ -462,6 +462,23 @@ int CObjectDivChara::GetMotionWholeFrame(const EBody bodyID) const
 }
 
 //============================================================
+//	モーションキャンセルフレーム取得処理
+//============================================================
+int CObjectDivChara::GetMotionCancelFrame(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションキャンセルフレームを返す
+		return m_apBody[bodyID]->GetMotionCancelFrame();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return NONE_IDX;
+}
+
+//============================================================
 //	モーション終了状況の取得処理
 //============================================================
 bool CObjectDivChara::IsMotionFinish(const EBody bodyID) const

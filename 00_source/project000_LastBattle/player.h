@@ -101,6 +101,30 @@ public:
 	// デストラクタ
 	~CPlayer() override;
 
+	// 先行入力構造体
+	struct SBuffering
+	{
+	public:
+		// メンバ関数
+		void Add(void)	// 先行入力の反映数の加算
+		{
+			// 反映数を加算
+			nNumSet++;
+
+			if (nNumSet >= BODY_MAX)
+			{ // 全モーションに反映した場合
+
+				// 情報を初期化
+				bInput  = false;	// 先行入力状況
+				nNumSet = 0;		// 先行入力の反映数
+			}
+		}
+
+		// メンバ変数
+		bool bInput;	// 先行入力状況
+		int  nNumSet;	// 先行入力の反映数
+	};
+
 	// モーション更新の関数ポインタ型エイリアス定義
 	typedef void (CPlayer::*AFuncUpdateMotion)(const int);
 
@@ -159,14 +183,14 @@ private:
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
 	CSword		*m_apSowrd[player::NUM_SWORD];		// 剣の情報
-	CShadow		*m_pShadow;		// 影の情報
-	D3DXVECTOR3	m_oldPos;		// 過去位置
-	D3DXVECTOR3	m_move;			// 移動量
-	D3DXVECTOR3	m_destRot;		// 目標向き
-	EState	m_state;			// 状態
-	int		m_nCounterState;	// 状態管理カウンター
-	bool	m_bJump;			// ジャンプ状況
-	bool	m_bInputAttack;		// 攻撃の先行入力
+	CShadow		*m_pShadow;			// 影の情報
+	D3DXVECTOR3	m_oldPos;			// 過去位置
+	D3DXVECTOR3	m_move;				// 移動量
+	D3DXVECTOR3	m_destRot;			// 目標向き
+	EState		m_state;			// 状態
+	int			m_nCounterState;	// 状態管理カウンター
+	bool		m_bJump;			// ジャンプ状況
+	SBuffering	m_buffAttack;		// 攻撃の先行入力
 };
 
 #endif	// _PLAYER_H_

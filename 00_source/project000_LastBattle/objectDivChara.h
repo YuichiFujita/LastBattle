@@ -95,6 +95,7 @@ public:
 	int  GetMotionKeyCounter(const EBody bodyID) const;		// モーションキーカウンター取得
 	int  GetMotionWholeCounter(const EBody bodyID) const;	// モーション全体カウンター取得
 	int  GetMotionWholeFrame(const EBody bodyID) const;		// モーション全体フレーム数取得
+	int  GetMotionCancelFrame(const EBody bodyID) const;	// モーションキャンセルフレーム取得
 	bool IsMotionFinish(const EBody bodyID) const;			// モーション終了取得
 	bool IsMotionLoop(const EBody bodyID) const;			// モーションループ取得
 	bool IsMotionCancel(const EBody bodyID) const;			// モーションキャンセル取得

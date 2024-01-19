@@ -284,6 +284,15 @@ int CMotion::GetWholeFrame(const int nType) const
 }
 
 //============================================================
+//	モーションキャンセルフレーム取得処理
+//============================================================
+int CMotion::GetCancelFrame(const int nType) const
+{
+	// 引数モーションのキャンセルフレームを返す
+	return m_info.aMotionInfo[nType].nCancelFrame;
+}
+
+//============================================================
 //	終了取得処理
 //============================================================
 bool CMotion::IsFinish(void) const
@@ -310,7 +319,7 @@ bool CMotion::IsCancel(const int nType) const
 	{ // キャンセルフレームが設定されている場合
 
 		// 引数モーションのキャンセル状況を返す
-		return (m_info.aMotionInfo[nType].nWholeFrame >= m_info.aMotionInfo[nType].nCancelFrame) ? true : false;
+		return (m_info.nWholeCounter >= m_info.aMotionInfo[nType].nCancelFrame);
 	}
 	else
 	{ // キャンセルフレームが設定されていない場合

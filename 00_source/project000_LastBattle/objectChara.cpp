@@ -536,6 +536,15 @@ int CObjectChara::GetMotionWholeFrame(void) const
 }
 
 //============================================================
+//	モーションキャンセルフレーム取得処理
+//============================================================
+int CObjectChara::GetMotionCancelFrame(void) const
+{
+	// 現在モーションのキャンセルフレームを返す
+	return m_pMotion->GetCancelFrame(m_pMotion->GetType());
+}
+
+//============================================================
 //	モーション終了取得処理
 //============================================================
 bool CObjectChara::IsMotionFinish(void) const

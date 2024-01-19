@@ -89,6 +89,8 @@ namespace
 	const float	ADD_ALPHA	= 0.03f;	// 透明度の加算量
 	const int	WALK_SOUND	= 4;		// 歩行の効果音のキータイミング
 
+	const int	ATTACK_BUFFER_FRAME = 20;	// 攻撃の先行入力可能フレーム
+
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
 }
 
@@ -123,10 +125,10 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_destRot		(VEC3_ZERO),	// 目標向き
 	m_state			(STATE_NONE),	// 状態
 	m_bJump			(false),		// ジャンプ状況
-	m_bInputAttack	(false),		// 攻撃の先行入力
 	m_nCounterState	(0)				// 状態管理カウンター
 {
-
+	// メンバ変数をクリア
+	memset(&m_buffAttack, 0, sizeof(m_buffAttack));	// 攻撃の先行入力
 }
 
 //============================================================
@@ -143,13 +145,13 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
+	memset(&m_buffAttack, 0, sizeof(m_buffAttack));	// 攻撃の先行入力
 	m_pShadow		= nullptr;		// 影の情報
 	m_oldPos		= VEC3_ZERO;	// 過去位置
 	m_move			= VEC3_ZERO;	// 移動量
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NONE;	// 状態
 	m_bJump			= true;			// ジャンプ状況
-	m_bInputAttack	= false;		// 攻撃の先行入力
 	m_nCounterState	= 0;			// 状態管理カウンター
 
 	// オブジェクト分割キャラクターの初期化
@@ -630,15 +632,12 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 	switch (GetMotionType(BODY_LOWER))
 	{ // モーションごとの処理
 	case L_MOTION_IDOL:	// 待機モーション：ループON
-		assert(!m_bInputAttack);
-
 		break;
 
 	case L_MOTION_MOVE:	// 移動モーション：ループON
 
 		if (GetMotionPose(BODY_LOWER) % WALK_SOUND == 0 && GetMotionKeyCounter(BODY_LOWER) == 0)
 		{ // 足がついたタイミングの場合
-			assert(!m_bInputAttack);
 
 			// 歩行音の再生
 			PLAY_SOUND(CSound::LABEL_SE_WALK_BUILD);
@@ -651,14 +650,14 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		if (IsMotionCancel(BODY_LOWER))
 		{ // モーションキャンセルができる場合
 
-			if (m_bInputAttack)
+			if (m_buffAttack.bInput)
 			{ // 攻撃が先行入力されている場合
 
 				// 現在のモーションの設定
 				SetMotion(BODY_LOWER, L_MOTION_ATTACK_01);
 
-				// 先行入力を初期化
-				m_bInputAttack = false;
+				// 入力反映を加算
+				m_buffAttack.Add();	// 全モーションに反映したら先行入力を初期化
 
 				// 処理を抜ける
 				break;
@@ -670,9 +669,6 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 			// 現在のモーションの設定
 			SetMotion(BODY_LOWER, nMotion);
-
-			// 先行入力を初期化
-			m_bInputAttack = false;
 		}
 
 		break;
@@ -703,8 +699,6 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 	{ // モーションごとの処理
 	case U_MOTION_IDOL:	// 待機モーション：ループON
 	case U_MOTION_MOVE:	// 移動モーション：ループON
-		assert(!m_bInputAttack);
-
 		break;
 	
 	case U_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
@@ -712,14 +706,19 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 		if (IsMotionCancel(BODY_UPPER))
 		{ // モーションキャンセルができる場合
 
-			if (m_bInputAttack)
+			if (m_buffAttack.bInput)
 			{ // 攻撃が先行入力されている場合
 
 				// 現在のモーションの設定
 				SetMotion(BODY_UPPER, U_MOTION_ATTACK_01);
 
-				// 先行入力を初期化
-				m_bInputAttack = false;
+				// 入力反映を加算
+				m_buffAttack.Add();	// 全モーションに反映したら先行入力を初期化
+
+				if (m_buffAttack.bInput)
+				{
+					int a = 0;
+				}
 
 				// 処理を抜ける
 				break;
@@ -731,9 +730,6 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 			// 現在のモーションの設定
 			SetMotion(BODY_UPPER, nMotion);
-
-			// 先行入力を初期化
-			m_bInputAttack = false;
 		}
 	
 		break;
@@ -917,11 +913,11 @@ void CPlayer::UpdateAttack(int *pLowMotion, int *pUpMotion)
 
 				// 現在のモーションの残りフレームを計算
 				int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
-				if (nWholeFrame < 10)	// TODO：マジックナンバー
+				if (nWholeFrame < ATTACK_BUFFER_FRAME)
 				{ // 先行入力が可能な場合
 
 					// 先行入力を受け付ける
-					m_bInputAttack = true;
+					m_buffAttack.bInput = true;
 				}
 			}
 		}
