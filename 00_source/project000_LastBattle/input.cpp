@@ -927,8 +927,8 @@ float CInputPad::GetPressRStickRot(int nPadID)
 float CInputPad::GetPressLStickTilt(int nPadID)
 {
 	// 変数を宣言
-	D3DXVECTOR3	vecLTilt = D3DXVECTOR3((float)GetPressLStickX(), (float)GetPressLStickY(), 0.0f);	// Lスティック各軸の傾き量
-	float		fLTilt   = sqrtf(vecLTilt.x * vecLTilt.x + vecLTilt.y * vecLTilt.y) * 0.5f;			// Lスティックの傾き量
+	D3DXVECTOR3	vecLTilt = D3DXVECTOR3((float)GetPressLStickX(nPadID), (float)GetPressLStickY(nPadID), 0.0f);	// Lスティック各軸の傾き量
+	float fLTilt = sqrtf(vecLTilt.x * vecLTilt.x + vecLTilt.y * vecLTilt.y) * 0.5f;	// Lスティックの傾き量
 
 	// Lスティックの傾きを返す
 	return fLTilt;
@@ -940,8 +940,8 @@ float CInputPad::GetPressLStickTilt(int nPadID)
 float CInputPad::GetPressRStickTilt(int nPadID)
 {
 	// 変数を宣言
-	D3DXVECTOR3	vecRTilt = D3DXVECTOR3((float)GetPressRStickX(), (float)GetPressRStickY(), 0.0f);	// Rスティック各軸の傾き量
-	float		fRTilt   = sqrtf(vecRTilt.x * vecRTilt.x + vecRTilt.y * vecRTilt.y) * 0.5f;			// Rスティックの傾き量
+	D3DXVECTOR3	vecRTilt = D3DXVECTOR3((float)GetPressRStickX(nPadID), (float)GetPressRStickY(nPadID), 0.0f);	// Rスティック各軸の傾き量
+	float fRTilt = sqrtf(vecRTilt.x * vecRTilt.x + vecRTilt.y * vecRTilt.y) * 0.5f;	// Rスティックの傾き量
 
 	// Rスティックの傾きを返す
 	return fRTilt;

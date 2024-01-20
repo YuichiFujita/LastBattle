@@ -65,11 +65,6 @@ namespace
 		&LOWER_MODEL_FILE[0],	// ‰º”¼g
 		&UPPER_MODEL_FILE[0],	// ã”¼g
 	};
-	const int MODEL_MAX[] =	// ƒ‚ƒfƒ‹Å‘å”
-	{
-		CPlayer::L_MODEL_MAX,	// ‰º”¼g
-		CPlayer::U_MODEL_MAX,	// ã”¼g
-	};
 	const D3DXVECTOR3 SWORD_OFFSET[] =	// Œ•‚ÌƒIƒtƒZƒbƒgˆÊ’u
 	{
 		D3DXVECTOR3(-5.8f, 0.0f, 0.0f),	// ‰EŒ•
@@ -80,7 +75,7 @@ namespace
 	const float	JUMP		= 18.0f;	// ƒWƒƒƒ“ƒvã¸—Ê
 	const float	GRAVITY		= 0.85f;	// d—Í
 	const float	RADIUS		= 20.0f;	// ”¼Œa
-	const float	HEIGHT		= 100.0f;	// c•
+	const float	HEIGHT		= 80.0f;	// c•
 	const float	REV_ROTA	= 0.15f;	// Œü‚«•ÏX‚Ì•â³ŒW”
 	const float	MOVE_REV	= 0.5f;		// ˆÚ“®—Ê‚Ì•â³ŒW”
 	const float	JUMP_REV	= 0.16f;	// ’Êíó‘Ô‚Ì‹ó’†‚ÌˆÚ“®—Ê‚ÌŒ¸ŠŒW”
@@ -109,7 +104,7 @@ CPlayer::AFuncUpdateMotion CPlayer::m_aFuncUpdateMotion[] =	// ƒ‚[ƒVƒ‡ƒ“XVŠÖ
 //************************************************************
 static_assert(NUM_ARRAY(LOWER_MODEL_FILE) == CPlayer::L_MODEL_MAX, "ERROR : Model Count Mismatch");
 static_assert(NUM_ARRAY(UPPER_MODEL_FILE) == CPlayer::U_MODEL_MAX, "ERROR : Model Count Mismatch");
-static_assert(NUM_ARRAY(SETUP_TXT) == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
+static_assert(NUM_ARRAY(SETUP_TXT)    == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
 static_assert(NUM_ARRAY(SWORD_OFFSET) == player::NUM_SWORD, "ERROR : Body Count Mismatch");
 
 //************************************************************
@@ -125,6 +120,7 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_destRot		(VEC3_ZERO),	// –Ú•WŒü‚«
 	m_state			(STATE_NONE),	// ó‘Ô
 	m_bJump			(false),		// ƒWƒƒƒ“ƒvó‹µ
+	m_bGuard		(false),		// ƒK[ƒhó‹µ
 	m_nCounterState	(0)				// ó‘ÔŠÇ—ƒJƒEƒ“ƒ^[
 {
 	// ƒƒ“ƒo•Ï”‚ğƒNƒŠƒA
@@ -152,6 +148,7 @@ HRESULT CPlayer::Init(void)
 	m_destRot		= VEC3_ZERO;	// –Ú•WŒü‚«
 	m_state			= STATE_NONE;	// ó‘Ô
 	m_bJump			= true;			// ƒWƒƒƒ“ƒvó‹µ
+	m_bGuard		= false;		// ƒK[ƒhó‹µ
 	m_nCounterState	= 0;			// ó‘ÔŠÇ—ƒJƒEƒ“ƒ^[
 
 	// ƒIƒuƒWƒFƒNƒg•ªŠ„ƒLƒƒƒ‰ƒNƒ^[‚Ì‰Šú‰»
@@ -289,18 +286,6 @@ void CPlayer::Update(void)
 	default:
 		assert(false);
 		break;
-	}
-
-	// TODOFUŒ‚ƒ‚[ƒVƒ‡ƒ“ƒfƒoƒbƒO—p
-	if (GET_INPUTKEY->IsTrigger(DIK_0))
-	{
-		curLowMotion = L_MOTION_ATTACK_00;	// Œ»İ‚Ì‰º”¼gƒ‚[ƒVƒ‡ƒ“
-		curUpMotion  = U_MOTION_ATTACK_00;	// Œ»İ‚Ìã”¼gƒ‚[ƒVƒ‡ƒ“
-	}
-	if (GET_INPUTKEY->IsTrigger(DIK_9))
-	{
-		SetMotion(BODY_LOWER, curLowMotion);
-		SetMotion(BODY_UPPER, curUpMotion);
 	}
 
 	bool bColl[] =	// ”»’èON/OFFó‹µ
@@ -657,7 +642,12 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 				SetMotion(BODY_LOWER, L_MOTION_ATTACK_01);
 
 				// “ü—Í”½‰f‚ğ‰ÁZ
-				m_buffAttack.Add();	// ‘Sƒ‚[ƒVƒ‡ƒ“‚É”½‰f‚µ‚½‚çæs“ü—Í‚ğ‰Šú‰»
+				if (m_buffAttack.Add())	// ‘Sƒ‚[ƒVƒ‡ƒ“‚É”½‰f‚µ‚½‚çæs“ü—Í‚ğ‰Šú‰»
+				{ // ‘Sƒ‚[ƒVƒ‡ƒ“‚É”½‰fÏ‚İ‚Ìê‡
+
+					// LƒXƒeƒBƒbƒN‚ÌŒü‚«‚ÉƒvƒŒƒCƒ„[‚ğŒü‚©‚¹‚é
+					SetLStickRotation();
+				}
 
 				// ˆ—‚ğ”²‚¯‚é
 				break;
@@ -713,11 +703,11 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 				SetMotion(BODY_UPPER, U_MOTION_ATTACK_01);
 
 				// “ü—Í”½‰f‚ğ‰ÁZ
-				m_buffAttack.Add();	// ‘Sƒ‚[ƒVƒ‡ƒ“‚É”½‰f‚µ‚½‚çæs“ü—Í‚ğ‰Šú‰»
+				if (m_buffAttack.Add())	// ‘Sƒ‚[ƒVƒ‡ƒ“‚É”½‰f‚µ‚½‚çæs“ü—Í‚ğ‰Šú‰»
+				{ // ‘Sƒ‚[ƒVƒ‡ƒ“‚É”½‰fÏ‚İ‚Ìê‡
 
-				if (m_buffAttack.bInput)
-				{
-					int a = 0;
+					// LƒXƒeƒBƒbƒN‚ÌŒü‚«‚ÉƒvƒŒƒCƒ„[‚ğŒü‚©‚¹‚é
+					SetLStickRotation();
 				}
 
 				// ˆ—‚ğ”²‚¯‚é
@@ -752,6 +742,44 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 }
 
 //============================================================
+//	UŒ‚ó‹µ‚Ìæ“¾ˆ—
+//============================================================
+bool CPlayer::IsAttack(void) const
+{
+	// •Ï”‚ğéŒ¾
+	EUpperMotion curMotion = (EUpperMotion)GetMotionType(BODY_UPPER);	// Œ»İ‚Ìƒ‚[ƒVƒ‡ƒ“
+
+	// UŒ‚ó‹µ‚ğİ’è
+	bool bAttack = (curMotion == U_MOTION_ATTACK_00 || curMotion == U_MOTION_ATTACK_01);	// TODOFUŒ‚’Ç‰Á‚µ‚½‚ç‹Lq
+
+	// UŒ‚ó‹µ‚ğ•Ô‚·
+	return bAttack;
+}
+
+//============================================================
+//	LƒXƒeƒBƒbƒN‚ÌŒü‚«‚ÉƒvƒŒƒCƒ„[‚ğŒü‚©‚¹‚éˆ—
+//============================================================
+void CPlayer::SetLStickRotation(void)
+{
+	CCamera *pCamera = GET_MANAGER->GetCamera();	// ƒJƒƒ‰
+	CInputPad *pPad = GET_INPUTPAD;	// ƒpƒbƒh
+	D3DXVECTOR3 vec = VEC3_ZERO;	// ƒxƒNƒgƒ‹
+
+	float fLTilt = pPad->GetPressLStickTilt();	// ƒXƒeƒBƒbƒN‚ÌŒX‚«—Ê
+	if (pad::DEAD_ZONE < fLTilt)
+	{ // ƒfƒbƒhƒ][ƒ“ˆÈã‚Ìê‡
+
+		// ƒXƒeƒBƒbƒNŒX‚«•ûŒü‚ÌƒxƒNƒgƒ‹‚ğì¬
+		vec.x = sinf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI);
+		vec.z = cosf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI);
+
+		// ƒXƒeƒBƒbƒNŒX‚«•ûŒü‚ğŒü‚«‚Éİ’è
+		m_destRot.y = atan2f(-vec.x, -vec.z);	// –Ú•WŒü‚«
+		SetVec3Rotation(m_destRot);				// Œü‚«
+	}
+}
+
+//============================================================
 //	ƒXƒ|[ƒ“ó‘Ô‚ÌXVˆ—
 //============================================================
 void CPlayer::UpdateSpawn(int *pLowMotion, int *pUpMotion)
@@ -781,11 +809,14 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	CStage *pStage = CScene::GetStage();				// ƒXƒe[ƒWî•ñ
 	if (pStage == nullptr) { assert(false); return; }	// ƒXƒe[ƒW”ñg—p’†
 
+	// UŒ‚‘€ì
+	UpdateAttack();
+
+	// ƒK[ƒh‘€ì
+	UpdateGuard();
+
 	// ˆÚ“®‘€ìE–Ú•WŒü‚«İ’è
 	UpdateMove(pLowMotion, pUpMotion);
-
-	// UŒ‚‘€ì
-	UpdateAttack(pLowMotion, pUpMotion);
 
 	// ƒWƒƒƒ“ƒv‘€ì
 	UpdateJump(pLowMotion, pUpMotion);
@@ -810,29 +841,60 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 }
 
 //============================================================
-//	Œ•‚Ì•\¦İ’èˆ—
+//	UŒ‚‘€ì‚ÌXVˆ—
 //============================================================
-void CPlayer::SetSwordDisp(const bool bDisp)
+void CPlayer::UpdateAttack(void)
 {
-	if (bDisp)
-	{ // Œ©‚¦‚éİ’è‚³‚ê‚½ê‡
+	if (m_bJump) { return; }	// ƒWƒƒƒ“ƒv’†‚Ìê‡”²‚¯‚é
 
-		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
-		{ // Œ•‚Ì”•ªŒJ‚è•Ô‚·
+	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
+	{
+		if (!IsAttack())
+		{ // UŒ‚’†‚Å‚Í‚È‚¢ê‡
 
-			// Œ•‚ğo‚·
-			m_apSowrd[nCntSword]->SetState(CSword::STATE_NORMAL);
+			// UŒ‚ƒ‚[ƒVƒ‡ƒ“‚ğw’è
+			SetMotion(BODY_LOWER, L_MOTION_ATTACK_00);
+			SetMotion(BODY_UPPER, U_MOTION_ATTACK_00);
+		}
+		else
+		{ // UŒ‚’†‚Ìê‡
+
+			if ((EUpperMotion)GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_01)	// TODOFˆê”ÔÅŒã‚ÌUŒ‚‚É‚·‚é
+			{ // ÅIUŒ‚ƒ‚[ƒVƒ‡ƒ“‚Å‚Í‚È‚¢ê‡
+
+				// Œ»İ‚Ìƒ‚[ƒVƒ‡ƒ“‚Ìc‚èƒtƒŒ[ƒ€‚ğŒvZ
+				int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
+				if (nWholeFrame < ATTACK_BUFFER_FRAME)
+				{ // æs“ü—Í‚ª‰Â”\‚Èê‡
+
+					// æs“ü—Í‚ğó‚¯•t‚¯‚é
+					m_buffAttack.bInput = true;
+				}
+			}
 		}
 	}
+}
+
+//============================================================
+//	ƒK[ƒh‘€ì‚ÌXVˆ—
+//============================================================
+void CPlayer::UpdateGuard(void)
+{
+	if (IsAttack())	{ return; }	// UŒ‚’†‚Ìê‡”²‚¯‚é
+	if (m_bJump)	{ return; }	// ƒWƒƒƒ“ƒv’†‚Ìê‡”²‚¯‚é
+
+	if (GET_INPUTPAD->IsPress(CInputPad::KEY_L1))
+	{
+		// TODOFƒK[ƒh•\¦ƒGƒtƒFƒNƒg
+		CEffect3D::Create(GetVec3Position() + D3DXVECTOR3(0.0f, HEIGHT * 0.5f, 0.0f), 100.0f, CEffect3D::TYPE_BUBBLE);
+
+		// ƒK[ƒh‚ğON‚É‚·‚é
+		m_bGuard = true;
+	}
 	else
-	{ // Œ©‚¦‚È‚¢İ’è‚³‚ê‚½ê‡
-
-		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
-		{ // Œ•‚Ì”•ªŒJ‚è•Ô‚·
-
-			// Œ•‚ğÁ‚·
-			m_apSowrd[nCntSword]->SetState(CSword::STATE_VANISH);
-		}
+	{
+		// ƒK[ƒh‚ğOFF‚É‚·‚é
+		m_bGuard = false;
 	}
 }
 
@@ -841,19 +903,18 @@ void CPlayer::SetSwordDisp(const bool bDisp)
 //============================================================
 void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 {
-	// ƒ|ƒCƒ“ƒ^‚ğéŒ¾
+	if (IsAttack()) { return; }	// UŒ‚’†‚Ìê‡”²‚¯‚é
+	if (m_bGuard)	{ return; }	// ƒK[ƒh’†‚Ìê‡”²‚¯‚é
+
 	CInputPad *pPad  = GET_INPUTPAD;				// ƒpƒbƒh
 	CCamera *pCamera = GET_MANAGER->GetCamera();	// ƒJƒƒ‰
 
-	// •Ï”‚ğéŒ¾
-	D3DXVECTOR3 vecLStick = D3DXVECTOR3((float)pPad->GetPressLStickX(), (float)pPad->GetPressLStickY(), 0.0f);	// ƒXƒeƒBƒbƒNŠe²‚Ì“|‚µ—Ê
-	float fLStick = sqrtf(vecLStick.x * vecLStick.x + vecLStick.y * vecLStick.y) * 0.5f;	// ƒXƒeƒBƒbƒN‚Ì“|‚µ—Ê
-
-	if (pad::DEAD_ZONE < fLStick)
+	float fLTilt = pPad->GetPressLStickTilt();	// ƒXƒeƒBƒbƒN‚ÌŒX‚«—Ê
+	if (pad::DEAD_ZONE < fLTilt)
 	{ // ƒfƒbƒhƒ][ƒ“ˆÈã‚Ìê‡
 
 		// •Ï”‚ğéŒ¾
-		float fMove = fLStick * STICK_REV;	// ƒvƒŒƒCƒ„[ˆÚ“®—Ê
+		float fMove = fLTilt * STICK_REV;	// ƒvƒŒƒCƒ„[ˆÚ“®—Ê
 
 		// ˆÚ“®—Ê‚ğXV
 		m_move.x += sinf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
@@ -873,6 +934,9 @@ void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 //============================================================
 void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 {
+	if (IsAttack()) { return; }	// UŒ‚’†‚Ìê‡”²‚¯‚é
+	if (m_bGuard)	{ return; }	// ƒK[ƒh’†‚Ìê‡”²‚¯‚é
+
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_A))
 	{
 		if (!m_bJump)
@@ -883,43 +947,10 @@ void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 
 			// ƒWƒƒƒ“ƒv’†‚É‚·‚é
 			m_bJump = true;
-		}
-	}
-}
 
-//============================================================
-//	UŒ‚‘€ì‚ÌXVˆ—
-//============================================================
-void CPlayer::UpdateAttack(int *pLowMotion, int *pUpMotion)
-{
-	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
-	{
-		// Œ»İ‚Ìƒ‚[ƒVƒ‡ƒ“‚ğæ“¾
-		EUpperMotion curMotion = (EUpperMotion)GetMotionType(BODY_UPPER);
-
-		if (curMotion != U_MOTION_ATTACK_00
-		&&  curMotion != U_MOTION_ATTACK_01)
-		{ // UŒ‚’†‚Å‚Í‚È‚¢ê‡	// TODOFUŒ‚’Ç‰Á‚µ‚½‚ç‹Lq
-
-			// UŒ‚ƒ‚[ƒVƒ‡ƒ“‚ğw’è
-			*pLowMotion = L_MOTION_ATTACK_00;
-			*pUpMotion  = U_MOTION_ATTACK_00;
-		}
-		else
-		{ // UŒ‚’†‚Ìê‡
-
-			if (curMotion != U_MOTION_ATTACK_01)	// TODOFˆê”ÔÅŒã‚ÌUŒ‚‚É‚·‚é
-			{ // ÅIUŒ‚ƒ‚[ƒVƒ‡ƒ“‚Å‚Í‚È‚¢ê‡
-
-				// Œ»İ‚Ìƒ‚[ƒVƒ‡ƒ“‚Ìc‚èƒtƒŒ[ƒ€‚ğŒvZ
-				int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
-				if (nWholeFrame < ATTACK_BUFFER_FRAME)
-				{ // æs“ü—Í‚ª‰Â”\‚Èê‡
-
-					// æs“ü—Í‚ğó‚¯•t‚¯‚é
-					m_buffAttack.bInput = true;
-				}
-			}
+			// ã‰º‚ÉƒWƒƒƒ“ƒvƒ‚[ƒVƒ‡ƒ“‚ğİ’è
+			*pLowMotion = L_MOTION_MOVE;
+			*pUpMotion  = U_MOTION_MOVE;
 		}
 	}
 }

@@ -106,7 +106,7 @@ public:
 	{
 	public:
 		// メンバ関数
-		void Add(void)	// 先行入力の反映数の加算
+		bool Add(void)	// 先行入力の反映数の加算
 		{
 			// 反映数を加算
 			nNumSet++;
@@ -117,7 +117,11 @@ public:
 				// 情報を初期化
 				bInput  = false;	// 先行入力状況
 				nNumSet = 0;		// 先行入力の反映数
+
+				return true;
 			}
+
+			return false;
 		}
 
 		// メンバ変数
@@ -150,7 +154,6 @@ public:
 
 	// メンバ関数
 	void SetSpawn(void);	// 出現設定
-	void SetSwordDisp(const bool bDisp);	// 剣の表示設定
 
 private:
 	// オーバーライド関数
@@ -161,12 +164,16 @@ private:
 	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション・オブジェクトキャラクターの更新
 	void UpdateMotionLower(const int nMotion);	// 下半身モーションの更新
 	void UpdateMotionUpper(const int nMotion);	// 上半身モーションの更新
+	bool IsAttack(void) const;		// 攻撃状況取得
+	void SetLStickRotation(void);	// Lスティック向きを向かせる
 
 	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
+
+	void UpdateAttack(void);	// 攻撃操作の更新
+	void UpdateGuard(void);		// ガード操作の更新
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
-	void UpdateAttack(int *pLowMotion, int *pUpMotion);	// 攻撃操作の更新
 
 	void UpdateOldPosition(void);			// 過去位置の更新
 	void UpdateGravity(void);				// 重力の更新
@@ -190,6 +197,7 @@ private:
 	EState		m_state;			// 状態
 	int			m_nCounterState;	// 状態管理カウンター
 	bool		m_bJump;			// ジャンプ状況
+	bool		m_bGuard;			// ガード状況
 	SBuffering	m_buffAttack;		// 攻撃の先行入力
 };
 
