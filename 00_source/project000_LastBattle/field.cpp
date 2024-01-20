@@ -19,7 +19,7 @@ namespace
 {
 	const char *TEXTURE_FILE[] =	// テクスチャファイル
 	{
-		nullptr,	// 草原テクスチャ
+		"data\\TEXTURE\\field000.jpg",	// タイルテクスチャ
 	};
 
 	const char *SETUP_TXT = "data\\TXT\\field.txt";	// セットアップテキスト相対パス

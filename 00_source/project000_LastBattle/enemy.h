@@ -30,7 +30,8 @@ public:
 	// 種類列挙
 	enum EType
 	{
-		TYPE_MINI_DRAGON = 0,	// ミニドラゴン
+		TYPE_BOSS_DRAGON = 0,	// ボスドラゴン
+		TYPE_MINI_DRAGON,		// ミニドラゴン
 		TYPE_MAX				// この列挙型の総数
 	};
 

@@ -163,8 +163,6 @@ void CSword::Update(void)
 		m_pOrbit->SetState(COrbit::STATE_VANISH);
 	}
 
-	// TODO：現状は軌跡が気色悪くなるが、攻撃モーションにフォロースルーをつければ良くなるよ
-
 	// 敵との当たり判定
 	CollisionEnemy();
 

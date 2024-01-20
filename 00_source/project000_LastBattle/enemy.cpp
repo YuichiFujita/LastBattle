@@ -12,6 +12,7 @@
 #include "renderer.h"
 #include "stage.h"
 
+#include "enemyBossDragon.h"
 #include "enemyMiniDragon.h"
 
 #include "gauge3D.h"
@@ -28,8 +29,8 @@ namespace
 	const float	LAND_REV	= 0.16f;	// 地上の移動量の減衰係数
 	const float	ADD_ALPHA	= 0.03f;	// 透明度の加算量
 
-	const int	DAMAGE_FRAME	= 8;		// ダメージ状態の維持フレーム
-	const int	INVULN_FRAME	= 48;		// 無敵状態の維持フレーム
+	const int	DAMAGE_FRAME	= 4;		// ダメージ状態の維持フレーム
+	const int	INVULN_FRAME	= 12;		// 無敵状態の維持フレーム
 	const float	INVULN_ALPHA	= 0.7f;		// 無敵状態の基礎透明度
 	const float	ADD_SINROT		= 0.1f;		// 透明度をふわふわさせる際のサインカーブ向き加算量
 	const float	MAX_ADD_ALPHA	= 0.25f;	// 透明度の最大加算量
@@ -52,9 +53,18 @@ namespace
 CListManager<CEnemy> *CEnemy::m_pList = nullptr;	// オブジェクトリスト
 CEnemy::SStatusInfo CEnemy::m_aStatusInfo[CEnemy::TYPE_MAX] =	// ステータス情報
 {
+	// ボスドラゴンのステータス情報
+	{
+		50,		// 最大体力
+		250.0f,	// 半径
+		500.0f,	// 縦幅
+		0.25f,	// 視認の補正係数
+		250.0f,	// 判定半径
+	},
+
 	// ミニドラゴンのステータス情報
 	{
-		10,		// 最大体力
+		20,		// 最大体力
 		45.0f,	// 半径
 		100.0f,	// 縦幅
 		0.25f,	// 視認の補正係数
@@ -269,6 +279,13 @@ CEnemy *CEnemy::Create(const EType type, const D3DXVECTOR3& rPos, const D3DXVECT
 	// 敵の生成
 	switch (type)
 	{ // 種類ごとの処理
+	case TYPE_BOSS_DRAGON:
+
+		// ボスドラゴンを生成
+		pEnemy = new CEnemyBossDragon(type);
+
+		break;
+
 	case TYPE_MINI_DRAGON:
 
 		// ミニドラゴンを生成

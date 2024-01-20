@@ -615,7 +615,7 @@ void CInputPad::Update(void)
 //============================================================
 //	バイブレーションの更新処理
 //============================================================
-void CInputPad::UpdateVibration(SVibration *pVibration, int nPlayer)
+void CInputPad::UpdateVibration(SVibration *pVibration, int nPadID)
 {
 	switch (pVibration->type)
 	{ // 振動の更新
@@ -686,27 +686,27 @@ void CInputPad::UpdateVibration(SVibration *pVibration, int nPlayer)
 	}
 
 	// バイブ情報を設定
-	XInputSetState(nPlayer, &pVibration->vibration);
+	XInputSetState(nPadID, &pVibration->vibration);
 }
 
 //============================================================
 //	バイブ設定処理
 //============================================================
-void CInputPad::SetVibration(EType type, int nPlayer)
+void CInputPad::SetVibration(EType type, int nPadID)
 {
 	// バイブの状態を引数のものに設定
-	m_aVibration[nPlayer].type = type;
+	m_aVibration[nPadID].type = type;
 
-	switch (m_aVibration[nPlayer].type)
+	switch (m_aVibration[nPadID].type)
 	{ // バイブの種類
 	case TYPE_DAMAGE:	// ダメージ状態
 
 		// 振動レベルの設定
-		m_aVibration[nPlayer].vibration.wLeftMotorSpeed  = vibration::LEVEL_DAMAGE;	// 左
-		m_aVibration[nPlayer].vibration.wRightMotorSpeed = vibration::LEVEL_DAMAGE;	// 右
+		m_aVibration[nPadID].vibration.wLeftMotorSpeed  = vibration::LEVEL_DAMAGE;	// 左
+		m_aVibration[nPadID].vibration.wRightMotorSpeed = vibration::LEVEL_DAMAGE;	// 右
 
 		// 振動時間の設定
-		m_aVibration[nPlayer].nTime = vibration::TIME;
+		m_aVibration[nPadID].nTime = vibration::TIME;
 
 		// 処理を抜ける
 		break;
@@ -714,11 +714,11 @@ void CInputPad::SetVibration(EType type, int nPlayer)
 	case TYPE_BIG_DAMAGE:	// 大ダメージ状態
 
 		// 振動レベルの設定
-		m_aVibration[nPlayer].vibration.wLeftMotorSpeed  = vibration::LEVEL_BIG_DAMAGE;	// 左
-		m_aVibration[nPlayer].vibration.wRightMotorSpeed = vibration::LEVEL_BIG_DAMAGE;	// 右
+		m_aVibration[nPadID].vibration.wLeftMotorSpeed  = vibration::LEVEL_BIG_DAMAGE;	// 左
+		m_aVibration[nPadID].vibration.wRightMotorSpeed = vibration::LEVEL_BIG_DAMAGE;	// 右
 
 		// 振動時間の設定
-		m_aVibration[nPlayer].nTime = vibration::TIME;
+		m_aVibration[nPadID].nTime = vibration::TIME;
 
 		// 処理を抜ける
 		break;
@@ -726,11 +726,11 @@ void CInputPad::SetVibration(EType type, int nPlayer)
 	case TYPE_DEATH:	// 死亡状態
 
 		// 振動レベルの設定
-		m_aVibration[nPlayer].vibration.wLeftMotorSpeed  = vibration::LEVEL_DEATH;	// 左
-		m_aVibration[nPlayer].vibration.wRightMotorSpeed = vibration::LEVEL_DEATH;	// 右
+		m_aVibration[nPadID].vibration.wLeftMotorSpeed  = vibration::LEVEL_DEATH;	// 左
+		m_aVibration[nPadID].vibration.wRightMotorSpeed = vibration::LEVEL_DEATH;	// 右
 
 		// 振動時間の設定
-		m_aVibration[nPlayer].nTime = vibration::TIME_DEATH;
+		m_aVibration[nPadID].nTime = vibration::TIME_DEATH;
 
 		// 処理を抜ける
 		break;
@@ -738,11 +738,11 @@ void CInputPad::SetVibration(EType type, int nPlayer)
 	case TYPE_WALLDASH:	// 壁走り状態
 
 		// 振動レベルの設定
-		m_aVibration[nPlayer].vibration.wLeftMotorSpeed  = vibration::LEVEL_WALLDASH;	// 左
-		m_aVibration[nPlayer].vibration.wRightMotorSpeed = vibration::LEVEL_WALLDASH;	// 右
+		m_aVibration[nPadID].vibration.wLeftMotorSpeed  = vibration::LEVEL_WALLDASH;	// 左
+		m_aVibration[nPadID].vibration.wRightMotorSpeed = vibration::LEVEL_WALLDASH;	// 右
 
 		// 振動時間の設定
-		m_aVibration[nPlayer].nTime = 0;
+		m_aVibration[nPadID].nTime = 0;
 
 		// 処理を抜ける
 		break;
@@ -753,34 +753,34 @@ void CInputPad::SetVibration(EType type, int nPlayer)
 	}
 
 	// バイブ情報を設定
-	XInputSetState(nPlayer, &m_aVibration[nPlayer].vibration);
+	XInputSetState(nPadID, &m_aVibration[nPadID].vibration);
 }
 
 //============================================================
 //	プレス取得処理 (ボタン)
 //============================================================
-bool CInputPad::IsPress(EKey joyKey, int nPlayer)
+bool CInputPad::IsPress(EKey joyKey, int nPadID)
 {
 	// 入力情報を返す
-	return (m_aKeyStatePress[nPlayer].Gamepad.wButtons & (1 << joyKey)) ? true : false;
+	return (m_aKeyStatePress[nPadID].Gamepad.wButtons & (1 << joyKey)) ? true : false;
 }
 
 //============================================================
 //	トリガー取得処理 (ボタン)
 //============================================================
-bool CInputPad::IsTrigger(EKey joyKey, int nPlayer)
+bool CInputPad::IsTrigger(EKey joyKey, int nPadID)
 {
 	// 入力情報を返す
-	return (m_aKeyStateTrigger[nPlayer].Gamepad.wButtons & (1 << joyKey)) ? true : false;
+	return (m_aKeyStateTrigger[nPadID].Gamepad.wButtons & (1 << joyKey)) ? true : false;
 }
 
 //============================================================
 //	リリース取得処理 (ボタン)
 //============================================================
-bool CInputPad::IsRelease(EKey joyKey, int nPlayer)
+bool CInputPad::IsRelease(EKey joyKey, int nPadID)
 {
 	// 入力情報を返す
-	return (m_aKeyStateRelease[nPlayer].Gamepad.wButtons & (1 << joyKey)) ? true : false;
+	return (m_aKeyStateRelease[nPadID].Gamepad.wButtons & (1 << joyKey)) ? true : false;
 }
 
 //============================================================
@@ -846,61 +846,61 @@ bool CInputPad::IsReleaseAll(EKey joyKey)
 //============================================================
 //	プレス取得処理 (LスティックX)
 //============================================================
-SHORT CInputPad::GetPressLStickX(int nPlayer)
+SHORT CInputPad::GetPressLStickX(int nPadID)
 {
 	// スティックの傾きの値を補正
-	useful::LimitNum(m_aKeyStatePress[nPlayer].Gamepad.sThumbLX, (SHORT)-SHRT_MAX, (SHORT)SHRT_MAX);
+	useful::LimitNum(m_aKeyStatePress[nPadID].Gamepad.sThumbLX, (SHORT)-SHRT_MAX, (SHORT)SHRT_MAX);
 
 	// スティックの傾きの値を返す (左右)
-	return m_aKeyStatePress[nPlayer].Gamepad.sThumbLX;
+	return m_aKeyStatePress[nPadID].Gamepad.sThumbLX;
 }
 
 //============================================================
 //	プレス取得処理 (LスティックY)
 //============================================================
-SHORT CInputPad::GetPressLStickY(int nPlayer)
+SHORT CInputPad::GetPressLStickY(int nPadID)
 {
 	// スティックの傾きの値を補正
-	useful::LimitNum(m_aKeyStatePress[nPlayer].Gamepad.sThumbLY, (SHORT)-SHRT_MAX, (SHORT)SHRT_MAX);
+	useful::LimitNum(m_aKeyStatePress[nPadID].Gamepad.sThumbLY, (SHORT)-SHRT_MAX, (SHORT)SHRT_MAX);
 
 	// スティックの傾きの値を返す (上下)
-	return -m_aKeyStatePress[nPlayer].Gamepad.sThumbLY;
+	return -m_aKeyStatePress[nPadID].Gamepad.sThumbLY;
 }
 
 //============================================================
 //	プレス取得処理 (RスティックX)
 //============================================================
-SHORT CInputPad::GetPressRStickX(int nPlayer)
+SHORT CInputPad::GetPressRStickX(int nPadID)
 {
 	// スティックの傾きの値を補正
-	useful::LimitNum(m_aKeyStatePress[nPlayer].Gamepad.sThumbRX, (SHORT)-SHRT_MAX, (SHORT)SHRT_MAX);
+	useful::LimitNum(m_aKeyStatePress[nPadID].Gamepad.sThumbRX, (SHORT)-SHRT_MAX, (SHORT)SHRT_MAX);
 
 	// スティックの傾きの値を返す (左右)
-	return m_aKeyStatePress[nPlayer].Gamepad.sThumbRX;
+	return m_aKeyStatePress[nPadID].Gamepad.sThumbRX;
 }
 
 //============================================================
 //	プレス取得処理 (RスティックY)
 //============================================================
-SHORT CInputPad::GetPressRStickY(int nPlayer)
+SHORT CInputPad::GetPressRStickY(int nPadID)
 {
 	// スティックの傾きの値を補正
-	useful::LimitNum(m_aKeyStatePress[nPlayer].Gamepad.sThumbRY, (SHORT)-SHRT_MAX, (SHORT)SHRT_MAX);
+	useful::LimitNum(m_aKeyStatePress[nPadID].Gamepad.sThumbRY, (SHORT)-SHRT_MAX, (SHORT)SHRT_MAX);
 
 	// スティックの傾きの値を返す (上下)
-	return -m_aKeyStatePress[nPlayer].Gamepad.sThumbRY;
+	return -m_aKeyStatePress[nPadID].Gamepad.sThumbRY;
 }
 
 //============================================================
 //	プレス取得処理 (Lスティック向き)
 //============================================================
-float CInputPad::GetPressLStickRot(int nPlayer)
+float CInputPad::GetPressLStickRot(int nPadID)
 {
 	// 変数を宣言
 	float fRot = 0.0f;	// スティック傾き
 
 	// ステックの傾きを計算
-	fRot = atan2f((float)GetPressLStickY(nPlayer), (float)GetPressLStickX(nPlayer));
+	fRot = atan2f((float)GetPressLStickY(nPadID), (float)GetPressLStickX(nPadID));
 
 	// ステックの傾きを返す
 	return fRot;
@@ -909,16 +909,42 @@ float CInputPad::GetPressLStickRot(int nPlayer)
 //============================================================
 //	プレス取得処理 (Rスティック向き)
 //============================================================
-float CInputPad::GetPressRStickRot(int nPlayer)
+float CInputPad::GetPressRStickRot(int nPadID)
 {
 	// 変数を宣言
 	float fRot = 0.0f;	// スティック傾き
 
 	// ステックの傾きを計算
-	fRot = atan2f((float)GetPressRStickY(nPlayer), (float)GetPressRStickX(nPlayer));
+	fRot = atan2f((float)GetPressRStickY(nPadID), (float)GetPressRStickX(nPadID));
 
 	// ステックの傾きを返す
 	return fRot;
+}
+
+//============================================================
+//	プレス取得処理 (Lスティック傾き)
+//============================================================
+float CInputPad::GetPressLStickTilt(int nPadID)
+{
+	// 変数を宣言
+	D3DXVECTOR3	vecLTilt = D3DXVECTOR3((float)GetPressLStickX(), (float)GetPressLStickY(), 0.0f);	// Lスティック各軸の傾き量
+	float		fLTilt   = sqrtf(vecLTilt.x * vecLTilt.x + vecLTilt.y * vecLTilt.y) * 0.5f;			// Lスティックの傾き量
+
+	// Lスティックの傾きを返す
+	return fLTilt;
+}
+
+//============================================================
+//	プレス取得処理 (Rスティック傾き)
+//============================================================
+float CInputPad::GetPressRStickTilt(int nPadID)
+{
+	// 変数を宣言
+	D3DXVECTOR3	vecRTilt = D3DXVECTOR3((float)GetPressRStickX(), (float)GetPressRStickY(), 0.0f);	// Rスティック各軸の傾き量
+	float		fRTilt   = sqrtf(vecRTilt.x * vecRTilt.x + vecRTilt.y * vecRTilt.y) * 0.5f;			// Rスティックの傾き量
+
+	// Rスティックの傾きを返す
+	return fRTilt;
 }
 
 //============================================================
