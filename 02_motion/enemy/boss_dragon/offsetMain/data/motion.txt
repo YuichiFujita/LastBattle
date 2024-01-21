@@ -9,7 +9,7 @@ SCRIPT
 #====================================================================
 # モデル数
 #====================================================================
-NUM_MODEL = 16
+NUM_MODEL = 19
 
 #====================================================================
 # モデルファイル名
@@ -30,12 +30,15 @@ MODEL_FILENAME = data/MODEL/12_legDL.x
 MODEL_FILENAME = data/MODEL/13_legDR.x
 MODEL_FILENAME = data/MODEL/14_footL.x
 MODEL_FILENAME = data/MODEL/15_footR.x
+MODEL_FILENAME = data/MODEL/16_wingL_00.x
+MODEL_FILENAME = data/MODEL/17_wingR_00.x
+MODEL_FILENAME = data/MODEL/24_tail_00.x
 
 #====================================================================
 # キャラクター情報
 #====================================================================
 CHARACTERSET
-    NUM_PARTS = 16
+    NUM_PARTS = 19
 
     PARTSSET
         INDEX = 0
@@ -133,6 +136,24 @@ CHARACTERSET
         POS = 0.0 -25.3 0.1
         ROT = 0.0 0.0 0.0
     END_PARTSSET
+    PARTSSET
+        INDEX = 16
+        PARENT = 1
+        POS = -10.8 12.6 4.4
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 17
+        PARENT = 1
+        POS = 10.8 12.6 4.4
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
+    PARTSSET
+        INDEX = 18
+        PARENT = 0
+        POS = 0.0 -6.3 5.1
+        ROT = 0.0 0.0 0.0
+    END_PARTSSET
 END_CHARACTERSET
 
 #====================================================================
@@ -210,6 +231,18 @@ MOTIONSET
         KEY # -----[15]----
             POS = 0.00 0.00 0.00
             ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[16]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[17]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 0.00
+        END_KEY
+        KEY # -----[18]----
+            POS = 0.00 0.00 0.00
+            ROT = 0.00 0.00 -1.95
         END_KEY
     END_KEYSET
 END_MOTIONSET
