@@ -9,7 +9,7 @@ SCRIPT
 #------------------------------------------------------------------------------
 #	モデル数
 #------------------------------------------------------------------------------
-NUM_MODEL = 19
+NUM_MODEL = 30
 
 #------------------------------------------------------------------------------
 #	モデルファイル名
@@ -32,14 +32,25 @@ MODEL_FILENAME = data/MODEL/14_footL.x
 MODEL_FILENAME = data/MODEL/15_footR.x
 MODEL_FILENAME = data/MODEL/16_wingL_00.x
 MODEL_FILENAME = data/MODEL/17_wingR_00.x
+MODEL_FILENAME = data/MODEL/18_wingL_01.x
+MODEL_FILENAME = data/MODEL/19_wingR_01.x
+MODEL_FILENAME = data/MODEL/20_wingL_02.x
+MODEL_FILENAME = data/MODEL/21_wingR_02.x
+MODEL_FILENAME = data/MODEL/22_wingL_03.x
+MODEL_FILENAME = data/MODEL/23_wingR_03.x
 MODEL_FILENAME = data/MODEL/24_tail_00.x
+MODEL_FILENAME = data/MODEL/25_tail_01.x
+MODEL_FILENAME = data/MODEL/26_tail_02.x
+MODEL_FILENAME = data/MODEL/27_tail_03.x
+MODEL_FILENAME = data/MODEL/28_tail_04.x
+MODEL_FILENAME = data/MODEL/29_tail_05.x
 
 #------------------------------------------------------------------------------
 #	キャラクター情報
 #------------------------------------------------------------------------------
 CHARACTERSET
 
-	NUM_PARTS = 19
+	NUM_PARTS = 30
 	
 	PARTSSET
 		INDEX = 0
@@ -72,14 +83,14 @@ CHARACTERSET
 	PARTSSET
 		INDEX = 4
 		PARENT = 1
-		POS = -12.8 12.2 0.0
+		POS = -12.0 12.2 1.0
 		ROT = 0.0 0.0 0.0
 	END_PARTSSET
 	
 	PARTSSET
 		INDEX = 5
 		PARENT = 1
-		POS = 12.8 12.2 0.0
+		POS = 12.0 12.2 1.0
 		ROT = 0.0 0.0 0.0
 	END_PARTSSET
 	
@@ -169,8 +180,81 @@ CHARACTERSET
 	
 	PARTSSET
 		INDEX = 18
+		PARENT = 16
+		POS = 0.5 -2.6 15.2
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 19
+		PARENT = 17
+		POS = -0.5 -2.6 15.2
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 20
+		PARENT = 18
+		POS = -0.0 3.8 17.4
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 21
+		PARENT = 19
+		POS = 0.0 3.8 17.4
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 22
+		PARENT = 20
+		POS = -0.2 10.7 6.7
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 23
+		PARENT = 21
+		POS = 0.2 10.7 6.7
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 24
 		PARENT = 0
 		POS = 0.0 -6.3 5.1
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 25
+		PARENT = 24
+		POS = 0.0 0.0 14.3
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	PARTSSET
+		INDEX = 26
+		PARENT = 25
+		POS = 0.0 0.0 12.87
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	PARTSSET
+		INDEX = 27
+		PARENT = 26
+		POS = 0.0 0.0 11.583
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	PARTSSET
+		INDEX = 28
+		PARENT = 27
+		POS = 0.0 0.0 10.4247
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	PARTSSET
+		INDEX = 29
+		PARENT = 28
+		POS = 0.0 0.0 9.38223
 		ROT = 0.0 0.0 0.0
 	END_PARTSSET
 	
@@ -189,6 +273,61 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 30
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
 		
 		KEY
 			POS = 0.00 0.00 0.00
