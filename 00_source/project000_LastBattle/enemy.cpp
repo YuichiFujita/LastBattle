@@ -71,6 +71,14 @@ CEnemy::SStatusInfo CEnemy::m_aStatusInfo[CEnemy::TYPE_MAX] =	// ステータス情報
 		75.0f,	// 判定半径
 	},
 };
+CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =	// 状態更新関数
+{
+	&CEnemy::UpdateSpawn,	// スポーン状態時の更新
+	&CEnemy::UpdateNormal,	// 通常状態時の更新
+	&CEnemy::UpdateDamage,	// ダメージ状態時の更新
+	&CEnemy::UpdateInvuln,	// 無敵状態時の更新
+	&CEnemy::UpdateDeath,	// 死亡状態時の更新
+};
 
 //************************************************************
 //	子クラス [CEnemy] のメンバ関数
@@ -184,6 +192,16 @@ void CEnemy::Uninit(void)
 //============================================================
 void CEnemy::Update(void)
 {
+	// 過去位置の更新
+	UpdateOldPosition();
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 各状態ごとの更新
+	assert(m_state > NONE_IDX && m_state < STATE_MAX);
+	(this->*(m_aFuncUpdateState[m_state]))();
+
 	// オブジェクトモデルの更新
 	CObjectModel::Update();
 }

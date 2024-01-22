@@ -62,6 +62,9 @@ public:
 		float fCollRadius;	// 判定半径
 	};
 
+	// 状態更新の関数ポインタ型エイリアス定義
+	typedef void (CEnemy::*AFuncUpdateState)(void);
+
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
@@ -118,8 +121,9 @@ protected:
 
 private:
 	// 静的メンバ変数
-	static CListManager<CEnemy> *m_pList;		// オブジェクトリスト
-	static SStatusInfo m_aStatusInfo[TYPE_MAX];	// ステータス情報
+	static CListManager<CEnemy> *m_pList;			// オブジェクトリスト
+	static SStatusInfo m_aStatusInfo[TYPE_MAX];		// ステータス情報
+	static AFuncUpdateState m_aFuncUpdateState[];	// 状態更新関数
 
 	// メンバ変数
 	CListManager<CEnemy>::AIterator m_iterator;	// イテレーター
