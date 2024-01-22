@@ -78,12 +78,17 @@ namespace
 	const float	HEIGHT		= 80.0f;	// 縦幅
 	const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
 	const float	MOVE_REV	= 0.5f;		// 移動量の補正係数
-	const float	JUMP_REV	= 0.16f;	// 通常状態時の空中の移動量の減衰係数
-	const float	LAND_REV	= 0.16f;	// 通常状態時の地上の移動量の減衰係数
+	const float	DODGE_REV	= 0.12f;	// 回避の移動量の減衰係数
+	const float	JUMP_REV	= 0.16f;	// 空中の移動量の減衰係数
+	const float	LAND_REV	= 0.16f;	// 地上の移動量の減衰係数
 	const float	STICK_REV	= 0.00015f;	// 移動操作スティックの傾き量の補正係数
 	const float	ADD_ALPHA	= 0.03f;	// 透明度の加算量
 	const int	WALK_SOUND	= 4;		// 歩行の効果音のキータイミング
 
+	const float	DODGE_REV_MOVE	= 0.065f;	// 回避移動量の減算係数
+	const float	DODGE_MIN_MOVE	= 0.35f;	// 回避移動量の最小値
+	const float	DODGE_SIDE_MOVE	= 3.8f;		// 回避の横移動量
+	const float	DODGE_JUMP_MOVE	= 13.0f;	// 回避の上移動量
 	const int	ATTACK_BUFFER_FRAME = 20;	// 攻撃の先行入力可能フレーム
 
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
@@ -120,10 +125,10 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_destRot		(VEC3_ZERO),	// 目標向き
 	m_state			(STATE_NONE),	// 状態
 	m_bJump			(false),		// ジャンプ状況
-	m_bGuard		(false),		// ガード状況
 	m_nCounterState	(0)				// 状態管理カウンター
 {
 	// メンバ変数をクリア
+	memset(&m_dodge, 0, sizeof(m_dodge));			// 回避の情報
 	memset(&m_buffAttack, 0, sizeof(m_buffAttack));	// 攻撃の先行入力
 }
 
@@ -141,6 +146,7 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
+	memset(&m_dodge, 0, sizeof(m_dodge));			// 回避の情報
 	memset(&m_buffAttack, 0, sizeof(m_buffAttack));	// 攻撃の先行入力
 	m_pShadow		= nullptr;		// 影の情報
 	m_oldPos		= VEC3_ZERO;	// 過去位置
@@ -148,7 +154,6 @@ HRESULT CPlayer::Init(void)
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NONE;	// 状態
 	m_bJump			= true;			// ジャンプ状況
-	m_bGuard		= false;		// ガード状況
 	m_nCounterState	= 0;			// 状態管理カウンター
 
 	// オブジェクト分割キャラクターの初期化
@@ -812,8 +817,8 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	// 攻撃操作
 	UpdateAttack();
 
-	// ガード操作
-	UpdateGuard();
+	// 回避操作
+	UpdateDodge();
 
 	// 移動操作・目標向き設定
 	UpdateMove(pLowMotion, pUpMotion);
@@ -845,7 +850,8 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 //============================================================
 void CPlayer::UpdateAttack(void)
 {
-	if (m_bJump) { return; }	// ジャンプ中の場合抜ける
+	if (m_bJump)		{ return; }	// ジャンプ中の場合抜ける
+	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
 
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
 	{
@@ -859,7 +865,7 @@ void CPlayer::UpdateAttack(void)
 		else
 		{ // 攻撃中の場合
 
-			if ((EUpperMotion)GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_01)	// TODO：一番最後の攻撃にする
+			if (GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_01)	// TODO：一番最後の攻撃にする
 			{ // 最終攻撃モーションではない場合
 
 				// 現在のモーションの残りフレームを計算
@@ -876,25 +882,63 @@ void CPlayer::UpdateAttack(void)
 }
 
 //============================================================
-//	ガード操作の更新処理
+//	回避操作の更新処理
 //============================================================
-void CPlayer::UpdateGuard(void)
+void CPlayer::UpdateDodge(void)
 {
-	if (IsAttack())	{ return; }	// 攻撃中の場合抜ける
-	if (m_bJump)	{ return; }	// ジャンプ中の場合抜ける
+	CInputPad *pPad  = GET_INPUTPAD;				// パッド
+	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ
 
-	if (GET_INPUTPAD->IsPress(CInputPad::KEY_L1))
-	{
-		// TODO：ガード表示エフェクト
-		CEffect3D::Create(GetVec3Position() + D3DXVECTOR3(0.0f, HEIGHT * 0.5f, 0.0f), 100.0f, CEffect3D::TYPE_BUBBLE);
+	if (m_dodge.bDodge)
+	{ // 回避中の場合
 
-		// ガードをONにする
-		m_bGuard = true;
+		// 回避方向に移動量を与える
+		m_move.x += sinf(m_dodge.fRot) * m_dodge.fMove;
+		m_move.z += cosf(m_dodge.fRot) * m_dodge.fMove;
+
+		// 移動量を減算
+		m_dodge.fMove += (0.0f - m_dodge.fMove) * DODGE_REV_MOVE;
+		if (m_dodge.fMove <= DODGE_MIN_MOVE)
+		{ // 移動量が下がり切った場合
+
+			// 回避フラグをOFFにする
+			m_dodge.bDodge = false;
+		}
 	}
 	else
-	{
-		// ガードをOFFにする
-		m_bGuard = false;
+	{ // 回避中ではない場合
+
+		if (IsAttack())	{ return; }	// 攻撃中の場合抜ける
+		if (m_bJump)	{ return; }	// ジャンプ中の場合抜ける
+
+		if (pPad->IsTrigger(CInputPad::KEY_B))
+		{
+			if (pad::DEAD_ZONE < pPad->GetPressLStickTilt())
+			{ // スティックの傾き量がデッドゾーン以上の場合
+
+				// 回避移動量を設定
+				m_dodge.fMove = DODGE_SIDE_MOVE;
+
+				// 回避方向を設定
+				m_dodge.fRot = pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI;
+
+				// スティック入力方向に移動量を与える
+				m_move.x += sinf(m_dodge.fRot) * m_dodge.fMove;
+				m_move.z += cosf(m_dodge.fRot) * m_dodge.fMove;
+
+				// 上移動量を与える
+				m_move.y += DODGE_JUMP_MOVE;
+
+				// 目標向きを設定
+				m_destRot.y = atan2f(-m_move.x, -m_move.z);
+
+				// ジャンプ中にする
+				m_bJump = true;
+
+				// 回避中にする
+				m_dodge.bDodge = true;
+			}
+		}
 	}
 }
 
@@ -903,8 +947,8 @@ void CPlayer::UpdateGuard(void)
 //============================================================
 void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 {
-	if (IsAttack()) { return; }	// 攻撃中の場合抜ける
-	if (m_bGuard)	{ return; }	// ガード中の場合抜ける
+	if (IsAttack())		{ return; }	// 攻撃中の場合抜ける
+	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
 
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド
 	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ
@@ -934,24 +978,21 @@ void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 //============================================================
 void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 {
-	if (IsAttack()) { return; }	// 攻撃中の場合抜ける
-	if (m_bGuard)	{ return; }	// ガード中の場合抜ける
+	if (IsAttack())		{ return; }	// 攻撃中の場合抜ける
+	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
+	if (m_bJump)		{ return; }	// ジャンプ中の場合抜ける
 
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_A))
 	{
-		if (!m_bJump)
-		{ // ジャンプしていない場合
+		// 上移動量を与える
+		m_move.y += JUMP;
 
-			// 上移動量を与える
-			m_move.y += JUMP;
+		// ジャンプ中にする
+		m_bJump = true;
 
-			// ジャンプ中にする
-			m_bJump = true;
-
-			// 上下にジャンプモーションを設定
-			*pLowMotion = L_MOTION_MOVE;
-			*pUpMotion  = U_MOTION_MOVE;
-		}
+		// 上下にジャンプモーションを設定
+		*pLowMotion = L_MOTION_MOVE;
+		*pUpMotion  = U_MOTION_MOVE;
 	}
 }
 
@@ -992,8 +1033,11 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 		// 着地している状態にする
 		bLand = true;
 
-		// ジャンプしていない状態にする
+		// ジャンプフラグをOFFにする
 		m_bJump = false;
+
+		// 回避フラグをOFFにする
+		m_dodge.bDodge = false;
 	}
 
 	// 着地状況を返す
@@ -1009,17 +1053,27 @@ void CPlayer::UpdatePosition(D3DXVECTOR3 *pPos)
 	*pPos += m_move;
 
 	// 移動量を減衰
-	if (m_bJump)
-	{ // 空中の場合
+	if (m_dodge.bDodge)
+	{ // 回避中の場合
 
-		m_move.x += (0.0f - m_move.x) * JUMP_REV;
-		m_move.z += (0.0f - m_move.z) * JUMP_REV;
+		m_move.x += (0.0f - m_move.x) * DODGE_REV;
+		m_move.z += (0.0f - m_move.z) * DODGE_REV;
 	}
 	else
-	{ // 地上の場合
+	{ // 回避中ではない場合
 
-		m_move.x += (0.0f - m_move.x) * LAND_REV;
-		m_move.z += (0.0f - m_move.z) * LAND_REV;
+		if (m_bJump)
+		{ // 空中の場合
+
+			m_move.x += (0.0f - m_move.x) * JUMP_REV;
+			m_move.z += (0.0f - m_move.z) * JUMP_REV;
+		}
+		else
+		{ // 地上の場合
+
+			m_move.x += (0.0f - m_move.x) * LAND_REV;
+			m_move.z += (0.0f - m_move.z) * LAND_REV;
+		}
 	}
 }
 

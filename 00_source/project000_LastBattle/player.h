@@ -101,12 +101,44 @@ public:
 	// デストラクタ
 	~CPlayer() override;
 
+	// オーバーライド関数
+	HRESULT Init(void) override;	// 初期化
+	void Uninit(void) override;		// 終了
+	void Update(void) override;		// 更新
+	void Draw(void) override;		// 描画
+	void Hit(void) override;		// ヒット
+
+	void SetState(const int nState) override;	// 状態設定
+	int  GetState(void) const override;			// 状態取得
+	float GetRadius(void) const override;		// 半径取得
+	float GetHeight(void) const override;		// 縦幅取得
+
+	void SetEnableUpdate(const bool bUpdate) override;	// 更新状況設定
+	void SetEnableDraw(const bool bDraw) override;		// 描画状況設定
+	D3DXMATRIX CalcMtxWorld(void) const override;		// マトリックス計算結果取得
+
+	// 静的メンバ関数
+	static CPlayer *Create(CScene::EMode mode);		// 生成
+	static CListManager<CPlayer> *GetList(void);	// リスト取得
+
+	// メンバ関数
+	void SetSpawn(void);	// 出現設定
+
+private:
+	// 回避構造体
+	struct SDodge
+	{
+		bool  bDodge;	// 回避状況
+		float fMove;	// 回避移動量
+		float fRot;		// 回避方向
+	};
+
 	// 先行入力構造体
 	struct SBuffering
 	{
 	public:
-		// メンバ関数
-		bool Add(void)	// 先行入力の反映数の加算
+		// 先行入力の反映数の加算
+		bool Add(void)
 		{
 			// 反映数を加算
 			nNumSet++;
@@ -133,30 +165,6 @@ public:
 	typedef void (CPlayer::*AFuncUpdateMotion)(const int);
 
 	// オーバーライド関数
-	HRESULT Init(void) override;	// 初期化
-	void Uninit(void) override;		// 終了
-	void Update(void) override;		// 更新
-	void Draw(void) override;		// 描画
-	void Hit(void) override;		// ヒット
-
-	void SetState(const int nState) override;	// 状態設定
-	int  GetState(void) const override;			// 状態取得
-	float GetRadius(void) const override;		// 半径取得
-	float GetHeight(void) const override;		// 縦幅取得
-
-	void SetEnableUpdate(const bool bUpdate) override;	// 更新状況設定
-	void SetEnableDraw(const bool bDraw) override;		// 描画状況設定
-	D3DXMATRIX CalcMtxWorld(void) const override;		// マトリックス計算結果取得
-
-	// 静的メンバ関数
-	static CPlayer *Create(CScene::EMode mode);		// 生成
-	static CListManager<CPlayer> *GetList(void);	// リスト取得
-
-	// メンバ関数
-	void SetSpawn(void);	// 出現設定
-
-private:
-	// オーバーライド関数
 	void SetMotion(const EBody bodyID, const int nType) override;	// モーション設定
 
 	// メンバ関数
@@ -171,7 +179,7 @@ private:
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
 
 	void UpdateAttack(void);	// 攻撃操作の更新
-	void UpdateGuard(void);		// ガード操作の更新
+	void UpdateDodge(void);		// 回避操作の更新
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
 
@@ -197,7 +205,7 @@ private:
 	EState		m_state;			// 状態
 	int			m_nCounterState;	// 状態管理カウンター
 	bool		m_bJump;			// ジャンプ状況
-	bool		m_bGuard;			// ガード状況
+	SDodge		m_dodge;			// 回避の情報
 	SBuffering	m_buffAttack;		// 攻撃の先行入力
 };
 
