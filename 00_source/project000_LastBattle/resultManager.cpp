@@ -25,13 +25,13 @@ namespace
 {
 	const char *TEXTURE_FILE[] =	// テクスチャファイル
 	{
-		"data\\TEXTURE\\result000.png",		// 遅刻回避テクスチャ
-		"data\\TEXTURE\\result001.png",		// 成功テクスチャ
-		"data\\TEXTURE\\result002.png",		// 失敗テクスチャ
-		"data\\TEXTURE\\result003.png",		// タイム表示テクスチャ
-		"data\\TEXTURE\\continue000.png",	// コンテニュー表示テクスチャ
-		"data\\TEXTURE\\continue001.png",	// YESテクスチャ
-		"data\\TEXTURE\\continue002.png",	// NOテクスチャ
+		nullptr,	// 遅刻回避テクスチャ
+		nullptr,	// 成功テクスチャ
+		nullptr,	// 失敗テクスチャ
+		nullptr,	// タイム表示テクスチャ
+		nullptr,	// コンテニュー表示テクスチャ
+		"data\\TEXTURE\\select000.png",	// YESテクスチャ
+		"data\\TEXTURE\\select001.png",	// NOテクスチャ
 	};
 
 	const int PRIORITY = 5;	// リザルトの優先順位
@@ -607,7 +607,7 @@ void CResultManager::UpdateResult(void)
 		default:
 
 			// エラーメッセージボックス
-			MessageBox(nullptr, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
+			//MessageBox(nullptr, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
 
 			// 状態を変更
 			m_state = STATE_TIME_WAIT;	// タイム表示待機状態
@@ -881,7 +881,7 @@ void CResultManager::SetTexResult(void)
 	default:
 
 		// エラーメッセージボックス
-		MessageBox(nullptr, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
+		//MessageBox(nullptr, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
 
 		break;
 	}

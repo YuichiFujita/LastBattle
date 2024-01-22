@@ -29,7 +29,7 @@ namespace
 	{
 #ifdef _DEBUG
 
-		const int TIME_LIMIT = 0;	// 制限時間
+		const int TIME_LIMIT = 120;	// 制限時間
 
 #else	// NDEBUG
 
@@ -147,6 +147,9 @@ HRESULT CSceneGame::Init(void)
 
 	// 剣のセットアップ読込
 	CSword::LoadSetup();
+
+	// タイマーの計測開始
+	m_pTimerManager->Start();
 
 	// BGMの再生
 	GET_MANAGER->GetSound()->Play(CSound::LABEL_BGM_GAME);

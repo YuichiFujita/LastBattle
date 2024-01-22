@@ -108,7 +108,7 @@ void CWave::Update(void)
 	fHoleRing  += m_grow.fAddHoleRadius;	// ”g“®‚ÌŒŠ‚ÌL‚ª‚è‚ğ‰ÁZ
 	fThickRing += m_grow.fAddThickness;		// ”g“®‚ğ‘¾‚³‚ÌL‚ª‚è‚ğ‰ÁZ
 
-	if (fHoleRing <= 0.0f)
+	if (fHoleRing < 0.0f)
 	{ // ”g“®‚ÌŒŠ‚ª–³‚­‚È‚Á‚½ê‡
 
 		// ”g“®‚ÌŒŠ‚ÌL‚ª‚é—Ê‚Ì—]è•ª‚ğ”g“®‚Ì‘¾‚³‚É—^‚¦‚é
@@ -119,7 +119,7 @@ void CWave::Update(void)
 	}
 
 	if (colRing.a  <= 0.0f
-	||  fThickRing <= 0.0f)
+	||  fThickRing <  0.0f)
 	{ // ”g“®‚ª“§–¾A‚Ü‚½‚Í×‚­‚È‚èØ‚Á‚½ê‡
 
 		// ”g“®ƒIƒuƒWƒFƒNƒg‚ÌI—¹

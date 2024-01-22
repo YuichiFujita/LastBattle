@@ -287,6 +287,74 @@ float CEnemy::GetHeight(void) const
 }
 
 //============================================================
+//	ヒット処理
+//============================================================
+void CEnemy::Hit(const int nDamage)
+{
+	if (IsDeath())				 { return; }	// 死亡済み
+	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
+	if (m_pLife->GetNum() <= 0)	 { return; }	// 体力なし
+
+	// 変数を宣言
+	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
+
+	// 体力にダメージを与える
+	m_pLife->AddNum(-nDamage);
+
+	if (m_pLife->GetNum() > 0)
+	{ // 体力が残っている場合
+
+		// ダメージ状態にする
+		SetState(STATE_DAMAGE);
+	}
+	else
+	{ // 体力が残っていない場合
+
+		// 死亡状態にする
+		SetState(STATE_DEATH);
+	}
+}
+
+//============================================================
+//	ノックバックヒット処理
+//============================================================
+void CEnemy::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
+{
+#if 0
+
+	if (IsDeath()) { return; }	// 死亡済み
+	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
+
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
+
+	// カウンターを初期化
+	m_nCounterState = 0;
+
+	// ノックバック移動量を設定
+	m_move.x = KNOCK_SIDE * vecKnock.x;
+	m_move.y = KNOCK_UP;
+	m_move.z = KNOCK_SIDE * vecKnock.z;
+
+	// ノックバック方向に向きを設定
+	rotPlayer.y = atan2f(vecKnock.x, vecKnock.z);	// 吹っ飛び向きを計算
+	SetVec3Rotation(rotPlayer);	// 向きを設定
+
+	// 空中状態にする
+	m_bJump = true;
+
+	// ノック状態を設定
+	SetState(STATE_KNOCK);
+
+	// サウンドの再生
+	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
+
+#endif
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CEnemy *CEnemy::Create(const EType type, const D3DXVECTOR3& rPos, const D3DXVECTOR3& rRot)
@@ -363,74 +431,6 @@ CEnemy::SStatusInfo CEnemy::GetStatusInfo(const int nType)
 }
 
 //============================================================
-//	ヒット処理
-//============================================================
-void CEnemy::Hit(const int nDamage)
-{
-	if (IsDeath())				 { return; }	// 死亡済み
-	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
-	if (m_pLife->GetNum() <= 0)	 { return; }	// 体力なし
-
-	// 変数を宣言
-	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
-	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
-
-	// 体力にダメージを与える
-	m_pLife->AddNum(-nDamage);
-
-	if (m_pLife->GetNum() > 0)
-	{ // 体力が残っている場合
-
-		// ダメージ状態にする
-		SetState(STATE_DAMAGE);
-	}
-	else
-	{ // 体力が残っていない場合
-
-		// 死亡状態にする
-		SetState(STATE_DEATH);
-	}
-}
-
-//============================================================
-//	ノックバックヒット処理
-//============================================================
-void CEnemy::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3& /*vecKnock*/)
-{
-#if 0
-
-	if (IsDeath())				 { return; }	// 死亡済み
-	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
-
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
-
-	// カウンターを初期化
-	m_nCounterState = 0;
-
-	// ノックバック移動量を設定
-	m_move.x = KNOCK_SIDE * vecKnock.x;
-	m_move.y = KNOCK_UP;
-	m_move.z = KNOCK_SIDE * vecKnock.z;
-
-	// ノックバック方向に向きを設定
-	rotPlayer.y = atan2f(vecKnock.x, vecKnock.z);	// 吹っ飛び向きを計算
-	SetVec3Rotation(rotPlayer);	// 向きを設定
-
-	// 空中状態にする
-	m_bJump = true;
-
-	// ノック状態を設定
-	SetState(STATE_KNOCK);
-
-	// サウンドの再生
-	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
-
-#endif
-}
-
-//============================================================
 //	過去位置の更新処理
 //============================================================
 void CEnemy::UpdateOldPosition(void)
@@ -473,6 +473,15 @@ CEnemy::SStatusInfo CEnemy::GetStatusInfo(void) const
 {
 	// ステータス情報を返す
 	return m_status;
+}
+
+//============================================================
+//	体力の取得処理
+//============================================================
+int CEnemy::GetLife(void) const
+{
+	// 体力を返す
+	return m_pLife->GetNum();
 }
 
 //============================================================

@@ -11,6 +11,7 @@
 #include "manager.h"
 #include "scene.h"
 #include "sceneGame.h"
+#include "timerManager.h"
 #include "camera.h"
 #include "player.h"
 
@@ -90,11 +91,23 @@ void CGameManager::Update(void)
 //============================================================
 void CGameManager::SetState(const EState state)
 {
+	if (m_state == STATE_END) { return; }	// 終了状態の場合抜ける
+
 	if (state > NONE_IDX && state < STATE_MAX)
 	{ // 範囲内の場合
 
 		// 状態を設定
 		m_state = state;
+
+		if (m_state == STATE_END)
+		{ // 終了が設定された場合
+
+			// タイマーの計測終了
+			CSceneGame::GetTimerManager()->End();
+
+			// リザルト画面に遷移
+			GET_MANAGER->SetScene(CScene::MODE_RESULT);
+		}
 	}
 	else { assert(false); }	// 範囲外
 }

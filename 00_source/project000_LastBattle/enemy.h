@@ -62,9 +62,6 @@ public:
 		float fCollRadius;	// 判定半径
 	};
 
-	// 状態更新の関数ポインタ型エイリアス定義
-	typedef void (CEnemy::*AFuncUpdateState)(void);
-
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
@@ -75,6 +72,10 @@ public:
 	int GetType(void) const override;			// 種類取得
 	float GetRadius(void) const override;		// 半径取得
 	float GetHeight(void) const override;		// 縦幅取得
+
+	// 仮想関数
+	virtual void Hit(const int nDamage);	// ヒット
+	virtual void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock);	// ノックバックヒット
 
 	// 静的メンバ関数
 	static CEnemy *Create	// 生成
@@ -87,14 +88,12 @@ public:
 	static SStatusInfo GetStatusInfo(const int nType);	// ステータス情報取得
 
 	// メンバ関数
-	void Hit(const int nDamage);	// ヒット
-	void HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKnock);	// ノックバックヒット
-
 	void UpdateOldPosition(void);					// 過去位置更新
 	D3DXVECTOR3 GetOldPosition(void) const;			// 過去位置取得
 	void SetMovePosition(const D3DXVECTOR3& rMove);	// 位置移動量設定
 	D3DXVECTOR3 GetMovePosition(void) const;		// 位置移動量取得
 	SStatusInfo GetStatusInfo(void) const;			// ステータス情報取得
+	int GetLife(void) const;						// 体力取得
 
 protected:
 	// 仮想関数
@@ -120,6 +119,9 @@ protected:
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
 
 private:
+	// 状態更新の関数ポインタ型エイリアス定義
+	typedef void (CEnemy::*AFuncUpdateState)(void);
+
 	// 静的メンバ変数
 	static CListManager<CEnemy> *m_pList;			// オブジェクトリスト
 	static SStatusInfo m_aStatusInfo[TYPE_MAX];		// ステータス情報

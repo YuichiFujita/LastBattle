@@ -25,8 +25,8 @@ namespace
 {
 	const char *TEXTURE_FILE[] =	// テクスチャファイル
 	{
-		"data\\TEXTURE\\ranking000.png",	// ランキングロゴテクスチャ
-		"data\\TEXTURE\\ranking001.png",	// ランキング順位テクスチャ
+		nullptr,	// ランキングロゴテクスチャ
+		"data\\TEXTURE\\ranking000.png",	// ランキング順位テクスチャ
 	};
 
 	const char *SETUP_BIN = "data\\BIN\\ranking.bin";	// ランキング情報バイナリ相対パス
