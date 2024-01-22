@@ -60,9 +60,6 @@ HRESULT CEnemyMiniDragon::Init(void)
 		return E_FAIL;
 	}
 
-	// モデルの登録・割当
-	BindModel(MODEL_FILE[MODEL_NORMAL]);
-
 	// スポーン状態にする
 	SetState(STATE_SPAWN);
 
@@ -95,4 +92,18 @@ void CEnemyMiniDragon::Draw(void)
 {
 	// 敵の描画
 	CEnemy::Draw();
+}
+
+//============================================================
+//	モデルファイル取得処理
+//============================================================
+const char *CEnemyMiniDragon::GetModelFileName(const int nModel) const
+{
+	if (nModel > NONE_IDX && nModel < MODEL_MAX)
+	{ // 使用できるインデックスの場合
+
+		// 引数のインデックスのモデルを返す
+		return MODEL_FILE[nModel];
+	}
+	else { assert(false); return NONE_STRING; }	// 範囲外
 }

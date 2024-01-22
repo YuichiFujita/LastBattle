@@ -40,6 +40,10 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
+
+private:
+	// オーバーライド関数
+	const char *GetModelFileName(const int nModel) const;	// モデルファイル取得
 };
 
 #endif	// _ENEMY_MINI_DRAGON_H_

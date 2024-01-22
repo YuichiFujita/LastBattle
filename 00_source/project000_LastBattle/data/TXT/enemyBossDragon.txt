@@ -1,49 +1,21 @@
-#------------------------------------------------------------------------------
+#==============================================================================
 #
-# 『モーションビューワ』スクリプトファイル [motion.txt]
-# Author : AKIRA TANAKA
+#	ボスドラゴンのセットアップ [enemyBossDragon.txt]
+#	Author : you
 #
+#==============================================================================
 #------------------------------------------------------------------------------
-SCRIPT
+#	パラメーター情報
+#------------------------------------------------------------------------------
+STATUSSET
 
-#------------------------------------------------------------------------------
-#	モデル数
-#------------------------------------------------------------------------------
-NUM_MODEL = 30
+	LIFE = 50			# 体力
+	RADIUS = 250.0		# 半径
+	HEIGHT = 500.0		# 縦幅
+	LOOK_REV = 0.25		# 振り向き補正係数
+	COLL_RADIUS = 300.0	# 当たり判定の半径
 
-#------------------------------------------------------------------------------
-#	モデルファイル名
-#------------------------------------------------------------------------------
-MODEL_FILENAME = data/MODEL/00_waist.x
-MODEL_FILENAME = data/MODEL/01_body.x
-MODEL_FILENAME = data/MODEL/02_jaw.x
-MODEL_FILENAME = data/MODEL/03_head.x
-MODEL_FILENAME = data/MODEL/04_armUL.x
-MODEL_FILENAME = data/MODEL/05_armUR.x
-MODEL_FILENAME = data/MODEL/06_armDL.x
-MODEL_FILENAME = data/MODEL/07_armDR.x
-MODEL_FILENAME = data/MODEL/08_handL.x
-MODEL_FILENAME = data/MODEL/09_handR.x
-MODEL_FILENAME = data/MODEL/10_legUL.x
-MODEL_FILENAME = data/MODEL/11_legUR.x
-MODEL_FILENAME = data/MODEL/12_legDL.x
-MODEL_FILENAME = data/MODEL/13_legDR.x
-MODEL_FILENAME = data/MODEL/14_footL.x
-MODEL_FILENAME = data/MODEL/15_footR.x
-MODEL_FILENAME = data/MODEL/16_wingL_00.x
-MODEL_FILENAME = data/MODEL/17_wingR_00.x
-MODEL_FILENAME = data/MODEL/18_wingL_01.x
-MODEL_FILENAME = data/MODEL/19_wingR_01.x
-MODEL_FILENAME = data/MODEL/20_wingL_02.x
-MODEL_FILENAME = data/MODEL/21_wingR_02.x
-MODEL_FILENAME = data/MODEL/22_wingL_03.x
-MODEL_FILENAME = data/MODEL/23_wingR_03.x
-MODEL_FILENAME = data/MODEL/24_tail_00.x
-MODEL_FILENAME = data/MODEL/25_tail_01.x
-MODEL_FILENAME = data/MODEL/26_tail_02.x
-MODEL_FILENAME = data/MODEL/27_tail_03.x
-MODEL_FILENAME = data/MODEL/28_tail_04.x
-MODEL_FILENAME = data/MODEL/29_tail_05.x
+END_STATUSSET
 
 #------------------------------------------------------------------------------
 #	キャラクター情報
@@ -261,11 +233,11 @@ CHARACTERSET
 		POS = 0.0 0.0 9.38223
 		ROT = 0.0 0.0 0.0
 	END_PARTSSET
-	
+
 END_CHARACTERSET
 
 #------------------------------------------------------------------------------
-#	モーション情報
+# 	モーション情報
 #------------------------------------------------------------------------------
 # 	待機モーション
 #------------------------------------------------------------------------------
@@ -432,4 +404,3 @@ MOTIONSET
 
 END_MOTIONSET
 
-END_SCRIPT

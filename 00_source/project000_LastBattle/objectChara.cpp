@@ -89,8 +89,12 @@ void CObjectChara::Uninit(void)
 //============================================================
 void CObjectChara::Update(void)
 {
-	// モーションの更新
-	m_pMotion->Update();
+	if (m_pMotion != nullptr)
+	{ // モーションが存在する場合
+
+		// モーションの更新
+		m_pMotion->Update();
+	}
 }
 
 //============================================================

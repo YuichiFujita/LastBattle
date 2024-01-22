@@ -15,7 +15,7 @@
 //************************************************************
 namespace motion
 {
-	const int MAX_PARTS		= 24;	// パーツの最大数
+	const int MAX_PARTS		= 32;	// パーツの最大数
 	const int MAX_MOTION	= 16;	// モーションの最大数
 	const int MAX_KEY		= 16;	// キーの最大数
 }

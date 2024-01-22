@@ -23,6 +23,12 @@
 namespace
 {
 	// 基本情報
+	const char *SETUP_TXT[] =	// セットアップテキスト相対パス
+	{
+		"data\\TXT\\enemyBossDragon.txt",	// ボスドラゴン
+		"data\\TXT\\enemyMiniDragon.txt",	// ミニドラゴン
+	};
+
 	const int	PRIORITY	= 3;		// 敵の優先順位
 	const float	GRAVITY		= 1.0f;		// 重力
 	const float	JUMP_REV	= 0.16f;	// 空中の移動量の減衰係数
@@ -50,28 +56,11 @@ namespace
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
-CListManager<CEnemy> *CEnemy::m_pList = nullptr;	// オブジェクトリスト
-CEnemy::SStatusInfo CEnemy::m_aStatusInfo[CEnemy::TYPE_MAX] =	// ステータス情報
-{
-	// ボスドラゴンのステータス情報
-	{
-		50,		// 最大体力
-		250.0f,	// 半径
-		500.0f,	// 縦幅
-		0.25f,	// 視認の補正係数
-		250.0f,	// 判定半径
-	},
-
-	// ミニドラゴンのステータス情報
-	{
-		20,		// 最大体力
-		45.0f,	// 半径
-		100.0f,	// 縦幅
-		0.25f,	// 視認の補正係数
-		75.0f,	// 判定半径
-	},
-};
-CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =	// 状態更新関数
+CListManager<CEnemy> *CEnemy::m_pList = nullptr;			// オブジェクトリスト
+CEnemy::SPartsInfo	CEnemy::m_aPartsInfo[TYPE_MAX]	= {};	// パーツ情報
+CMotion::SInfo		CEnemy::m_aMotionInfo[TYPE_MAX]	= {};	// モーション情報
+CEnemy::SStatusInfo	CEnemy::m_aStatusInfo[TYPE_MAX] = {};	// ステータス情報
+CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =		// 状態更新関数
 {
 	&CEnemy::UpdateSpawn,	// スポーン状態時の更新
 	&CEnemy::UpdateNormal,	// 通常状態時の更新
@@ -86,9 +75,11 @@ CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =	// 状態更新関数
 //============================================================
 //	コンストラクタ
 //============================================================
-CEnemy::CEnemy(const EType type) : CObjectModel(CObject::LABEL_ENEMY, CObject::DIM_3D, PRIORITY),
+CEnemy::CEnemy(const EType type) : CObjectChara(CObject::LABEL_ENEMY, CObject::DIM_3D, PRIORITY),
 	m_type			(type),					// 種類定数
 	m_status		(m_aStatusInfo[type]),	// ステータス定数
+	m_parts			(m_aPartsInfo[type]),	// パーツ定数
+	m_motion		(m_aMotionInfo[type]),	// モーション定数
 	m_pLife			(nullptr),				// 体力の情報
 	m_oldPos		(VEC3_ZERO),			// 過去位置
 	m_move			(VEC3_ZERO),			// 移動量
@@ -122,8 +113,8 @@ HRESULT CEnemy::Init(void)
 	m_bJump		= false;		// ジャンプ状況
 	m_nCounterState	= 0;		// 状態管理カウンター
 
-	// オブジェクトモデルの初期化
-	if (FAILED(CObjectModel::Init()))
+	// オブジェクトキャラクターの初期化
+	if (FAILED(CObjectChara::Init()))
 	{ // 初期化に失敗した場合
 
 		// 失敗を返す
@@ -143,6 +134,30 @@ HRESULT CEnemy::Init(void)
 		lifeInfo::FRONT_COL,	// 表ゲージ色
 		lifeInfo::BACK_COL		// 裏ゲージ色
 	);
+
+	for (int nCntEnemy = 0; nCntEnemy < m_motion.nNumMotion; nCntEnemy++)
+	{ // 読み込んだモーション数分繰り返す
+
+		// モーション情報の設定
+		CObjectChara::SetMotionInfo(m_motion.aMotionInfo[nCntEnemy]);
+	}
+
+	for (int nCntEnemy = 0; nCntEnemy < m_parts.nNumParts; nCntEnemy++)
+	{ // パーツ数分繰り返す
+
+		// パーツ情報の設定
+		CObjectChara::SetPartsInfo
+		( // 引数
+			nCntEnemy,							// パーツインデックス
+			m_parts.aInfo[nCntEnemy].nParentID,	// 親インデックス
+			m_parts.aInfo[nCntEnemy].pos,		// 位置
+			m_parts.aInfo[nCntEnemy].rot,		// 向き
+			GetModelFileName(nCntEnemy)			// ファイル名
+		);
+	}
+
+	// モデル情報の設定
+	SetModelInfo();
 
 	if (m_pList == nullptr)
 	{ // リストマネージャーが存在しない場合
@@ -183,8 +198,8 @@ void CEnemy::Uninit(void)
 		m_pList->Release(m_pList);
 	}
 
-	// オブジェクトモデルの終了
-	CObjectModel::Uninit();
+	// オブジェクトキャラクターの終了
+	CObjectChara::Uninit();
 }
 
 //============================================================
@@ -202,8 +217,8 @@ void CEnemy::Update(void)
 	assert(m_state > NONE_IDX && m_state < STATE_MAX);
 	(this->*(m_aFuncUpdateState[m_state]))();
 
-	// オブジェクトモデルの更新
-	CObjectModel::Update();
+	// オブジェクトキャラクターの更新
+	CObjectChara::Update();
 }
 
 //============================================================
@@ -211,8 +226,8 @@ void CEnemy::Update(void)
 //============================================================
 void CEnemy::Draw(void)
 {
-	// オブジェクトモデルの描画
-	CObjectModel::Draw();
+	// オブジェクトキャラクターの描画
+	CObjectChara::Draw();
 }
 
 //============================================================
@@ -473,6 +488,24 @@ CEnemy::SStatusInfo CEnemy::GetStatusInfo(void) const
 {
 	// ステータス情報を返す
 	return m_status;
+}
+
+//============================================================
+//	パーツ情報取得処理
+//============================================================
+CEnemy::SPartsInfo CEnemy::GetPartsInfo(void) const
+{
+	// パーツ情報を返す
+	return m_parts;
+}
+
+//============================================================
+//	モーション情報取得処理
+//============================================================
+CMotion::SInfo CEnemy::GetMotionInfo(void) const
+{
+	// モーション情報を返す
+	return m_motion;
 }
 
 //============================================================
@@ -807,4 +840,312 @@ bool CEnemy::UpdateFadeIn(const float fSub)
 
 	// 透明状況を返す
 	return bAlpha;
+}
+
+//============================================================
+//	全セットアップ処理
+//============================================================
+void CEnemy::LoadAllSetup(void)
+{
+	for (int nCntEnemy = 0; nCntEnemy < TYPE_MAX; nCntEnemy++)
+	{ // 敵の種類分繰り返す
+
+		// セットアップ
+		CEnemy::LoadSetup((EType)nCntEnemy);
+	}
+}
+
+//============================================================
+//	セットアップ処理
+//============================================================
+void CEnemy::LoadSetup(const EType typeID)
+{
+	// 変数を宣言
+	CMotion::SMotionInfo info;		// ポーズの代入用
+	D3DXVECTOR3 pos = VEC3_ZERO;	// 位置の代入用
+	D3DXVECTOR3 rot = VEC3_ZERO;	// 向きの代入用
+	int nID			= 0;			// インデックスの代入用
+	int nNowPose	= 0;			// 現在のポーズ番号
+	int nNowKey		= 0;			// 現在のキー番号
+	int nWeapon		= 0;			// 武器表示のON/OFFの変換用
+	int nLoop		= 0;			// ループのON/OFFの変換用
+	int nEnd		= 0;			// テキスト読み込み終了の確認用
+
+	// 変数配列を宣言
+	char aString[MAX_STRING];	// テキストの文字列の代入用
+
+	// ポインタを宣言
+	FILE *pFile;	// ファイルポインタ
+
+	// 引数の静的メンバ変数の情報をクリア
+	memset(&m_aStatusInfo[typeID],	0, sizeof(m_aStatusInfo[typeID]));	// ステータス情報
+	memset(&m_aPartsInfo[typeID],	0, sizeof(m_aPartsInfo[typeID]));	// パーツ情報
+	memset(&m_aMotionInfo[typeID],	0, sizeof(m_aMotionInfo[typeID]));	// モーション情報
+
+	// ファイルを読み込み形式で開く
+	pFile = fopen(SETUP_TXT[typeID], "r");
+
+	if (pFile != NULL)
+	{ // ファイルが開けた場合
+
+		do
+		{ // 読み込んだ文字列が EOF ではない場合ループ
+
+			// ファイルから文字列を読み込む
+			nEnd = fscanf(pFile, "%s", &aString[0]);	// テキストを読み込みきったら EOF を返す
+
+			// ステータスの設定
+			if (strcmp(&aString[0], "STATUSSET") == 0)
+			{ // 読み込んだ文字列が STATUSSET の場合
+
+				do
+				{ // 読み込んだ文字列が END_STATUSSET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "LIFE") == 0)
+					{ // 読み込んだ文字列が LIFE の場合
+
+						fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
+						fscanf(pFile, "%d", &m_aStatusInfo[typeID].nMaxLife);	// 最大体力を読み込む
+					}
+					else if (strcmp(&aString[0], "RADIUS") == 0)
+					{ // 読み込んだ文字列が RADIUS の場合
+
+						fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
+						fscanf(pFile, "%f", &m_aStatusInfo[typeID].fRadius);	// 半径を読み込む
+					}
+					else if (strcmp(&aString[0], "HEIGHT") == 0)
+					{ // 読み込んだ文字列が HEIGHT の場合
+
+						fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
+						fscanf(pFile, "%f", &m_aStatusInfo[typeID].fHeight);	// 縦幅を読み込む
+					}
+					else if (strcmp(&aString[0], "LOOK_REV") == 0)
+					{ // 読み込んだ文字列が LOOK_REV の場合
+
+						fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
+						fscanf(pFile, "%f", &m_aStatusInfo[typeID].fLookRev);	// 視認の補正係数を読み込む
+					}
+					else if (strcmp(&aString[0], "COLL_RADIUS") == 0)
+					{ // 読み込んだ文字列が COLL_RADIUS の場合
+
+						fscanf(pFile, "%s", &aString[0]);							// = を読み込む (不要)
+						fscanf(pFile, "%f", &m_aStatusInfo[typeID].fCollRadius);	// 当たり判定の半径を読み込む
+					}
+				} while (strcmp(&aString[0], "END_STATUSSET") != 0);		// 読み込んだ文字列が END_STATUSSET ではない場合ループ
+			}
+
+			// キャラクターの設定
+			else if (strcmp(&aString[0], "CHARACTERSET") == 0)
+			{ // 読み込んだ文字列が CHARACTERSET の場合
+
+				do
+				{ // 読み込んだ文字列が END_CHARACTERSET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "PARTSSET") == 0)
+					{ // 読み込んだ文字列が PARTSSET の場合
+
+						do
+						{ // 読み込んだ文字列が END_PARTSSET ではない場合ループ
+
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+
+							if (strcmp(&aString[0], "INDEX") == 0)
+							{ // 読み込んだ文字列が INDEX の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nID);			// モデルのインデックスを読み込む
+
+								// パーツ数を加算
+								m_aPartsInfo[typeID].nNumParts++;
+							}
+							else if (strcmp(&aString[0], "PARENT") == 0)
+							{ // 読み込んだ文字列が PARENT の場合
+
+								fscanf(pFile, "%s", &aString[0]);									// = を読み込む (不要)
+								fscanf(pFile, "%d", &m_aPartsInfo[typeID].aInfo[nID].nParentID);	// モデルの親のインデックスを読み込む
+							}
+							else if (strcmp(&aString[0], "POS") == 0)
+							{ // 読み込んだ文字列が POS の場合
+
+								fscanf(pFile, "%s", &aString[0]);								// = を読み込む (不要)
+								fscanf(pFile, "%f", &m_aPartsInfo[typeID].aInfo[nID].pos.x);	// X座標を読み込む
+								fscanf(pFile, "%f", &m_aPartsInfo[typeID].aInfo[nID].pos.y);	// Y座標を読み込む
+								fscanf(pFile, "%f", &m_aPartsInfo[typeID].aInfo[nID].pos.z);	// Z座標を読み込む
+							}
+							else if (strcmp(&aString[0], "ROT") == 0)
+							{ // 読み込んだ文字列が ROT の場合
+
+								fscanf(pFile, "%s", &aString[0]);								// = を読み込む (不要)
+								fscanf(pFile, "%f", &m_aPartsInfo[typeID].aInfo[nID].rot.x);	// X向きを読み込む
+								fscanf(pFile, "%f", &m_aPartsInfo[typeID].aInfo[nID].rot.y);	// Y向きを読み込む
+								fscanf(pFile, "%f", &m_aPartsInfo[typeID].aInfo[nID].rot.z);	// Z向きを読み込む
+							}
+						} while (strcmp(&aString[0], "END_PARTSSET") != 0);	// 読み込んだ文字列が END_PARTSSET ではない場合ループ
+					}
+				} while (strcmp(&aString[0], "END_CHARACTERSET") != 0);		// 読み込んだ文字列が END_CHARACTERSET ではない場合ループ
+			}
+
+			// モーションの設定
+			else if (strcmp(&aString[0], "MOTIONSET") == 0)
+			{ // 読み込んだ文字列が MOTIONSET の場合
+
+				// 現在のポーズ番号を初期化
+				nNowPose = 0;
+
+				// ポーズ代入用の変数を初期化
+				memset(&info, 0, sizeof(info));
+
+				// キャンセルフレームをなしにする
+				info.nCancelFrame = NONE_IDX;
+
+				// 攻撃判定情報を初期化
+				info.collLeft.nMin  = NONE_IDX;
+				info.collLeft.nMax  = NONE_IDX;
+				info.collRight.nMin = NONE_IDX;
+				info.collRight.nMax = NONE_IDX;
+
+				// 武器表示をOFFにする
+				info.bWeaponDisp = false;
+
+				do
+				{ // 読み込んだ文字列が END_MOTION ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "WEAPON") == 0)
+					{ // 読み込んだ文字列が WEAPON の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%d", &nWeapon);		// 武器表示のON/OFFを読み込む
+
+						// 読み込んだ値をbool型に変換
+						info.bWeaponDisp = (nWeapon == 0) ? false : true;
+					}
+					else if (strcmp(&aString[0], "LOOP") == 0)
+					{ // 読み込んだ文字列が LOOP の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%d", &nLoop);		// ループのON/OFFを読み込む
+
+						// 読み込んだ値をbool型に変換
+						info.bLoop = (nLoop == 0) ? false : true;
+					}
+					else if (strcmp(&aString[0], "NUM_KEY") == 0)
+					{ // 読み込んだ文字列が NUM_KEY の場合
+
+						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+						fscanf(pFile, "%d", &info.nNumKey);	// キーの総数を読み込む
+					}
+					else if (strcmp(&aString[0], "CANCEL") == 0)
+					{ // 読み込んだ文字列が CANCEL の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &info.nCancelFrame);	// キャンセル可能フレームを読み込む
+					}
+					else if (strcmp(&aString[0], "LEFT_COLL") == 0)
+					{ // 読み込んだ文字列が LEFT_COLL の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &info.collLeft.nMin);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &info.collLeft.nMax);	// 判定を消す終了フレームを読み込む
+					}
+					else if (strcmp(&aString[0], "RIGHT_COLL") == 0)
+					{ // 読み込んだ文字列が RIGHT_COLL の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &info.collRight.nMin);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &info.collRight.nMax);	// 判定を消す終了フレームを読み込む
+					}
+					else if (strcmp(&aString[0], "KEYSET") == 0)
+					{ // 読み込んだ文字列が KEYSET の場合
+
+						// 現在のキー番号を初期化
+						nNowKey = 0;
+
+						do
+						{ // 読み込んだ文字列が END_KEYSET ではない場合ループ
+
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+
+							if (strcmp(&aString[0], "FRAME") == 0)
+							{ // 読み込んだ文字列が FRAME の場合
+
+								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
+								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nFrame);	// キーが切り替わるまでのフレーム数を読み込む
+							}
+							else if (strcmp(&aString[0], "KEY") == 0)
+							{ // 読み込んだ文字列が KEY の場合
+
+								do
+								{ // 読み込んだ文字列が END_KEY ではない場合ループ
+
+									// ファイルから文字列を読み込む
+									fscanf(pFile, "%s", &aString[0]);
+
+									if (strcmp(&aString[0], "POS") == 0)
+									{ // 読み込んだ文字列が POS の場合
+
+										fscanf(pFile, "%s", &aString[0]);									// = を読み込む (不要)
+										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.x);	// X位置を読み込む
+										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.y);	// Y位置を読み込む
+										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.z);	// Z位置を読み込む
+
+										// 読み込んだ位置にパーツの初期位置を加算
+										info.aKeyInfo[nNowPose].aKey[nNowKey].pos += m_aPartsInfo[typeID].aInfo[nNowKey].pos;
+									}
+									else if (strcmp(&aString[0], "ROT") == 0)
+									{ // 読み込んだ文字列が ROT の場合
+
+										fscanf(pFile, "%s", &aString[0]);									// = を読み込む (不要)
+										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);	// X向きを読み込む
+										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);	// Y向きを読み込む
+										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);	// Z向きを読み込む
+
+										// 読み込んだ向きにパーツの初期向きを加算
+										info.aKeyInfo[nNowPose].aKey[nNowKey].rot += m_aPartsInfo[typeID].aInfo[nNowKey].rot;
+
+										// 初期向きを正規化
+										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);
+										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);
+										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);
+									}
+
+								} while (strcmp(&aString[0], "END_KEY") != 0);	// 読み込んだ文字列が END_KEY ではない場合ループ
+
+								// 現在のキー番号を加算
+								nNowKey++;
+							}
+						} while (strcmp(&aString[0], "END_KEYSET") != 0);	// 読み込んだ文字列が END_KEYSET ではない場合ループ
+
+						// 現在のポーズ番号を加算
+						nNowPose++;
+
+						// モーション情報の設定
+						m_aMotionInfo[typeID].aMotionInfo[m_aMotionInfo[typeID].nNumMotion] = info;
+
+						// モーション数を加算
+						m_aMotionInfo[typeID].nNumMotion++;
+					}
+				} while (strcmp(&aString[0], "END_MOTIONSET") != 0);	// 読み込んだ文字列が END_MOTIONSET ではない場合ループ
+			}
+		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
+		
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{ // ファイルが開けなかった場合
+
+		// エラーメッセージボックス
+		MessageBox(NULL, "敵セットアップの読み込みに失敗！", "警告！", MB_ICONWARNING);
+	}
 }

@@ -30,7 +30,36 @@ public:
 	// 種類列挙
 	enum EModel
 	{
-		MODEL_NORMAL = 0,	// 通常
+		MODEL_WAIST = 0,	// 腰
+		MODEL_BODY,			// 体
+		MODEL_JAW,			// 顎
+		MODEL_HEAD,			// 頭
+		MODEL_ARM_UL,		// 左上腕
+		MODEL_ARM_UR,		// 右上腕
+		MODEL_ARM_DL,		// 左下腕
+		MODEL_ARM_DR,		// 右下腕
+		MODEL_HAND_L,		// 左手
+		MODEL_HAND_R,		// 右手
+		MODEL_LEG_UL,		// 左太もも
+		MODEL_LEG_UR,		// 右太もも
+		MODEL_LEG_DL,		// 左脛
+		MODEL_LEG_DR,		// 右脛
+		MODEL_FOOT_L,		// 左足
+		MODEL_FOOT_R,		// 右足
+		MODEL_WING_L_00,	// 左翼00
+		MODEL_WING_R_00,	// 右翼00
+		MODEL_WING_L_01,	// 左翼01
+		MODEL_WING_R_01,	// 右翼01
+		MODEL_WING_L_02,	// 左翼02
+		MODEL_WING_R_02,	// 右翼02
+		MODEL_WING_L_03,	// 左翼03
+		MODEL_WING_R_03,	// 右翼03
+		MODEL_TAIL_00,		// 尻尾00
+		MODEL_TAIL_01,		// 尻尾01
+		MODEL_TAIL_02,		// 尻尾02
+		MODEL_TAIL_03,		// 尻尾03
+		MODEL_TAIL_04,		// 尻尾04
+		MODEL_TAIL_05,		// 尻尾05
 		MODEL_MAX			// この列挙型の総数
 	};
 
@@ -59,6 +88,7 @@ public:
 
 private:
 	// オーバーライド関数
+	const char *GetModelFileName(const int nModel) const;	// モデルファイル取得
 	void UpdateNormal(void) override;	// 通常状態時の更新
 
 	// メンバ変数

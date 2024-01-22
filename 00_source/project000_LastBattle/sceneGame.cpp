@@ -124,13 +124,6 @@ HRESULT CSceneGame::Init(void)
 		return E_FAIL;
 	}
 
-	// TODO：敵の生成
-	CEnemy::Create(CEnemy::TYPE_BOSS_DRAGON, VEC3_ZERO + D3DXVECTOR3(0.0f, 0.0f, 500.0f), VEC3_ZERO);
-
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
-
 	//--------------------------------------------------------
 	//	初期設定
 	//--------------------------------------------------------
@@ -145,8 +138,20 @@ HRESULT CSceneGame::Init(void)
 	// プレイヤーを出現させる
 	player->SetSpawn();
 
+	// 敵の全セットアップ読込
+	CEnemy::LoadAllSetup();
+
 	// 剣のセットアップ読込
 	CSword::LoadSetup();
+
+
+	// TODO：敵の生成
+	CEnemy::Create(CEnemy::TYPE_BOSS_DRAGON, VEC3_ZERO + D3DXVECTOR3(0.0f, 0.0f, 500.0f), VEC3_ZERO);
+
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
+
 
 	// タイマーの計測開始
 	m_pTimerManager->Start();

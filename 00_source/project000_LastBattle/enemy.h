@@ -13,7 +13,8 @@
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "objectModel.h"
+#include "objectChara.h"
+#include "motion.h"
 
 //************************************************************
 //	前方宣言
@@ -24,7 +25,7 @@ class CGauge3D;	// ゲージ3Dクラス
 //	クラス定義
 //************************************************************
 // 敵クラス
-class CEnemy : public CObjectModel
+class CEnemy : public CObjectChara
 {
 public:
 	// 種類列挙
@@ -62,6 +63,21 @@ public:
 		float fCollRadius;	// 判定半径
 	};
 
+	// パーツ情報構造体
+	struct SParts
+	{
+		D3DXVECTOR3 pos;	// 位置
+		D3DXVECTOR3 rot;	// 向き
+		int nParentID;		// 親インデックス
+	};
+
+	// パーツ構造体
+	struct SPartsInfo
+	{
+		SParts aInfo[motion::MAX_PARTS];	// パーツ情報
+		int nNumParts;	// パーツ数
+	};
+
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
@@ -86,6 +102,8 @@ public:
 	);
 	static CListManager<CEnemy> *GetList(void);			// リスト取得
 	static SStatusInfo GetStatusInfo(const int nType);	// ステータス情報取得
+	static void LoadAllSetup(void);						// 全セットアップ
+	static void LoadSetup(const EType typeID);			// セットアップ
 
 	// メンバ関数
 	void UpdateOldPosition(void);					// 過去位置更新
@@ -93,9 +111,14 @@ public:
 	void SetMovePosition(const D3DXVECTOR3& rMove);	// 位置移動量設定
 	D3DXVECTOR3 GetMovePosition(void) const;		// 位置移動量取得
 	SStatusInfo GetStatusInfo(void) const;			// ステータス情報取得
+	SPartsInfo GetPartsInfo(void) const;			// パーツ情報取得
+	CMotion::SInfo GetMotionInfo(void) const;		// モーション情報取得
 	int GetLife(void) const;						// 体力取得
 
 protected:
+	// 純粋仮想関数
+	virtual const char *GetModelFileName(const int nModel) const = 0;	// モデルファイル取得
+
 	// 仮想関数
 	virtual void SetSpawn(void);		// スポーン状態の設定
 	virtual void SetInvuln(void);		// 無敵状態の設定
@@ -124,20 +147,24 @@ private:
 
 	// 静的メンバ変数
 	static CListManager<CEnemy> *m_pList;			// オブジェクトリスト
+	static SPartsInfo m_aPartsInfo[TYPE_MAX];		// パーツ情報
+	static CMotion::SInfo m_aMotionInfo[TYPE_MAX];	// モーション情報
 	static SStatusInfo m_aStatusInfo[TYPE_MAX];		// ステータス情報
 	static AFuncUpdateState m_aFuncUpdateState[];	// 状態更新関数
 
 	// メンバ変数
 	CListManager<CEnemy>::AIterator m_iterator;	// イテレーター
-	CGauge3D	*m_pLife;		// 体力の情報
-	D3DXVECTOR3	m_oldPos;		// 過去位置
-	D3DXVECTOR3	m_move;			// 移動量
-	EState	m_state;			// 状態
-	int		m_nCounterState;	// 状態管理カウンター
-	float	m_fSinAlpha;		// 透明向き
-	bool	m_bJump;			// ジャンプ状況
-	const EType m_type;			// 種類定数
-	const SStatusInfo m_status;	// ステータス定数
+	CGauge3D	*m_pLife;			// 体力の情報
+	D3DXVECTOR3	m_oldPos;			// 過去位置
+	D3DXVECTOR3	m_move;				// 移動量
+	EState	m_state;				// 状態
+	int		m_nCounterState;		// 状態管理カウンター
+	float	m_fSinAlpha;			// 透明向き
+	bool	m_bJump;				// ジャンプ状況
+	const EType m_type;				// 種類定数
+	const SStatusInfo m_status;		// ステータス定数
+	const SPartsInfo m_parts;		// パーツ定数
+	const CMotion::SInfo m_motion;	// モーション定数
 };
 
 #endif	// _ENEMY_H_

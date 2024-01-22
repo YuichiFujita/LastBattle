@@ -66,9 +66,9 @@ CEnemyAttack *CEnemyAttack::Create(const EAttack attackID, CEnemyBossDragon *pBo
 		pEnemyAttack = new CEnemyAttack00;
 		break;
 
-	case ATTACK_01:
+	//case ATTACK_01:
 		//pEnemyAttack = new CEnemyAttack01;
-		break;
+		//break;
 
 	default:	// —áŠOˆ—
 		assert(false);
