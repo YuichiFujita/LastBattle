@@ -24,7 +24,7 @@ namespace
 	};
 
 	const int	PRIORITY		= 5;		// –‚–@w‚Ì—Dæ‡ˆÊ
-	const float	ALPHA_LENGTH	= 1000.0f;	// “§–¾‚Ì’·‚³
+	const float	ALPHA_LENGTH	= -1000.0f;	// “§–¾‚Ì’·‚³
 	const POSGRID2 PART_CIRCLE	= POSGRID2(32, 2);	// –‚–@w‚Ì•ªŠ„”
 	const POSGRID2 PART_ALPHA	= POSGRID2(32, 1);	// “§–¾‚Ì•ªŠ„”
 }
@@ -109,6 +109,9 @@ HRESULT CMagicCircle::Init(void)
 
 	// —Dæ‡ˆÊ‚ğİ’è
 	m_pAlphaCylinder->SetPriority(PRIORITY);
+
+	// ƒ|ƒŠƒSƒ“‚Ì—¼–Ê‚ğ•\¦ó‘Ô‚É‚·‚é
+	m_pAlphaCylinder->GetRenderState()->SetCulling(D3DCULL_NONE);
 
 	// ¬Œ÷‚ğ•Ô‚·
 	return S_OK;

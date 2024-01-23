@@ -43,6 +43,7 @@ public:
 		STATE_NORMAL,		// 通常状態
 		STATE_DAMAGE,		// ダメージ状態
 		STATE_INVULN,		// 無敵状態
+		STATE_STAN,			// スタン状態
 		STATE_DEATH,		// 死亡状態
 		STATE_MAX			// この列挙型の総数
 	};
@@ -126,6 +127,7 @@ protected:
 	virtual void UpdateNormal(void);	// 通常状態時の更新
 	virtual void UpdateDamage(void);	// ダメージ状態時の更新
 	virtual void UpdateInvuln(void);	// 無敵状態時の更新
+	virtual void UpdateStan(void);		// スタン状態時の更新
 	virtual void UpdateDeath(void);		// 死亡状態時の更新
 
 	// メンバ関数

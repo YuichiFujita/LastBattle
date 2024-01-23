@@ -19,6 +19,7 @@
 //	前方宣言
 //************************************************************
 class CEnemyAttack;	// 敵攻撃クラス
+class CMagicCircle;	// 魔法陣クラス
 
 //************************************************************
 //	クラス定義
@@ -63,13 +64,14 @@ public:
 		MODEL_MAX			// この列挙型の総数
 	};
 
-	// 通常状態列挙
-	enum ENormalState
+	// 行動列挙
+	enum EAction
 	{
-		NSTATE_NONE = 0,	// 何もしない状態
-		NSTATE_WAIT,		// 待機状態
-		NSTATE_ATTACK,		// 攻撃状態
-		NSTATE_MAX			// この列挙型の総数
+		ACT_NONE = 0,		// 何もしない
+		ACT_MAGIC_FADEIN,	// 魔法陣フェードイン
+		ACT_MAGIC_FADEOUT,	// 魔法陣フェードアウト
+		ACT_PUNCH_GROUND,	// 地面殴り
+		ACT_MAX				// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -77,6 +79,13 @@ public:
 
 	// デストラクタ
 	~CEnemyBossDragon() override;
+
+	// テレポート構造体
+	struct STeleport
+	{
+		D3DXVECTOR3 pos;	// テレポート位置
+		D3DXVECTOR3 rot;	// テレポート向き
+	};
 
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
@@ -86,15 +95,25 @@ public:
 	void Hit(const int nDamage) override;	// ヒット
 	void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
 
+	// メンバ関数
+	void SetTeleport(const D3DXVECTOR3& rPos, const D3DXVECTOR3 &rRot);	// テレポート設定
+
 private:
 	// オーバーライド関数
 	const char *GetModelFileName(const int nModel) const;	// モデルファイル取得
 	void UpdateNormal(void) override;	// 通常状態時の更新
 
+	// メンバ関数
+	void UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot);	// 魔法陣フェードイン行動時の更新
+	void UpdateMagicFadeOut(const D3DXVECTOR3& rPos);	// 魔法陣フェードアウト行動時の更新
+	void UpdatePunchGround(void);	// 地面殴り行動時の更新
+
 	// メンバ変数
-	CEnemyAttack *m_pAttack;	// 攻撃の情報
-	ENormalState m_stateNormal;	// 通常状態時の状態
-	int m_nCounterNormal;		// 通常状態管理カウンター
+	CEnemyAttack *m_pAttack;		// 攻撃の情報
+	CMagicCircle *m_pMagicCircle;	// 魔法陣の情報
+	STeleport m_teleport;	// テレポートの情報
+	EAction m_action;		// 行動
+	int m_nCounterAct;		// 行動管理カウンター
 };
 
 #endif	// _ENEMY_BOSS_DRAGON_H_

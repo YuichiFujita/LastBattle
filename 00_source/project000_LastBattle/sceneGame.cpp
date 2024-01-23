@@ -127,7 +127,7 @@ HRESULT CSceneGame::Init(void)
 	}
 
 	// TODOÅFñÇñ@êwâºÇæÇµ
-	CMagicCircle::Create(D3DXVECTOR3(0.0f, 400.0f, 500.0f), VEC3_ZERO, 350.0f);
+	//CMagicCircle::Create(D3DXVECTOR3(0.0f, 400.0f, 500.0f), VEC3_ZERO, 350.0f);
 
 	//--------------------------------------------------------
 	//	èâä˙ê›íË

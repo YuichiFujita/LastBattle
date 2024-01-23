@@ -66,6 +66,7 @@ CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =		// 状態更新関数
 	&CEnemy::UpdateNormal,	// 通常状態時の更新
 	&CEnemy::UpdateDamage,	// ダメージ状態時の更新
 	&CEnemy::UpdateInvuln,	// 無敵状態時の更新
+	&CEnemy::UpdateStan,	// スタン状態時の更新
 	&CEnemy::UpdateDeath,	// 死亡状態時の更新
 };
 
@@ -207,12 +208,6 @@ void CEnemy::Uninit(void)
 //============================================================
 void CEnemy::Update(void)
 {
-	// 過去位置の更新
-	UpdateOldPosition();
-
-	// 重力の更新
-	UpdateGravity();
-
 	// 各状態ごとの更新
 	assert(m_state > NONE_IDX && m_state < STATE_MAX);
 	(this->*(m_aFuncUpdateState[m_state]))();
@@ -572,6 +567,12 @@ void CEnemy::UpdateSpawn(void)
 	CStage *pStage = CScene::GetStage();				// ステージ情報
 	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
 
+	// 過去位置の更新
+	UpdateOldPosition();
+
+	// 重力の更新
+	UpdateGravity();
+
 	// 位置更新
 	UpdatePosition(&posEnemy);
 
@@ -608,6 +609,12 @@ void CEnemy::UpdateNormal(void)
 	// ポインタを宣言
 	CStage *pStage = CScene::GetStage();				// ステージ情報
 	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 過去位置の更新
+	UpdateOldPosition();
+
+	// 重力の更新
+	UpdateGravity();
 
 	// 位置更新
 	UpdatePosition(&posEnemy);
@@ -687,6 +694,14 @@ void CEnemy::UpdateInvuln(void)
 		// 通常状態を設定
 		SetState(STATE_NORMAL);
 	}
+}
+
+//============================================================
+//	スタン状態時の更新処理
+//============================================================
+void CEnemy::UpdateStan(void)
+{
+	assert(false);
 }
 
 //============================================================

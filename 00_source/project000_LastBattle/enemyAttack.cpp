@@ -184,6 +184,7 @@ void CEnemyAttack00::Uninit(void)
 bool CEnemyAttack00::Update(void)
 {
 	// TODOFUŒ‚ˆ—‚µ‚Á‚©‚è‚Æ
+#if 0
 	switch (m_state)
 	{ // ó‘Ô‚²‚Æ‚Ìˆ—
 	case STATE_WAVE:
@@ -269,6 +270,7 @@ bool CEnemyAttack00::Update(void)
 		assert(false);
 		break;
 	}
+#endif
 
 	return false;
 }
