@@ -80,6 +80,7 @@ public:
 		LABEL_PARTICLE,		// パーティクル
 		LABEL_PLAYER,		// プレイヤー
 		LABEL_ENEMY,		// 敵
+		LABEL_MAGIC_CIRCLE,	// 魔法陣
 		LABEL_FIELD,		// 地面
 		LABEL_WALL,			// 壁
 		LABEL_SCENERY,		// 景色

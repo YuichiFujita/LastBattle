@@ -22,7 +22,7 @@
 class CEnemyMiniDragon : public CEnemy
 {
 public:
-	// í—Ş—ñ‹“
+	// ƒ‚ƒfƒ‹—ñ‹“
 	enum EModel
 	{
 		MODEL_NORMAL = 0,	// ’Êí

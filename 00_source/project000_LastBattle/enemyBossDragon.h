@@ -27,7 +27,7 @@ class CEnemyAttack;	// “GUŒ‚ƒNƒ‰ƒX
 class CEnemyBossDragon : public CEnemy
 {
 public:
-	// í—Ş—ñ‹“
+	// ƒ‚ƒfƒ‹—ñ‹“
 	enum EModel
 	{
 		MODEL_WAIST = 0,	// ˜

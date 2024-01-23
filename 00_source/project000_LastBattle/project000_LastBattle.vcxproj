@@ -171,6 +171,7 @@
     <ClCompile Include="light.cpp" />
     <ClCompile Include="liquid.cpp" />
     <ClCompile Include="listManager.cpp" />
+    <ClCompile Include="magicCircle.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
     <ClCompile Include="model.cpp" />
@@ -184,6 +185,7 @@
     <ClCompile Include="objectBillboard.cpp" />
     <ClCompile Include="objectChara.cpp" />
     <ClCompile Include="objectDivChara.cpp" />
+    <ClCompile Include="objectMeshCircle.cpp" />
     <ClCompile Include="objectMeshCube.cpp" />
     <ClCompile Include="objectMeshCylinder.cpp" />
     <ClCompile Include="objectMeshDome.cpp" />
@@ -253,6 +255,7 @@
     <ClInclude Include="light.h" />
     <ClInclude Include="liquid.h" />
     <ClInclude Include="listManager.h" />
+    <ClInclude Include="magicCircle.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="manager.h" />
     <ClInclude Include="model.h" />
@@ -266,6 +269,7 @@
     <ClInclude Include="objectBillboard.h" />
     <ClInclude Include="objectChara.h" />
     <ClInclude Include="objectDivChara.h" />
+    <ClInclude Include="objectMeshCircle.h" />
     <ClInclude Include="objectMeshCube.h" />
     <ClInclude Include="objectMeshCylinder.h" />
     <ClInclude Include="objectMeshDome.h" />
