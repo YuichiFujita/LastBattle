@@ -53,6 +53,7 @@ namespace
 		"data\\MODEL\\ENEMY\\BOSS_DRAGON\\29_tail_05.x",	// 尻尾05
 	};
 
+	const int PRIORITY = 6;			// ボスドラゴンの優先順位
 	const int ATK_WAIT_FRAME = 60;	// 攻撃の余韻フレーム
 }
 
@@ -101,6 +102,9 @@ HRESULT CEnemyBossDragon::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+
+	// 優先順位を設定
+	SetPriority(PRIORITY);
 
 	// スポーン状態にする
 	SetState(STATE_SPAWN);
