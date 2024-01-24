@@ -1143,14 +1143,14 @@ void CEnemy::LoadSetup(const EType typeID)
 
 						// 現在のポーズ番号を加算
 						nNowPose++;
-
-						// モーション情報の設定
-						m_aMotionInfo[typeID].aMotionInfo[m_aMotionInfo[typeID].nNumMotion] = info;
-
-						// モーション数を加算
-						m_aMotionInfo[typeID].nNumMotion++;
 					}
 				} while (strcmp(&aString[0], "END_MOTIONSET") != 0);	// 読み込んだ文字列が END_MOTIONSET ではない場合ループ
+
+				// モーション情報の設定
+				m_aMotionInfo[typeID].aMotionInfo[m_aMotionInfo[typeID].nNumMotion] = info;
+
+				// モーション数を加算
+				m_aMotionInfo[typeID].nNumMotion++;
 			}
 		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
 		
