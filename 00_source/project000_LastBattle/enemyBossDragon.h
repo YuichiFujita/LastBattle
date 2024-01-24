@@ -74,6 +74,16 @@ public:
 		ACT_MAX				// この列挙型の総数
 	};
 
+	// テレポート列挙
+	enum ETeleport
+	{
+		TELEPORT_SET_APPER = 0,	// 魔法陣の出現設定
+		TELEPORT_APPEAR,		// 魔法陣の出現
+		TELEPORT_MOVE,			// 魔法陣の移動
+		TELEPORT_DISAPPEAR,		// 魔法陣の消失
+		TELEPORT_MAX			// この列挙型の総数
+	};
+
 	// コンストラクタ
 	explicit CEnemyBossDragon(const EType type);
 
@@ -83,8 +93,9 @@ public:
 	// テレポート構造体
 	struct STeleport
 	{
-		D3DXVECTOR3 pos;	// テレポート位置
-		D3DXVECTOR3 rot;	// テレポート向き
+		D3DXVECTOR3 pos;	// テレポート目標位置
+		D3DXVECTOR3 rot;	// テレポート目標向き
+		ETeleport state;	// テレポート状態
 	};
 
 	// オーバーライド関数
@@ -104,6 +115,9 @@ private:
 	void UpdateNormal(void) override;	// 通常状態時の更新
 
 	// メンバ関数
+	void UpdateAttack(void);	// 攻撃更新
+	void UpdateAction(void);	// 行動更新
+
 	void UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot);	// 魔法陣フェードイン行動時の更新
 	void UpdateMagicFadeOut(const D3DXVECTOR3& rPos);	// 魔法陣フェードアウト行動時の更新
 	void UpdatePunchGround(void);	// 地面殴り行動時の更新
@@ -113,7 +127,7 @@ private:
 	CMagicCircle *m_pMagicCircle;	// 魔法陣の情報
 	STeleport m_teleport;	// テレポートの情報
 	EAction m_action;		// 行動
-	int m_nCounterAct;		// 行動管理カウンター
+	int m_nCounterAttack;	// 攻撃管理カウンター
 };
 
 #endif	// _ENEMY_BOSS_DRAGON_H_

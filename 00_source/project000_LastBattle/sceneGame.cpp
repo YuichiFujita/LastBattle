@@ -20,8 +20,6 @@
 #include "enemy.h"
 #include "sword.h"
 
-#include "magicCircle.h"
-
 //************************************************************
 //	’è”éŒ¾
 //************************************************************
@@ -125,9 +123,6 @@ HRESULT CSceneGame::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
-
-	// TODOF–‚–@w‰¼‚¾‚µ
-	//CMagicCircle::Create(D3DXVECTOR3(0.0f, 400.0f, 500.0f), VEC3_ZERO, 350.0f);
 
 	//--------------------------------------------------------
 	//	‰Šúİ’è
