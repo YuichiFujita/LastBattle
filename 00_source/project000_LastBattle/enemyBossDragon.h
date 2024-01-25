@@ -117,6 +117,7 @@ public:
 	// メンバ関数
 	void SetTeleport(const D3DXVECTOR3& rPos, const D3DXVECTOR3 &rRot);	// テレポート設定
 	void SetActPunchGround(void);	// 地面殴り行動設定
+	EAction GetAction(void);		// 行動取得
 
 private:
 	// オーバーライド関数

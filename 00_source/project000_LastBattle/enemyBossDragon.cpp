@@ -57,9 +57,9 @@ namespace
 	};
 
 	const int	PRIORITY		= 6;			// ボスドラゴンの優先順位
-	const int	ATK_WAIT_FRAME	= 60;			// 攻撃の余韻フレーム
-	const float	SCALE_MAGIC		= 55.0f;		// 魔法陣の半径変動量
-	const float	MOVE_MAGIC		= 50.0f;		// 魔法陣の上下移動量
+	const int	ATK_WAIT_FRAME	= 300;			// 攻撃の余韻フレーム
+	const float	SCALE_MAGIC		= 35.0f;		// 魔法陣の半径変動量
+	const float	MOVE_MAGIC		= 30.0f;		// 魔法陣の上下移動量
 	const float	MAGIC_CIRCLE_RADIUS	= 250.0f;	// 魔法陣の半径
 	const float	MAGIC_ALPHA_RADIUS	= 350.0f;	// 魔法陣の半径
 	const float	MAGIC_DELPOS_PLUSY	= 150.0f;	// 魔法陣の消失位置の加算量Y
@@ -241,6 +241,15 @@ void CEnemyBossDragon::SetActPunchGround(void)
 
 	// 地面を殴る行動をとらせる
 	m_action = ACT_PUNCH_GROUND;
+}
+
+//============================================================
+//	行動取得処理
+//============================================================
+CEnemyBossDragon::EAction CEnemyBossDragon::GetAction(void)
+{
+	// 現在の行動を返す
+	return m_action;
 }
 
 //============================================================
