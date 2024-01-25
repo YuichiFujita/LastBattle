@@ -232,6 +232,18 @@ void CEnemyBossDragon::SetTeleport(const D3DXVECTOR3& rPos, const D3DXVECTOR3& r
 }
 
 //============================================================
+//	地面殴りの行動設定処理
+//============================================================
+void CEnemyBossDragon::SetActPunchGround(void)
+{
+	// 地面殴りモーションを設定
+	SetMotion(MOTION_PUNCH_GROUND);
+
+	// 地面を殴る行動をとらせる
+	m_action = ACT_PUNCH_GROUND;
+}
+
+//============================================================
 //	モデルファイル取得処理
 //============================================================
 const char *CEnemyBossDragon::GetModelFileName(const int nModel) const
@@ -248,7 +260,7 @@ const char *CEnemyBossDragon::GetModelFileName(const int nModel) const
 //============================================================
 //	通常状態時の更新処理
 //============================================================
-void CEnemyBossDragon::UpdateNormal(void)
+void CEnemyBossDragon::UpdateNormal(int *pMotion)
 {
 	// TODO：テレポートお試し
 	if (GET_INPUTKEY->IsTrigger(DIK_0))
@@ -256,11 +268,122 @@ void CEnemyBossDragon::UpdateNormal(void)
 		SetTeleport(VEC3_ZERO, VEC3_ZERO);
 	}
 
+	// TODO：地面殴りお試し
+	if (GET_INPUTKEY->IsTrigger(DIK_1))
+	{
+		SetActPunchGround();
+	}
+
 	// 攻撃の更新
 	UpdateAttack();
 
 	// 行動の更新
 	UpdateAction();
+}
+
+//============================================================
+//	モーション・オブジェクトキャラクターの更新処理
+//============================================================
+void CEnemyBossDragon::UpdateMotion(const int nMotion)
+{
+#if 0
+	if (nMotion <= NONE_IDX || nMotion >= MOTION_MAX) { assert(false); return; }	// モーションが未設定
+	if (IsDeath()) { return; }	// 死亡している
+
+	if (IsMotionLoop())
+	{ // ループするモーションの場合
+
+		if (GetMotionType() != nMotion)
+		{ // 現在のモーションが再生中のモーションと一致しない場合
+
+			// 現在のモーションの設定
+			SetMotion(nMotion);
+		}
+	}
+	else
+	{ // ループしないモーションだった場合
+
+#if 0
+		switch (GetMotionType())
+		{ // モーションごとの処理
+		case MOTION_ATTACK:	// 攻撃モーション：ループOFF
+			break;
+
+		case MOTION_LAND:	// 着地モーション：ループOFF
+
+			if (nMotion != MOTION_IDOL)
+			{ // 待機モーションではない場合
+
+				// 現在のモーションの設定
+				SetMotion(nMotion);
+			}
+
+			break;
+
+		default:	// 例外処理
+			assert(false);
+			break;
+		}
+#endif
+	}
+
+	// オブジェクトキャラクターの更新
+	CObjectChara::Update();
+
+#if 0
+	switch (GetMotionType())
+	{ // モーションごとの処理
+	case MOTION_IDOL:	// 待機モーション：ループON
+		break;
+
+	case MOTION_DASH:	// ダッシュモーション：ループOFF
+	case MOTION_LAND:	// 着地モーション：ループOFF
+
+		if (IsMotionFinish())
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(nMotion);
+		}
+
+		break;
+
+	case MOTION_ATTACK:	// 攻撃モーション：ループOFF
+		break;
+
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
+#endif
+#else
+	if (IsDeath()) { return; }	// 死亡している
+
+	// オブジェクトキャラクターの更新
+	CObjectChara::Update();
+
+	switch (GetMotionType())
+	{ // モーションごとの処理
+	case MOTION_IDOL:	// 待機モーション：ループON
+		break;
+
+	case MOTION_PUNCH_GROUND:	// ダッシュモーション：ループOFF
+
+		if (IsMotionFinish())
+		{ // モーションが終了していた場合
+
+			// 待機モーションに移行
+			SetMotion(MOTION_IDOL);
+		}
+
+		break;
+
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
+
+#endif
 }
 
 //============================================================

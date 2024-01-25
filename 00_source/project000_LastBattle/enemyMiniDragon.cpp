@@ -107,3 +107,79 @@ const char *CEnemyMiniDragon::GetModelFileName(const int nModel) const
 	}
 	else { assert(false); return NONE_STRING; }	// 範囲外
 }
+
+//============================================================
+//	モーション・オブジェクトキャラクターの更新処理
+//============================================================
+void CEnemyMiniDragon::UpdateMotion(const int nMotion)
+{
+	if (nMotion <= NONE_IDX || nMotion >= MOTION_MAX) { assert(false); return; }	// モーションが未設定
+	if (IsDeath()) { return; }	// 死亡している
+
+	if (IsMotionLoop())
+	{ // ループするモーションの場合
+
+		if (GetMotionType() != nMotion)
+		{ // 現在のモーションが再生中のモーションと一致しない場合
+
+			// 現在のモーションの設定
+			SetMotion(nMotion);
+		}
+	}
+	else
+	{ // ループしないモーションだった場合
+
+#if 0
+		switch (GetMotionType())
+		{ // モーションごとの処理
+		case MOTION_ATTACK:	// 攻撃モーション：ループOFF
+			break;
+
+		case MOTION_LAND:	// 着地モーション：ループOFF
+
+			if (nMotion != MOTION_IDOL)
+			{ // 待機モーションではない場合
+
+				// 現在のモーションの設定
+				SetMotion(nMotion);
+			}
+
+			break;
+
+		default:	// 例外処理
+			assert(false);
+			break;
+		}
+#endif
+	}
+
+	// オブジェクトキャラクターの更新
+	CObjectChara::Update();
+
+#if 0
+	switch (GetMotionType())
+	{ // モーションごとの処理
+	case MOTION_IDOL:	// 待機モーション：ループON
+		break;
+
+	case MOTION_DASH:	// ダッシュモーション：ループOFF
+	case MOTION_LAND:	// 着地モーション：ループOFF
+
+		if (IsMotionFinish())
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(nMotion);
+		}
+
+		break;
+
+	case MOTION_ATTACK:	// 攻撃モーション：ループOFF
+		break;
+
+	default:	// 例外処理
+		assert(false);
+		break;
+	}
+#endif
+}

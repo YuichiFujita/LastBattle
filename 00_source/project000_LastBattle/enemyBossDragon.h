@@ -64,6 +64,14 @@ public:
 		MODEL_MAX			// この列挙型の総数
 	};
 
+	// モーション列挙
+	enum EMotion
+	{
+		MOTION_IDOL = 0,		// 待機モーション
+		MOTION_PUNCH_GROUND,	// 地面殴りモーション
+		MOTION_MAX				// この列挙型の総数
+	};
+
 	// 行動列挙
 	enum EAction
 	{
@@ -108,11 +116,13 @@ public:
 
 	// メンバ関数
 	void SetTeleport(const D3DXVECTOR3& rPos, const D3DXVECTOR3 &rRot);	// テレポート設定
+	void SetActPunchGround(void);	// 地面殴り行動設定
 
 private:
 	// オーバーライド関数
-	const char *GetModelFileName(const int nModel) const;	// モデルファイル取得
-	void UpdateNormal(void) override;	// 通常状態時の更新
+	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
+	void UpdateMotion(const int nMotion) override;	// モーション・オブジェクトキャラクターの更新
+	void UpdateNormal(int *pMotion) override;		// 通常状態時の更新
 
 	// メンバ関数
 	void UpdateAttack(void);	// 攻撃更新

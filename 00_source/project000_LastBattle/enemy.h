@@ -119,16 +119,17 @@ public:
 protected:
 	// 純粋仮想関数
 	virtual const char *GetModelFileName(const int nModel) const = 0;	// モデルファイル取得
+	virtual void UpdateMotion(const int nMotion) = 0;	// モーション・オブジェクトキャラクターの更新
 
 	// 仮想関数
-	virtual void SetSpawn(void);		// スポーン状態の設定
-	virtual void SetInvuln(void);		// 無敵状態の設定
-	virtual void UpdateSpawn(void);		// スポーン状態時の更新
-	virtual void UpdateNormal(void);	// 通常状態時の更新
-	virtual void UpdateDamage(void);	// ダメージ状態時の更新
-	virtual void UpdateInvuln(void);	// 無敵状態時の更新
-	virtual void UpdateStan(void);		// スタン状態時の更新
-	virtual void UpdateDeath(void);		// 死亡状態時の更新
+	virtual void SetSpawn(void);	// スポーン状態の設定
+	virtual void SetInvuln(void);	// 無敵状態の設定
+	virtual void UpdateSpawn(int *pMotion);		// スポーン状態時の更新
+	virtual void UpdateNormal(int *pMotion);	// 通常状態時の更新
+	virtual void UpdateDamage(int *pMotion);	// ダメージ状態時の更新
+	virtual void UpdateInvuln(int *pMotion);	// 無敵状態時の更新
+	virtual void UpdateStan(int *pMotion);		// スタン状態時の更新
+	virtual void UpdateDeath(int *pMotion);		// 死亡状態時の更新
 
 	// メンバ関数
 	void UpdateLook	// 対象視認
@@ -145,7 +146,7 @@ protected:
 
 private:
 	// 状態更新の関数ポインタ型エイリアス定義
-	typedef void (CEnemy::*AFuncUpdateState)(void);
+	typedef void (CEnemy::*AFuncUpdateState)(int*);
 
 	// 静的メンバ変数
 	static CListManager<CEnemy> *m_pList;			// オブジェクトリスト

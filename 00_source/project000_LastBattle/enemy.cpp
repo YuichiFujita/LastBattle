@@ -208,12 +208,15 @@ void CEnemy::Uninit(void)
 //============================================================
 void CEnemy::Update(void)
 {
+	// 変数を宣言
+	int nCurMotion = 0;	// 現在のモーション
+
 	// 各状態ごとの更新
 	assert(m_state > NONE_IDX && m_state < STATE_MAX);
-	(this->*(m_aFuncUpdateState[m_state]))();
+	(this->*(m_aFuncUpdateState[m_state]))(&nCurMotion);
 
-	// オブジェクトキャラクターの更新
-	CObjectChara::Update();
+	// モーション・オブジェクトキャラクターの更新
+	UpdateMotion(nCurMotion);
 }
 
 //============================================================
@@ -557,7 +560,7 @@ void CEnemy::SetInvuln(void)
 //============================================================
 //	スポーン状態時の更新処理
 //============================================================
-void CEnemy::UpdateSpawn(void)
+void CEnemy::UpdateSpawn(int * /*pMotion*/)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
@@ -600,7 +603,7 @@ void CEnemy::UpdateSpawn(void)
 //============================================================
 //	通常状態時の更新処理
 //============================================================
-void CEnemy::UpdateNormal(void)
+void CEnemy::UpdateNormal(int * /*pMotion*/)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
@@ -635,13 +638,13 @@ void CEnemy::UpdateNormal(void)
 //============================================================
 //	ダメージ状態時の更新処理
 //============================================================
-void CEnemy::UpdateDamage(void)
+void CEnemy::UpdateDamage(int *pMotion)
 {
 	// 身体の色を赤くする
 	SetAllMaterial(material::DamageRed());
 
 	// 通常動作の更新
-	UpdateNormal();
+	UpdateNormal(pMotion);
 
 	// カウンターを加算
 	m_nCounterState++;
@@ -662,7 +665,7 @@ void CEnemy::UpdateDamage(void)
 //============================================================
 //	無敵状態時の更新処理
 //============================================================
-void CEnemy::UpdateInvuln(void)
+void CEnemy::UpdateInvuln(int *pMotion)
 {
 	// 変数を宣言
 	float fAddAlpha = 0.0f;	// 透明度の加算量
@@ -678,7 +681,7 @@ void CEnemy::UpdateInvuln(void)
 	SetAlpha(INVULN_ALPHA + fAddAlpha);
 
 	// 通常動作の更新
-	UpdateNormal();
+	UpdateNormal(pMotion);
 
 	// カウンターを加算
 	m_nCounterState++;
@@ -699,7 +702,7 @@ void CEnemy::UpdateInvuln(void)
 //============================================================
 //	スタン状態時の更新処理
 //============================================================
-void CEnemy::UpdateStan(void)
+void CEnemy::UpdateStan(int * /*pMotion*/)
 {
 	assert(false);
 }
@@ -707,7 +710,7 @@ void CEnemy::UpdateStan(void)
 //============================================================
 //	死亡状態時の更新処理
 //============================================================
-void CEnemy::UpdateDeath(void)
+void CEnemy::UpdateDeath(int * /*pMotion*/)
 {
 	// 自身の終了
 	Uninit();

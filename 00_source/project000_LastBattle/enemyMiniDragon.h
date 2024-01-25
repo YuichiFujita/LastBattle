@@ -29,6 +29,13 @@ public:
 		MODEL_MAX			// この列挙型の総数
 	};
 
+	// モーション列挙
+	enum EMotion
+	{
+		MOTION_IDOL = 0,	// 待機モーション
+		MOTION_MAX			// この列挙型の総数
+	};
+
 	// コンストラクタ
 	explicit CEnemyMiniDragon(const EType type);
 
@@ -43,7 +50,8 @@ public:
 
 private:
 	// オーバーライド関数
-	const char *GetModelFileName(const int nModel) const;	// モデルファイル取得
+	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
+	void UpdateMotion(const int nMotion) override;	// モーション・オブジェクトキャラクターの更新
 };
 
 #endif	// _ENEMY_MINI_DRAGON_H_
