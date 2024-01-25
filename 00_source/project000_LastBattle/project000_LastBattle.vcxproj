@@ -160,6 +160,7 @@
     <ClCompile Include="effect3D.cpp" />
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="enemyAttack.cpp" />
+    <ClCompile Include="enemyAttack00.cpp" />
     <ClCompile Include="enemyBossDragon.cpp" />
     <ClCompile Include="enemyMiniDragon.cpp" />
     <ClCompile Include="fade.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="effect3D.h" />
     <ClInclude Include="enemy.h" />
     <ClInclude Include="enemyAttack.h" />
+    <ClInclude Include="enemyAttack00.h" />
     <ClInclude Include="enemyBossDragon.h" />
     <ClInclude Include="enemyMiniDragon.h" />
     <ClInclude Include="fade.h" />
