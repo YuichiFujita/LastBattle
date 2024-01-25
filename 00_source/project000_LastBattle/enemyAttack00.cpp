@@ -15,6 +15,23 @@
 #include "impact.h"
 
 //************************************************************
+//	定数宣言
+//************************************************************
+namespace
+{
+	const CWave::SGrow IMPACT_GROW		= CWave::SGrow(6.0f, 0.0f, 0.0f);	// 成長量
+	const CWave::SGrow IMPACT_ADDGROW	= CWave::SGrow(0.2f, 0.002f, 0.0f);	// 成長加速量
+
+	const float	IMPACT_HOLE_RADIUS	= 10.0f;	// 穴の半径
+	const float	IMPACT_THICKNESS	= 0.0f;		// 太さ
+	const float	IMPACT_OUTER_PLUSY	= 25.0f;	// 外周のY座標加算量
+	const float	IMPACT_MAX_RADIUS	= 3000.0f;	// 半径の最大成長量
+	const float	TELEPORT_POS_DIS	= 1200.0f;	// テレポート時のプレイヤー位置から遠ざける距離
+	const int	ATTACK_WAIT_FRAME	= 10;		// 攻撃後の硬直フレーム
+	const int	MAX_ATTACK			= 3;		// 攻撃回数
+}
+
+//************************************************************
 //	子クラス [CEnemyAttack00] のメンバ関数
 //************************************************************
 //============================================================
@@ -92,8 +109,8 @@ bool CEnemyAttack00::Update(void)
 		D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き
 
 		// プレイヤーからランダム方向に遠ざけた位置を設定
-		posEnemy.x += posPlayer.x + sinf(fRandRot) * 1200.0f;
-		posEnemy.z += posPlayer.z + cosf(fRandRot) * 1200.0f;
+		posEnemy.x += posPlayer.x + sinf(fRandRot) * TELEPORT_POS_DIS;
+		posEnemy.z += posPlayer.z + cosf(fRandRot) * TELEPORT_POS_DIS;
 
 		// プレイヤー方向を設定
 		D3DXVECTOR3 vec = posEnemy - posPlayer;
@@ -141,18 +158,18 @@ bool CEnemyAttack00::Update(void)
 		{ // モーションが地面を殴ったタイミングの場合
 
 			// 波動の生成
-			D3DXMATRIX  mtx = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();
-			D3DXVECTOR3 pos = D3DXVECTOR3(mtx._41, pBoss->GetVec3Position().y, mtx._43);
+			D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス
+			D3DXVECTOR3 posHandL = D3DXVECTOR3(mtxHandL._41, pBoss->GetVec3Position().y, mtxHandL._43);	// 左手のワールド座標
 			CImpact::Create
 			( // 引数
-				CWave::TEXTURE_NONE,
-				pos,
-				CWave::SGrow(6.0f, 0.0f, 0.0f),
-				CWave::SGrow(0.2f, 0.0f, 0.0f),
-				10.0f,
-				0.0f,
-				25.0f,
-				3000.0f
+				CWave::TEXTURE_NONE,	// 種類
+				posHandL,				// 位置
+				IMPACT_GROW,			// 成長量
+				IMPACT_ADDGROW,			// 成長加速量
+				IMPACT_HOLE_RADIUS,		// 穴の半径
+				IMPACT_THICKNESS,		// 太さ
+				IMPACT_OUTER_PLUSY,		// 外周のY座標加算量
+				IMPACT_MAX_RADIUS		// 半径の最大成長量
 			);
 
 			// 攻撃回数を加算
@@ -165,19 +182,21 @@ bool CEnemyAttack00::Update(void)
 	{
 		// カウンターを加算
 		m_nCounterState++;
-		if (m_nCounterState >= 10)
+		if (m_nCounterState >= ATTACK_WAIT_FRAME)
 		{ // 待機が完了した場合
 
 			// カウンターを初期化
 			m_nCounterState = 0;
 
-			if (m_nCounterNumAtk < 3)
-			{
+			if (m_nCounterNumAtk < MAX_ATTACK)
+			{ // 攻撃回数が総数に到達していない場合
+
 				// テレポート初期化状態にする
 				m_state = STATE_INIT_TELEPORT;
 			}
 			else
-			{
+			{ // 攻撃回数が総数に到達した場合
+
 				// 攻撃回数を初期化
 				m_nCounterNumAtk = 0;
 
