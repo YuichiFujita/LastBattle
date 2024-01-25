@@ -51,7 +51,7 @@ public:
 private:
 	// オーバーライド関数
 	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
-	void UpdateMotion(const int nMotion) override;	// モーション・オブジェクトキャラクターの更新
+	void UpdateMotion(void) override;	// モーション・オブジェクトキャラクターの更新
 };
 
 #endif	// _ENEMY_MINI_DRAGON_H_
