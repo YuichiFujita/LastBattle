@@ -91,7 +91,9 @@ public:
 	void SetMotionInfo(const EBody bodyID, CMotion::SMotionInfo info);	// モーション情報設定
 
 	int  GetMotionType(const EBody bodyID) const;			// モーション種類取得
-	int  GetMotionPose(const EBody bodyID) const;			// モーションポーズ番号取得
+	int  GetMotionNumType(const EBody bodyID) const;		// モーション種類総数取得
+	int  GetMotionKey(const EBody bodyID) const;			// モーションキー番号取得
+	int  GetMotionNumKey(const EBody bodyID) const;			// モーションキー総数取得
 	int  GetMotionKeyCounter(const EBody bodyID) const;		// モーションキーカウンター取得
 	int  GetMotionWholeCounter(const EBody bodyID) const;	// モーション全体カウンター取得
 	int  GetMotionWholeFrame(const EBody bodyID) const;		// モーション全体フレーム数取得

@@ -67,7 +67,8 @@ public:
 	// ó‘Ô—ñ‹“
 	enum EState
 	{
-		STATE_WAVE = 0,	// ”g“®”­ŽË
+		STATE_SET = 0,	// ‰ŠúÝ’è
+		STATE_WAVE,		// ”g“®”­ŽË
 		STATE_WAIT,		// ‘Ò‹@
 		STATE_END,		// I—¹
 		STATE_MAX		// ‚±‚Ì—ñ‹“Œ^‚Ì‘”

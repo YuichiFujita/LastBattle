@@ -136,7 +136,7 @@ HRESULT CEnemy::Init(void)
 		lifeInfo::BACK_COL		// 裏ゲージ色
 	);
 
-	for (int nCntEnemy = 0; nCntEnemy < m_motion.nNumMotion; nCntEnemy++)
+	for (int nCntEnemy = 0; nCntEnemy < m_motion.nNumType; nCntEnemy++)
 	{ // 読み込んだモーション数分繰り返す
 
 		// モーション情報の設定
@@ -1150,10 +1150,10 @@ void CEnemy::LoadSetup(const EType typeID)
 				} while (strcmp(&aString[0], "END_MOTIONSET") != 0);	// 読み込んだ文字列が END_MOTIONSET ではない場合ループ
 
 				// モーション情報の設定
-				m_aMotionInfo[typeID].aMotionInfo[m_aMotionInfo[typeID].nNumMotion] = info;
+				m_aMotionInfo[typeID].aMotionInfo[m_aMotionInfo[typeID].nNumType] = info;
 
 				// モーション数を加算
-				m_aMotionInfo[typeID].nNumMotion++;
+				m_aMotionInfo[typeID].nNumType++;
 			}
 		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
 		

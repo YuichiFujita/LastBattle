@@ -10,6 +10,7 @@
 #include "enemyAttack.h"
 #include "manager.h"
 #include "enemyBossDragon.h"
+#include "multiModel.h"
 #include "wave.h"
 
 //************************************************************
@@ -152,7 +153,7 @@ HRESULT CEnemyAttack00::Init(void)
 {
 	// メンバ変数を初期化
 	m_pWave = nullptr;		// 波動の情報
-	m_state = STATE_WAVE;	// 状態
+	m_state = STATE_SET;	// 状態
 	m_nCounterState	= 0;	// 状態管理カウンター
 	m_nCreateWave	= 0;	// 波動の生成数
 
@@ -183,10 +184,21 @@ void CEnemyAttack00::Uninit(void)
 //============================================================
 bool CEnemyAttack00::Update(void)
 {
-	// TODO：攻撃処理しっかりと
-#if 0
+	// ポインタを宣言
+	CEnemyBossDragon *pBoss = GetBossDragon();	// ボスドラゴンの情報
+
 	switch (m_state)
 	{ // 状態ごとの処理
+	case STATE_SET:
+
+		// 地面殴りの行動を設定
+		pBoss->SetActPunchGround();
+
+		// 波動発射状態にする
+		m_state = STATE_WAVE;
+
+		// このまま処理を抜けずに次へ
+
 	case STATE_WAVE:
 
 		if (m_pWave != nullptr)
@@ -194,16 +206,12 @@ bool CEnemyAttack00::Update(void)
 
 			// 波動の速度を上げる
 			CWave::SGrow grow = m_pWave->GetGrow();
-			m_pWave->SetGrow(CWave::SGrow(grow.fAddHoleRadius + 0.1f, grow.fAddThickness, grow.fSubAlpha));
+			m_pWave->SetGrow(CWave::SGrow(grow.fAddHoleRadius + 0.25f, grow.fAddThickness, grow.fSubAlpha));
 		}
 
-		// カウンターを加算
-		m_nCounterState++;
-		if (m_nCounterState > 120)
+		if (pBoss->GetMotionKey() == pBoss->GetMotionNumKey() - 1
+		&&  pBoss->GetMotionKeyCounter() == 0)
 		{ // 攻撃の余韻が終了した場合
-
-			// カウンターを初期化
-			m_nCounterState = 0;
 
 			if (m_pWave != nullptr)
 			{ // 波動がある場合
@@ -212,31 +220,33 @@ bool CEnemyAttack00::Update(void)
 				m_pWave->SetGrow(CWave::SGrow(6.0f, 0.0f, 0.05f));
 			}
 
-			// 波動の生成数を加算
-			m_nCreateWave++;
-			if (m_nCreateWave > 3)
-			{ // 生成仕切った場合
+			//// 波動の生成数を加算
+			//m_nCreateWave++;
+			//if (m_nCreateWave > 3)
+			//{ // 生成仕切った場合
 
-				// 生成数を初期化
-				m_nCreateWave = 0;
+			//	// 生成数を初期化
+			//	m_nCreateWave = 0;
 
 				// 待機状態にする
 				m_state = STATE_WAIT;
 
-				return false;
-			}
+			//	return false;
+			//}
 			
 			// 波動の生成
+			D3DXMATRIX  mtx = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();
+			D3DXVECTOR3 pos = D3DXVECTOR3(mtx._41, GetBossDragon()->GetVec3Position().y, mtx._43);
 			m_pWave = CWave::Create
 			( // 引数
 				CWave::TEXTURE_NONE,
-				GetBossDragon()->GetVec3Position(),
+				pos,
 				VEC3_ZERO,
 				XCOL_BLUE,
-				CWave::SGrow(2.0f * (m_nCreateWave + 1), 0.0f, 0.0f),
+				CWave::SGrow(6.0f, 0.0f, 0.0f),
 				POSGRID2(64, 1),
 				POSGRID2(8, 1),
-				100.0f,
+				10.0f,
 				0.0f, 
 				25.0f
 			);
@@ -261,6 +271,8 @@ bool CEnemyAttack00::Update(void)
 			m_state = STATE_END;
 		}
 
+		break;
+
 	case STATE_END:
 
 		// 攻撃終了を返す
@@ -270,7 +282,6 @@ bool CEnemyAttack00::Update(void)
 		assert(false);
 		break;
 	}
-#endif
 
 	return false;
 }

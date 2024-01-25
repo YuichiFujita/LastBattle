@@ -626,7 +626,7 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 	case L_MOTION_MOVE:	// 移動モーション：ループON
 
-		if (GetMotionPose(BODY_LOWER) % WALK_SOUND == 0 && GetMotionKeyCounter(BODY_LOWER) == 0)
+		if (GetMotionKey(BODY_LOWER) % WALK_SOUND == 0 && GetMotionKeyCounter(BODY_LOWER) == 0)
 		{ // 足がついたタイミングの場合
 
 			// 歩行音の再生

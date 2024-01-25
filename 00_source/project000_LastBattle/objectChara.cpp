@@ -504,12 +504,30 @@ int CObjectChara::GetMotionType(void) const
 }
 
 //============================================================
-//	モーションポーズ番号取得処理
+//	モーション種類の総数取得処理
 //============================================================
-int CObjectChara::GetMotionPose(void) const
+int CObjectChara::GetMotionNumType(void) const
 {
-	// モーションのポーズ番号を返す
-	return m_pMotion->GetPose();
+	// モーションの種類の総数を返す
+	return m_pMotion->GetNumType();
+}
+
+//============================================================
+//	モーションキー番号取得処理
+//============================================================
+int CObjectChara::GetMotionKey(void) const
+{
+	// モーションのキー番号を返す
+	return m_pMotion->GetKey();
+}
+
+//============================================================
+//	モーションキーの総数取得処理
+//============================================================
+int CObjectChara::GetMotionNumKey(void) const
+{
+	// 現在モーションのキーの総数を返す
+	return m_pMotion->GetNumKey(m_pMotion->GetType());
 }
 
 //============================================================

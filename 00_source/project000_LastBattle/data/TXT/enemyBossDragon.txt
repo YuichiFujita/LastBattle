@@ -726,7 +726,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 14
+		FRAME = 24
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 31.50 -101.00 58.80
@@ -1038,7 +1038,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 5
+		FRAME = 4
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 15.89 -97.94 44.23
@@ -1194,7 +1194,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 20
+		FRAME = 30
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 5.30 -118.80 0.00
@@ -1350,7 +1350,7 @@ MOTIONSET
 	
 	KEYSET
 	
-		FRAME = 20
+		FRAME = 30
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 5.30 -118.80 0.00

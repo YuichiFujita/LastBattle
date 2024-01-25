@@ -394,15 +394,49 @@ int CObjectDivChara::GetMotionType(const EBody bodyID) const
 }
 
 //============================================================
-//	モーションポーズ番号取得処理
+//	モーション種類の総数取得処理
 //============================================================
-int CObjectDivChara::GetMotionPose(const EBody bodyID) const
+int CObjectDivChara::GetMotionNumType(const EBody bodyID) const
 {
 	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
 	{ // 正規インデックスの場合
 
-		// 引数インデックスのモーションポーズ番号を返す
-		return m_apBody[bodyID]->GetMotionPose();
+		// 引数インデックスのモーション種類の総数を返す
+		return m_apBody[bodyID]->GetMotionNumType();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return NONE_IDX;
+}
+
+//============================================================
+//	モーションキー番号取得処理
+//============================================================
+int CObjectDivChara::GetMotionKey(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションキー番号を返す
+		return m_apBody[bodyID]->GetMotionKey();
+	}
+
+	// インデックスエラー
+	assert(false);
+	return NONE_IDX;
+}
+
+//============================================================
+//	モーションキーの総数取得処理
+//============================================================
+int CObjectDivChara::GetMotionNumKey(const EBody bodyID) const
+{
+	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
+	{ // 正規インデックスの場合
+
+		// 引数インデックスのモーションキーの総数を返す
+		return m_apBody[bodyID]->GetMotionNumKey();
 	}
 
 	// インデックスエラー

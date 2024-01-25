@@ -76,9 +76,9 @@ public:
 	struct SInfo
 	{
 		SMotionInfo aMotionInfo[motion::MAX_MOTION];	// モーション情報
-		int  nNumMotion;	// モーション総数
+		int  nNumType;		// モーション種類総数
 		int  nType;			// モーション種類
-		int  nPose;			// モーションポーズ番号
+		int  nKey;			// モーションキー番号
 		int  nKeyCounter;	// モーションキーカウンター
 		int  nWholeCounter;	// モーション全体カウンター
 		bool bFinish;		// モーション終了状況
@@ -93,7 +93,9 @@ public:
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
 	void SetModel(CMultiModel **ppModel, const int nNum);	// モデル情報設定
 	int  GetType(void) const;					// 種類取得
-	int  GetPose(void) const;					// ポーズ番号取得
+	int  GetNumType(void) const;				// 種類総数取得
+	int  GetKey(void) const;					// キー番号取得
+	int  GetNumKey(const int nType) const;		// キー総数取得
 	int  GetKeyCounter(void) const;				// モーションキーカウンター取得
 	int  GetWholeCounter(void) const;			// モーション全体カウンター取得
 	int  GetWholeFrame(const int nType) const;	// モーション全体フレーム数取得

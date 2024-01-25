@@ -81,7 +81,9 @@ public:
 	float GetMaxAlpha(void) const;			// 最大透明度取得
 	int GetNumModel(void) const;			// パーツ総数取得
 	int GetMotionType(void) const;			// モーション種類取得
-	int GetMotionPose(void) const;			// モーションポーズ番号取得
+	int GetMotionNumType(void) const;		// モーション種類総数取得
+	int GetMotionKey(void) const;			// モーションキー番号取得
+	int GetMotionNumKey(void) const;		// モーションキー総数取得
 	int GetMotionKeyCounter(void) const;	// モーションキーカウンター取得
 	int GetMotionWholeCounter(void) const;	// モーション全体カウンター取得
 	int GetMotionWholeFrame(void) const;	// モーション全体フレーム数取得

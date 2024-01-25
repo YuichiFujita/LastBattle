@@ -84,57 +84,57 @@ void CMotion::Update(void)
 	if (m_info.aMotionInfo[m_info.nType].nNumKey <= 0)	{ return; }	// キー数未設定
 
 	// 変数を宣言
-	D3DXVECTOR3 diffPos;		// 次ポーズまでの差分位置
-	D3DXVECTOR3 diffRot;		// 次ポーズまでの差分向き
+	D3DXVECTOR3 diffPos;		// 次キーまでの差分位置
+	D3DXVECTOR3 diffRot;		// 次キーまでの差分向き
 	D3DXVECTOR3 currentPos;		// 現在フレームの位置
 	D3DXVECTOR3 currentRot;		// 現在フレームの向き
 	int nType = m_info.nType;	// モーション種類
-	int nPose = m_info.nPose;	// モーションポーズ番号
-	int nNextPose;				// 次のモーションポーズ番号
+	int nKey  = m_info.nKey;	// モーションキー番号
+	int nNextKey;				// 次のモーションキー番号
 
-	// 次のモーションポーズ番号を求める
-	nNextPose = (nPose + 1) % m_info.aMotionInfo[nType].nNumKey;
+	// 次のモーションキー番号を求める
+	nNextKey = (nKey + 1) % m_info.aMotionInfo[nType].nNumKey;
 
 	// パーツの位置の更新
 	for (int nCntKey = 0; nCntKey < m_nNumModel; nCntKey++)
 	{ // モデルのパーツ数分繰り返す
 
 		// 位置・向きの差分を求める
-		diffPos = m_info.aMotionInfo[nType].aKeyInfo[nNextPose].aKey[nCntKey].pos - m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].pos;
-		diffRot = m_info.aMotionInfo[nType].aKeyInfo[nNextPose].aKey[nCntKey].rot - m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].rot;
+		diffPos = m_info.aMotionInfo[nType].aKeyInfo[nNextKey].aKey[nCntKey].pos - m_info.aMotionInfo[nType].aKeyInfo[nKey].aKey[nCntKey].pos;
+		diffRot = m_info.aMotionInfo[nType].aKeyInfo[nNextKey].aKey[nCntKey].rot - m_info.aMotionInfo[nType].aKeyInfo[nKey].aKey[nCntKey].rot;
 
 		// 差分向きの正規化
 		useful::Vec3NormalizeRot(diffRot);
 
 		// 現在のパーツの位置・向きを更新
-		float fRate = (float)m_info.nKeyCounter / (float)m_info.aMotionInfo[nType].aKeyInfo[nPose].nFrame;	// キーフレーム割合
-		m_ppModel[nCntKey]->SetVec3Position(m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].pos + diffPos * fRate);
-		m_ppModel[nCntKey]->SetVec3Rotation(m_info.aMotionInfo[nType].aKeyInfo[nPose].aKey[nCntKey].rot + diffRot * fRate);
+		float fRate = (float)m_info.nKeyCounter / (float)m_info.aMotionInfo[nType].aKeyInfo[nKey].nFrame;	// キーフレーム割合
+		m_ppModel[nCntKey]->SetVec3Position(m_info.aMotionInfo[nType].aKeyInfo[nKey].aKey[nCntKey].pos + diffPos * fRate);
+		m_ppModel[nCntKey]->SetVec3Rotation(m_info.aMotionInfo[nType].aKeyInfo[nKey].aKey[nCntKey].rot + diffRot * fRate);
 	}
 
 	// モーションの遷移の更新
-	if (m_info.nKeyCounter < m_info.aMotionInfo[nType].aKeyInfo[nPose].nFrame)
-	{ // 現在のポーズの再生が終了しない場合
+	if (m_info.nKeyCounter < m_info.aMotionInfo[nType].aKeyInfo[nKey].nFrame)
+	{ // 現在のキーの再生が終了しない場合
 
 		// カウンターを加算
 		m_info.nKeyCounter++;
 		m_info.nWholeCounter++;
 	}
 	else
-	{ // 現在のポーズの再生が終了した場合
+	{ // 現在のキーの再生が終了した場合
 
-		// 次のポーズに移行
+		// 次のキーに移行
 		if (m_info.aMotionInfo[nType].bLoop)
 		{ // モーションがループする場合
 
 			// キーカウンターを初期化
 			m_info.nKeyCounter = 0;
 
-			// ポーズカウントを加算
-			m_info.nPose = (m_info.nPose + 1) % m_info.aMotionInfo[nType].nNumKey;	// 最大値で0に戻す
+			// キーカウントを加算
+			m_info.nKey = (m_info.nKey + 1) % m_info.aMotionInfo[nType].nNumKey;	// 最大値で0に戻す
 
-			if (m_info.nPose == 0)
-			{ // ポーズが最初に戻った場合
+			if (m_info.nKey == 0)
+			{ // キーが最初に戻った場合
 
 				// 全体カウンターを初期化
 				m_info.nWholeCounter = 0;
@@ -143,17 +143,17 @@ void CMotion::Update(void)
 		else
 		{ // モーションがループしない場合
 
-			if (m_info.nPose < m_info.aMotionInfo[nType].nNumKey - 2)
-			{ // 現在のポーズが最終のポーズではない場合
+			if (m_info.nKey < m_info.aMotionInfo[nType].nNumKey - 2)
+			{ // 現在のキーが最終のキーではない場合
 
 				// キーカウンターを初期化
 				m_info.nKeyCounter = 0;
 
-				// ポーズカウントを加算
-				m_info.nPose++;
+				// キーカウントを加算
+				m_info.nKey++;
 			}
 			else
-			{ // 現在のポーズが最終のポーズの場合
+			{ // 現在のキーが最終のキーの場合
 
 				// モーションを終了状態にする
 				m_info.bFinish = true;
@@ -168,7 +168,7 @@ void CMotion::Update(void)
 void CMotion::Set(const int nType)
 {
 	// モーション情報を初期化
-	m_info.nPose		 = 0;		// モーションポーズ番号
+	m_info.nKey			 = 0;		// モーションキー番号
 	m_info.nKeyCounter	 = 0;		// モーションキーカウンター
 	m_info.nWholeCounter = 0;		// モーション全体カウンター
 	m_info.bFinish		 = false;	// モーション終了状況
@@ -184,8 +184,8 @@ void CMotion::Set(const int nType)
 	{ // モデルのパーツ数分繰り返す
 
 		// 初期位置と初期向きを設定
-		m_ppModel[nCntKey]->SetVec3Position(m_info.aMotionInfo[nType].aKeyInfo[m_info.nPose].aKey[nCntKey].pos);
-		m_ppModel[nCntKey]->SetVec3Rotation(m_info.aMotionInfo[nType].aKeyInfo[m_info.nPose].aKey[nCntKey].rot);
+		m_ppModel[nCntKey]->SetVec3Position(m_info.aMotionInfo[nType].aKeyInfo[m_info.nKey].aKey[nCntKey].pos);
+		m_ppModel[nCntKey]->SetVec3Rotation(m_info.aMotionInfo[nType].aKeyInfo[m_info.nKey].aKey[nCntKey].rot);
 	}
 }
 
@@ -195,23 +195,23 @@ void CMotion::Set(const int nType)
 void CMotion::SetInfo(const SMotionInfo info)
 {
 	// 引数のモーション情報を設定
-	m_info.aMotionInfo[m_info.nNumMotion] = info;
+	m_info.aMotionInfo[m_info.nNumType] = info;
 
 	// モーション全体フレーム数を設定
-	int nSubKey = (m_info.aMotionInfo[m_info.nNumMotion].bLoop) ? 0 : 1;	// ループしない場合最後のキーは含まない
-	int nLoop = m_info.aMotionInfo[m_info.nNumMotion].nNumKey - nSubKey;	// 繰り返し数を求める
+	int nSubKey = (m_info.aMotionInfo[m_info.nNumType].bLoop) ? 0 : 1;	// ループしない場合最後のキーは含まない
+	int nLoop = m_info.aMotionInfo[m_info.nNumType].nNumKey - nSubKey;	// 繰り返し数を求める
 	for (int nCntKey = 0; nCntKey < nLoop; nCntKey++)
 	{ // キーの総数分繰り返す
 
 		// キーのフレーム数を加算
-		m_info.aMotionInfo[m_info.nNumMotion].nWholeFrame += m_info.aMotionInfo[m_info.nNumMotion].aKeyInfo[nCntKey].nFrame;
+		m_info.aMotionInfo[m_info.nNumType].nWholeFrame += m_info.aMotionInfo[m_info.nNumType].aKeyInfo[nCntKey].nFrame;
 	}
 
 	// モーションの情報数を加算
-	m_info.nNumMotion++;
+	m_info.nNumType++;
 
 	// 例外処理
-	assert(m_info.nNumMotion <= motion::MAX_MOTION);	// モーション数オーバー
+	assert(m_info.nNumType <= motion::MAX_MOTION);	// モーション数オーバー
 }
 
 //============================================================
@@ -248,12 +248,31 @@ int CMotion::GetType(void) const
 }
 
 //============================================================
-//	ポーズ番号取得処理
+//	種類の総数取得処理
 //============================================================
-int CMotion::GetPose(void) const
+int CMotion::GetNumType(void) const
 {
-	// 現在のポーズ番号を返す
-	return m_info.nPose;
+	// モーションの種類の総数を返す
+	return m_info.nNumType;
+}
+
+//============================================================
+//	キー番号取得処理
+//============================================================
+int CMotion::GetKey(void) const
+{
+	// 現在のキー番号を返す
+	return m_info.nKey;
+}
+
+//============================================================
+//	キーの総数取得処理
+//============================================================
+int CMotion::GetNumKey(const int nType) const
+{
+	// 引数モーションのキーの総数を返す
+	int nSubKey = (m_info.aMotionInfo[m_info.nNumType].bLoop) ? 0 : 1;	// ループしない場合最後のキーは含まない
+	return m_info.aMotionInfo[nType].nNumKey - nSubKey;
 }
 
 //============================================================
