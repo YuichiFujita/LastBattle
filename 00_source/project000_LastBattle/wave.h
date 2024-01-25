@@ -86,8 +86,9 @@ public:
 	);
 
 	// メンバ関数
-	void SetGrow(const SGrow& rGrow);	// 成長情報設定
-	SGrow GetGrow(void) const;			// 成長情報取得
+	void SetTexture(const ETexture texture);	// テクスチャ設定
+	void SetGrow(const SGrow& rGrow);			// 成長情報設定
+	SGrow GetGrow(void) const;					// 成長情報取得
 
 private:
 	// メンバ変数

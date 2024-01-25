@@ -12,7 +12,7 @@
 #include "manager.h"
 #include "player.h"
 #include "multiModel.h"
-#include "wave.h"
+#include "impact.h"
 
 //************************************************************
 //	子クラス [CEnemyAttack00] のメンバ関数
@@ -143,18 +143,16 @@ bool CEnemyAttack00::Update(void)
 			// 波動の生成
 			D3DXMATRIX  mtx = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();
 			D3DXVECTOR3 pos = D3DXVECTOR3(mtx._41, pBoss->GetVec3Position().y, mtx._43);
-			CWave::Create
+			CImpact::Create
 			( // 引数
 				CWave::TEXTURE_NONE,
 				pos,
-				VEC3_ZERO,
-				XCOL_BLUE,
 				CWave::SGrow(6.0f, 0.0f, 0.0f),
-				POSGRID2(64, 1),
-				POSGRID2(8, 1),
+				CWave::SGrow(0.2f, 0.0f, 0.0f),
 				10.0f,
 				0.0f,
-				25.0f
+				25.0f,
+				3000.0f
 			);
 
 			// 攻撃回数を加算

@@ -303,18 +303,6 @@ void CEnemyBossDragon::UpdateMotion(void)
 //============================================================
 void CEnemyBossDragon::UpdateNormal(void)
 {
-	// TODO：テレポートお試し
-	if (GET_INPUTKEY->IsTrigger(DIK_0))
-	{
-		SetTeleport(VEC3_ZERO, VEC3_ZERO);
-	}
-
-	// TODO：地面殴りお試し
-	if (GET_INPUTKEY->IsTrigger(DIK_1))
-	{
-		SetActPunchGround();
-	}
-
 	// 攻撃の更新
 	UpdateAttack();
 

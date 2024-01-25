@@ -168,6 +168,7 @@
     <ClCompile Include="gameManager.cpp" />
     <ClCompile Include="gauge2D.cpp" />
     <ClCompile Include="gauge3D.cpp" />
+    <ClCompile Include="impact.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="liquid.cpp" />
@@ -253,6 +254,7 @@
     <ClInclude Include="gameManager.h" />
     <ClInclude Include="gauge2D.h" />
     <ClInclude Include="gauge3D.h" />
+    <ClInclude Include="impact.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="liquid.h" />

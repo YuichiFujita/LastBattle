@@ -187,8 +187,8 @@ CWave *CWave::Create
 			return nullptr;
 		}
 
-		// テクスチャを登録・割当
-		pWave->BindTexture(GET_MANAGER->GetTexture()->Regist(TEXTURE_FILE[texture]));
+		// テクスチャを設定
+		pWave->SetTexture(texture);
 
 		// 位置を設定
 		pWave->SetVec3Position(rPos);
@@ -226,6 +226,17 @@ CWave *CWave::Create
 		// 確保したアドレスを返す
 		return pWave;
 	}
+}
+
+//============================================================
+//	テクスチャの設定処理
+//============================================================
+void CWave::SetTexture(const ETexture texture)
+{
+	if (texture <= NONE_IDX || texture >= TEXTURE_MAX) { assert(false); return; }	// テクスチャインデックスが非正規
+
+	// テクスチャを登録・割当
+	BindTexture(GET_MANAGER->GetTexture()->Regist(TEXTURE_FILE[texture]));
 }
 
 //============================================================
