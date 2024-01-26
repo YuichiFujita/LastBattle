@@ -30,6 +30,7 @@ namespace player
 class CObjectChara;	// オブジェクトキャラクタークラス
 class CMultiModel;	// マルチモデルクラス
 class CSword;		// 剣クラス
+class CGauge2D;		// ゲージ2Dクラス
 class CShadow;		// 影クラス
 
 //************************************************************
@@ -92,6 +93,9 @@ public:
 		STATE_NONE = 0,	// 何もしない状態
 		STATE_SPAWN,	// スポーン状態
 		STATE_NORMAL,	// 通常状態
+		STATE_DAMAGE,	// ダメージ状態
+		STATE_INVULN,	// 無敵状態
+		STATE_DEATH,	// 死亡状態
 		STATE_MAX		// この列挙型の総数
 	};
 
@@ -106,13 +110,10 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
-	void Hit(void) override;		// ヒット
-
 	void SetState(const int nState) override;	// 状態設定
 	int  GetState(void) const override;			// 状態取得
 	float GetRadius(void) const override;		// 半径取得
 	float GetHeight(void) const override;		// 縦幅取得
-
 	void SetEnableUpdate(const bool bUpdate) override;	// 更新状況設定
 	void SetEnableDraw(const bool bDraw) override;		// 描画状況設定
 	D3DXMATRIX CalcMtxWorld(void) const override;		// マトリックス計算結果取得
@@ -122,7 +123,10 @@ public:
 	static CListManager<CPlayer> *GetList(void);	// リスト取得
 
 	// メンバ関数
-	void SetSpawn(void);	// 出現設定
+	void Hit(const int nDamage);	// ヒット
+	void HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKnock);	// ノックバックヒット
+	void SetSpawn(void);	// スポーン設定
+	void SetInvuln(void);	// 無敵設定
 
 private:
 	// 回避構造体
@@ -177,6 +181,8 @@ private:
 
 	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
+	void UpdateDamage(int *pLowMotion, int *pUpMotion);	// ダメージ状態時の更新
+	void UpdateInvuln(int *pLowMotion, int *pUpMotion);	// 無敵状態時の更新
 
 	void UpdateAttack(void);	// 攻撃操作の更新
 	void UpdateDodge(void);		// 回避操作の更新
@@ -198,12 +204,14 @@ private:
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
 	CSword		*m_apSowrd[player::NUM_SWORD];		// 剣の情報
+	CGauge2D	*m_pLife;			// 体力の情報
 	CShadow		*m_pShadow;			// 影の情報
 	D3DXVECTOR3	m_oldPos;			// 過去位置
 	D3DXVECTOR3	m_move;				// 移動量
 	D3DXVECTOR3	m_destRot;			// 目標向き
 	EState		m_state;			// 状態
 	int			m_nCounterState;	// 状態管理カウンター
+	float		m_fSinAlpha;		// 透明向き
 	bool		m_bJump;			// ジャンプ状況
 	SDodge		m_dodge;			// 回避の情報
 	SBuffering	m_buffAttack;		// 攻撃の先行入力

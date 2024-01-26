@@ -16,6 +16,14 @@
 #include "player.h"
 
 //************************************************************
+//	定数宣言
+//************************************************************
+namespace
+{
+	const int GAMEEND_WAIT_FRAME = 120;	// リザルト画面への遷移余韻フレーム
+}
+
+//************************************************************
 //	親クラス [CGameManager] のメンバ関数
 //************************************************************
 //============================================================
@@ -70,7 +78,12 @@ void CGameManager::Update(void)
 
 	case STATE_NORMAL:
 
-		// 無し
+		if (CSceneGame::GetTimerManager()->GetState() == CTimerManager::STATE_END)
+		{ // 計測が終了していた場合
+
+			// リザルト画面に遷移させる
+			TransitionResult();
+		}
 
 		break;
 
@@ -87,38 +100,27 @@ void CGameManager::Update(void)
 }
 
 //============================================================
-//	状態の設定処理
-//============================================================
-void CGameManager::SetState(const EState state)
-{
-	if (m_state == STATE_END) { return; }	// 終了状態の場合抜ける
-
-	if (state > NONE_IDX && state < STATE_MAX)
-	{ // 範囲内の場合
-
-		// 状態を設定
-		m_state = state;
-
-		if (m_state == STATE_END)
-		{ // 終了が設定された場合
-
-			// タイマーの計測終了
-			CSceneGame::GetTimerManager()->End();
-
-			// リザルト画面に遷移
-			GET_MANAGER->SetScene(CScene::MODE_RESULT);
-		}
-	}
-	else { assert(false); }	// 範囲外
-}
-
-//============================================================
 //	状態取得処理
 //============================================================
 CGameManager::EState CGameManager::GetState(void) const
 {
 	// 状態を返す
 	return m_state;
+}
+
+//============================================================
+//	リザルト画面遷移処理
+//============================================================
+void CGameManager::TransitionResult(void)
+{
+	// 終了状態にする
+	m_state = STATE_END;
+
+	// タイマーの計測終了
+	CSceneGame::GetTimerManager()->End();
+
+	// リザルト画面に遷移
+	GET_MANAGER->SetScene(CScene::MODE_RESULT, GAMEEND_WAIT_FRAME);
 }
 
 //============================================================

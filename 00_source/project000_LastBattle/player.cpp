@@ -21,6 +21,7 @@
 #include "objectChara.h"
 #include "multiModel.h"
 #include "sword.h"
+#include "gauge2D.h"
 #include "shadow.h"
 #include "stage.h"
 #include "field.h"
@@ -85,6 +86,11 @@ namespace
 	const float	ADD_ALPHA	= 0.03f;	// 透明度の加算量
 	const int	WALK_SOUND	= 4;		// 歩行の効果音のキータイミング
 
+	const int	DAMAGE_FRAME	= 14;		// ダメージ状態の維持フレーム
+	const int	INVULN_FRAME	= 120;		// 無敵状態の維持フレーム
+	const float	INVULN_ALPHA	= 0.7f;		// 無敵状態の基礎透明度
+	const float	ADD_SINROT		= 0.2f;		// 透明度をふわふわさせる際のサインカーブ向き加算量
+	const float	MAX_ADD_ALPHA	= 0.25f;	// 透明度の最大加算量
 	const float	DODGE_REV_MOVE	= 0.065f;	// 回避移動量の減算係数
 	const float	DODGE_MIN_MOVE	= 0.35f;	// 回避移動量の最小値
 	const float	DODGE_SIDE_MOVE	= 3.8f;		// 回避の横移動量
@@ -92,6 +98,17 @@ namespace
 	const int	ATTACK_BUFFER_FRAME = 20;	// 攻撃の先行入力可能フレーム
 
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
+
+	// 体力の情報
+	namespace lifeInfo
+	{
+		const D3DXVECTOR3	POS			= D3DXVECTOR3(500.0f, 100.0f, 0.0f);	// 位置
+		const D3DXVECTOR3	SIZE_GAUGE	= D3DXVECTOR3(300.0f, 20.0f, 0.0f);		// ゲージ大きさ
+		const D3DXCOLOR		COL_FRONT	= XCOL_YELLOW;	// 表ゲージ色
+		const D3DXCOLOR		COL_BACK	= XCOL_RED;		// 裏ゲージ色
+		const int	MAX_LIFE		= 100;	// 最大表示値
+		const int	CHANGE_FRAME	= 10;	// 表示値変動フレーム
+	}
 }
 
 //************************************************************
@@ -119,17 +136,20 @@ static_assert(NUM_ARRAY(SWORD_OFFSET) == player::NUM_SWORD, "ERROR : Body Count 
 //	コンストラクタ
 //============================================================
 CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRIORITY),
+	m_pLife			(nullptr),		// 体力の情報
 	m_pShadow		(nullptr),		// 影の情報
 	m_oldPos		(VEC3_ZERO),	// 過去位置
 	m_move			(VEC3_ZERO),	// 移動量
 	m_destRot		(VEC3_ZERO),	// 目標向き
 	m_state			(STATE_NONE),	// 状態
+	m_fSinAlpha		(0.0f),			// 透明向き
 	m_bJump			(false),		// ジャンプ状況
 	m_nCounterState	(0)				// 状態管理カウンター
 {
 	// メンバ変数をクリア
-	memset(&m_dodge, 0, sizeof(m_dodge));			// 回避の情報
-	memset(&m_buffAttack, 0, sizeof(m_buffAttack));	// 攻撃の先行入力
+	memset(&m_apSowrd,		0, sizeof(m_apSowrd));		// 剣の情報
+	memset(&m_dodge,		0, sizeof(m_dodge));		// 回避の情報
+	memset(&m_buffAttack,	0, sizeof(m_buffAttack));	// 攻撃の先行入力
 }
 
 //============================================================
@@ -146,13 +166,16 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
-	memset(&m_dodge, 0, sizeof(m_dodge));			// 回避の情報
-	memset(&m_buffAttack, 0, sizeof(m_buffAttack));	// 攻撃の先行入力
+	memset(&m_apSowrd,		0, sizeof(m_apSowrd));		// 剣の情報
+	memset(&m_dodge,		0, sizeof(m_dodge));		// 回避の情報
+	memset(&m_buffAttack,	0, sizeof(m_buffAttack));	// 攻撃の先行入力
+	m_pLife			= nullptr;		// 体力の情報
 	m_pShadow		= nullptr;		// 影の情報
 	m_oldPos		= VEC3_ZERO;	// 過去位置
 	m_move			= VEC3_ZERO;	// 移動量
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NONE;	// 状態
+	m_fSinAlpha		= 0.0f;			// 透明向き
 	m_bJump			= true;			// ジャンプ状況
 	m_nCounterState	= 0;			// 状態管理カウンター
 
@@ -164,6 +187,17 @@ HRESULT CPlayer::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+
+	// 体力の生成
+	m_pLife = CGauge2D::Create
+	( // 引数
+		lifeInfo::MAX_LIFE,		// 最大表示値
+		lifeInfo::CHANGE_FRAME,	// 表示値変動フレーム
+		lifeInfo::POS,			// 位置
+		lifeInfo::SIZE_GAUGE,	// ゲージ大きさ
+		lifeInfo::COL_FRONT,	// 表ゲージ色
+		lifeInfo::COL_BACK		// 裏ゲージ色
+	);
 
 	// セットアップの読込
 	LoadSetup(BODY_LOWER, MODEL_PASS[BODY_LOWER]);
@@ -272,6 +306,7 @@ void CPlayer::Update(void)
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_NONE:
+	case STATE_DEATH:
 		break;
 
 	case STATE_SPAWN:
@@ -285,6 +320,20 @@ void CPlayer::Update(void)
 
 		// 通常状態の更新
 		UpdateNormal((int*)&curLowMotion, (int*)&curUpMotion);
+
+		break;
+
+	case STATE_DAMAGE:
+
+		// 通常状態の更新
+		UpdateDamage((int*)&curLowMotion, (int*)&curUpMotion);
+
+		break;
+
+	case STATE_INVULN:
+
+		// 無敵状態の更新
+		UpdateInvuln((int*)&curLowMotion, (int*)&curUpMotion);
 
 		break;
 
@@ -329,40 +378,6 @@ void CPlayer::Draw(void)
 		// 剣の描画
 		m_apSowrd[nCntSword]->Draw();
 	}
-}
-
-//============================================================
-//	ヒット処理
-//============================================================
-void CPlayer::Hit(void)
-{
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
-
-#if 0
-
-	if (IsDeath() != true)
-	{ // 死亡フラグが立っていない場合
-
-		if (m_state == STATE_NORMAL)
-		{ // 通常状態の場合
-
-			// カウンターを初期化
-			m_nCounterState = 0;
-
-			// 待機モーションを設定
-			SetMotion(MOTION_IDOL);
-
-			// 爆発パーティクルを生成
-			CParticle3D::Create(CParticle3D::TYPE_SMALL_EXPLOSION, D3DXVECTOR3(posPlayer.x, posPlayer.y + basic::HEIGHT * 0.5f, posPlayer.z));
-
-			// サウンドの再生
-			GET_MANAGER->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
-		}
-	}
-
-#endif
 }
 
 //============================================================
@@ -513,7 +528,82 @@ CListManager<CPlayer> *CPlayer::GetList(void)
 }
 
 //============================================================
-//	出現の設定処理
+//	ヒット処理
+//============================================================
+void CPlayer::Hit(const int nDamage)
+{
+	if (IsDeath())				 { return; }	// 死亡済み
+	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
+	if (m_pLife->GetNum() <= 0)	 { return; }	// 体力なし
+
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
+
+	// 体力にダメージを与える
+	m_pLife->AddNum(-nDamage);
+
+	if (m_pLife->GetNum() > 0)
+	{ // 体力が残っている場合
+
+		// ダメージ状態にする
+		SetState(STATE_DAMAGE);
+	}
+	else
+	{ // 体力が残っていない場合
+
+		// 死亡状態にする
+		SetState(STATE_DEATH);
+
+		if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
+		{ // ゲーム画面の場合
+
+			// リザルト画面に遷移させる
+			CSceneGame::GetGameManager()->TransitionResult();
+		}
+	}
+}
+
+//============================================================
+//	ノックバックヒット処理
+//============================================================
+void CPlayer::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
+{
+#if 0
+
+	if (IsDeath()) { return; }	// 死亡済み
+	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
+
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
+
+	// カウンターを初期化
+	m_nCounterState = 0;
+
+	// ノックバック移動量を設定
+	m_move.x = KNOCK_SIDE * vecKnock.x;
+	m_move.y = KNOCK_UP;
+	m_move.z = KNOCK_SIDE * vecKnock.z;
+
+	// ノックバック方向に向きを設定
+	rotPlayer.y = atan2f(vecKnock.x, vecKnock.z);	// 吹っ飛び向きを計算
+	SetVec3Rotation(rotPlayer);	// 向きを設定
+
+	// 空中状態にする
+	m_bJump = true;
+
+	// ノック状態を設定
+	SetState(STATE_KNOCK);
+
+	// サウンドの再生
+	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
+
+#endif
+}
+
+//============================================================
+//	スポーンの設定処理
 //============================================================
 void CPlayer::SetSpawn(void)
 {
@@ -521,8 +611,8 @@ void CPlayer::SetSpawn(void)
 	D3DXVECTOR3 setPos = VEC3_ZERO;	// 位置設定用
 	D3DXVECTOR3 setRot = VEC3_ZERO;	// 向き設定用
 
-	// 情報を初期化
-	SetState(STATE_SPAWN);	// スポーン状態の設定
+	// スポーン状態にする
+	SetState(STATE_SPAWN);
 
 	// カウンターを初期化
 	m_nCounterState = 0;	// 状態管理カウンター
@@ -559,6 +649,30 @@ void CPlayer::SetSpawn(void)
 
 	// サウンドの再生
 	GET_MANAGER->GetSound()->Play(CSound::LABEL_SE_SPAWN);	// 生成音
+}
+
+//============================================================
+//	無敵の設定処理
+//============================================================
+void CPlayer::SetInvuln(void)
+{
+	// 無敵状態にする
+	SetState(STATE_INVULN);
+
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// 透明向きを初期化
+	m_fSinAlpha = 0.0f;
+
+	// 描画を再開
+	SetEnableDraw(true);
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 無敵の基礎透明度を設定
+	SetAlpha(INVULN_ALPHA);
 }
 
 //============================================================
@@ -843,6 +957,70 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 
 	// 向きを反映
 	SetVec3Rotation(rotPlayer);
+}
+
+//============================================================
+//	ダメージ状態時の更新処理
+//============================================================
+void CPlayer::UpdateDamage(int *pLowMotion, int *pUpMotion)
+{
+	// 身体の色を赤くする
+	SetAllMaterial(material::DamageRed());
+
+	// 通常状態の更新
+	UpdateNormal(pLowMotion, pUpMotion);
+
+	// カウンターを加算
+	m_nCounterState++;
+	if (m_nCounterState > DAMAGE_FRAME)
+	{ // ダメージ状態の終了フレームになった場合
+
+		// カウンターを初期化
+		m_nCounterState = 0;
+
+		// 身体の色を元に戻す
+		ResetMaterial();
+
+		// 無敵状態にする
+		SetInvuln();
+	}
+}
+
+//============================================================
+//	無敵状態時の更新処理
+//============================================================
+void CPlayer::UpdateInvuln(int *pLowMotion, int *pUpMotion)
+{
+	// 変数を宣言
+	float fAddAlpha = 0.0f;	// 透明度の加算量
+
+	// サインカーブ向きを回転
+	m_fSinAlpha += ADD_SINROT;
+	useful::NormalizeRot(m_fSinAlpha);	// 向き正規化
+
+	// 透明度加算量を求める
+	fAddAlpha = (MAX_ADD_ALPHA / 2.0f) * (sinf(m_fSinAlpha) - 1.0f);
+
+	// 透明度を設定
+	SetAlpha(INVULN_ALPHA + fAddAlpha);
+
+	// 通常状態の更新
+	UpdateNormal(pLowMotion, pUpMotion);
+
+	// カウンターを加算
+	m_nCounterState++;
+	if (m_nCounterState > INVULN_FRAME)
+	{ // 無敵状態の終了フレームになった場合
+
+		// カウンターを初期化
+		m_nCounterState = 0;
+
+		// 不透明にする
+		SetAlpha(1.0f);
+
+		// 通常状態を設定
+		SetState(STATE_NORMAL);
+	}
 }
 
 //============================================================

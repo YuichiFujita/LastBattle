@@ -182,8 +182,8 @@ void CEnemyBossDragon::Hit(const int nDamage)
 		if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
 		{ // ƒQ[ƒ€‰æ–Ê‚Ìê‡
 
-			// ƒQ[ƒ€‰æ–Ê‚ðI—¹ó‘Ô‚É‚·‚é
-			CSceneGame::GetGameManager()->SetState(CGameManager::STATE_END);
+			// ƒŠƒUƒ‹ƒg‰æ–Ê‚É‘JˆÚ‚³‚¹‚é
+			CSceneGame::GetGameManager()->TransitionResult();
 		}
 	}
 }
@@ -202,8 +202,8 @@ void CEnemyBossDragon::HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKno
 		if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
 		{ // ƒQ[ƒ€‰æ–Ê‚Ìê‡
 
-			// ƒQ[ƒ€‰æ–Ê‚ðI—¹ó‘Ô‚É‚·‚é
-			CSceneGame::GetGameManager()->SetState(CGameManager::STATE_END);
+			// ƒŠƒUƒ‹ƒg‰æ–Ê‚É‘JˆÚ‚³‚¹‚é
+			CSceneGame::GetGameManager()->TransitionResult();
 		}
 	}
 }

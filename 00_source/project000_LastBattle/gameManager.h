@@ -36,8 +36,8 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
-	void SetState(const EState state);	// 状態設定
-	EState GetState(void) const;		// 状態取得
+	EState GetState(void) const;	// 状態取得
+	void TransitionResult(void);	// リザルト画面遷移
 
 	// 静的メンバ関数
 	static CGameManager *Create(void);	// 生成

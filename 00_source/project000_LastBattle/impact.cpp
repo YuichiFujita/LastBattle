@@ -20,6 +20,7 @@ namespace
 	const POSGRID2	PART		= POSGRID2(64, 1);	// 分割数
 	const POSGRID2	TEX_PART	= POSGRID2(8, 1);	// テクスチャ分割数
 	const float		SUB_ALPHA	= 0.05f;			// 衝撃波の透明度減算量
+	const int		DMG_IMPACT	= 15;				// 衝撃波のダメージ量
 }
 
 //************************************************************
@@ -220,7 +221,8 @@ void CImpact::CollisionPlayer(void)
 		&&  fPlayerHead >= fImpactUp)
 		{ // 上下の範囲内の場合
 
-			CEffect3D::Create(posPlayer + D3DXVECTOR3(0.0f, 100.0f, 0.0f), 160.0f);
+			// プレイヤーのヒット処理
+			player->Hit(DMG_IMPACT);
 		}
 	}
 }
