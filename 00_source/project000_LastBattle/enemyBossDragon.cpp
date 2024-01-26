@@ -16,6 +16,7 @@
 #include "sceneGame.h"
 #include "gameManager.h"
 #include "magicCircle.h"
+#include "retentionManager.h"
 
 //************************************************************
 //	’è”éŒ¾
@@ -183,7 +184,7 @@ void CEnemyBossDragon::Hit(const int nDamage)
 		{ // ƒQ[ƒ€‰æ–Ê‚Ìê‡
 
 			// ƒŠƒUƒ‹ƒg‰æ–Ê‚É‘JˆÚ‚³‚¹‚é
-			CSceneGame::GetGameManager()->TransitionResult();
+			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
 		}
 	}
 }
@@ -203,7 +204,7 @@ void CEnemyBossDragon::HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKno
 		{ // ƒQ[ƒ€‰æ–Ê‚Ìê‡
 
 			// ƒŠƒUƒ‹ƒg‰æ–Ê‚É‘JˆÚ‚³‚¹‚é
-			CSceneGame::GetGameManager()->TransitionResult();
+			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
 		}
 	}
 }

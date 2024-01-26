@@ -16,11 +16,10 @@
 //============================================================
 //	コンストラクタ
 //============================================================
-CRetentionManager::CRetentionManager() :
-	m_result	(RESULT_NONE),	// クリア状況
-	m_nTime		(0)				// 経過タイム
+CRetentionManager::CRetentionManager()
 {
-
+	// メンバ変数をクリア
+	memset(&m_result, 0, sizeof(m_result));	// リザルト情報
 }
 
 //============================================================
@@ -37,8 +36,8 @@ CRetentionManager::~CRetentionManager()
 HRESULT CRetentionManager::Init(void)
 {
 	// メンバ変数を初期化
-	m_result = RESULT_NONE;	// クリア状況
-	m_nTime  = 0;			// 経過タイム
+	m_result.win	= WIN_NONE;	// 勝利状況
+	m_result.nTime	= 0;		// 経過タイム
 
 	// 成功を返す
 	return S_OK;
@@ -95,42 +94,33 @@ void CRetentionManager::Release(CRetentionManager *&prRetentionManager)
 }
 
 //============================================================
-//	クリア状況の設定処理
+//	リザルト情報の設定処理
 //============================================================
-void CRetentionManager::SetResult(const EResult result)
+void CRetentionManager::SetResult(const EWin win, const long nTime)
 {
-	if (result > RESULT_NONE && result < RESULT_MAX)
-	{ // リザルトが範囲内の場合
+	if (win <= WIN_NONE || win >= WIN_MAX) { assert(false); return; }	// 勝利が正規ではない
 
-		// 引数のクリア状況を設定
-		m_result = result;
-	}
-	else { assert(false); }	// 範囲外
-}
+	// 引数のクリア状況を設定
+	m_result.win = win;
 
-//============================================================
-//	クリア状況取得処理
-//============================================================
-CRetentionManager::EResult CRetentionManager::GetResult(void) const
-{
-	// クリア状況を返す
-	return m_result;
-}
-
-//============================================================
-//	経過タイムの設定処理
-//============================================================
-void CRetentionManager::SetTime(const long nTime)
-{
 	// 引数の経過タイムを設定
-	m_nTime = nTime;
+	m_result.nTime = nTime;
 }
 
 //============================================================
-//	経過タイム取得処理
+//	勝利状況の取得処理
+//============================================================
+CRetentionManager::EWin CRetentionManager::GetWin(void) const
+{
+	// 勝利状況を返す
+	return m_result.win;
+}
+
+//============================================================
+//	経過タイムの取得処理
 //============================================================
 long CRetentionManager::GetTime(void) const
 {
 	// 経過タイムを返す
-	return m_nTime;
+	return m_result.nTime;
 }

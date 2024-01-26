@@ -17,13 +17,13 @@
 class CRetentionManager
 {
 public:
-	// リザルト列挙
-	enum EResult
+	// 勝利列挙
+	enum EWin
 	{
-		RESULT_NONE,	// 無し
-		RESULT_FAILED,	// クリア失敗
-		RESULT_CLEAR,	// クリア成功
-		RESULT_MAX		// この列挙型の総数
+		WIN_NONE,	// 無し
+		WIN_FAILED,	// 勝利失敗
+		WIN_CLEAR,	// 勝利成功
+		WIN_MAX		// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -31,6 +31,13 @@ public:
 
 	// デストラクタ
 	~CRetentionManager();
+
+	// リザルト情報構造体
+	struct SResult
+	{
+		EWin win;	// 勝利状況
+		long nTime;	// 経過タイム
+	};
 
 	// メンバ関数
 	HRESULT Init(void);	// 初期化
@@ -41,15 +48,13 @@ public:
 	static void Release(CRetentionManager *&prRetentionManager);	// 破棄
 
 	// メンバ関数
-	void SetResult(const EResult result);	// クリア状況設定
-	EResult GetResult(void) const;			// クリア状況取得
-	void SetTime(const long nTime);			// 経過タイム設定
-	long GetTime(void) const;				// 経過タイム取得
+	void SetResult(const EWin win, const long nTime);	// リザルト情報設定
+	EWin GetWin(void) const;	// 勝利状況取得
+	long GetTime(void) const;	// 経過タイム取得
 
 private:
 	// メンバ変数
-	EResult m_result;	// クリア状況
-	long m_nTime;		// 経過タイム
+	SResult m_result;	// リザルト情報
 };
 
 #endif	// _RETENTION_MANAGER_H_

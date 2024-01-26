@@ -11,6 +11,11 @@
 #define _GAMEMANAGER_H_
 
 //************************************************************
+//	インクルードファイル
+//************************************************************
+#include "retentionManager.h"
+
+//************************************************************
 //	クラス定義
 //************************************************************
 // ゲームマネージャークラス
@@ -37,7 +42,7 @@ public:
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
 	EState GetState(void) const;	// 状態取得
-	void TransitionResult(void);	// リザルト画面遷移
+	void TransitionResult(const CRetentionManager::EWin win);	// リザルト画面遷移
 
 	// 静的メンバ関数
 	static CGameManager *Create(void);	// 生成

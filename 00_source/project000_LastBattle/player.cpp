@@ -17,6 +17,7 @@
 #include "texture.h"
 #include "collision.h"
 #include "fade.h"
+#include "retentionManager.h"
 
 #include "objectChara.h"
 #include "multiModel.h"
@@ -559,7 +560,7 @@ void CPlayer::Hit(const int nDamage)
 		{ // ƒQ[ƒ€‰æ–Ê‚Ìê‡
 
 			// ƒŠƒUƒ‹ƒg‰æ–Ê‚É‘JˆÚ‚³‚¹‚é
-			CSceneGame::GetGameManager()->TransitionResult();
+			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_FAILED);
 		}
 	}
 }

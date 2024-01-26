@@ -25,13 +25,13 @@ namespace
 {
 	const char *TEXTURE_FILE[] =	// テクスチャファイル
 	{
-		nullptr,	// 遅刻回避テクスチャ
-		nullptr,	// 成功テクスチャ
-		nullptr,	// 失敗テクスチャ
-		nullptr,	// タイム表示テクスチャ
-		nullptr,	// コンテニュー表示テクスチャ
-		"data\\TEXTURE\\select000.png",	// YESテクスチャ
-		"data\\TEXTURE\\select001.png",	// NOテクスチャ
+		"data\\TEXTURE\\result000.png",		// ボス討伐テクスチャ
+		"data\\TEXTURE\\result001.png",		// 成功テクスチャ
+		"data\\TEXTURE\\result002.png",		// 失敗テクスチャ
+		"data\\TEXTURE\\result003.png",		// タイム表示テクスチャ
+		"data\\TEXTURE\\continue000.png",	// コンテニュー表示テクスチャ
+		"data\\TEXTURE\\select000.png",		// YESテクスチャ
+		"data\\TEXTURE\\select001.png",		// NOテクスチャ
 	};
 
 	const int PRIORITY = 5;	// リザルトの優先順位
@@ -588,16 +588,16 @@ void CResultManager::UpdateResult(void)
 			m_apResult[nCntResult]->SetVec3Sizing(SIZE_RESULT);
 		}
 
-		switch (GET_RETENTION->GetResult())
+		switch (GET_RETENTION->GetWin())
 		{ // リザルトごとの処理
-		case CRetentionManager::RESULT_FAILED:
+		case CRetentionManager::WIN_FAILED:
 
 			// 状態を変更
 			m_state = STATE_CONTINUE_WAIT;	// コンテニュー表示待機状態
 
 			break;
 
-		case CRetentionManager::RESULT_CLEAR:
+		case CRetentionManager::WIN_CLEAR:
 
 			// 状態を変更
 			m_state = STATE_TIME_WAIT;	// タイム表示待機状態
@@ -607,10 +607,10 @@ void CResultManager::UpdateResult(void)
 		default:
 
 			// エラーメッセージボックス
-			//MessageBox(nullptr, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
+			MessageBox(nullptr, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
 
 			// 状態を変更
-			m_state = STATE_TIME_WAIT;	// タイム表示待機状態
+			m_state = STATE_CONTINUE_WAIT;	// コンテニュー表示待機状態
 
 			break;
 		}
@@ -786,7 +786,8 @@ void CResultManager::UpdateTransition(void)
 				case SELECT_NO:
 
 					// シーンの設定
-					GET_MANAGER->SetScene(CScene::MODE_RANKING);	// ランキング画面
+					//GET_MANAGER->SetScene(CScene::MODE_RANKING);	// ランキング画面	// TODO：ランキング作成次第遷移戻す
+					GET_MANAGER->SetScene(CScene::MODE_TITLE);	// タイトル画面
 
 					break;
 				}
@@ -814,7 +815,7 @@ void CResultManager::SkipStaging(void)
 		m_apResult[nCntResult]->SetVec3Sizing(SIZE_RESULT);
 	}
 
-	if (GET_RETENTION->GetResult() == CRetentionManager::RESULT_CLEAR)
+	if (GET_RETENTION->GetWin() == CRetentionManager::WIN_CLEAR)
 	{ // クリアしている場合
 
 		// タイム表示をONにする
@@ -862,16 +863,16 @@ void CResultManager::SetTexResult(void)
 	m_apResult[0]->BindTexture(pTexture->Regist(TEXTURE_FILE[TEXTURE_MISSION]));
 
 	// RESULTテクスチャを登録・割当
-	switch (GET_RETENTION->GetResult())
+	switch (GET_RETENTION->GetWin())
 	{ // リザルトごとの処理
-	case CRetentionManager::RESULT_FAILED:
+	case CRetentionManager::WIN_FAILED:
 
 		// FAILEDテクスチャ
 		m_apResult[1]->BindTexture(pTexture->Regist(TEXTURE_FILE[TEXTURE_FAILED]));
 
 		break;
 
-	case CRetentionManager::RESULT_CLEAR:
+	case CRetentionManager::WIN_CLEAR:
 
 		// CLEARテクスチャ
 		m_apResult[1]->BindTexture(pTexture->Regist(TEXTURE_FILE[TEXTURE_CLEAR]));
@@ -881,7 +882,10 @@ void CResultManager::SetTexResult(void)
 	default:
 
 		// エラーメッセージボックス
-		//MessageBox(nullptr, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
+		MessageBox(nullptr, "リザルトなしが設定されています", "警告！", MB_ICONWARNING);
+
+		// FAILEDテクスチャ
+		m_apResult[1]->BindTexture(pTexture->Regist(TEXTURE_FILE[TEXTURE_FAILED]));
 
 		break;
 	}

@@ -34,7 +34,7 @@ public:
 	// テクスチャ列挙
 	enum ETexture
 	{
-		TEXTURE_MISSION = 0,	// 遅刻回避テクスチャ
+		TEXTURE_MISSION = 0,	// ボス討伐テクスチャ
 		TEXTURE_CLEAR,			// 成功テクスチャ
 		TEXTURE_FAILED,			// 失敗テクスチャ
 		TEXTURE_TIME,			// タイム表示テクスチャ

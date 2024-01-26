@@ -12,6 +12,7 @@
 #include "scene.h"
 #include "sceneGame.h"
 #include "timerManager.h"
+#include "retentionManager.h"
 #include "camera.h"
 #include "player.h"
 
@@ -82,7 +83,7 @@ void CGameManager::Update(void)
 		{ // 計測が終了していた場合
 
 			// リザルト画面に遷移させる
-			TransitionResult();
+			TransitionResult(CRetentionManager::WIN_FAILED);
 		}
 
 		break;
@@ -111,10 +112,13 @@ CGameManager::EState CGameManager::GetState(void) const
 //============================================================
 //	リザルト画面遷移処理
 //============================================================
-void CGameManager::TransitionResult(void)
+void CGameManager::TransitionResult(const CRetentionManager::EWin win)
 {
 	// 終了状態にする
 	m_state = STATE_END;
+
+	// リザルト情報を保存
+	GET_RETENTION->SetResult(win, CSceneGame::GetTimerManager()->Get());
 
 	// タイマーの計測終了
 	CSceneGame::GetTimerManager()->End();

@@ -981,14 +981,6 @@ void CTimerManager::SetEnableDraw(const bool bDraw)
 		}
 	}
 	else { assert(false); }	// 非使用中
-
-	// ロゴオブジェクトの描画状況を設定		
-	if (m_pLogo != nullptr)
-	{ // ロゴが使用されている場合
-
-		m_pLogo->SetEnableDraw(bDraw);
-	}
-	else { assert(false); }	// 非使用中
 }
 
 //============================================================
