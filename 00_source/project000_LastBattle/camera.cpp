@@ -86,7 +86,8 @@ CCamera::CCamera() :
 	m_bUpdate	(false)			// 更新状況
 {
 	// メンバ変数をクリア
-	memset(&m_aCamera[0], 0, sizeof(m_aCamera));	// カメラの情報
+	memset(&m_aCamera[0],	0, sizeof(m_aCamera));	// カメラの情報
+	memset(&m_follow,		0, sizeof(m_follow));	// 追従の情報
 }
 
 //============================================================
@@ -105,8 +106,9 @@ HRESULT CCamera::Init(void)
 	//--------------------------------------------------------
 	//	メンバ変数を初期化
 	//--------------------------------------------------------
-	m_state = STATE_NONE;	// 状態
-	m_bUpdate = true;	 	// 更新状況
+	memset(&m_follow, 0, sizeof(m_follow));	// 追従の情報
+	m_state		= STATE_NONE;	// 状態
+	m_bUpdate	= true;			// 更新状況
 
 	//--------------------------------------------------------
 	//	メインカメラの初期化
@@ -353,6 +355,56 @@ void CCamera::SetDestFollow(void)
 }
 
 //============================================================
+//	追従カメラのオブジェクト視認処理
+//============================================================
+void CCamera::SetFollowLook(const CObject *pLookObject)
+{
+	// TODO：カメラ視認作成
+
+	CListManager<CPlayer> *pList = CPlayer::GetList();	// プレイヤーリスト
+	if (pList == nullptr)		 { return; }	// リスト未使用
+	if (pList->GetNumAll() != 1) { return; }	// プレイヤーが1人じゃない
+	if (m_state != STATE_FOLLOW) { return; }	// カメラ追従状態以外
+
+	auto player = pList->GetList().front();	// プレイヤー情報
+	D3DXVECTOR3 diffRot  = VEC3_ZERO;		// 差分向き
+
+#if 1
+	D3DXVECTOR3 vecLook = pLookObject->GetVec3Position() - m_aCamera[TYPE_MAIN].posR;
+	vecLook.y = 0.0f;
+
+
+	//CEffect3D::Create(m_aCamera[TYPE_MAIN].posR + vecLook, 200.0f, CEffect3D::TYPE_NORMAL, 100);
+
+
+	float fRotY = atan2f(vecLook.x, vecLook.z);
+	//m_aCamera[TYPE_MAIN].destRot.y = m_aCamera[TYPE_MAIN].rot.y = fRotY;
+
+	m_follow.nCounterForce = 240;
+
+	// 目標向きを設定
+	float fRotX = m_aCamera[TYPE_MAIN].rot.x;
+	useful::LimitNum(fRotX, D3DX_PI * 0.45f, D3DX_PI * 0.65f);
+	m_aCamera[TYPE_MAIN].destRot.x = fRotX;
+	m_aCamera[TYPE_MAIN].destRot.y = fRotY;
+	//m_follow.fDestRotY = fRotY;
+
+	//// 目標向きを正規化
+	//useful::NormalizeRot(m_aCamera[TYPE_MAIN].destRot.y);
+
+	//// 差分向きを計算
+	//diffRot = m_aCamera[TYPE_MAIN].destRot - m_aCamera[TYPE_MAIN].rot;
+	//useful::Vec3NormalizeRot(diffRot);	// 差分向きを正規化
+
+	//// 現在向きの更新
+	//m_aCamera[TYPE_MAIN].rot += diffRot * follow::REV_ROT;
+	//useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+#else
+
+#endif
+}
+
+//============================================================
 //	カメラ揺れの設定処理
 //============================================================
 void CCamera::SetSwing(const EType type, const SSwing swing)
@@ -525,7 +577,7 @@ void CCamera::Follow(void)
 {
 	CInputPad *pPad = GET_INPUTPAD;	// パッド情報
 	CListManager<CPlayer> *pList = CPlayer::GetList();	// プレイヤーリスト
-	if (pList == nullptr)		 { return; }	// リスト未使用
+	if (pList == nullptr) 		 { return; }	// リスト未使用
 	if (pList->GetNumAll() != 1) { return; }	// プレイヤーが1人じゃない
 	if (m_state != STATE_FOLLOW) { return; }	// カメラ追従状態以外
 
@@ -537,17 +589,68 @@ void CCamera::Follow(void)
 	//----------------------------------------------------
 	//	向きの更新
 	//----------------------------------------------------
-	// 変数を宣言
+#if 0
+	float fRotRev = 0.0f;	// 向きの補正係数
+	if (m_follow.nCounterForce > 0)
+	{
+		D3DXVECTOR3 vecRStick = D3DXVECTOR3((float)pPad->GetPressRStickX(), (float)pPad->GetPressRStickY(), 0.0f);	// スティック各軸の倒し量
+		float fRStick = sqrtf(vecRStick.x * vecRStick.x + vecRStick.y * vecRStick.y) * 0.5f;	// スティックの倒し量
+
+		if (pad::DEAD_ZONE < fRStick)
+		{ // デッドゾーン以上の場合
+
+			// 目標向きを設定
+			float fMove = fRStick * follow::STICK_REV;	// プレイヤー移動量
+			m_aCamera[TYPE_MAIN].rot.x += sinf(pPad->GetPressRStickRot()) * fMove * follow::ROTX_REV;
+
+			// 目標向きを正規化
+			useful::LimitNum(m_aCamera[TYPE_MAIN].rot.x, basic::LIMIT_ROT_LOW, basic::LIMIT_ROT_HIGH);
+		}
+
+		// カウンターを減算
+		m_follow.nCounterForce--;
+
+		// 向きの補正係数を設定
+		fRotRev = 0.065f;
+	}
+	else
+	{
+		D3DXVECTOR3 vecRStick = D3DXVECTOR3((float)pPad->GetPressRStickX(), (float)pPad->GetPressRStickY(), 0.0f);	// スティック各軸の倒し量
+		float fRStick = sqrtf(vecRStick.x * vecRStick.x + vecRStick.y * vecRStick.y) * 0.5f;	// スティックの倒し量
+
+		if (pad::DEAD_ZONE < fRStick)
+		{ // デッドゾーン以上の場合
+
+			// 目標向きを設定
+			float fMove = fRStick * follow::STICK_REV;	// プレイヤー移動量
+			m_aCamera[TYPE_MAIN].destRot.x += sinf(pPad->GetPressRStickRot()) * fMove * follow::ROTX_REV;
+			m_aCamera[TYPE_MAIN].destRot.y += cosf(pPad->GetPressRStickRot()) * fMove;
+
+			// 目標向きを正規化
+			useful::LimitNum(m_aCamera[TYPE_MAIN].destRot.x, basic::LIMIT_ROT_LOW, basic::LIMIT_ROT_HIGH);
+			useful::NormalizeRot(m_aCamera[TYPE_MAIN].destRot.y);
+		}
+
+		// 向きの補正係数を設定
+		fRotRev = follow::REV_ROT;
+	}
+
+	// 差分向きを計算
+	diffRot = m_aCamera[TYPE_MAIN].destRot - m_aCamera[TYPE_MAIN].rot;
+	useful::Vec3NormalizeRot(diffRot);	// 差分向きを正規化
+
+	// 現在向きの更新
+	m_aCamera[TYPE_MAIN].rot += diffRot * fRotRev;
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+#else
 	D3DXVECTOR3 vecRStick = D3DXVECTOR3((float)pPad->GetPressRStickX(), (float)pPad->GetPressRStickY(), 0.0f);	// スティック各軸の倒し量
 	float fRStick = sqrtf(vecRStick.x * vecRStick.x + vecRStick.y * vecRStick.y) * 0.5f;	// スティックの倒し量
 
 	if (pad::DEAD_ZONE < fRStick)
 	{ // デッドゾーン以上の場合
 
-		// 変数を宣言
-		float fMove = fRStick * follow::STICK_REV;	// プレイヤー移動量
-
 		// 目標向きを設定
+		float fMove = fRStick * follow::STICK_REV;	// プレイヤー移動量
 		m_aCamera[TYPE_MAIN].destRot.x += sinf(pPad->GetPressRStickRot()) * fMove * follow::ROTX_REV;
 		m_aCamera[TYPE_MAIN].destRot.y += cosf(pPad->GetPressRStickRot()) * fMove;
 
@@ -563,6 +666,7 @@ void CCamera::Follow(void)
 	// 現在向きの更新
 	m_aCamera[TYPE_MAIN].rot += diffRot * follow::REV_ROT;
 	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+#endif
 
 	//----------------------------------------------------
 	//	距離の更新

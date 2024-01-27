@@ -12,6 +12,7 @@
 #include "manager.h"
 #include "renderer.h"
 #include "stage.h"
+#include "camera.h"
 #include "multiModel.h"
 #include "sceneGame.h"
 #include "gameManager.h"
@@ -222,11 +223,8 @@ void CEnemyBossDragon::SetTeleport(const D3DXVECTOR3& rPos, const D3DXVECTOR3& r
 	m_pMagicCircle->SetVec3Position(GetVec3Position());
 	m_pMagicCircle->SetVec3Rotation(GetVec3Rotation());
 
-	// 魔法陣の自動描画をONにする
-	m_pMagicCircle->SetEnableDraw(true);
-
-	// 魔法陣の出現状態にする
-	m_teleport.state = TELEPORT_APPEAR;
+	// テレポートの初期化状態にする
+	m_teleport.state = TELEPORT_INIT;
 
 	// 魔法陣によるフェードインの行動をとらせる
 	m_action = ACT_MAGIC_FADEIN;
@@ -434,6 +432,16 @@ void CEnemyBossDragon::UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 
 	switch (m_teleport.state)
 	{ // テレポート状態ごとの処理
+	case TELEPORT_INIT:		// テレポートの初期化
+	{
+		// 魔法陣の自動描画をONにする
+		m_pMagicCircle->SetEnableDraw(true);
+
+		// 魔法陣の出現状態にする
+		m_teleport.state = TELEPORT_APPEAR;
+
+		// 処理を抜けずにこのまま魔法陣の出現に移行
+	}
 	case TELEPORT_APPEAR:	// 魔法陣の出現
 	{
 		// 変数を宣言
@@ -492,8 +500,8 @@ void CEnemyBossDragon::UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 			*pPos = m_teleport.pos;
 			*pRot = m_teleport.rot;
 
-			// 魔法陣の出現状態にする
-			m_teleport.state = TELEPORT_APPEAR;
+			// テレポートの初期化状態にする
+			m_teleport.state = TELEPORT_INIT;
 
 			// 魔法陣によるフェードアウトの行動をとらせる
 			m_action = ACT_MAGIC_FADEOUT;
@@ -523,6 +531,16 @@ void CEnemyBossDragon::UpdateMagicFadeOut(const D3DXVECTOR3& rPos)
 
 	switch (m_teleport.state)
 	{ // テレポート状態ごとの処理
+	case TELEPORT_INIT:		// テレポートの初期化
+	{
+		// テレポート後のボスを視認させる
+		GET_MANAGER->GetCamera()->SetFollowLook(this);
+
+		// 魔法陣の出現状態にする
+		m_teleport.state = TELEPORT_APPEAR;
+
+		// 処理を抜けずにこのまま魔法陣の出現に移行
+	}
 	case TELEPORT_APPEAR:	// 魔法陣の出現
 	{
 		// 変数を宣言

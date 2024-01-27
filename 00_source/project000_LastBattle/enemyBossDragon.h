@@ -85,7 +85,7 @@ public:
 	// テレポート列挙
 	enum ETeleport
 	{
-		TELEPORT_SET_APPER = 0,	// 魔法陣の出現設定
+		TELEPORT_INIT = 0,		// テレポートの初期化
 		TELEPORT_APPEAR,		// 魔法陣の出現
 		TELEPORT_MOVE,			// 魔法陣の移動
 		TELEPORT_DISAPPEAR,		// 魔法陣の消失

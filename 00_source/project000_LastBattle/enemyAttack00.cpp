@@ -10,6 +10,7 @@
 #include "enemyAttack00.h"
 #include "enemyBossDragon.h"
 #include "manager.h"
+#include "camera.h"
 #include "player.h"
 #include "multiModel.h"
 #include "impact.h"
@@ -19,8 +20,9 @@
 //************************************************************
 namespace
 {
-	const CWave::SGrow IMPACT_GROW		= CWave::SGrow(6.0f, 0.0f, 0.0f);	// 成長量
-	const CWave::SGrow IMPACT_ADDGROW	= CWave::SGrow(0.2f, 0.002f, 0.0f);	// 成長加速量
+	const CWave::SGrow		IMPACT_GROW		= CWave::SGrow(6.0f, 0.0f, 0.0f);		// 成長量
+	const CWave::SGrow		IMPACT_ADDGROW	= CWave::SGrow(0.2f, 0.002f, 0.0f);		// 成長加速量
+	const CCamera::SSwing	PUNCH_SWING		= CCamera::SSwing(8.0f, 1.5f, 0.25f);	// 地面殴り時のカメラ揺れ
 
 	const float	IMPACT_HOLE_RADIUS	= 10.0f;	// 穴の半径
 	const float	IMPACT_THICKNESS	= 0.0f;		// 太さ
@@ -156,6 +158,9 @@ bool CEnemyAttack00::Update(void)
 
 		if (pBoss->GetMotionKey() == pBoss->GetMotionNumKey() - 1 && pBoss->GetMotionKeyCounter() == 0)
 		{ // モーションが地面を殴ったタイミングの場合
+
+			// カメラ揺れを設定
+			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, PUNCH_SWING);
 
 			// 波動の生成
 			D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス

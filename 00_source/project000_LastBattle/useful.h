@@ -153,7 +153,8 @@ namespace useful
 		const D3DXVECTOR3& rPosRight,	// 右位置
 		D3DXVECTOR3& rNor				// 法線
 	);
-	void NormalizeRot(float& rRot);	// 向きの正規化
+
+	void NormalizeRot(float& rRot);				// 向きの正規化
 	void Vec3NormalizeRot(D3DXVECTOR3& rRot);	// 三軸向きの正規化
 	D3DXVECTOR3 GetMtxWorldPosition(const D3DXMATRIX& rMtx);	// マトリックスのワールド座標取得
 
@@ -174,6 +175,18 @@ namespace useful
 		T& rNum,	// 制限数値
 		const T max	// 最大範囲
 	);
+	template<class T> float ValueToRate	// 値の割合化
+	( // 引数
+		const T num,	// 割合化する数値
+		const T min,	// 最小範囲
+		const T max		// 最大範囲
+	);
+	template<class T> T RateToValue	// 割合の値化
+	( // 引数
+		const float fRate,	// 値化する数値
+		const T min,		// 最小範囲
+		const T max			// 最大範囲
+	);
 	template<class T> void SortNum	// 値のソート
 	( // 引数
 		T *pSortNum,		// ソート配列
@@ -186,7 +199,41 @@ namespace useful
 	);
 }
 
-// マテリアル空間
+// イージング関数空間
+namespace easeing
+{
+	// 通常関数
+	inline float Liner(const float x)		{ return x; }
+
+	inline float InSine(const float x)		{ return 1.0f - cosf((x * D3DX_PI) * 0.5f); }
+	inline float OutSine(const float x)		{ return sinf((x * D3DX_PI) * 0.5f); }
+	inline float InOutSine(const float x)	{ return -(cosf(x * D3DX_PI) - 1.0f) * 0.5f; }
+
+	inline float InQuad(const float x)		{ return x * x; }
+	inline float OutQuad(const float x)		{ return 1.0f - (1.0f - x) * (1.0f - x); }
+	inline float InOutQuad(const float x)	{ return (x < 0.5f) ? (2.0f * x * x) : (1.0f - powf(-2.0f * x + 2.0f, 2.0f) * 0.5f); }
+
+	inline float InCubic(const float x)		{ return x * x * x; }
+	inline float OutCubic(const float x)	{ return 1.0f - powf(1.0f - x, 3.0f); }
+	inline float InOutCubic(const float x)	{ return (x < 0.5f) ? (4.0f * x * x * x) : (1.0f - powf(-2.0f * x + 2.0f, 3.0f) * 0.5f); }
+
+	// テンプレート関数
+	template<class T> inline float Liner(T num, const T min, const T max)		{ return Liner(useful::ValueToRate(num, min, max)); }
+
+	template<class T> inline float InSine(T num, const T min, const T max)		{ return InSine(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float OutSine(T num, const T min, const T max)		{ return OutSine(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float InOutSine(T num, const T min, const T max)	{ return InOutSine(useful::ValueToRate(num, min, max)); }
+
+	template<class T> inline float InQuad(T num, const T min, const T max)		{ return InQuad(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float OutQuad(T num, const T min, const T max)		{ return OutQuad(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float InOutQuad(T num, const T min, const T max)	{ return InOutQuad(useful::ValueToRate(num, min, max)); }
+
+	template<class T> inline float InCubic(T num, const T min, const T max)		{ return InCubic(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float OutCubic(T num, const T min, const T max)	{ return OutCubic(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float InOutCubic(T num, const T min, const T max)	{ return InOutCubic(useful::ValueToRate(num, min, max)); }
+}
+
+// マテリアル関数空間
 namespace material
 {
 	// 通常関数
@@ -281,6 +328,34 @@ template<class T> bool useful::LimitMaxNum
 
 	// 偽を返す
 	return false;
+}
+
+//============================================================
+//	値の割合化処理
+//============================================================
+template<class T> float useful::ValueToRate
+(
+	const T num,	// 割合化する数値
+	const T min,	// 最小範囲
+	const T max		// 最大範囲
+)
+{
+	// 割合変換した値を返す
+	return (static_cast<float>(num) - static_cast<float>(min)) / (static_cast<float>(max) - static_cast<float>(min));
+}
+
+//============================================================
+//	割合の値化処理
+//============================================================
+template<class T> T useful::RateToValue
+(
+	const float fRate,	// 値化する数値
+	const T min,		// 最小範囲
+	const T max			// 最大範囲
+)
+{
+	// 値変換した割合を返す
+	return static_cast<T>((fRate * (max - min)) + min);
 }
 
 //============================================================

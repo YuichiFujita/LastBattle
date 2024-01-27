@@ -11,6 +11,11 @@
 #define _CAMERA_H_
 
 //************************************************************
+//	インクルードファイル
+//************************************************************
+#include "object.h"
+
+//************************************************************
 //	クラス定義
 //************************************************************
 // カメラクラス
@@ -85,6 +90,13 @@ public:
 		D3DXMATRIX		mtxView;		// ビューマトリックス
 	};
 
+	// 追従構造体
+	struct SFollow
+	{
+		int nCounterForce;	// カメラ強制操作カウンター
+		float fDestRotY;	// 目標Y軸向き
+	};
+
 	// メンバ関数
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
@@ -96,6 +108,8 @@ public:
 
 	void SetDestRotate(void);	// カメラ目標位置設定 (回転)
 	void SetDestFollow(void);	// カメラ目標位置設定 (追従)
+	void SetFollowLook(const CObject *pLookObject);	// 追従カメラのオブジェクト視認
+
 	void SetSwing(const EType type, const SSwing swing);	// カメラ揺れ設定
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
 	void SetVec3Rotation(const D3DXVECTOR3& rRot);			// 現在向き設定
@@ -119,8 +133,9 @@ private:
 
 	// メンバ変数
 	SCamera m_aCamera[TYPE_MAX];	// カメラの情報
-	EState m_state;	// 状態
-	bool m_bUpdate;	// 更新状況
+	SFollow m_follow;	// 追従の情報
+	EState m_state;		// 状態
+	bool m_bUpdate;		// 更新状況
 };
 
 #endif	// _CAMERA_H_
