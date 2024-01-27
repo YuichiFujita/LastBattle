@@ -90,11 +90,12 @@ public:
 		D3DXMATRIX		mtxView;		// ビューマトリックス
 	};
 
-	// 追従構造体
-	struct SFollow
+	// 視認情報の構造体
+	struct SLook
 	{
 		int nCounterForce;	// カメラ強制操作カウンター
-		float fDestRotY;	// 目標Y軸向き
+		float fDiffRotY;	// 差分Y軸向き
+		float fOldRotY;		// 過去Y軸向き
 	};
 
 	// メンバ関数
@@ -132,10 +133,10 @@ private:
 	void Swing(void);		// カメラ揺れの更新
 
 	// メンバ変数
-	SCamera m_aCamera[TYPE_MAX];	// カメラの情報
-	SFollow m_follow;	// 追従の情報
-	EState m_state;		// 状態
-	bool m_bUpdate;		// 更新状況
+	SCamera	m_aCamera[TYPE_MAX];	// カメラの情報
+	SLook	m_look;		// 視認の情報
+	EState	m_state;	// 状態
+	bool	m_bUpdate;	// 更新状況
 };
 
 #endif	// _CAMERA_H_
