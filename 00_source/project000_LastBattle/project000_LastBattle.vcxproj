@@ -161,6 +161,7 @@
     <ClCompile Include="enemy.cpp" />
     <ClCompile Include="enemyAttack.cpp" />
     <ClCompile Include="enemyAttack00.cpp" />
+    <ClCompile Include="enemyAttack01.cpp" />
     <ClCompile Include="enemyBossDragon.cpp" />
     <ClCompile Include="enemyMiniDragon.cpp" />
     <ClCompile Include="fade.cpp" />
@@ -226,6 +227,7 @@
     <ClCompile Include="stage.cpp" />
     <ClCompile Include="sword.cpp" />
     <ClCompile Include="texture.cpp" />
+    <ClCompile Include="thunder.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="timerManager.cpp" />
     <ClCompile Include="titleManager.cpp" />
@@ -247,6 +249,7 @@
     <ClInclude Include="enemy.h" />
     <ClInclude Include="enemyAttack.h" />
     <ClInclude Include="enemyAttack00.h" />
+    <ClInclude Include="enemyAttack01.h" />
     <ClInclude Include="enemyBossDragon.h" />
     <ClInclude Include="enemyMiniDragon.h" />
     <ClInclude Include="fade.h" />
@@ -310,6 +313,7 @@
     <ClInclude Include="stage.h" />
     <ClInclude Include="sword.h" />
     <ClInclude Include="texture.h" />
+    <ClInclude Include="thunder.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="timerManager.h" />
     <ClInclude Include="titleManager.h" />

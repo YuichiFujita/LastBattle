@@ -76,6 +76,7 @@ public:
 		LABEL_SCREEN,		// スクリーン
 		LABEL_UI,			// UI
 		LABEL_WAVE,			// 波動
+		LABEL_THUNDER,		// 雷
 		LABEL_EFFECT,		// エフェクト
 		LABEL_PARTICLE,		// パーティクル
 		LABEL_PLAYER,		// プレイヤー

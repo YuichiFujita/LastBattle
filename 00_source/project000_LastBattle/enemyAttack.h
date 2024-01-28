@@ -26,7 +26,7 @@ public:
 	enum EAttack
 	{
 		ATTACK_00 = 0,	// UŒ‚00
-		//ATTACK_01,		// UŒ‚01
+		ATTACK_01,		// UŒ‚01
 		ATTACK_MAX		// ‚±‚Ì—ñ‹“Œ^‚Ì‘”
 	};
 

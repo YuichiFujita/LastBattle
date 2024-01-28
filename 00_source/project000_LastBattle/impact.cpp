@@ -10,7 +10,6 @@
 #include "impact.h"
 #include "player.h"
 #include "collision.h"
-#include "effect3D.h"
 
 //************************************************************
 //	定数宣言
@@ -49,7 +48,7 @@ CImpact::~CImpact()
 //============================================================
 HRESULT CImpact::Init(void)
 {
-	// メンバ変数
+	// メンバ変数を初期化
 	m_fMaxGrowRadius = 0.0f;				// 半径の最大成長量
 	m_addGrow = SGrow(0.0f, 0.0f, 0.0f);	// 成長加速量
 
@@ -135,7 +134,7 @@ void CImpact::Draw(void)
 CImpact *CImpact::Create
 (
 	const ETexture texture,		// 種類
-	const D3DXVECTOR3 &rPos,	// 位置
+	const D3DXVECTOR3& rPos,	// 位置
 	const SGrow& rGrow,			// 成長量
 	const SGrow& rAddGrow,		// 成長加速量
 	const float fHoleRadius,	// 穴の半径
