@@ -74,6 +74,8 @@ public:
 		L_MOTION_MOVE,		// 歩行モーション
 		L_MOTION_ATTACK_00,	// 攻撃モーション一段階目
 		L_MOTION_ATTACK_01,	// 攻撃モーション二段階目
+		L_MOTION_JUMP,		// ジャンプモーション
+		L_MOTION_LAND,		// 着地モーション
 		L_MOTION_MAX		// この列挙型の総数
 	};
 
@@ -84,6 +86,8 @@ public:
 		U_MOTION_MOVE,		// 歩行モーション
 		U_MOTION_ATTACK_00,	// 攻撃モーション一段階目
 		U_MOTION_ATTACK_01,	// 攻撃モーション二段階目
+		U_MOTION_JUMP,		// ジャンプモーション
+		U_MOTION_LAND,		// 着地モーション
 		U_MOTION_MAX		// この列挙型の総数
 	};
 
@@ -191,7 +195,7 @@ private:
 
 	void UpdateOldPosition(void);			// 過去位置の更新
 	void UpdateGravity(void);				// 重力の更新
-	bool UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
+	void UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
 	void UpdatePosition(D3DXVECTOR3 *pPos);	// 位置の更新
 	void UpdateRotation(D3DXVECTOR3 *pRot);	// 向きの更新
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新

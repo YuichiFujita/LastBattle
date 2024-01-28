@@ -710,17 +710,6 @@ void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
 	for (int nCntBody = 0; nCntBody < BODY_MAX; nCntBody++)
 	{ // 分割した身体の数分繰り返す
 
-		if (IsMotionLoop((EBody)nCntBody))
-		{ // ループするモーションの場合
-
-			if (GetMotionType((EBody)nCntBody) != aMotion[nCntBody])
-			{ // 現在のモーションが再生中のモーションと一致しない場合
-
-				// 現在のモーションの設定
-				SetMotion((EBody)nCntBody, aMotion[nCntBody]);
-			}
-		}
-
 		// 各半身ごとのモーション更新
 		(this->*(m_aFuncUpdateMotion[nCntBody]))(aMotion[nCntBody]);
 	}
@@ -734,6 +723,43 @@ void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
 //============================================================
 void CPlayer::UpdateMotionLower(const int nMotion)
 {
+	if (IsMotionLoop(BODY_LOWER))
+	{ // ループするモーションの場合
+
+		if (GetMotionType(BODY_LOWER) != nMotion)
+		{ // 現在のモーションが再生中のモーションと一致しない場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_LOWER, nMotion);
+		}
+	}
+	else
+	{ // ループしないモーションの場合
+
+		switch (GetMotionType(BODY_LOWER))
+		{ // モーションごとの処理
+		case L_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
+		case L_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
+		case L_MOTION_JUMP:			// ジャンプモーション：ループOFF
+			break;
+
+		case L_MOTION_LAND:	// ジャンプモーション：ループOFF
+
+			if (nMotion != L_MOTION_IDOL)
+			{ // 待機モーション以外の場合
+
+				// 現在のモーションの設定
+				SetMotion(BODY_LOWER, nMotion);
+			}
+
+			break;
+
+		default:	// 例外処理
+			assert(false);
+			break;
+		}
+	}
+
 	switch (GetMotionType(BODY_LOWER))
 	{ // モーションごとの処理
 	case L_MOTION_IDOL:	// 待機モーション：ループON
@@ -794,6 +820,20 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 		break;
 	
+	case L_MOTION_JUMP:	// ジャンプモーション：ループOFF
+		break;
+
+	case L_MOTION_LAND:	// ジャンプモーション：ループOFF
+
+		if (IsMotionFinish(BODY_LOWER))
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_LOWER, nMotion);
+		}
+
+		break;
+
 	default:	// 例外処理
 		assert(false);
 		break;
@@ -805,6 +845,43 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 //============================================================
 void CPlayer::UpdateMotionUpper(const int nMotion)
 {
+	if (IsMotionLoop(BODY_UPPER))
+	{ // ループするモーションの場合
+
+		if (GetMotionType(BODY_UPPER) != nMotion)
+		{ // 現在のモーションが再生中のモーションと一致しない場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_UPPER, nMotion);
+		}
+	}
+	else
+	{ // ループしないモーションの場合
+
+		switch (GetMotionType(BODY_UPPER))
+		{ // モーションごとの処理
+		case U_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
+		case U_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
+		case U_MOTION_JUMP:			// ジャンプモーション：ループOFF
+			break;
+
+		case U_MOTION_LAND:	// ジャンプモーション：ループOFF
+
+			if (nMotion != U_MOTION_IDOL)
+			{ // 待機モーション以外の場合
+
+				// 現在のモーションの設定
+				SetMotion(BODY_UPPER, nMotion);
+			}
+
+			break;
+
+		default:	// 例外処理
+			assert(false);
+			break;
+		}
+	}
+
 	switch (GetMotionType(BODY_UPPER))
 	{ // モーションごとの処理
 	case U_MOTION_IDOL:	// 待機モーション：ループON
@@ -855,6 +932,20 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 		break;
 	
+	case U_MOTION_JUMP:	// ジャンプモーション：ループOFF
+		break;
+
+	case U_MOTION_LAND:	// ジャンプモーション：ループOFF
+
+		if (IsMotionFinish(BODY_UPPER))
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_UPPER, nMotion);
+		}
+
+		break;
+
 	default:	// 例外処理
 		assert(false);
 		break;
@@ -1170,8 +1261,8 @@ void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 		m_bJump = true;
 
 		// 上下にジャンプモーションを設定
-		*pLowMotion = L_MOTION_MOVE;
-		*pUpMotion  = U_MOTION_MOVE;
+		*pLowMotion = L_MOTION_JUMP;
+		*pUpMotion  = U_MOTION_JUMP;
 	}
 }
 
@@ -1196,11 +1287,8 @@ void CPlayer::UpdateGravity(void)
 //============================================================
 //	着地状況の更新処理
 //============================================================
-bool CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
+void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 {
-	// 変数を宣言
-	bool bLand = false;	// 着地状況
-
 	// ジャンプしている状態にする
 	m_bJump = true;
 
@@ -1209,9 +1297,6 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 	||  CScene::GetStage()->LandLimitPosition(*pPos, m_move, 0.0f))
 	{ // プレイヤーが着地していた場合
 
-		// 着地している状態にする
-		bLand = true;
-
 		// ジャンプフラグをOFFにする
 		m_bJump = false;
 
@@ -1219,8 +1304,18 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 		m_dodge.bDodge = false;
 	}
 
-	// 着地状況を返す
-	return bLand;
+	if (!m_bJump)
+	{ // 空中にいない場合
+
+		if (GetMotionType(BODY_LOWER) == L_MOTION_JUMP
+		&&  GetMotionType(BODY_UPPER) == U_MOTION_JUMP)
+		{ // 上下モーションがジャンプ中の場合
+
+			// 着地モーションを指定
+			SetMotion(BODY_LOWER, L_MOTION_LAND);
+			SetMotion(BODY_UPPER, U_MOTION_LAND);
+		}
+	}
 }
 
 //============================================================
