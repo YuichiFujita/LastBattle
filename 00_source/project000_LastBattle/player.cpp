@@ -738,12 +738,15 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 		switch (GetMotionType(BODY_LOWER))
 		{ // モーションごとの処理
-		case L_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
-		case L_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
-		case L_MOTION_JUMP:			// ジャンプモーション：ループOFF
+		case L_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
+		case L_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
+		case L_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
+		case L_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+		case L_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
+		case L_MOTION_JUMP:				// ジャンプモーション：ループOFF
 			break;
 
-		case L_MOTION_LAND:	// ジャンプモーション：ループOFF
+		case L_MOTION_LAND:	// 着地モーション：ループOFF
 
 			if (nMotion != L_MOTION_IDOL)
 			{ // 待機モーション以外の場合
@@ -777,15 +780,16 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		break;
 	
 	case L_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
-	
+	case L_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
+
 		if (IsMotionCancel(BODY_LOWER))
 		{ // モーションキャンセルができる場合
 
 			if (m_buffAttack.bInput)
 			{ // 攻撃が先行入力されている場合
 
-				// 現在のモーションの設定
-				SetMotion(BODY_LOWER, L_MOTION_ATTACK_01);
+				// 次の攻撃モーションを設定
+				SetMotion(BODY_LOWER, GetMotionType(BODY_LOWER) + 1);
 
 				// 入力反映を加算
 				if (m_buffAttack.Add())	// 全モーションに反映したら先行入力を初期化
@@ -809,7 +813,7 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 		break;
 
-	case L_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
+	case L_MOTION_ATTACK_02:	// 攻撃モーション三段階目：ループOFF
 
 		if (IsMotionFinish(BODY_LOWER))
 		{ // モーションが終了していた場合
@@ -832,6 +836,10 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 			SetMotion(BODY_LOWER, nMotion);
 		}
 
+		break;
+
+	case L_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+	case L_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
 		break;
 
 	default:	// 例外処理
@@ -860,12 +868,15 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 		switch (GetMotionType(BODY_UPPER))
 		{ // モーションごとの処理
-		case U_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
-		case U_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
-		case U_MOTION_JUMP:			// ジャンプモーション：ループOFF
+		case U_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
+		case U_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
+		case U_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
+		case U_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+		case U_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
+		case U_MOTION_JUMP:				// ジャンプモーション：ループOFF
 			break;
 
-		case U_MOTION_LAND:	// ジャンプモーション：ループOFF
+		case U_MOTION_LAND:	// 着地モーション：ループOFF
 
 			if (nMotion != U_MOTION_IDOL)
 			{ // 待機モーション以外の場合
@@ -889,7 +900,8 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 		break;
 	
 	case U_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
-	
+	case U_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
+
 		if (IsMotionCancel(BODY_UPPER))
 		{ // モーションキャンセルができる場合
 
@@ -897,7 +909,7 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 			{ // 攻撃が先行入力されている場合
 
 				// 現在のモーションの設定
-				SetMotion(BODY_UPPER, U_MOTION_ATTACK_01);
+				SetMotion(BODY_UPPER, GetMotionType(BODY_UPPER) + 1);
 
 				// 入力反映を加算
 				if (m_buffAttack.Add())	// 全モーションに反映したら先行入力を初期化
@@ -921,7 +933,7 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 	
 		break;
 
-	case U_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
+	case U_MOTION_ATTACK_02:	// 攻撃モーション三段階目：ループOFF
 
 		if (IsMotionFinish(BODY_UPPER))
 		{ // モーションが終了していた場合
@@ -946,6 +958,10 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 		break;
 
+	case U_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+	case U_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
+		break;
+
 	default:	// 例外処理
 		assert(false);
 		break;
@@ -960,8 +976,14 @@ bool CPlayer::IsAttack(void) const
 	// 変数を宣言
 	EUpperMotion curMotion = (EUpperMotion)GetMotionType(BODY_UPPER);	// 現在のモーション
 
+	// TODO：攻撃追加したら記述
+
 	// 攻撃状況を設定
-	bool bAttack = (curMotion == U_MOTION_ATTACK_00 || curMotion == U_MOTION_ATTACK_01);	// TODO：攻撃追加したら記述
+	bool bAttack = (curMotion == U_MOTION_ATTACK_00
+				 || curMotion == U_MOTION_ATTACK_01
+				 || curMotion == U_MOTION_ATTACK_02
+				 || curMotion == U_MOTION_JUMP_ATTACK_00
+				 || curMotion == U_MOTION_JUMP_ATTACK_01);
 
 	// 攻撃状況を返す
 	return bAttack;
@@ -1135,7 +1157,7 @@ void CPlayer::UpdateAttack(void)
 		else
 		{ // 攻撃中の場合
 
-			if (GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_01)	// TODO：一番最後の攻撃にする
+			if (GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_02)	// TODO：一番最後の攻撃にする
 			{ // 最終攻撃モーションではない場合
 
 				// 現在のモーションの残りフレームを計算

@@ -70,25 +70,31 @@ public:
 	// 下半身モーション列挙
 	enum ELowerMotion
 	{
-		L_MOTION_IDOL = 0,	// 待機モーション
-		L_MOTION_MOVE,		// 歩行モーション
-		L_MOTION_ATTACK_00,	// 攻撃モーション一段階目
-		L_MOTION_ATTACK_01,	// 攻撃モーション二段階目
-		L_MOTION_JUMP,		// ジャンプモーション
-		L_MOTION_LAND,		// 着地モーション
-		L_MOTION_MAX		// この列挙型の総数
+		L_MOTION_IDOL = 0,			// 待機モーション
+		L_MOTION_MOVE,				// 歩行モーション
+		L_MOTION_ATTACK_00,			// 攻撃モーション一段階目
+		L_MOTION_ATTACK_01,			// 攻撃モーション二段階目
+		L_MOTION_ATTACK_02,			// 攻撃モーション三段階目
+		L_MOTION_JUMP,				// ジャンプモーション
+		L_MOTION_LAND,				// 着地モーション
+		L_MOTION_JUMP_ATTACK_00,	// 空中攻撃モーション一段階目
+		L_MOTION_JUMP_ATTACK_01,	// 空中攻撃モーション二段階目
+		L_MOTION_MAX				// この列挙型の総数
 	};
 
 	// 上半身モーション列挙
 	enum EUpperMotion
 	{
-		U_MOTION_IDOL = 0,	// 待機モーション
-		U_MOTION_MOVE,		// 歩行モーション
-		U_MOTION_ATTACK_00,	// 攻撃モーション一段階目
-		U_MOTION_ATTACK_01,	// 攻撃モーション二段階目
-		U_MOTION_JUMP,		// ジャンプモーション
-		U_MOTION_LAND,		// 着地モーション
-		U_MOTION_MAX		// この列挙型の総数
+		U_MOTION_IDOL = 0,			// 待機モーション
+		U_MOTION_MOVE,				// 歩行モーション
+		U_MOTION_ATTACK_00,			// 攻撃モーション一段階目
+		U_MOTION_ATTACK_01,			// 攻撃モーション二段階目
+		U_MOTION_ATTACK_02,			// 攻撃モーション三段階目
+		U_MOTION_JUMP,				// ジャンプモーション
+		U_MOTION_LAND,				// 着地モーション
+		U_MOTION_JUMP_ATTACK_00,	// 空中攻撃モーション一段階目
+		U_MOTION_JUMP_ATTACK_01,	// 空中攻撃モーション二段階目
+		U_MOTION_MAX				// この列挙型の総数
 	};
 
 	// 状態列挙
