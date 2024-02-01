@@ -122,7 +122,7 @@ public:
 private:
 	// オーバーライド関数
 	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
-	void UpdateMotion(void) override;	// モーション・オブジェクトキャラクターの更新
+	void UpdateMotion(void) override;	// モーションの更新
 	void UpdateNormal(void) override;	// 通常状態時の更新
 
 	// メンバ関数

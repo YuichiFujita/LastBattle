@@ -208,11 +208,14 @@ void CEnemy::Uninit(void)
 //============================================================
 void CEnemy::Update(void)
 {
+	// オブジェクトキャラクターの更新
+	CObjectChara::Update();
+
 	// 各状態ごとの更新
 	assert(m_state > NONE_IDX && m_state < STATE_MAX);
 	(this->*(m_aFuncUpdateState[m_state]))();
 
-	// モーション・オブジェクトキャラクターの更新
+	// モーションの更新
 	UpdateMotion();
 }
 
@@ -1096,6 +1099,14 @@ void CEnemy::LoadSetup(const EType typeID)
 
 								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
 								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nFrame);	// キーが切り替わるまでのフレーム数を読み込む
+							}
+							else if (strcmp(&aString[0], "MOVE") == 0)
+							{ // 読み込んだ文字列が MOVE の場合
+
+								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
+								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.x);	// キーが切り替わるまでの移動量を読み込む
+								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.y);	// キーが切り替わるまでの移動量を読み込む
+								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.z);	// キーが切り替わるまでの移動量を読み込む
 							}
 							else if (strcmp(&aString[0], "KEY") == 0)
 							{ // 読み込んだ文字列が KEY の場合

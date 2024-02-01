@@ -9,6 +9,7 @@
 //************************************************************
 #include "motion.h"
 #include "multiModel.h"
+#include "objectChara.h"
 
 //************************************************************
 //	親クラス [CMotion] のメンバ関数
@@ -18,6 +19,7 @@
 //============================================================
 CMotion::CMotion() :
 	m_ppModel	(nullptr),	// モデル情報
+	m_pChara	(nullptr),	// オブジェクトキャラクター情報
 	m_nNumModel	(0),		// モデルのパーツ数
 	m_bUpdate	(true)		// 更新状況
 {
@@ -41,6 +43,7 @@ HRESULT CMotion::Init(void)
 	// メンバ変数をクリア
 	memset(&m_info, 0, sizeof(m_info));	// モーション情報
 	m_ppModel	= nullptr;	// モデル情報
+	m_pChara	= nullptr;	// オブジェクトキャラクター情報
 	m_nNumModel	= 0;		// モデルのパーツ数
 	m_bUpdate	= true;		// 更新状況
 
@@ -80,9 +83,53 @@ void CMotion::Uninit(void)
 //============================================================
 void CMotion::Update(void)
 {
-	if (!m_bUpdate)										{ return; }	// 更新しない
-	if (m_info.aMotionInfo[m_info.nType].nNumKey <= 0)	{ return; }	// キー数未設定
+	if (!m_bUpdate) { return; }	// 更新しない
+	if (m_info.aMotionInfo[m_info.nType].nNumKey <= 0) { return; }	// キー数未設定
 
+	// パーツの更新
+	UpdateParts();
+
+	// 移動の更新
+	UpdateMove();
+}
+
+//============================================================
+//	移動の更新処理
+//============================================================
+void CMotion::UpdateMove(void)
+{
+	if (m_pChara == nullptr) { return; }	// オブジェクトキャラクター未設定
+
+	// 変数を宣言
+	D3DXMATRIX  mtxChara	= m_pChara->GetMtxWorld();					// キャラマトリックス
+	D3DXVECTOR3 posSetChara	= m_pChara->GetVec3Position();				// キャラ設定位置
+	D3DXVECTOR3 posOldChara	= useful::GetMtxWorldPosition(mtxChara);	// キャラ過去位置
+	D3DXVECTOR3 posCurChara = VEC3_ZERO;								// キャラ現在位置
+
+	// 移動量を求める
+	float fRate = (float)m_info.nKeyCounter / (float)m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].nFrame;	// キーフレーム割合
+	D3DXVECTOR3 moveRate = m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].move * fRate;	// フレーム移動量
+
+	// 移動量をマトリックスに反映
+	D3DXMATRIX mtxMove;	// マトリックス計算用
+	D3DXMatrixTranslation(&mtxMove, moveRate.x, moveRate.y, moveRate.z);
+	D3DXMatrixMultiply(&mtxChara, &mtxMove, &mtxChara);
+
+	// 移動量を与えたマトリックスのワールド座標を求める
+	posCurChara = useful::GetMtxWorldPosition(mtxChara);
+
+	// 過去と現在の位置から移動量を求め、位置に与える
+	posSetChara += posOldChara - posCurChara;
+
+	// 位置を反映
+	m_pChara->SetVec3Position(posSetChara);
+}
+
+//============================================================
+//	パーツの更新処理
+//============================================================
+void CMotion::UpdateParts(void)
+{
 	// 変数を宣言
 	D3DXVECTOR3 diffPos;		// 次キーまでの差分位置
 	D3DXVECTOR3 diffRot;		// 次キーまでの差分向き
@@ -398,7 +445,7 @@ bool CMotion::IsRightWeaponCollision(void)
 //============================================================
 //	生成処理
 //============================================================
-CMotion *CMotion::Create(void)
+CMotion *CMotion::Create(CObjectChara *pChara)
 {
 	// モーションの生成
 	CMotion *pMotion = new CMotion;
@@ -418,6 +465,9 @@ CMotion *CMotion::Create(void)
 			SAFE_DELETE(pMotion);
 			return nullptr;
 		}
+
+		// オブジェクトキャラクターを設定
+		pMotion->m_pChara = pChara;
 
 		// 確保したアドレスを返す
 		return pMotion;

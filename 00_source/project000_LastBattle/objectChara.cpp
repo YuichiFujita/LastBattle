@@ -51,8 +51,8 @@ HRESULT CObjectChara::Init(void)
 	m_rot		= VEC3_ZERO;	// 向き
 	m_nNumModel	= 0;			// パーツの総数
 
-	// モーションオブジェクトの生成
-	m_pMotion = CMotion::Create();
+	// モーションの生成
+	m_pMotion = CMotion::Create(this);
 	if (m_pMotion == nullptr)
 	{ // 非使用中の場合
 

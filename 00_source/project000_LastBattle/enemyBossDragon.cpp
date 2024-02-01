@@ -266,14 +266,11 @@ const char *CEnemyBossDragon::GetModelFileName(const int nModel) const
 }
 
 //============================================================
-//	モーション・オブジェクトキャラクターの更新処理
+//	モーションの更新処理
 //============================================================
 void CEnemyBossDragon::UpdateMotion(void)
 {
 	if (IsDeath()) { return; }	// 死亡している
-
-	// オブジェクトキャラクターの更新
-	CObjectChara::Update();
 
 	switch (GetMotionType())
 	{ // モーションごとの処理

@@ -183,9 +183,9 @@ private:
 
 	// メンバ関数
 	void LoadSetup(const EBody bodyID, const char **ppModelPass);	// セットアップ
-	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション・オブジェクトキャラクターの更新
-	void UpdateMotionLower(const int nMotion);	// 下半身モーションの更新
-	void UpdateMotionUpper(const int nMotion);	// 上半身モーションの更新
+	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション更新
+	void UpdateMotionLower(const int nMotion);	// 下半身モーション更新
+	void UpdateMotionUpper(const int nMotion);	// 上半身モーション更新
 	bool IsAttack(void) const;		// 攻撃状況取得
 	void SetLStickRotation(void);	// Lスティック向きを向かせる
 

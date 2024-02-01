@@ -119,7 +119,7 @@ public:
 protected:
 	// 純粋仮想関数
 	virtual const char *GetModelFileName(const int nModel) const = 0;	// モデルファイル取得
-	virtual void UpdateMotion(void) = 0;	// モーション・オブジェクトキャラクターの更新
+	virtual void UpdateMotion(void) = 0;	// モーションの更新
 
 	// 仮想関数
 	virtual void SetSpawn(void);		// スポーン状態の設定
