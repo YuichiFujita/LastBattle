@@ -788,7 +788,7 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 6
-		MOVE = 0.0 0.0 16.04
+		MOVE = 0.0 0.0 19.04
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 -2.06 0.00
@@ -830,7 +830,7 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 5
-		MOVE = 0.0 0.0 18.46
+		MOVE = 0.0 0.0 24.46
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -2.30 -8.30 0.00
@@ -872,7 +872,7 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 9
-		MOVE = 0.0 0.0 13.1
+		MOVE = 0.0 0.0 19.1
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 -5.20 0.00
@@ -914,7 +914,7 @@ MOTIONSET
 	KEYSET
 	
 		FRAME = 9
-		MOVE = 0.0 0.0 6.8
+		MOVE = 0.0 0.0 12.8
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 1.30 -6.80 0.00

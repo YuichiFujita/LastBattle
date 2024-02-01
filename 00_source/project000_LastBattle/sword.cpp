@@ -26,7 +26,7 @@ namespace
 	const char *SETUP_TXT	= "data\\TXT\\sword.txt";	// セットアップテキスト相対パス
 	const float	SUB_ALPHA	= 0.05f;	// 透明度の減算量
 	const int	DMG_HIT		= 10;		// ヒット時のダメージ量
-	const int	ORBIT_PART	= 25;		// 分割数
+	const int	ORBIT_PART	= 18;		// 分割数
 	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 0.0f, -10.0f), D3DXVECTOR3(0.0f, 0.0f, -65.0f), XCOL_CYAN);	// オフセット情報
 }
 

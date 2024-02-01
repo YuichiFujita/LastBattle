@@ -950,8 +950,8 @@ MOTIONSET
 	NUM_KEY = 5	# キー数
 	CANCEL = 30	# キャンセルフレーム
 	
-	LEFT_COLL = 12 19	# 左攻撃の判定時間[MIN, MAX]
-	RIGHT_COLL = 12 19	# 右攻撃の判定時間[MIN, MAX]
+	LEFT_COLL = 12 20	# 左攻撃の判定時間[MIN, MAX]
+	RIGHT_COLL = 12 20	# 右攻撃の判定時間[MIN, MAX]
 	
 	KEYSET
 	
@@ -1440,8 +1440,8 @@ MOTIONSET
 	NUM_KEY = 5	# キー数
 	CANCEL = 26	# キャンセルフレーム
 	
-	LEFT_COLL = 8 18	# 左攻撃の判定時間[MIN, MAX]
-	RIGHT_COLL = 8 18	# 右攻撃の判定時間[MIN, MAX]
+	LEFT_COLL = 8 25	# 左攻撃の判定時間[MIN, MAX]
+	RIGHT_COLL = 8 25	# 右攻撃の判定時間[MIN, MAX]
 
 	KEYSET
 	

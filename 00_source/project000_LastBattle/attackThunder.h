@@ -20,13 +20,14 @@
 //************************************************************
 namespace attackThunder
 {
-	const int NUM_THUNDER = 1;	// 雷の生成数
+	const int NUM_THUNDER = 5;	// 雷の生成数
 }
 
 //************************************************************
 //	前方宣言
 //************************************************************
-class CThunder;	// 雷クラス
+class CThunder;		// 雷クラス
+class CObject3D;	// オブジェクト3Dクラス
 
 //************************************************************
 //	クラス定義
@@ -35,6 +36,14 @@ class CThunder;	// 雷クラス
 class CAttackThunder : public CObject
 {
 public:
+	// 状態列挙
+	enum EState
+	{
+		STATE_WARN = 0,	// 警告表示
+		STATE_ATTACK,	// 攻撃開始
+		STATE_MAX		// この列挙の総数
+	};
+
 	// コンストラクタ
 	CAttackThunder();
 
@@ -55,8 +64,16 @@ private:
 	void Release(void) override;	// 破棄
 	void SetVec3Position(const D3DXVECTOR3 &rPos) override;	// 位置設定
 
+	// メンバ関数
+	HRESULT SetAttack(void);	// 攻撃状態の設定
+	void CollisionPlayer(void);	// プレイヤーとの当たり判定
+
 	// メンバ変数
 	CThunder *m_apThunder[attackThunder::NUM_THUNDER];	// 雷の情報
+	CObject3D *m_pWarning;		// 警告表示の情報
+	D3DXVECTOR3 m_posOrigin;	// 雷の原点位置
+	EState m_state;				// 状態
+	int m_nCounterState;		// 状態管理カウンター
 };
 
 #endif	// _ATTACK_THUNDER_H_

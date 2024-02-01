@@ -162,7 +162,7 @@ bool CEnemyAttack00::Update(void)
 			// カメラ揺れを設定
 			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, PUNCH_SWING);
 
-			// 波動の生成
+			// 衝撃波の生成
 			D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス
 			D3DXVECTOR3 posHandL = D3DXVECTOR3(mtxHandL._41, pBoss->GetVec3Position().y, mtxHandL._43);	// 左手のワールド座標
 			CImpact::Create

@@ -53,18 +53,23 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
+	void SetVec3Position(const D3DXVECTOR3 &rPos) override;	// 位置設定
+	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 
 	// 静的メンバ関数
 	static CThunder *Create(const D3DXVECTOR3& rPos);	// 生成
 
+	// メンバ関数
+	bool IsLanding(void) { return m_bLand; }	// 着地状況取得
+
 private:
 	// オーバーライド関数
 	void Release(void) override;	// 破棄
-	void SetVec3Position(const D3DXVECTOR3 &rPos) override;	// 位置設定
 
 	// メンバ変数
 	SOrbitInfo  m_aOrbit[thunder::NUM_ORBIT];	// 軌跡の情報
 	D3DXVECTOR3 m_posOrbit;	// 軌跡の生成位置
+	bool m_bLand;	// 軌跡の着地判定
 };
 
 #endif	// _THUNDER_H_

@@ -44,7 +44,8 @@ public:
 		const float fHoleRadius,	// ŒŠ‚Ì”¼Œa
 		const float fThickness,		// ‘¾‚³
 		const float fOuterPlusY,	// ŠOü‚ÌYÀ•W‰ÁZ—Ê
-		const float fMaxGrowRadius	// ”¼Œa‚ÌÅ‘å¬’·—Ê
+		const float fMaxGrowRadius,	// ”¼Œa‚ÌÅ‘å¬’·—Ê
+		const bool bColl = true		// “–‚½‚è”»’è
 	);
 
 	void SetAddGrow(const SGrow &rGrow)		{ m_addGrow = rGrow; }			// ¬’·î•ñİ’è
@@ -58,6 +59,7 @@ private:
 
 	// ƒƒ“ƒo•Ï”
 	float m_fMaxGrowRadius;	// ”¼Œa‚ÌÅ‘å¬’·—Ê
+	bool  m_bColl;			// “–‚½‚è”»’èó‹µ
 	SGrow m_addGrow;		// ¬’·‰Á‘¬—Ê
 };
 

@@ -30,6 +30,7 @@ namespace
 //============================================================
 CImpact::CImpact() :
 	m_fMaxGrowRadius	(0.0f),						// 半径の最大成長量
+	m_bColl				(false),					// 当たり判定状況
 	m_addGrow			(SGrow(0.0f, 0.0f, 0.0f))	// 成長加速量
 {
 
@@ -50,7 +51,8 @@ HRESULT CImpact::Init(void)
 {
 	// メンバ変数を初期化
 	m_fMaxGrowRadius = 0.0f;				// 半径の最大成長量
-	m_addGrow = SGrow(0.0f, 0.0f, 0.0f);	// 成長加速量
+	m_bColl		= false;					// 当たり判定状況
+	m_addGrow	= SGrow(0.0f, 0.0f, 0.0f);	// 成長加速量
 
 	// 波動の初期化
 	if (FAILED(CWave::Init()))
@@ -140,7 +142,8 @@ CImpact *CImpact::Create
 	const float fHoleRadius,	// 穴の半径
 	const float fThickness,		// 太さ
 	const float fOuterPlusY,	// 外周のY座標加算量
-	const float fMaxGrowRadius	// 半径の最大成長量
+	const float fMaxGrowRadius,	// 半径の最大成長量
+	const bool bColl			// 当たり判定
 )
 {
 	// 衝撃波の生成
@@ -186,6 +189,9 @@ CImpact *CImpact::Create
 		// 半径の最大成長量を設定
 		pImpact->SetMaxGrowRadius(fMaxGrowRadius);
 
+		// 当たり判定状況を設定
+		pImpact->m_bColl = bColl;
+
 		// 確保したアドレスを返す
 		return pImpact;
 	}
@@ -196,6 +202,8 @@ CImpact *CImpact::Create
 //============================================================
 void CImpact::CollisionPlayer(void)
 {
+	if (!m_bColl) { return; }	// 当たり判定がOFF
+
 	CListManager<CPlayer> *pList = CPlayer::GetList();		// プレイヤーリスト
 	if (pList == nullptr)		 { assert(false); return; }	// リスト未使用
 	if (pList->GetNumAll() != 1) { assert(false); return; }	// プレイヤーが1人じゃない
