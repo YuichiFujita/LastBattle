@@ -107,7 +107,7 @@ void CMotion::UpdateMove(void)
 	D3DXVECTOR3 posCurChara = VEC3_ZERO;								// キャラ現在位置
 
 	// 移動量を求める
-	float fRate = (float)m_info.nKeyCounter / (float)m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].nFrame;	// キーフレーム割合
+	float fRate = 1.0f / (float)m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].nFrame;	// キーフレーム割合
 	D3DXVECTOR3 moveRate = m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].move * fRate;	// フレーム移動量
 
 	// 移動量をマトリックスに反映
