@@ -20,7 +20,7 @@
 //************************************************************
 // 敵攻撃01クラス
 /*
-	@brief ボスの攻撃管理クラス 雷を放つ
+	@brief ボスの攻撃管理クラス 雷をプレイヤー付近にランダムで放つ
 */
 class CEnemyAttack01 : public CEnemyAttack
 {
@@ -30,9 +30,11 @@ public:
 	{
 		STATE_INIT_TELEPORT = 0,	// テレポートの初期化
 		STATE_TELEPORT,				// テレポート
-		STATE_INIT_WAVE,			// 波動発射の初期化
-		STATE_WAVE,					// 波動発射
+		STATE_INIT_THUNDER,			// 雷発射の初期化
+		STATE_THUNDER,				// 雷発射
 		STATE_WAIT,					// 待機
+		STATE_CENTER_TELEPORT_INIT,	// 中央テレポートの初期化
+		STATE_CENTER_TELEPORT,		// 中央テレポート
 		STATE_END,					// 終了
 		STATE_MAX					// この列挙型の総数
 	};

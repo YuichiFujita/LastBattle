@@ -22,15 +22,15 @@ namespace
 {
 	const CWave::SGrow		IMPACT_GROW		= CWave::SGrow(6.0f, 0.0f, 0.0f);		// 成長量
 	const CWave::SGrow		IMPACT_ADDGROW	= CWave::SGrow(0.2f, 0.002f, 0.0f);		// 成長加速量
-	const CCamera::SSwing	PUNCH_SWING		= CCamera::SSwing(8.0f, 1.5f, 0.25f);	// 地面殴り時のカメラ揺れ
+	const CCamera::SSwing	PUNCH_SWING		= CCamera::SSwing(12.0f, 1.5f, 0.25f);	// 地面殴り時のカメラ揺れ
 
 	const float	IMPACT_HOLE_RADIUS	= 10.0f;	// 穴の半径
 	const float	IMPACT_THICKNESS	= 0.0f;		// 太さ
 	const float	IMPACT_OUTER_PLUSY	= 25.0f;	// 外周のY座標加算量
 	const float	IMPACT_MAX_RADIUS	= 3000.0f;	// 半径の最大成長量
-	const float	TELEPORT_POS_DIS	= 1200.0f;	// テレポート時のプレイヤー位置から遠ざける距離
+	const float	TELEPORT_POS_DIS	= 800.0f;	// テレポート時のプレイヤー位置から遠ざける距離
 	const int	ATTACK_WAIT_FRAME	= 10;		// 攻撃後の硬直フレーム
-	const int	MAX_ATTACK			= 3;		// 攻撃回数
+	const int	MAX_ATTACK			= 2;		// 攻撃回数
 }
 
 //************************************************************

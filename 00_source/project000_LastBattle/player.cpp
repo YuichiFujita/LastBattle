@@ -94,8 +94,9 @@ namespace
 	const float	MAX_ADD_ALPHA	= 0.25f;	// 透明度の最大加算量
 	const float	DODGE_REV_MOVE	= 0.065f;	// 回避移動量の減算係数
 	const float	DODGE_MIN_MOVE	= 0.35f;	// 回避移動量の最小値
-	const float	DODGE_SIDE_MOVE	= 3.8f;		// 回避の横移動量
-	const float	DODGE_JUMP_MOVE	= 13.0f;	// 回避の上移動量
+	const float	DODGE_SIDE_MOVE	= 3.2f;		// 回避の横移動量
+	const float	DODGE_JUMP_MOVE	= 9.0f;		// 回避の上移動量
+	const int	DODGE_WAIT_FRAME	= 100;	// 回避のフールタイムフレーム
 	const int	ATTACK_BUFFER_FRAME = 20;	// 攻撃の先行入力可能フレーム
 
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);		// 影の大きさ
@@ -1207,32 +1208,46 @@ void CPlayer::UpdateDodge(void)
 		if (IsAttack())	{ return; }	// 攻撃中の場合抜ける
 		if (m_bJump)	{ return; }	// ジャンプ中の場合抜ける
 
+		if (m_dodge.nWaitCounter > 0)
+		{ // クールタイムが残っている場合
+
+			// クールタイムを減算
+			m_dodge.nWaitCounter--;
+		}
+
 		if (pPad->IsTrigger(CInputPad::KEY_B))
 		{
-			if (pad::DEAD_ZONE < pPad->GetPressLStickTilt())
-			{ // スティックの傾き量がデッドゾーン以上の場合
+			if (m_dodge.nWaitCounter <= 0)
+			{ // クールタイムがない場合
 
-				// 回避移動量を設定
-				m_dodge.fMove = DODGE_SIDE_MOVE;
+				if (pad::DEAD_ZONE < pPad->GetPressLStickTilt())
+				{ // スティックの傾き量がデッドゾーン以上の場合
 
-				// 回避方向を設定
-				m_dodge.fRot = pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI;
+					// 回避移動量を設定
+					m_dodge.fMove = DODGE_SIDE_MOVE;
 
-				// スティック入力方向に移動量を与える
-				m_move.x += sinf(m_dodge.fRot) * m_dodge.fMove;
-				m_move.z += cosf(m_dodge.fRot) * m_dodge.fMove;
+					// 回避方向を設定
+					m_dodge.fRot = pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI;
 
-				// 上移動量を与える
-				m_move.y += DODGE_JUMP_MOVE;
+					// スティック入力方向に移動量を与える
+					m_move.x += sinf(m_dodge.fRot) * m_dodge.fMove;
+					m_move.z += cosf(m_dodge.fRot) * m_dodge.fMove;
 
-				// 目標向きを設定
-				m_destRot.y = atan2f(-m_move.x, -m_move.z);
+					// 上移動量を与える
+					m_move.y += DODGE_JUMP_MOVE;
 
-				// ジャンプ中にする
-				m_bJump = true;
+					// 目標向きを設定
+					m_destRot.y = atan2f(-m_move.x, -m_move.z);
 
-				// 回避中にする
-				m_dodge.bDodge = true;
+					// ジャンプ中にする
+					m_bJump = true;
+
+					// 回避中にする
+					m_dodge.bDodge = true;
+
+					// クールタイムを設定
+					m_dodge.nWaitCounter = DODGE_WAIT_FRAME;
+				}
 			}
 		}
 	}

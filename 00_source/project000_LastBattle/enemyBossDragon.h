@@ -105,6 +105,7 @@ public:
 		D3DXVECTOR3 pos;	// テレポート目標位置
 		D3DXVECTOR3 rot;	// テレポート目標向き
 		ETeleport state;	// テレポート状態
+		bool bLook;			// テレポート先にカメラを向かせるか
 	};
 
 	// オーバーライド関数
@@ -116,7 +117,12 @@ public:
 	void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
 
 	// メンバ関数
-	void SetTeleport(const D3DXVECTOR3& rPos, const D3DXVECTOR3 &rRot);	// テレポート設定
+	void SetTeleport	// テレポート設定
+	( // 引数
+		const D3DXVECTOR3& rPos,	// テレポート目標位置
+		const D3DXVECTOR3& rRot,	// テレポート目標向き
+		const bool bLook = true		// テレポート先にカメラを向かせるか
+	);
 	void SetActPunchGround(void);	// 地面殴り行動設定
 	EAction GetAction(void);		// 行動取得
 

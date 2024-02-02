@@ -20,7 +20,7 @@
 //************************************************************
 namespace attackThunder
 {
-	const int NUM_THUNDER = 5;	// 雷の生成数
+	const int NUM_THUNDER = 3;	// 雷の生成数
 }
 
 //************************************************************
@@ -62,9 +62,10 @@ public:
 private:
 	// オーバーライド関数
 	void Release(void) override;	// 破棄
-	void SetVec3Position(const D3DXVECTOR3 &rPos) override;	// 位置設定
 
 	// メンバ関数
+	void SetOriginPosition(const D3DXVECTOR3 &rPos);	// 原点位置設定
+	void SetThunderPosition(const D3DXVECTOR3 &rPos);	// 雷位置設定
 	HRESULT SetAttack(void);	// 攻撃状態の設定
 	void CollisionPlayer(void);	// プレイヤーとの当たり判定
 

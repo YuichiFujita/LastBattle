@@ -280,7 +280,12 @@ void CEnemyBossDragon::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /
 //============================================================
 //	テレポートの設定処理
 //============================================================
-void CEnemyBossDragon::SetTeleport(const D3DXVECTOR3& rPos, const D3DXVECTOR3& rRot)
+void CEnemyBossDragon::SetTeleport
+(
+	const D3DXVECTOR3 &rPos,	// テレポート目標位置
+	const D3DXVECTOR3 &rRot,	// テレポート目標向き
+	const bool bLook			// テレポート先にカメラを向かせるか
+)
 {
 	// テレポート後の位置・向きを保存
 	m_teleport.pos = rPos;
@@ -289,6 +294,9 @@ void CEnemyBossDragon::SetTeleport(const D3DXVECTOR3& rPos, const D3DXVECTOR3& r
 	// 魔法陣の位置・向きを現在位置の足元に設定
 	m_pMagicCircle->SetVec3Position(GetVec3Position());
 	m_pMagicCircle->SetVec3Rotation(GetVec3Rotation());
+
+	// テレポート後のカメラ補正を設定
+	m_teleport.bLook = bLook;
 
 	// テレポートの初期化状態にする
 	m_teleport.state = TELEPORT_INIT;
@@ -392,7 +400,11 @@ void CEnemyBossDragon::UpdateAttack(void)
 			// 攻撃の生成
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
+#if 0	// TODO：攻撃を指定
 				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
+#else
+				CEnemyAttack::ATTACK_01,	// 攻撃インデックス
+#endif
 				this	// 自身のポインタ
 			);
 			if (m_pAttack == nullptr)
@@ -604,8 +616,12 @@ void CEnemyBossDragon::UpdateMagicFadeOut(const D3DXVECTOR3& rPos)
 	{ // テレポート状態ごとの処理
 	case TELEPORT_INIT:		// テレポートの初期化
 	{
-		// テレポート後のボスを視認させる
-		GET_MANAGER->GetCamera()->SetFollowLook(this);
+		if (m_teleport.bLook)
+		{ // テレポート先を視認する場合
+
+			// テレポート後のボスを視認させる
+			GET_MANAGER->GetCamera()->SetFollowLook(this);
+		}
 
 		// 魔法陣の出現状態にする
 		m_teleport.state = TELEPORT_APPEAR;

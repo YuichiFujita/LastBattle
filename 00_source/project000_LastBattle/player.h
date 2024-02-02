@@ -142,9 +142,10 @@ private:
 	// 回避構造体
 	struct SDodge
 	{
-		bool  bDodge;	// 回避状況
-		float fMove;	// 回避移動量
-		float fRot;		// 回避方向
+		bool  bDodge;		// 回避状況
+		float fMove;		// 回避移動量
+		float fRot;			// 回避方向
+		int   nWaitCounter;	// クールタイム管理カウンター
 	};
 
 	// 先行入力構造体

@@ -12,30 +12,18 @@
 #include "manager.h"
 #include "camera.h"
 #include "player.h"
-#include "multiModel.h"
-#include "impact.h"
+#include "stage.h"
+#include "attackThunder.h"
 
 //************************************************************
 //	定数宣言
 //************************************************************
 namespace
 {
-	const CCamera::SSwing	PUNCH_SWING		= CCamera::SSwing(8.0f, 1.5f, 0.25f);	// 地面殴り時のカメラ揺れ
-
-	const float	TELEPORT_POS_DIS	= 1200.0f;	// テレポート時のプレイヤー位置から遠ざける距離
-	const int	ATTACK_WAIT_FRAME	= 10;		// 攻撃後の硬直フレーム
+	const float	TELEPORT_POS_DIS	= 4800.0f;	// テレポート時のステージ中心位置から遠ざける距離
+	const float	TELEPORT_POSY		= 1200.0f;	// テレポート時のY座標
+	const int	ATTACK_WAIT_FRAME	= 80;		// 攻撃後の硬直フレーム
 	const int	MAX_ATTACK			= 3;		// 攻撃回数
-
-	// 衝撃波の情報
-	namespace impact
-	{
-		const CWave::SGrow GROW		= CWave::SGrow(6.0f, 0.0f, 0.0f);	// 成長量
-		const CWave::SGrow ADDGROW	= CWave::SGrow(0.2f, 0.002f, 0.0f);	// 成長加速量
-		const float	HOLE_RADIUS	= 10.0f;	// 穴の半径
-		const float	THICKNESS	= 0.0f;		// 太さ
-		const float	OUTER_PLUSY	= 25.0f;	// 外周のY座標加算量
-		const float	MAX_RADIUS	= 3000.0f;	// 半径の最大成長量
-	}
 }
 
 //************************************************************
@@ -99,32 +87,27 @@ bool CEnemyAttack01::Update(void)
 {
 	// ポインタを宣言
 	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+	CStage *pStage = CScene::GetStage();	// ステージの情報
 
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_INIT_TELEPORT:	// テレポートの初期化
 	{
-		CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
-		if (pList == nullptr)		 { assert(false); return false; }	// リスト未使用
-		if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
-		auto player = pList->GetList().front();							// プレイヤー情報
-
-		float fRandRot = useful::RandomRot();	// ランダム向き
-		D3DXVECTOR3 posPlayer = player->GetVec3Position();		// プレイヤーの位置
-
 		D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
 		D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き
 
-		// プレイヤーからランダム方向に遠ざけた位置を設定
-		posEnemy.x += posPlayer.x + sinf(fRandRot) * TELEPORT_POS_DIS;
-		posEnemy.z += posPlayer.z + cosf(fRandRot) * TELEPORT_POS_DIS;
+		// ランダム方向上空に敵の位置を設定
+		float fRandRot = useful::RandomRot();
+		posEnemy.x = sinf(fRandRot) * TELEPORT_POS_DIS;
+		posEnemy.y = TELEPORT_POSY;
+		posEnemy.z = cosf(fRandRot) * TELEPORT_POS_DIS;
 
-		// プレイヤー方向を設定
-		D3DXVECTOR3 vec = posEnemy - posPlayer;
+		// ステージ中心方向に敵の向きを設定
+		D3DXVECTOR3 vec = posEnemy - pStage->GetStageLimit().center;
 		rotEnemy.y = atan2f(vec.x, vec.z);
 
 		// ボスをテレポートさせる
-		pBoss->SetTeleport(posEnemy, rotEnemy);
+		pBoss->SetTeleport(posEnemy, rotEnemy, false);
 
 		// テレポート状態にする
 		m_state = STATE_TELEPORT;
@@ -136,24 +119,26 @@ bool CEnemyAttack01::Update(void)
 		if (pBoss->GetAction() == CEnemyBossDragon::ACT_NONE)
 		{ // 何も行動していない場合
 
-			// 波動発射の初期化状態にする
-			m_state = STATE_INIT_WAVE;
+			// 雷発射の初期化状態にする
+			m_state = STATE_INIT_THUNDER;
 		}
 
 		break;
 	}
-	case STATE_INIT_WAVE:	// 波動発射の初期化
+	case STATE_INIT_THUNDER:	// 波動発射の初期化
 	{
+#if 0	// TODO：ここで腕を掲げるモーションに遷移
 		// 地面殴りの行動を設定
 		pBoss->SetActPunchGround();
-
+#endif
 		// 波動発射状態にする
-		m_state = STATE_WAVE;
+		m_state = STATE_THUNDER;
 
 		// 処理は抜けず波動発射の状態更新に移行
 	}
-	case STATE_WAVE:	// 波動発射
+	case STATE_THUNDER:	// 波動発射
 	{
+#if 0	// TODO：ここで腕を掲げるモーションから空中待機になったかの判定
 		if (pBoss->GetMotionType() != CEnemyBossDragon::MOTION_PUNCH_GROUND)
 		{ // 地面殴りモーションではない場合
 
@@ -161,30 +146,49 @@ bool CEnemyAttack01::Update(void)
 			m_state = STATE_WAIT;
 		}
 
-		if (pBoss->GetMotionKey() == pBoss->GetMotionNumKey() - 1 && pBoss->GetMotionKeyCounter() == 0)
+		//if (pBoss->GetMotionKey() == pBoss->GetMotionNumKey() - 1 && pBoss->GetMotionKeyCounter() == 0)
 		{ // モーションが地面を殴ったタイミングの場合
 
-			// カメラ揺れを設定
-			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, PUNCH_SWING);
+			// 雷攻撃の生成
 
-			// 波動の生成
-			D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス
-			D3DXVECTOR3 posHandL = D3DXVECTOR3(mtxHandL._41, pBoss->GetVec3Position().y, mtxHandL._43);	// 左手のワールド座標
-			CImpact::Create
-			( // 引数
-				CWave::TEXTURE_NONE,	// 種類
-				posHandL,				// 位置
-				impact::GROW,			// 成長量
-				impact::ADDGROW,		// 成長加速量
-				impact::HOLE_RADIUS,	// 穴の半径
-				impact::THICKNESS,		// 太さ
-				impact::OUTER_PLUSY,	// 外周のY座標加算量
-				impact::MAX_RADIUS		// 半径の最大成長量
-			);
 
 			// 攻撃回数を加算
 			m_nCounterNumAtk++;
 		}
+#else
+		//if (pBoss->GetMotionKey() == pBoss->GetMotionNumKey() - 1 && pBoss->GetMotionKeyCounter() == 0)
+		{ // モーションが地面を殴ったタイミングの場合
+
+			CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
+			if (pList == nullptr)		 { assert(false); return false; }	// リスト未使用
+			if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
+			auto player = pList->GetList().front();							// プレイヤー情報
+
+			D3DXVECTOR3 posPlayer = player->GetVec3Position();	// プレイヤーの位置
+			D3DXVECTOR3 posThunder = VEC3_ZERO;					// 雷の位置
+
+			// 雷攻撃をプレイヤー位置に生成
+			CAttackThunder::Create(posPlayer);
+
+			for (int nCntAttack = 0; nCntAttack < 5; nCntAttack++)
+			{
+
+				// プレイヤーからランダム方向・距離に遠ざけた位置を設定
+				float fRandRot = useful::RandomRot();	// ランダム向き
+				posThunder.x = posPlayer.x + sinf(fRandRot) * (rand() % 201 + 250);
+				posThunder.z = posPlayer.z + cosf(fRandRot) * (rand() % 201 + 250);
+
+				// 雷攻撃をランダム位置に生成
+				CAttackThunder::Create(posThunder);
+			}
+
+			// 攻撃回数を加算
+			m_nCounterNumAtk++;
+		}
+
+		// 待機状態にする
+		m_state = STATE_WAIT;
+#endif
 
 		break;
 	}
@@ -201,8 +205,8 @@ bool CEnemyAttack01::Update(void)
 			if (m_nCounterNumAtk < MAX_ATTACK)
 			{ // 攻撃回数が総数に到達していない場合
 
-				// テレポート初期化状態にする
-				m_state = STATE_INIT_TELEPORT;
+				// 雷発射の初期化状態にする
+				m_state = STATE_INIT_THUNDER;
 			}
 			else
 			{ // 攻撃回数が総数に到達した場合
@@ -210,9 +214,32 @@ bool CEnemyAttack01::Update(void)
 				// 攻撃回数を初期化
 				m_nCounterNumAtk = 0;
 
-				// 終了状態にする
-				m_state = STATE_END;
+				// 中央テレポートの初期化状態にする
+				m_state = STATE_CENTER_TELEPORT_INIT;
 			}
+		}
+
+		break;
+	}
+	case STATE_CENTER_TELEPORT_INIT:	// 中央テレポートの初期化
+	{
+		// ボスをテレポートさせる
+		pBoss->SetTeleport(pStage->GetStageLimit().center, D3DXVECTOR3(0.0f, useful::RandomRot(), 0.0f));
+
+		// 中央テレポート状態にする
+		m_state = STATE_CENTER_TELEPORT;
+
+		// 処理は抜けず中央テレポートの状態更新に移行
+
+		break;
+	}
+	case STATE_CENTER_TELEPORT:	// 中央テレポート
+	{
+		if (pBoss->GetAction() == CEnemyBossDragon::ACT_NONE)
+		{ // 何も行動していない場合
+
+			// 終了状態にする
+			m_state = STATE_END;
 		}
 
 		break;

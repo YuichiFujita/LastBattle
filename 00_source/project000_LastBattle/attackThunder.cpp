@@ -25,7 +25,7 @@ namespace
 {
 	const char *TEXTURE_WARNING = "data\\TEXTURE\\warning000.png";	// 警告表示のテクスチャファイル
 
-	const CCamera::SSwing LAND_SWING = CCamera::SSwing(6.0f, 1.5f, 0.25f);	// 雷着弾時のカメラ揺れ
+	const CCamera::SSwing LAND_SWING = CCamera::SSwing(8.0f, 1.5f, 0.25f);	// 雷着弾時のカメラ揺れ
 
 	const int	WARNING_PRIO	= 0;		// 警告表示の優先順位
 	const int	DMG_THUNDER		= 15;		// 雷のダメージ量
@@ -77,10 +77,6 @@ CAttackThunder::~CAttackThunder()
 //============================================================
 HRESULT CAttackThunder::Init(void)
 {
-	// ポインタを宣言
-	CStage *pStage = CScene::GetStage();	// ステージの情報
-	assert(pStage != nullptr);	// ステージ未使用
-
 	// メンバ変数をクリア
 	memset(&m_apThunder[0], 0, sizeof(m_apThunder));	// 雷の情報
 	m_pWarning	= nullptr;		// 警告表示の情報
@@ -91,7 +87,7 @@ HRESULT CAttackThunder::Init(void)
 	// 警告表示の生成
 	m_pWarning = CObject3D::Create
 	( // 引数
-		D3DXVECTOR3(0.0f, pStage->GetStageLimit().fField, 0.0f),	// 位置
+		VEC3_ZERO,	// 位置
 		D3DXVECTOR3(COLL_RADIUS * 2.0f, 0.0f, COLL_RADIUS * 2.0f)	// 大きさ
 	);
 	if (m_pWarning == nullptr)
@@ -168,7 +164,7 @@ void CAttackThunder::Update(void)
 				GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, LAND_SWING);
 
 				// 衝撃波の生成
-				D3DXVECTOR3 posImpact = D3DXVECTOR3(0.0f, pStage->GetStageLimit().fField, 0.0f);
+				D3DXVECTOR3 posImpact = D3DXVECTOR3(m_posOrigin.x, pStage->GetStageLimit().fField, m_posOrigin.z);
 				CImpact::Create
 				( // 引数
 					CWave::TEXTURE_NONE,	// 種類
@@ -234,7 +230,7 @@ CAttackThunder *CAttackThunder::Create(const D3DXVECTOR3 &rPos)
 		}
 
 		// 雷の原点位置を設定
-		pAttackThunder->m_posOrigin = rPos;
+		pAttackThunder->SetOriginPosition(rPos);
 
 		// 確保したアドレスを返す
 		return pAttackThunder;
@@ -251,9 +247,29 @@ void CAttackThunder::Release(void)
 }
 
 //============================================================
-//	位置の設定処理
+//	原点位置の設定処理
 //============================================================
-void CAttackThunder::SetVec3Position(const D3DXVECTOR3& rPos)
+void CAttackThunder::SetOriginPosition(const D3DXVECTOR3 &rPos)
+{
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();	// ステージの情報
+	assert(pStage != nullptr);	// ステージ未使用
+
+	// 原点位置を設定
+	m_posOrigin = rPos;
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(m_posOrigin, COLL_RADIUS);
+
+	// 警告表示の位置を設定
+	D3DXVECTOR3 posWarn = D3DXVECTOR3(m_posOrigin.x, pStage->GetStageLimit().fField, m_posOrigin.z);
+	m_pWarning->SetVec3Position(posWarn);
+}
+
+//============================================================
+//	雷位置の設定処理
+//============================================================
+void CAttackThunder::SetThunderPosition(const D3DXVECTOR3 &rPos)
 {
 	// 最初の雷の位置を真ん中に設定
 	m_apThunder[0]->SetVec3Position(rPos);
@@ -268,8 +284,8 @@ void CAttackThunder::SetVec3Position(const D3DXVECTOR3& rPos)
 
 		// 雷の位置を設定
 		D3DXVECTOR3 posThunder = VEC3_ZERO;
-		posThunder.x = sinf(fRotDir) * SHIFT_POS_LENGTH;
-		posThunder.z = cosf(fRotDir) * SHIFT_POS_LENGTH;
+		posThunder.x = rPos.x + sinf(fRotDir) * SHIFT_POS_LENGTH;
+		posThunder.z = rPos.z + cosf(fRotDir) * SHIFT_POS_LENGTH;
 
 		// 雷の位置を設定
 		int nSetID = nCntThunder + 1;	// 位置を設定する雷のインデックス
@@ -302,8 +318,8 @@ HRESULT CAttackThunder::SetAttack(void)
 		}
 	}
 
-	// 位置を設定
-	SetVec3Position(m_posOrigin);
+	// 雷位置を設定
+	SetThunderPosition(m_posOrigin);
 
 	// 成功を返す
 	return S_OK;
