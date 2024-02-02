@@ -726,7 +726,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 24
+		FRAME = 46
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 31.50 -101.00 58.80

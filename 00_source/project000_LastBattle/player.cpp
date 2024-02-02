@@ -1289,9 +1289,9 @@ void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 //============================================================
 void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 {
-	if (IsAttack())		{ return; }	// 攻撃中の場合抜ける
 	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
 	if (m_bJump)		{ return; }	// ジャンプ中の場合抜ける
+	if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
 
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_A))
 	{

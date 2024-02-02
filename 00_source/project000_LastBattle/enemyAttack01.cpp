@@ -231,9 +231,8 @@ bool CEnemyAttack01::Update(void)
 		if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
 		auto player = pList->GetList().front();							// プレイヤー情報
 
-		float fRandRot = useful::RandomRot();				// ランダム向き
-		D3DXVECTOR3 posPlayer = player->GetVec3Position();	// プレイヤーの位置
-		D3DXVECTOR3 posEnemy  = pBoss->GetVec3Position();	// 敵の位置
+		D3DXVECTOR3 posPlayer = player->GetVec3Position();		// プレイヤーの位置
+		D3DXVECTOR3 posEnemy  = pStage->GetStageLimit().center;	// 敵の位置
 		D3DXVECTOR3 rotEnemy  = VEC3_ZERO;	// 敵の設定向き
 
 		// プレイヤー方向を設定
@@ -241,7 +240,7 @@ bool CEnemyAttack01::Update(void)
 		rotEnemy.y = atan2f(vec.x, vec.z);
 
 		// ボスをテレポートさせる
-		pBoss->SetTeleport(pStage->GetStageLimit().center, rotEnemy);
+		pBoss->SetTeleport(posEnemy, rotEnemy);
 
 		// 中央テレポート状態にする
 		m_state = STATE_CENTER_TELEPORT;
