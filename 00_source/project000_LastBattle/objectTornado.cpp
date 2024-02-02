@@ -644,9 +644,9 @@ void CObjectTornado::SetVtx(void)
 			{ // 渦の分割数分繰り返す
 
 				// 頂点方向ベクトルを求める
-				vecPos.x = sinf(nCntHeight * ((D3DX_PI * 2.0f) / m_nPattern)) * 1.0f;
+				vecPos.x = sinf(nCntHeight * ((D3DX_PI * 2.0f) / m_nPattern));
 				vecPos.y = 1.0f;
-				vecPos.z = cosf(nCntHeight * ((D3DX_PI * 2.0f) / m_nPattern)) * 1.0f;
+				vecPos.z = cosf(nCntHeight * ((D3DX_PI * 2.0f) / m_nPattern));
 
 				for (int nCntSet = 0; nCntSet < MAX_OFFSET; nCntSet++)
 				{ // オフセットの総数分繰り返す

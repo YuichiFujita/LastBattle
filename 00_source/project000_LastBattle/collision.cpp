@@ -182,14 +182,14 @@ bool collision::Sector
 		useful::NormalizeRot(fRotEdge[1]);		// 向きを正規化
 
 		// 扇形の左縁の先端位置を求める
-		posEdge[0].x = centerPos.x + sinf(fRotEdge[0]) * 1.0f;
+		posEdge[0].x = centerPos.x + sinf(fRotEdge[0]);
 		posEdge[0].y = 0.0f;
-		posEdge[0].z = centerPos.z + cosf(fRotEdge[0]) * 1.0f;
+		posEdge[0].z = centerPos.z + cosf(fRotEdge[0]);
 
 		// 扇形の右縁の先端位置を求める
-		posEdge[1].x = centerPos.x + sinf(fRotEdge[1]) * 1.0f;
+		posEdge[1].x = centerPos.x + sinf(fRotEdge[1]);
 		posEdge[1].y = 0.0f;
-		posEdge[1].z = centerPos.z + cosf(fRotEdge[1]) * 1.0f;
+		posEdge[1].z = centerPos.z + cosf(fRotEdge[1]);
 
 		// 扇形の左縁のベクトルを求める
 		vecEdge[0] = posEdge[0] - centerPos;
