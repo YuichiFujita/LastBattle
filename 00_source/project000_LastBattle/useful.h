@@ -156,6 +156,7 @@ namespace useful
 
 	void NormalizeRot(float& rRot);				// 向きの正規化
 	void Vec3NormalizeRot(D3DXVECTOR3& rRot);	// 三軸向きの正規化
+	float RandomRot(void);						// ランダム向き取得
 	D3DXVECTOR3 GetMtxWorldPosition(const D3DXMATRIX& rMtx);	// マトリックスのワールド座標取得
 
 	// テンプレート関数

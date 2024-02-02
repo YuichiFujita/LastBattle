@@ -18,10 +18,10 @@
 #------------------------------------------------------------------------------
 LIMITSET
 	CENTER = 0.00 0.00 0.00
-	NEAR = -12000.00
-	FAR = 12000.00
-	RIGHT = 12000.00
-	LEFT = -12000.00
+	NEAR = -1800.00
+	FAR = 1800.00
+	RIGHT = 1800.00
+	LEFT = -1800.00
 	FIELD = 50.00
 	KILLY = -150.00
 END_LIMITSET
@@ -45,9 +45,9 @@ STAGE_FIELDSET
 		TEXTURE_ID = 0
 		POS = 0.0 50.0 0.0
 		ROT = 0.0 0.0 0.0
-		SIZE = 6000.0 6000.0
+		SIZE = 3600.0 3600.0
 		COL = 1.0 1.0 1.0 1.0
-		PART = 24 24
+		PART = 18 18
 	END_FIELDSET
 
 END_STAGE_FIELDSET

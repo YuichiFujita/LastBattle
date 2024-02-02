@@ -18,7 +18,7 @@
 namespace
 {
 	const int MAX_VERTEX	= 12;	// 頂点数
-	const int PRIORITY		= 6;	// ゲージ2Dの優先順位
+	const int PRIORITY		= 5;	// ゲージ2Dの優先順位
 }
 
 //************************************************************

@@ -259,8 +259,8 @@ void CParticle2D::Damage(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 		{ // 生成されるエフェクト数分繰り返す
 
 			// ベクトルをランダムに設定
-			move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-			move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+			move.x = sinf(useful::RandomRot());
+			move.y = cosf(useful::RandomRot());
 			move.z = 0.0f;
 
 			// ベクトルを正規化
@@ -305,8 +305,8 @@ void CParticle2D::Item(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		move.x = sinf(useful::RandomRot());
+		move.y = cosf(useful::RandomRot());
 		move.z = 0.0f;
 
 		// ベクトルを正規化
@@ -350,8 +350,8 @@ void CParticle2D::GetItem(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		move.x = sinf(useful::RandomRot());
+		move.y = cosf(useful::RandomRot());
 		move.z = 0.0f;
 
 		// ベクトルを正規化

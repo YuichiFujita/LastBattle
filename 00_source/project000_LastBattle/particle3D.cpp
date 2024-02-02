@@ -416,9 +416,9 @@ void CParticle3D::Damage(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 		{ // 生成されるエフェクト数分繰り返す
 
 			// ベクトルをランダムに設定
-			move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-			move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-			move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+			move.x = sinf(useful::RandomRot()) * 1.0f;
+			move.y = cosf(useful::RandomRot()) * 1.0f;
+			move.z = cosf(useful::RandomRot()) * 1.0f;
 
 			// ベクトルを正規化
 			D3DXVec3Normalize(&move, &move);
@@ -464,9 +464,9 @@ void CParticle3D::Heal(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		vec.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		vec.x = sinf(useful::RandomRot()) * 1.0f;
+		vec.y = cosf(useful::RandomRot()) * 1.0f;
+		vec.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&vec, &vec);
@@ -510,9 +510,9 @@ void CParticle3D::StompPlant(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		move.x = sinf(useful::RandomRot()) * 1.0f;
+		move.y = cosf(useful::RandomRot()) * 1.0f;
+		move.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&move, &move);
@@ -525,7 +525,7 @@ void CParticle3D::StompPlant(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 		// 向きを設定
 		rot.x = 0.0f;
 		rot.y = 0.0f;
-		rot.z = (float)(rand() % 629 - 314) / 100.0f;
+		rot.z = useful::RandomRot();
 
 		// エフェクト3Dオブジェクトの生成
 		CEffect3D::Create
@@ -560,9 +560,9 @@ void CParticle3D::SmallExplosion(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		vec.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		vec.x = sinf(useful::RandomRot()) * 1.0f;
+		vec.y = cosf(useful::RandomRot()) * 1.0f;
+		vec.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&vec, &vec);
@@ -576,7 +576,7 @@ void CParticle3D::SmallExplosion(const D3DXVECTOR3& rPos)
 		// 向きを設定
 		rot.x = 0.0f;
 		rot.y = 0.0f;
-		rot.z = (float)(rand() % 629 - 314) / 100.0f;
+		rot.z = useful::RandomRot();
 
 		// 寿命を設定
 		nLife = (rand() % smallExplosion::smoke::RAND_LIFE) + smallExplosion::smoke::EFF_LIFE;
@@ -601,9 +601,9 @@ void CParticle3D::SmallExplosion(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		vec.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		vec.x = sinf(useful::RandomRot()) * 1.0f;
+		vec.y = cosf(useful::RandomRot()) * 1.0f;
+		vec.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&vec, &vec);
@@ -653,9 +653,9 @@ void CParticle3D::BigExplosion(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		vec.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		vec.x = sinf(useful::RandomRot()) * 1.0f;
+		vec.y = cosf(useful::RandomRot()) * 1.0f;
+		vec.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&vec, &vec);
@@ -669,7 +669,7 @@ void CParticle3D::BigExplosion(const D3DXVECTOR3& rPos)
 		// 向きを設定
 		rot.x = 0.0f;
 		rot.y = 0.0f;
-		rot.z = (float)(rand() % 629 - 314) / 100.0f;
+		rot.z = useful::RandomRot();
 
 		// 寿命を設定
 		nLife = (rand() % bigExplosion::smoke::RAND_LIFE) + bigExplosion::smoke::EFF_LIFE;
@@ -694,9 +694,9 @@ void CParticle3D::BigExplosion(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		vec.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		vec.x = sinf(useful::RandomRot()) * 1.0f;
+		vec.y = cosf(useful::RandomRot()) * 1.0f;
+		vec.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&vec, &vec);
@@ -751,9 +751,9 @@ void CParticle3D::PlayerDamage(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		vec.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		vec.x = sinf(useful::RandomRot()) * 1.0f;
+		vec.y = cosf(useful::RandomRot()) * 1.0f;
+		vec.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&vec, &vec);
@@ -767,7 +767,7 @@ void CParticle3D::PlayerDamage(const D3DXVECTOR3& rPos)
 		// 向きを設定
 		rot.x = 0.0f;
 		rot.y = 0.0f;
-		rot.z = (float)(rand() % 629 - 314) / 100.0f;
+		rot.z = useful::RandomRot();
 
 		// 色を設定
 		col.r = (float)(rand() % 80 + 20) / 100.0f;
@@ -801,9 +801,9 @@ void CParticle3D::PlayerDamage(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		vec.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		vec.x = sinf(useful::RandomRot()) * 1.0f;
+		vec.y = cosf(useful::RandomRot()) * 1.0f;
+		vec.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&vec, &vec);
@@ -817,7 +817,7 @@ void CParticle3D::PlayerDamage(const D3DXVECTOR3& rPos)
 		// 向きを設定
 		rot.x = 0.0f;
 		rot.y = 0.0f;
-		rot.z = (float)(rand() % 629 - 314) / 100.0f;
+		rot.z = useful::RandomRot();
 
 		// 色を設定
 		col.r = (float)(rand() % 20 + 80) / 100.0f;
@@ -851,9 +851,9 @@ void CParticle3D::PlayerDamage(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		vec.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		vec.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		vec.x = sinf(useful::RandomRot()) * 1.0f;
+		vec.y = cosf(useful::RandomRot()) * 1.0f;
+		vec.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&vec, &vec);
@@ -867,7 +867,7 @@ void CParticle3D::PlayerDamage(const D3DXVECTOR3& rPos)
 		// 向きを設定
 		rot.x = 0.0f;
 		rot.y = 0.0f;
-		rot.z = (float)(rand() % 629 - 314) / 100.0f;
+		rot.z = useful::RandomRot();
 
 		// 色を設定
 		col.r = (float)(rand() % 80 + 20) / 100.0f;
@@ -909,9 +909,9 @@ void CParticle3D::MuzzleFlash(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		move.x = sinf(useful::RandomRot()) * 1.0f;
+		move.y = cosf(useful::RandomRot()) * 1.0f;
+		move.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&move, &move);
@@ -958,9 +958,9 @@ void CParticle3D::TankFire(const D3DXVECTOR3& rPos)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// ベクトルをランダムに設定
-		move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-		move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+		move.x = sinf(useful::RandomRot()) * 1.0f;
+		move.y = cosf(useful::RandomRot()) * 1.0f;
+		move.z = cosf(useful::RandomRot()) * 1.0f;
 
 		// ベクトルを正規化
 		D3DXVec3Normalize(&move, &move);
@@ -1009,9 +1009,9 @@ void CParticle3D::BubbleExplosion(const D3DXVECTOR3& rPos)
 		{ // 生成されるエフェクト数分繰り返す
 
 			// ベクトルをランダムに設定
-			move.x = sinf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-			move.y = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
-			move.z = cosf((float)(rand() % 629 - 314) / 100.0f) * 1.0f;
+			move.x = sinf(useful::RandomRot()) * 1.0f;
+			move.y = cosf(useful::RandomRot()) * 1.0f;
+			move.z = cosf(useful::RandomRot()) * 1.0f;
 
 			// ベクトルを正規化
 			D3DXVec3Normalize(&move, &move);

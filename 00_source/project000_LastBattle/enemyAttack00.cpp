@@ -104,8 +104,8 @@ bool CEnemyAttack00::Update(void)
 		if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
 		auto player = pList->GetList().front();							// プレイヤー情報
 
-		float fRandRot = (float)(rand() % 629 - 314) / 100.0f;	// ランダム向き
-		D3DXVECTOR3 posPlayer = player->GetVec3Position();		// プレイヤーの位置
+		float fRandRot = useful::RandomRot();				// ランダム向き
+		D3DXVECTOR3 posPlayer = player->GetVec3Position();	// プレイヤーの位置
 
 		D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
 		D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き

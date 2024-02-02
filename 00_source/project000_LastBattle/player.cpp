@@ -98,17 +98,18 @@ namespace
 	const float	DODGE_JUMP_MOVE	= 13.0f;	// 回避の上移動量
 	const int	ATTACK_BUFFER_FRAME = 20;	// 攻撃の先行入力可能フレーム
 
-	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
+	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);		// 影の大きさ
+	const char *TEXTURE_LIFEFRAME	= "data\\TEXTURE\\lifeframe002.png";	// 体力フレーム表示のテクスチャファイル
 
 	// 体力の情報
 	namespace lifeInfo
 	{
-		const D3DXVECTOR3	POS			= D3DXVECTOR3(500.0f, 100.0f, 0.0f);	// 位置
-		const D3DXVECTOR3	SIZE_GAUGE	= D3DXVECTOR3(300.0f, 20.0f, 0.0f);		// ゲージ大きさ
-		const D3DXCOLOR		COL_FRONT	= XCOL_YELLOW;	// 表ゲージ色
-		const D3DXCOLOR		COL_BACK	= XCOL_RED;		// 裏ゲージ色
+		const D3DXVECTOR3	POS			= D3DXVECTOR3(260.0f, 170.0f, 0.0f);		// 位置
+		const D3DXVECTOR3	SIZE_GAUGE	= D3DXVECTOR3(200.0f, 20.0f, 0.0f);			// ゲージ大きさ
+		const D3DXCOLOR		COL_FRONT	= D3DXCOLOR(0.93f, 0.92f, 0.25f, 1.0f);		// 表ゲージ色
+		const D3DXCOLOR		COL_BACK	= D3DXCOLOR(0.03f, 0.03f, 0.008f, 1.0f);	// 裏ゲージ色
 		const int	MAX_LIFE		= 100;	// 最大表示値
-		const int	CHANGE_FRAME	= 10;	// 表示値変動フレーム
+		const int	CHANGE_FRAME	= 40;	// 表示値変動フレーム
 	}
 }
 
@@ -197,7 +198,10 @@ HRESULT CPlayer::Init(void)
 		lifeInfo::POS,			// 位置
 		lifeInfo::SIZE_GAUGE,	// ゲージ大きさ
 		lifeInfo::COL_FRONT,	// 表ゲージ色
-		lifeInfo::COL_BACK		// 裏ゲージ色
+		lifeInfo::COL_BACK,		// 裏ゲージ色
+		true,
+		TEXTURE_LIFEFRAME,
+		lifeInfo::SIZE_GAUGE + D3DXVECTOR3(16.5f, 16.5f, 0.0f)
 	);
 
 	// セットアップの読込

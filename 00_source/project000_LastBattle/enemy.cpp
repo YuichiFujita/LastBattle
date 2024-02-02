@@ -15,8 +15,6 @@
 #include "enemyBossDragon.h"
 #include "enemyMiniDragon.h"
 
-#include "gauge3D.h"
-
 //************************************************************
 //	定数宣言
 //************************************************************
@@ -40,17 +38,6 @@ namespace
 	const float	INVULN_ALPHA	= 0.7f;		// 無敵状態の基礎透明度
 	const float	ADD_SINROT		= 0.1f;		// 透明度をふわふわさせる際のサインカーブ向き加算量
 	const float	MAX_ADD_ALPHA	= 0.25f;	// 透明度の最大加算量
-
-	// 体力の情報
-	namespace lifeInfo
-	{
-		const D3DXVECTOR3	GAUGE_SIZE	= D3DXVECTOR3(200.0f, 20.0f, 0.0f);	// ゲージの大きさ
-		const D3DXCOLOR		FRONT_COL	= XCOL_YELLOW;	// 表ゲージ色
-		const D3DXCOLOR		BACK_COL	= XCOL_RED;		// 裏ゲージ色
-
-		const int	CHANGE_FRAME		= 10;		// 表示値変動フレーム
-		const float	PLUS_HEIGHT_POSY	= 20.0f;	// 体力表示Y座標の身長からの加算量
-	}
 }
 
 //************************************************************
@@ -81,7 +68,6 @@ CEnemy::CEnemy(const EType type) : CObjectChara(CObject::LABEL_ENEMY, CObject::D
 	m_status		(m_aStatusInfo[type]),	// ステータス定数
 	m_parts			(m_aPartsInfo[type]),	// パーツ定数
 	m_motion		(m_aMotionInfo[type]),	// モーション定数
-	m_pLife			(nullptr),				// 体力の情報
 	m_oldPos		(VEC3_ZERO),			// 過去位置
 	m_move			(VEC3_ZERO),			// 移動量
 	m_state			(STATE_SPAWN),			// 状態
@@ -106,7 +92,6 @@ CEnemy::~CEnemy()
 HRESULT CEnemy::Init(void)
 {
 	// メンバ変数を初期化
-	m_pLife		= nullptr;		// 体力の情報
 	m_oldPos	= VEC3_ZERO;	// 過去位置
 	m_move		= VEC3_ZERO;	// 移動量
 	m_state		= STATE_SPAWN;	// 状態
@@ -122,19 +107,6 @@ HRESULT CEnemy::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
-
-	// 体力の生成
-	float fPosUp = m_status.fHeight + lifeInfo::PLUS_HEIGHT_POSY;	// 表示Y位置の加算量
-	m_pLife = CGauge3D::Create
-	( // 引数
-		this,					// ゲージ表示オブジェクト
-		m_status.nMaxLife,		// 最大表示値
-		lifeInfo::CHANGE_FRAME,	// 表示値変動フレーム
-		fPosUp,					// 表示Y位置の加算量
-		lifeInfo::GAUGE_SIZE,	// ゲージ大きさ
-		lifeInfo::FRONT_COL,	// 表ゲージ色
-		lifeInfo::BACK_COL		// 裏ゲージ色
-	);
 
 	for (int nCntEnemy = 0; nCntEnemy < m_motion.nNumType; nCntEnemy++)
 	{ // 読み込んだモーション数分繰り返す
@@ -186,9 +158,6 @@ HRESULT CEnemy::Init(void)
 //============================================================
 void CEnemy::Uninit(void)
 {
-	// 自身の終了を伝える
-	m_pLife->DeleteGauge();
-
 	// リストから自身のオブジェクトを削除
 	m_pList->DeleteList(m_iterator);
 
@@ -297,74 +266,6 @@ float CEnemy::GetHeight(void) const
 {
 	// 縦幅を返す
 	return m_status.fHeight;
-}
-
-//============================================================
-//	ヒット処理
-//============================================================
-void CEnemy::Hit(const int nDamage)
-{
-	if (IsDeath())				 { return; }	// 死亡済み
-	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
-	if (m_pLife->GetNum() <= 0)	 { return; }	// 体力なし
-
-	// 変数を宣言
-	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
-	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
-
-	// 体力にダメージを与える
-	m_pLife->AddNum(-nDamage);
-
-	if (m_pLife->GetNum() > 0)
-	{ // 体力が残っている場合
-
-		// ダメージ状態にする
-		SetState(STATE_DAMAGE);
-	}
-	else
-	{ // 体力が残っていない場合
-
-		// 死亡状態にする
-		SetState(STATE_DEATH);
-	}
-}
-
-//============================================================
-//	ノックバックヒット処理
-//============================================================
-void CEnemy::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
-{
-#if 0
-
-	if (IsDeath()) { return; }	// 死亡済み
-	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
-
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
-
-	// カウンターを初期化
-	m_nCounterState = 0;
-
-	// ノックバック移動量を設定
-	m_move.x = KNOCK_SIDE * vecKnock.x;
-	m_move.y = KNOCK_UP;
-	m_move.z = KNOCK_SIDE * vecKnock.z;
-
-	// ノックバック方向に向きを設定
-	rotPlayer.y = atan2f(vecKnock.x, vecKnock.z);	// 吹っ飛び向きを計算
-	SetVec3Rotation(rotPlayer);	// 向きを設定
-
-	// 空中状態にする
-	m_bJump = true;
-
-	// ノック状態を設定
-	SetState(STATE_KNOCK);
-
-	// サウンドの再生
-	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
-
-#endif
 }
 
 //============================================================
@@ -504,15 +405,6 @@ CMotion::SInfo CEnemy::GetMotionInfo(void) const
 {
 	// モーション情報を返す
 	return m_motion;
-}
-
-//============================================================
-//	体力の取得処理
-//============================================================
-int CEnemy::GetLife(void) const
-{
-	// 体力を返す
-	return m_pLife->GetNum();
 }
 
 //============================================================

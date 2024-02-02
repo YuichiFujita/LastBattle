@@ -18,6 +18,7 @@
 //************************************************************
 //	前方宣言
 //************************************************************
+class CGauge2D;		// ゲージ2Dクラス
 class CEnemyAttack;	// 敵攻撃クラス
 class CMagicCircle;	// 魔法陣クラス
 
@@ -134,6 +135,7 @@ private:
 	void UpdatePunchGround(void);	// 地面殴り行動時の更新
 
 	// メンバ変数
+	CGauge2D *m_pLife;				// 体力の情報
 	CEnemyAttack *m_pAttack;		// 攻撃の情報
 	CMagicCircle *m_pMagicCircle;	// 魔法陣の情報
 	STeleport m_teleport;	// テレポートの情報

@@ -1,57 +1,49 @@
 //============================================================
 //
-//	ミニドラゴンヘッダー [enemyMiniDragon.h]
+//	雑魚敵ヘッダー [enemySmall.h]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	二重インクルード防止
 //************************************************************
-#ifndef _ENEMY_MINI_DRAGON_H_
-#define _ENEMY_MINI_DRAGON_H_
+#ifndef _ENEMY_SMALL_H_
+#define _ENEMY_SMALL_H_
 
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "enemySmall.h"
+#include "enemy.h"
+
+//************************************************************
+//	前方宣言
+//************************************************************
+class CGauge3D;	// ゲージ3Dクラス
 
 //************************************************************
 //	クラス定義
 //************************************************************
-// ミニドラゴンクラス
-class CEnemyMiniDragon : public CEnemySmall
+// 雑魚敵クラス
+class CEnemySmall : public CEnemy
 {
 public:
-	// モデル列挙
-	enum EModel
-	{
-		MODEL_NORMAL = 0,	// 通常
-		MODEL_MAX			// この列挙型の総数
-	};
-
-	// モーション列挙
-	enum EMotion
-	{
-		MOTION_IDOL = 0,	// 待機モーション
-		MOTION_MAX			// この列挙型の総数
-	};
-
 	// コンストラクタ
-	explicit CEnemyMiniDragon(const EType type);
+	explicit CEnemySmall(const EType type);
 
 	// デストラクタ
-	~CEnemyMiniDragon() override;
+	~CEnemySmall() override;
 
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
+	void Hit(const int nDamage) override;	// ヒット
+	void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
 
 private:
-	// オーバーライド関数
-	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
-	void UpdateMotion(void) override;	// モーションの更新
+	// メンバ変数
+	CGauge3D *m_pLife;	// 体力の情報
 };
 
-#endif	// _ENEMY_MINI_DRAGON_H_
+#endif	// _ENEMY_SMALL_H_

@@ -20,17 +20,22 @@
 //************************************************************
 namespace
 {
-	const CWave::SGrow		IMPACT_GROW		= CWave::SGrow(6.0f, 0.0f, 0.0f);		// 成長量
-	const CWave::SGrow		IMPACT_ADDGROW	= CWave::SGrow(0.2f, 0.002f, 0.0f);		// 成長加速量
 	const CCamera::SSwing	PUNCH_SWING		= CCamera::SSwing(8.0f, 1.5f, 0.25f);	// 地面殴り時のカメラ揺れ
 
-	const float	IMPACT_HOLE_RADIUS	= 10.0f;	// 穴の半径
-	const float	IMPACT_THICKNESS	= 0.0f;		// 太さ
-	const float	IMPACT_OUTER_PLUSY	= 25.0f;	// 外周のY座標加算量
-	const float	IMPACT_MAX_RADIUS	= 3000.0f;	// 半径の最大成長量
 	const float	TELEPORT_POS_DIS	= 1200.0f;	// テレポート時のプレイヤー位置から遠ざける距離
 	const int	ATTACK_WAIT_FRAME	= 10;		// 攻撃後の硬直フレーム
 	const int	MAX_ATTACK			= 3;		// 攻撃回数
+
+	// 衝撃波の情報
+	namespace impact
+	{
+		const CWave::SGrow GROW		= CWave::SGrow(6.0f, 0.0f, 0.0f);	// 成長量
+		const CWave::SGrow ADDGROW	= CWave::SGrow(0.2f, 0.002f, 0.0f);	// 成長加速量
+		const float	HOLE_RADIUS	= 10.0f;	// 穴の半径
+		const float	THICKNESS	= 0.0f;		// 太さ
+		const float	OUTER_PLUSY	= 25.0f;	// 外周のY座標加算量
+		const float	MAX_RADIUS	= 3000.0f;	// 半径の最大成長量
+	}
 }
 
 //************************************************************
@@ -104,7 +109,7 @@ bool CEnemyAttack01::Update(void)
 		if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
 		auto player = pList->GetList().front();							// プレイヤー情報
 
-		float fRandRot = (float)(rand() % 629 - 314) / 100.0f;	// ランダム向き
+		float fRandRot = useful::RandomRot();	// ランダム向き
 		D3DXVECTOR3 posPlayer = player->GetVec3Position();		// プレイヤーの位置
 
 		D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
@@ -169,12 +174,12 @@ bool CEnemyAttack01::Update(void)
 			( // 引数
 				CWave::TEXTURE_NONE,	// 種類
 				posHandL,				// 位置
-				IMPACT_GROW,			// 成長量
-				IMPACT_ADDGROW,			// 成長加速量
-				IMPACT_HOLE_RADIUS,		// 穴の半径
-				IMPACT_THICKNESS,		// 太さ
-				IMPACT_OUTER_PLUSY,		// 外周のY座標加算量
-				IMPACT_MAX_RADIUS		// 半径の最大成長量
+				impact::GROW,			// 成長量
+				impact::ADDGROW,		// 成長加速量
+				impact::HOLE_RADIUS,	// 穴の半径
+				impact::THICKNESS,		// 太さ
+				impact::OUTER_PLUSY,	// 外周のY座標加算量
+				impact::MAX_RADIUS		// 半径の最大成長量
 			);
 
 			// 攻撃回数を加算

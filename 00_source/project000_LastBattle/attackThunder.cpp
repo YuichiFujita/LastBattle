@@ -30,6 +30,22 @@ namespace
 	const int	WARNING_PRIO	= 0;		// 警告表示の優先順位
 	const int	DMG_THUNDER		= 15;		// 雷のダメージ量
 	const float COLL_RADIUS		= 120.0f;	// 判定の半径
+
+	const int	WARN_FRAME	= 80;			// 警告表示持続フレーム
+	const int	DIV_DIRRAND	= 21;			// 方向の剰余算の値
+	const int	SUB_DIRRAND	= 10;			// 方向の減算の値
+	const float SHIFT_POS_LENGTH = 40.0f;	// 雷生成位置のずらす長さ
+
+	// 衝撃波の情報
+	namespace impact
+	{
+		const CWave::SGrow GROW		= CWave::SGrow(4.5f, 2.0f, 0.0f);	// 成長量
+		const CWave::SGrow ADDGROW	= CWave::SGrow(0.0f, 0.0f, 0.0f);	// 成長加速量
+		const float	HOLE_RADIUS	= 80.0f;	// 穴の半径
+		const float	THICKNESS	= 1.0f;		// 太さ
+		const float	OUTER_PLUSY	= 20.0f;	// 外周のY座標加算量
+		const float	MAX_RADIUS	= 0.0f;		// 半径の最大成長量
+	}
 }
 
 //************************************************************
@@ -118,13 +134,17 @@ void CAttackThunder::Uninit(void)
 //============================================================
 void CAttackThunder::Update(void)
 {
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();	// ステージの情報
+	assert(pStage != nullptr);	// ステージ未使用
+
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_WARN:
 
 		// カウンターを加算
 		m_nCounterState++;
-		if (m_nCounterState > 60)
+		if (m_nCounterState > WARN_FRAME)
 		{ // 警告表示が終了した場合
 
 			// 攻撃開始の設定
@@ -148,17 +168,18 @@ void CAttackThunder::Update(void)
 				GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, LAND_SWING);
 
 				// 衝撃波の生成
+				D3DXVECTOR3 posImpact = D3DXVECTOR3(0.0f, pStage->GetStageLimit().fField, 0.0f);
 				CImpact::Create
 				( // 引数
-					CWave::TEXTURE_NONE,			// 種類
-					D3DXVECTOR3(0.0f, 50.0f, 0.0f),	// 位置
-					CWave::SGrow(4.5f, 2.0f, 0.0f),	// 成長量
-					CWave::SGrow(0.0f, 0.0f, 0.0f),	// 成長加速量
-					80.0f,	// 穴の半径
-					1.0f,	// 太さ
-					20.0f,	// 外周のY座標加算量
-					0.0f,	// 半径の最大成長量
-					false	// 当たり判定
+					CWave::TEXTURE_NONE,	// 種類
+					posImpact,				// 位置
+					impact::GROW,			// 成長量
+					impact::ADDGROW,		// 成長加速量
+					impact::HOLE_RADIUS,	// 穴の半径
+					impact::THICKNESS,		// 太さ
+					impact::OUTER_PLUSY,	// 外周のY座標加算量
+					impact::MAX_RADIUS,		// 半径の最大成長量
+					false					// 当たり判定
 				);
 
 				// 自身を終了
@@ -234,24 +255,25 @@ void CAttackThunder::Release(void)
 //============================================================
 void CAttackThunder::SetVec3Position(const D3DXVECTOR3& rPos)
 {
-	// 雷の位置を設定
+	// 最初の雷の位置を真ん中に設定
 	m_apThunder[0]->SetVec3Position(rPos);
 
 	for (int nCntThunder = 0; nCntThunder < attackThunder::NUM_THUNDER - 1; nCntThunder++)
 	{ // 雷の生成数分繰り返す
 
-		D3DXVECTOR3 pos = VEC3_ZERO;
-		float fRot = ((D3DX_PI * 2.0f) / (float)(attackThunder::NUM_THUNDER - 1)) * nCntThunder - D3DX_PI + ((rand() % 20 - 10) * 0.01f);
-		//float fRandDis = 40.0f + (float)(rand() % 11);
-
-		useful::NormalizeRot(fRot);
-
-		pos.x = sinf(fRot) * 40.0f;
-		pos.z = cosf(fRot) * 40.0f;
+		// 雷の生成方向を設定
+		float fRotRate = (D3DX_PI * 2.0f) / (float)(attackThunder::NUM_THUNDER - 1);	// 生成方向の分割割合
+		float fRotDir  = (fRotRate * nCntThunder - D3DX_PI) + ((rand() % DIV_DIRRAND - SUB_DIRRAND) * 0.01f);	// 生成方向
+		useful::NormalizeRot(fRotDir);	// 方向を正規化
 
 		// 雷の位置を設定
-		int nSetID = nCntThunder + 1;
-		m_apThunder[nSetID]->SetVec3Position(pos);
+		D3DXVECTOR3 posThunder = VEC3_ZERO;
+		posThunder.x = sinf(fRotDir) * SHIFT_POS_LENGTH;
+		posThunder.z = cosf(fRotDir) * SHIFT_POS_LENGTH;
+
+		// 雷の位置を設定
+		int nSetID = nCntThunder + 1;	// 位置を設定する雷のインデックス
+		m_apThunder[nSetID]->SetVec3Position(posThunder);
 	}
 }
 

@@ -33,7 +33,7 @@ static_assert(NUM_ARRAY(MODEL_FILE) == CEnemyMiniDragon::MODEL_MAX, "ERROR : Mod
 //============================================================
 //	ƒRƒ“ƒXƒgƒ‰ƒNƒ^
 //============================================================
-CEnemyMiniDragon::CEnemyMiniDragon(const EType type) : CEnemy(type)
+CEnemyMiniDragon::CEnemyMiniDragon(const EType type) : CEnemySmall(type)
 {
 
 }
@@ -51,8 +51,8 @@ CEnemyMiniDragon::~CEnemyMiniDragon()
 //============================================================
 HRESULT CEnemyMiniDragon::Init(void)
 {
-	// “G‚Ì‰Šú‰»
-	if (FAILED(CEnemy::Init()))
+	// G‹›“G‚Ì‰Šú‰»
+	if (FAILED(CEnemySmall::Init()))
 	{ // ‰Šú‰»‚É¸”s‚µ‚½ê‡
 
 		// ¸”s‚ğ•Ô‚·
@@ -72,8 +72,8 @@ HRESULT CEnemyMiniDragon::Init(void)
 //============================================================
 void CEnemyMiniDragon::Uninit(void)
 {
-	// “G‚ÌI—¹
-	CEnemy::Uninit();
+	// G‹›“G‚ÌI—¹
+	CEnemySmall::Uninit();
 }
 
 //============================================================
@@ -81,8 +81,8 @@ void CEnemyMiniDragon::Uninit(void)
 //============================================================
 void CEnemyMiniDragon::Update(void)
 {
-	// “G‚ÌXV
-	CEnemy::Update();
+	// G‹›“G‚ÌXV
+	CEnemySmall::Update();
 }
 
 //============================================================
@@ -90,8 +90,8 @@ void CEnemyMiniDragon::Update(void)
 //============================================================
 void CEnemyMiniDragon::Draw(void)
 {
-	// “G‚Ì•`‰æ
-	CEnemy::Draw();
+	// G‹›“G‚Ì•`‰æ
+	CEnemySmall::Draw();
 }
 
 //============================================================

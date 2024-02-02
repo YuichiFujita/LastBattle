@@ -16,6 +16,7 @@
 #include "multiModel.h"
 #include "sceneGame.h"
 #include "gameManager.h"
+#include "gauge2D.h"
 #include "magicCircle.h"
 #include "retentionManager.h"
 
@@ -65,6 +66,19 @@ namespace
 	const float	MAGIC_CIRCLE_RADIUS	= 250.0f;	// 魔法陣の半径
 	const float	MAGIC_ALPHA_RADIUS	= 350.0f;	// 魔法陣の半径
 	const float	MAGIC_DELPOS_PLUSY	= 150.0f;	// 魔法陣の消失位置の加算量Y
+
+	const char *TEXTURE_LIFEFRAME = "data\\TEXTURE\\lifeframe001.png";	// 体力フレーム表示のテクスチャファイル
+
+	// 体力の情報
+	namespace lifeInfo
+	{
+		const D3DXVECTOR3	POS				= D3DXVECTOR3(760.0f, 650.0f, 0.0f);			// 位置
+		const D3DXCOLOR		COL_FRONT		= D3DXCOLOR(0.77f, 0.19f, 0.94f, 1.0f);			// 表ゲージ色
+		const D3DXCOLOR		COL_BACK		= D3DXCOLOR(0.02f, 0.008f, 0.03f, 1.0f);		// 裏ゲージ色
+		const D3DXVECTOR3	SIZE_GAUGE		= D3DXVECTOR3(460.0f, 20.0f, 0.0f);				// ゲージ大きさ
+		const D3DXVECTOR3	SIZE_FRAME		= SIZE_GAUGE + D3DXVECTOR3(16.5f, 16.5f, 0.0f);	// フレーム大きさ
+		const int			CHANGE_FRAME	= 10;	// 表示値変動フレーム
+	}
 }
 
 //************************************************************
@@ -79,6 +93,7 @@ static_assert(NUM_ARRAY(MODEL_FILE) == CEnemyBossDragon::MODEL_MAX, "ERROR : Mod
 //	コンストラクタ
 //============================================================
 CEnemyBossDragon::CEnemyBossDragon(const EType type) : CEnemy(type),
+	m_pLife				(nullptr),	// 体力の情報
 	m_pAttack			(nullptr),	// 攻撃の情報
 	m_pMagicCircle		(nullptr),	// 魔法陣の情報
 	m_action			(ACT_NONE),	// 行動
@@ -103,6 +118,7 @@ HRESULT CEnemyBossDragon::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_teleport, 0, sizeof(m_teleport));	// テレポートの情報
+	m_pLife				= nullptr;	// 体力の情報
 	m_pAttack			= nullptr;	// 攻撃の情報
 	m_pMagicCircle		= nullptr;	// 魔法陣の情報
 	m_action			= ACT_NONE;	// 行動
@@ -122,6 +138,20 @@ HRESULT CEnemyBossDragon::Init(void)
 
 	// スポーン状態にする
 	SetState(STATE_SPAWN);
+
+	// 体力の生成
+	m_pLife = CGauge2D::Create
+	( // 引数
+		GetStatusInfo().nMaxLife,	// 最大表示値
+		lifeInfo::CHANGE_FRAME,		// 表示値変動フレーム
+		lifeInfo::POS,				// 位置
+		lifeInfo::SIZE_GAUGE,		// ゲージ大きさ
+		lifeInfo::COL_FRONT,		// 表ゲージ色
+		lifeInfo::COL_BACK,			// 裏ゲージ色
+		true,						// 枠描画状況
+		TEXTURE_LIFEFRAME,			// フレームテクスチャパス
+		lifeInfo::SIZE_FRAME		// 枠大きさ
+	);
 
 	// 魔法陣の生成
 	m_pMagicCircle = CMagicCircle::Create(VEC3_ZERO, VEC3_ZERO, 0.0f, MAGIC_ALPHA_RADIUS);
@@ -175,11 +205,30 @@ void CEnemyBossDragon::Draw(void)
 //============================================================
 void CEnemyBossDragon::Hit(const int nDamage)
 {
-	// ヒット処理
-	CEnemy::Hit(nDamage);
+	if (IsDeath())						{ return; }	// 死亡済み
+	if (GetState() != STATE_NORMAL)		{ return; }	// 通常状態以外
+	if (m_action == ACT_MAGIC_FADEIN)	{ return; }	// 魔法陣フェードイン中
+	if (m_action == ACT_MAGIC_FADEOUT)	{ return; }	// 魔法陣フェードアウト中
+	if (m_pLife->GetNum() <= 0)			{ return; }	// 体力なし
 
-	if (GetLife() <= 0)
-	{ // 体力がなくなった場合
+	// 変数を宣言
+	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
+
+	// 体力にダメージを与える
+	m_pLife->AddNum(-nDamage);
+
+	if (m_pLife->GetNum() > 0)
+	{ // 体力が残っている場合
+
+		// ダメージ状態にする
+		SetState(STATE_DAMAGE);
+	}
+	else
+	{ // 体力が残っていない場合
+
+		// 死亡状態にする
+		SetState(STATE_DEATH);
 
 		if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
 		{ // ゲーム画面の場合
@@ -193,21 +242,39 @@ void CEnemyBossDragon::Hit(const int nDamage)
 //============================================================
 //	ノックバックヒット処理
 //============================================================
-void CEnemyBossDragon::HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKnock)
+void CEnemyBossDragon::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
 {
-	// ノックバックヒット処理
-	CEnemy::HitKnockBack(nDamage, vecKnock);
-	
-	if (GetLife() <= 0)
-	{ // 体力がなくなった場合
+#if 0
 
-		if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
-		{ // ゲーム画面の場合
+	if (IsDeath()) { return; }	// 死亡済み
+	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
 
-			// リザルト画面に遷移させる
-			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
-		}
-	}
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
+
+	// カウンターを初期化
+	m_nCounterState = 0;
+
+	// ノックバック移動量を設定
+	m_move.x = KNOCK_SIDE * vecKnock.x;
+	m_move.y = KNOCK_UP;
+	m_move.z = KNOCK_SIDE * vecKnock.z;
+
+	// ノックバック方向に向きを設定
+	rotPlayer.y = atan2f(vecKnock.x, vecKnock.z);	// 吹っ飛び向きを計算
+	SetVec3Rotation(rotPlayer);	// 向きを設定
+
+	// 空中状態にする
+	m_bJump = true;
+
+	// ノック状態を設定
+	SetState(STATE_KNOCK);
+
+	// サウンドの再生
+	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
+
+#endif
 }
 
 //============================================================
@@ -427,6 +494,10 @@ void CEnemyBossDragon::UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 	// 変数を宣言
 	float fMagicPosY = m_pMagicCircle->GetVec3Position().y;	// 魔法陣の位置
 
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
 	switch (m_teleport.state)
 	{ // テレポート状態ごとの処理
 	case TELEPORT_INIT:		// テレポートの初期化
@@ -513,6 +584,9 @@ void CEnemyBossDragon::UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 		assert(false);
 		break;
 	}
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(*pPos, GetStatusInfo().fRadius);
 
 	// 魔法陣の位置を反映
 	m_pMagicCircle->SetVec3Position(D3DXVECTOR3(pPos->x, fMagicPosY, pPos->z));

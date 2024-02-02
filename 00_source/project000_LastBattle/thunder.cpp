@@ -27,12 +27,14 @@ namespace
 		D3DXVECTOR3(10.0f, 0.0f, 0.0f),
 		D3DXVECTOR3(32.0f, 0.0f, 0.0f),
 	};
+	const int DIV_DIRRAND[] = { 6, 36 };	// 方向の剰余算の値
+	const int ADD_DIRRAND[] = { 10, 80 };	// 方向の減算の値
 
-	const int	PRIORITY	= 7;	// 雷の優先順位
-	const int	PART		= 20;	// 軌跡の分割数
-
-	const float	DOWN_MOVE	= 200.0f;	// 雷の下移動量
-	const float	SPAWN_POSY	= 2500.0f;	// 雷の生成Y座標
+	const int	PRIORITY		= 7;		// 雷の優先順位
+	const int	PART			= 20;		// 軌跡の分割数
+	const int	MAX_SHIFT_POSY	= 120;		// 軌跡のY座標ずらし量の最大値
+	const float	DOWN_MOVE		= 200.0f;	// 雷の下移動量
+	const float	SPAWN_POSY		= 2500.0f;	// 雷の生成Y座標
 }
 
 //************************************************************
@@ -143,13 +145,10 @@ void CThunder::Update(void)
 	{ // 軌跡の生成数分繰り返す
 
 		if (m_bLand)
-		{
+		{ // 地面に到達している場合
+
 			// ワールドマトリックスの初期化
 			D3DXMatrixIdentity(&m_aOrbit[nCntOrbit].mtxWorld);
-
-			// 向きを反映
-			D3DXMatrixRotationYawPitchRoll(&mtxRot, 0.0f, 0.0f, 0.0f);
-			D3DXMatrixMultiply(&m_aOrbit[nCntOrbit].mtxWorld, &m_aOrbit[nCntOrbit].mtxWorld, &mtxRot);
 
 			// 位置を反映
 			D3DXMatrixTranslation(&mtxTrans, m_posOrbit.x, m_posOrbit.y, m_posOrbit.z);
@@ -159,11 +158,12 @@ void CThunder::Update(void)
 			m_aOrbit[nCntOrbit].pOrbit->SetState(COrbit::STATE_VANISH);
 		}
 		else
-		{
+		{ // 地面に到達していない場合
+
 			// ランダムに向きを設定
-			rotRand.x = (float)(rand() % 629 - 314) / 100.0f;
-			rotRand.y = (float)(rand() % 629 - 314) / 100.0f;
-			rotRand.z = (float)(rand() % 629 - 314) / 100.0f;
+			rotRand.x = useful::RandomRot();
+			rotRand.y = useful::RandomRot();
+			rotRand.z = useful::RandomRot();
 
 			// ワールドマトリックスの初期化
 			D3DXMatrixIdentity(&m_aOrbit[nCntOrbit].mtxWorld);
@@ -172,15 +172,19 @@ void CThunder::Update(void)
 			D3DXMatrixRotationYawPitchRoll(&mtxRot, rotRand.y, rotRand.x, rotRand.z);
 			D3DXMatrixMultiply(&m_aOrbit[nCntOrbit].mtxWorld, &m_aOrbit[nCntOrbit].mtxWorld, &mtxRot);
 
-			// 位置を反映
-			float f;
-			if (nCntOrbit == 0)
-				f = (float)((rand() % 6 + 10)) * ((rand() % 2 == 0) ? -1.0f : +1.0f);
-			else
-				f = (float)((rand() % 36 + 80)) * ((rand() % 2 == 0) ? -1.0f : +1.0f);
+			// 軌跡の位置ずらし量を設定
+			float fRandShiftLength = 0.0f;	// 位置ずらしの長さ
+			fRandShiftLength  = (float)((rand() % DIV_DIRRAND[nCntOrbit] + ADD_DIRRAND[nCntOrbit]));	// ずらす長さの絶対値を求める
+			fRandShiftLength *= (rand() % 2 == 0) ? +1.0f : -1.0f;										// どちらの方向にずらすかを設定
 
-			float Rand = (float)(rand() % 629 - 314) / 100.0f;
-			D3DXMatrixTranslation(&mtxTrans, m_posOrbit.x + sinf(Rand) * f, m_posOrbit.y + (float)((rand() % 120)), m_posOrbit.z + cosf(Rand) * f);
+			// 位置を反映
+			D3DXMatrixTranslation
+			( // 引数
+				&mtxTrans,
+				m_posOrbit.x + sinf(rotRand.y) * fRandShiftLength,
+				m_posOrbit.y + (float)(rand() % MAX_SHIFT_POSY),
+				m_posOrbit.z + cosf(rotRand.y) * fRandShiftLength
+			);
 			D3DXMatrixMultiply(&m_aOrbit[nCntOrbit].mtxWorld, &m_aOrbit[nCntOrbit].mtxWorld, &mtxTrans);
 		}
 
@@ -233,9 +237,9 @@ void CThunder::SetVec3Position(const D3DXVECTOR3 &rPos)
 	{ // 軌跡の生成数分繰り返す
 
 		// 向きをランダム回転
-		rotRand.x = (float)(rand() % 629 - 314) / 100.0f;
-		rotRand.y = (float)(rand() % 629 - 314) / 100.0f;
-		rotRand.z = (float)(rand() % 629 - 314) / 100.0f;
+		rotRand.x = useful::RandomRot();
+		rotRand.y = useful::RandomRot();
+		rotRand.z = useful::RandomRot();
 
 		// ワールドマトリックスの初期化
 		D3DXMatrixIdentity(&m_aOrbit[nCntOrbit].mtxWorld);

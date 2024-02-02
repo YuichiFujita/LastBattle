@@ -17,11 +17,6 @@
 #include "motion.h"
 
 //************************************************************
-//	前方宣言
-//************************************************************
-class CGauge3D;	// ゲージ3Dクラス
-
-//************************************************************
 //	クラス定義
 //************************************************************
 // 敵クラス
@@ -90,9 +85,9 @@ public:
 	float GetRadius(void) const override;		// 半径取得
 	float GetHeight(void) const override;		// 縦幅取得
 
-	// 仮想関数
-	virtual void Hit(const int nDamage);	// ヒット
-	virtual void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock);	// ノックバックヒット
+	// 純粋仮想関数
+	virtual void Hit(const int nDamage) = 0;	// ヒット
+	virtual void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) = 0;	// ノックバックヒット
 
 	// 静的メンバ関数
 	static CEnemy *Create	// 生成
@@ -114,7 +109,6 @@ public:
 	SStatusInfo GetStatusInfo(void) const;			// ステータス情報取得
 	SPartsInfo GetPartsInfo(void) const;			// パーツ情報取得
 	CMotion::SInfo GetMotionInfo(void) const;		// モーション情報取得
-	int GetLife(void) const;						// 体力取得
 
 protected:
 	// 純粋仮想関数
@@ -157,7 +151,6 @@ private:
 
 	// メンバ変数
 	CListManager<CEnemy>::AIterator m_iterator;	// イテレーター
-	CGauge3D	*m_pLife;			// 体力の情報
 	D3DXVECTOR3	m_oldPos;			// 過去位置
 	D3DXVECTOR3	m_move;				// 移動量
 	EState	m_state;				// 状態
