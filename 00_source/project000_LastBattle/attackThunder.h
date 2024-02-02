@@ -58,6 +58,7 @@ public:
 
 	// 静的メンバ関数
 	static CAttackThunder *Create(const D3DXVECTOR3& rPos);	// 生成
+	static CListManager<CAttackThunder> *GetList(void);		// リスト取得
 
 private:
 	// オーバーライド関数
@@ -66,10 +67,15 @@ private:
 	// メンバ関数
 	void SetOriginPosition(const D3DXVECTOR3 &rPos);	// 原点位置設定
 	void SetThunderPosition(const D3DXVECTOR3 &rPos);	// 雷位置設定
-	HRESULT SetAttack(void);	// 攻撃状態の設定
-	void CollisionPlayer(void);	// プレイヤーとの当たり判定
+	HRESULT SetAttack(void);		// 攻撃状態の設定
+	void CollisionPlayer(void);		// プレイヤーとの当たり判定
+	void CollisionThunder(void);	// 雷同士の当たり判定
+
+	// 静的メンバ変数
+	static CListManager<CAttackThunder> *m_pList;	// オブジェクトリスト
 
 	// メンバ変数
+	CListManager<CAttackThunder>::AIterator m_iterator;	// イテレーター
 	CThunder *m_apThunder[attackThunder::NUM_THUNDER];	// 雷の情報
 	CObject3D *m_pWarning;		// 警告表示の情報
 	D3DXVECTOR3 m_posOrigin;	// 雷の原点位置

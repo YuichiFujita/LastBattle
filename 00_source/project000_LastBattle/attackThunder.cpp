@@ -49,6 +49,11 @@ namespace
 }
 
 //************************************************************
+//	静的メンバ変数宣言
+//************************************************************
+CListManager<CAttackThunder> *CAttackThunder::m_pList = nullptr;	// オブジェクトリスト
+
+//************************************************************
 //	子クラス [CAttackThunder] のメンバ関数
 //************************************************************
 //============================================================
@@ -109,6 +114,23 @@ HRESULT CAttackThunder::Init(void)
 	pRenderState->SetZFunc(D3DCMP_ALWAYS);						// Zテストを絶対成功にする
 	pRenderState->SetAlphaBlend(CRenderState::BLEND_ADD);		// 加算合成にする
 
+	if (m_pList == nullptr)
+	{ // リストマネージャーが存在しない場合
+
+		// リストマネージャーの生成
+		m_pList = CListManager<CAttackThunder>::Create();
+		if (m_pList == nullptr)
+		{ // 生成に失敗した場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+	}
+
+	// リストに自身のオブジェクトを追加・イテレーターを取得
+	m_iterator = m_pList->AddList(this);
+
 	// 成功を返す
 	return S_OK;
 }
@@ -120,6 +142,16 @@ void CAttackThunder::Uninit(void)
 {
 	// 警告表示の終了
 	SAFE_UNINIT(m_pWarning);
+
+	// リストから自身のオブジェクトを削除
+	m_pList->DeleteList(m_iterator);
+
+	if (m_pList->GetNumAll() == 0)
+	{ // オブジェクトが一つもない場合
+
+		// リストマネージャーの破棄
+		m_pList->Release(m_pList);
+	}
 
 	// 雷攻撃オブジェクトを破棄
 	Release();
@@ -238,6 +270,15 @@ CAttackThunder *CAttackThunder::Create(const D3DXVECTOR3 &rPos)
 }
 
 //============================================================
+//	リスト取得処理
+//============================================================
+CListManager<CAttackThunder> *CAttackThunder::GetList(void)
+{
+	// オブジェクトリストを返す
+	return m_pList;
+}
+
+//============================================================
 //	破棄処理
 //============================================================
 void CAttackThunder::Release(void)
@@ -258,8 +299,8 @@ void CAttackThunder::SetOriginPosition(const D3DXVECTOR3 &rPos)
 	// 原点位置を設定
 	m_posOrigin = rPos;
 
-	// ステージ範囲外の補正
-	pStage->LimitPosition(m_posOrigin, COLL_RADIUS);
+	// 雷同士の当たり判定
+	CollisionThunder();
 
 	// 警告表示の位置を設定
 	D3DXVECTOR3 posWarn = D3DXVECTOR3(m_posOrigin.x, pStage->GetStageLimit().fField, m_posOrigin.z);
@@ -348,5 +389,37 @@ void CAttackThunder::CollisionPlayer(void)
 			// プレイヤーのヒット処理
 			player->Hit(DMG_THUNDER);
 		}
+	}
+}
+
+//============================================================
+//	雷同士の当たり判定
+//============================================================
+void CAttackThunder::CollisionThunder(void)
+{
+	CStage *pStage = CScene::GetStage();	// ステージの情報
+	assert(pStage != nullptr);	// ステージ未使用
+
+	if (m_pList == nullptr)			{ return; }	// リスト未使用
+	if (m_pList->GetNumAll() <= 0)	{ return; }	// 雷が存在しない
+
+	std::list<CAttackThunder*> list = m_pList->GetList();	// 雷リスト
+	for (auto thunder : list)
+	{ // リストのすべてを繰り返す
+
+		// 自分自身なら処理スルー
+		if (thunder == this) { continue; }
+
+		// 生成済み雷との押し出し判定
+		collision::CirclePillar
+		( // 引数
+			m_posOrigin,			// 判定位置
+			thunder->m_posOrigin,	// 判定目標位置
+			COLL_RADIUS,			// 判定半径
+			COLL_RADIUS				// 判定目標半径
+		);
+
+		// ステージ範囲外の補正
+		pStage->LimitPosition(m_posOrigin, COLL_RADIUS);
 	}
 }

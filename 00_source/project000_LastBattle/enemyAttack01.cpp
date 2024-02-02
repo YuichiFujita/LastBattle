@@ -23,6 +23,9 @@ namespace
 	const float	TELEPORT_POS_DIS	= 4800.0f;	// テレポート時のステージ中心位置から遠ざける距離
 	const float	TELEPORT_POSY		= 1200.0f;	// テレポート時のY座標
 	const int	ATTACK_WAIT_FRAME	= 80;		// 攻撃後の硬直フレーム
+	const int	NUM_THUNDER			= 4;		// 一回の攻撃で生成する雷の数 (中心にも生成するためプラス1される)
+	const int	DIV_LENRAND			= 201;		// ランダム距離の剰余算の値
+	const int	ADD_LENRAND			= 250;		// ランダム距離の加算の値
 	const int	MAX_ATTACK			= 3;		// 攻撃回数
 }
 
@@ -170,13 +173,13 @@ bool CEnemyAttack01::Update(void)
 			// 雷攻撃をプレイヤー位置に生成
 			CAttackThunder::Create(posPlayer);
 
-			for (int nCntAttack = 0; nCntAttack < 5; nCntAttack++)
-			{
+			for (int nCntAttack = 0; nCntAttack < NUM_THUNDER; nCntAttack++)
+			{ // 雷生成数分繰り返す
 
 				// プレイヤーからランダム方向・距離に遠ざけた位置を設定
 				float fRandRot = useful::RandomRot();	// ランダム向き
-				posThunder.x = posPlayer.x + sinf(fRandRot) * (rand() % 201 + 250);
-				posThunder.z = posPlayer.z + cosf(fRandRot) * (rand() % 201 + 250);
+				posThunder.x = posPlayer.x + sinf(fRandRot) * (rand() % DIV_LENRAND + ADD_LENRAND);
+				posThunder.z = posPlayer.z + cosf(fRandRot) * (rand() % DIV_LENRAND + ADD_LENRAND);
 
 				// 雷攻撃をランダム位置に生成
 				CAttackThunder::Create(posThunder);
@@ -223,8 +226,22 @@ bool CEnemyAttack01::Update(void)
 	}
 	case STATE_CENTER_TELEPORT_INIT:	// 中央テレポートの初期化
 	{
+		CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
+		if (pList == nullptr)		 { assert(false); return false; }	// リスト未使用
+		if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
+		auto player = pList->GetList().front();							// プレイヤー情報
+
+		float fRandRot = useful::RandomRot();				// ランダム向き
+		D3DXVECTOR3 posPlayer = player->GetVec3Position();	// プレイヤーの位置
+		D3DXVECTOR3 posEnemy  = pBoss->GetVec3Position();	// 敵の位置
+		D3DXVECTOR3 rotEnemy  = VEC3_ZERO;	// 敵の設定向き
+
+		// プレイヤー方向を設定
+		D3DXVECTOR3 vec = posEnemy - posPlayer;
+		rotEnemy.y = atan2f(vec.x, vec.z);
+
 		// ボスをテレポートさせる
-		pBoss->SetTeleport(pStage->GetStageLimit().center, D3DXVECTOR3(0.0f, useful::RandomRot(), 0.0f));
+		pBoss->SetTeleport(pStage->GetStageLimit().center, rotEnemy);
 
 		// 中央テレポート状態にする
 		m_state = STATE_CENTER_TELEPORT;
