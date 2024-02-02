@@ -139,15 +139,6 @@ public:
 	void SetInvuln(void);	// 無敵設定
 
 private:
-	// 回避構造体
-	struct SDodge
-	{
-		bool  bDodge;		// 回避状況
-		float fMove;		// 回避移動量
-		float fRot;			// 回避方向
-		int   nWaitCounter;	// クールタイム管理カウンター
-	};
-
 	// 先行入力構造体
 	struct SBuffering
 	{
@@ -176,6 +167,31 @@ private:
 		int  nNumSet;	// 先行入力の反映数
 	};
 
+	// 攻撃構造体
+	struct SAttack : public SBuffering
+	{
+	public:
+		// 種類列挙
+		enum EType
+		{
+			TYPE_LAND = 0,	// 地上攻撃
+			TYPE_SKY,		// 空中攻撃
+			TYPE_MAX		// この列挙型の総数
+		};
+
+		// メンバ変数
+		EType curType;	// 現在の攻撃種類
+	};
+
+	// 回避構造体
+	struct SDodge
+	{
+		bool  bDodge;		// 回避状況
+		float fMove;		// 回避移動量
+		float fRot;			// 回避方向
+		int   nWaitCounter;	// クールタイム管理カウンター
+	};
+
 	// モーション更新の関数ポインタ型エイリアス定義
 	typedef void (CPlayer::*AFuncUpdateMotion)(const int);
 
@@ -195,8 +211,10 @@ private:
 	void UpdateDamage(int *pLowMotion, int *pUpMotion);	// ダメージ状態時の更新
 	void UpdateInvuln(int *pLowMotion, int *pUpMotion);	// 無敵状態時の更新
 
-	void UpdateAttack(void);	// 攻撃操作の更新
-	void UpdateDodge(void);		// 回避操作の更新
+	void UpdateAttack(void);		// 攻撃操作の更新
+	void UpdateLandAttack(void);	// 地上攻撃操作の更新
+	void UpdateSkyAttack(void);		// 空中攻撃操作の更新
+	void UpdateDodge(void);			// 回避操作の更新
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
 
@@ -225,7 +243,7 @@ private:
 	float		m_fSinAlpha;		// 透明向き
 	bool		m_bJump;			// ジャンプ状況
 	SDodge		m_dodge;			// 回避の情報
-	SBuffering	m_buffAttack;		// 攻撃の先行入力
+	SAttack		m_attack;			// 攻撃の情報
 };
 
 #endif	// _PLAYER_H_

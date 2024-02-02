@@ -150,9 +150,9 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_nCounterState	(0)				// 状態管理カウンター
 {
 	// メンバ変数をクリア
-	memset(&m_apSowrd,		0, sizeof(m_apSowrd));		// 剣の情報
-	memset(&m_dodge,		0, sizeof(m_dodge));		// 回避の情報
-	memset(&m_buffAttack,	0, sizeof(m_buffAttack));	// 攻撃の先行入力
+	memset(&m_apSowrd,	0, sizeof(m_apSowrd));	// 剣の情報
+	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
+	memset(&m_attack,	0, sizeof(m_attack));	// 攻撃の情報
 }
 
 //============================================================
@@ -169,9 +169,9 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
-	memset(&m_apSowrd,		0, sizeof(m_apSowrd));		// 剣の情報
-	memset(&m_dodge,		0, sizeof(m_dodge));		// 回避の情報
-	memset(&m_buffAttack,	0, sizeof(m_buffAttack));	// 攻撃の先行入力
+	memset(&m_apSowrd,	0, sizeof(m_apSowrd));	// 剣の情報
+	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
+	memset(&m_attack,	0, sizeof(m_attack));	// 攻撃の情報
 	m_pLife			= nullptr;		// 体力の情報
 	m_pShadow		= nullptr;		// 影の情報
 	m_oldPos		= VEC3_ZERO;	// 過去位置
@@ -790,14 +790,14 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		if (IsMotionCancel(BODY_LOWER))
 		{ // モーションキャンセルができる場合
 
-			if (m_buffAttack.bInput)
+			if (m_attack.bInput)
 			{ // 攻撃が先行入力されている場合
 
 				// 次の攻撃モーションを設定
 				SetMotion(BODY_LOWER, GetMotionType(BODY_LOWER) + 1);
 
 				// 入力反映を加算
-				if (m_buffAttack.Add())	// 全モーションに反映したら先行入力を初期化
+				if (m_attack.Add())	// 全モーションに反映したら先行入力を初期化
 				{ // 全モーションに反映済みの場合
 
 					// Lスティックの向きにプレイヤーを向かせる
@@ -844,7 +844,47 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		break;
 
 	case L_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+
+		if (IsMotionCancel(BODY_LOWER))
+		{ // モーションキャンセルができる場合
+
+			if (m_attack.bInput)
+			{ // 攻撃が先行入力されている場合
+
+				// 次の攻撃モーションを設定
+				SetMotion(BODY_LOWER, GetMotionType(BODY_LOWER) + 1);
+
+				// 入力反映を加算
+				if (m_attack.Add())	// 全モーションに反映したら先行入力を初期化
+				{ // 全モーションに反映済みの場合
+
+					// Lスティックの向きにプレイヤーを向かせる
+					SetLStickRotation();
+				}
+
+				// 処理を抜ける
+				break;
+			}
+		}
+
+		if (IsMotionFinish(BODY_LOWER))
+		{ // モーションが終了した場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_LOWER, nMotion);
+		}
+
+		break;
+
 	case L_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
+
+		if (IsMotionFinish(BODY_LOWER))
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_LOWER, nMotion);
+		}
+
 		break;
 
 	default:	// 例外処理
@@ -910,14 +950,14 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 		if (IsMotionCancel(BODY_UPPER))
 		{ // モーションキャンセルができる場合
 
-			if (m_buffAttack.bInput)
+			if (m_attack.bInput)
 			{ // 攻撃が先行入力されている場合
 
 				// 現在のモーションの設定
 				SetMotion(BODY_UPPER, GetMotionType(BODY_UPPER) + 1);
 
 				// 入力反映を加算
-				if (m_buffAttack.Add())	// 全モーションに反映したら先行入力を初期化
+				if (m_attack.Add())	// 全モーションに反映したら先行入力を初期化
 				{ // 全モーションに反映済みの場合
 
 					// Lスティックの向きにプレイヤーを向かせる
@@ -964,7 +1004,60 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 		break;
 
 	case U_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+
+		if (IsMotionCancel(BODY_UPPER))
+		{ // モーションキャンセルができる場合
+
+			if (m_attack.bInput)
+			{ // 攻撃が先行入力されている場合
+
+				// 現在のモーションの設定
+				SetMotion(BODY_UPPER, GetMotionType(BODY_UPPER) + 1);
+
+				// 入力反映を加算
+				if (m_attack.Add())	// 全モーションに反映したら先行入力を初期化
+				{ // 全モーションに反映済みの場合
+
+					// Lスティックの向きにプレイヤーを向かせる
+					SetLStickRotation();
+				}
+
+				if (m_move.y < 0.0f)
+				{ // 縦移動量がマイナスの場合
+
+					// 上移動量をプラスにする
+					m_move.y = 10.0f;
+				}
+				else
+				{ // 縦移動量がプラスの場合
+
+					// 上移動量を加える
+					m_move.y += 4.0f;
+				}
+
+				// 処理を抜ける
+				break;
+			}
+		}
+
+		if (IsMotionFinish(BODY_UPPER))
+		{ // モーションが終了した場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_UPPER, nMotion);
+		}
+
+		break;
+
 	case U_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
+
+		if (IsMotionFinish(BODY_UPPER))
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_UPPER, nMotion);
+		}
+
 		break;
 
 	default:	// 例外処理
@@ -1147,32 +1240,93 @@ void CPlayer::UpdateInvuln(int *pLowMotion, int *pUpMotion)
 //============================================================
 void CPlayer::UpdateAttack(void)
 {
-	if (m_bJump)		{ return; }	// ジャンプ中の場合抜ける
 	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
 
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
 	{
-		if (!IsAttack())
-		{ // 攻撃中ではない場合
+		if (!m_bJump)
+		{ // ジャンプしていない場合
 
-			// 攻撃モーションを指定
-			SetMotion(BODY_LOWER, L_MOTION_ATTACK_00);
-			SetMotion(BODY_UPPER, U_MOTION_ATTACK_00);
+			// 地上攻撃操作の更新
+			UpdateLandAttack();
 		}
 		else
-		{ // 攻撃中の場合
+		{ // ジャンプしている場合
 
-			if (GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_02)	// TODO：一番最後の攻撃にする
-			{ // 最終攻撃モーションではない場合
+			// 空中攻撃操作の更新
+			UpdateSkyAttack();
+		}
+	}
+}
 
-				// 現在のモーションの残りフレームを計算
-				int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
-				if (nWholeFrame < ATTACK_BUFFER_FRAME)
-				{ // 先行入力が可能な場合
+//============================================================
+//	地上攻撃操作の更新処理
+//============================================================
+void CPlayer::UpdateLandAttack(void)
+{
+	if (!IsAttack())
+	{ // 攻撃中ではない場合
 
-					// 先行入力を受け付ける
-					m_buffAttack.bInput = true;
-				}
+		// 攻撃モーションを指定
+		SetMotion(BODY_LOWER, L_MOTION_ATTACK_00);
+		SetMotion(BODY_UPPER, U_MOTION_ATTACK_00);
+	}
+	else
+	{ // 攻撃中の場合
+
+		if (GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_02)	// TODO：一番最後の攻撃にする
+		{ // 最終攻撃モーションではない場合
+
+			// 現在のモーションの残りフレームを計算
+			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
+			if (nWholeFrame < ATTACK_BUFFER_FRAME)
+			{ // 先行入力が可能な場合
+
+				// 先行入力を受け付ける
+				m_attack.bInput = true;
+			}
+		}
+	}
+}
+
+//============================================================
+//	空中攻撃操作の更新処理
+//============================================================
+void CPlayer::UpdateSkyAttack(void)
+{
+	if (!IsAttack())
+	{ // 攻撃中ではない場合
+
+		// 攻撃モーションを指定
+		SetMotion(BODY_LOWER, L_MOTION_JUMP_ATTACK_00);
+		SetMotion(BODY_UPPER, U_MOTION_JUMP_ATTACK_00);
+
+		if (m_move.y < 0.0f)
+		{ // 縦移動量がマイナスの場合
+
+			// 上移動量をプラスにする
+			m_move.y = 10.0f;
+		}
+		else
+		{ // 縦移動量がプラスの場合
+
+			// 上移動量を加える
+			m_move.y += 4.0f;
+		}
+	}
+	else
+	{ // 攻撃中の場合
+
+		if (GetMotionType(BODY_UPPER) != U_MOTION_JUMP_ATTACK_01)	// TODO：一番最後の攻撃にする
+		{ // 最終攻撃モーションではない場合
+
+			// 現在のモーションの残りフレームを計算
+			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
+			if (nWholeFrame < ATTACK_BUFFER_FRAME)
+			{ // 先行入力が可能な場合
+
+				// 先行入力を受け付ける
+				m_attack.bInput = true;
 			}
 		}
 	}
