@@ -359,16 +359,16 @@ void CCamera::SetDestFollow(void)
 }
 
 //============================================================
-//	追従カメラのオブジェクト視認処理
+//	追従カメラの位置視認処理
 //============================================================
-void CCamera::SetFollowLook(const CObject *pLookObject)
+void CCamera::SetFollowLook(const D3DXVECTOR3& rLookPos)
 {
 	// 変数を宣言
 	D3DXVECTOR3 vecLook = VEC3_ZERO;	// 視認オブジェクト方向
 	float fRotY = 0.0f;
 
 	// 視認するオブジェクトの方向を求める
-	vecLook = pLookObject->GetVec3Position() - m_aCamera[TYPE_MAIN].posR;
+	vecLook = rLookPos - m_aCamera[TYPE_MAIN].posR;
 	vecLook.y = 0.0f;	// Y方向は無視
 
 	// ボス視認カウンターを設定

@@ -68,8 +68,13 @@ public:
 	// モーション列挙
 	enum EMotion
 	{
-		MOTION_IDOL = 0,		// 待機モーション
+		MOTION_NONE = -1,		// モーション指定無し
+		MOTION_HOWL,			// 咆哮モーション
+		MOTION_IDOL,			// 待機モーション
+		MOTION_FLY_IDOL,		// 空中待機モーション
 		MOTION_PUNCH_GROUND,	// 地面殴りモーション
+		MOTION_FLY_ATTACK,		// 空中攻撃モーション
+		MOTION_FLY_RUSH,		// 空中突進攻撃モーション
 		MOTION_MAX				// この列挙型の総数
 	};
 
@@ -77,9 +82,11 @@ public:
 	enum EAction
 	{
 		ACT_NONE = 0,		// 何もしない
+		ACT_HOWL,			// 咆哮
 		ACT_MAGIC_FADEIN,	// 魔法陣フェードイン
 		ACT_MAGIC_FADEOUT,	// 魔法陣フェードアウト
 		ACT_PUNCH_GROUND,	// 地面殴り
+		ACT_FLY_ATTACK,		// 空中攻撃
 		ACT_MAX				// この列挙型の総数
 	};
 
@@ -105,6 +112,7 @@ public:
 		D3DXVECTOR3 pos;	// テレポート目標位置
 		D3DXVECTOR3 rot;	// テレポート目標向き
 		ETeleport state;	// テレポート状態
+		EMotion motion;		// テレポート後モーション
 		bool bLook;			// テレポート先にカメラを向かせるか
 	};
 
@@ -119,11 +127,14 @@ public:
 	// メンバ関数
 	void SetTeleport	// テレポート設定
 	( // 引数
-		const D3DXVECTOR3& rPos,	// テレポート目標位置
-		const D3DXVECTOR3& rRot,	// テレポート目標向き
-		const bool bLook = true		// テレポート先にカメラを向かせるか
+		const D3DXVECTOR3& rPos,			// テレポート目標位置
+		const D3DXVECTOR3& rRot,			// テレポート目標向き
+		const EMotion motion = MOTION_NONE,	// テレポート後モーション
+		const bool bLook = true				// テレポート先にカメラを向かせるか
 	);
-	void SetActPunchGround(void);	// 地面殴り行動設定
+	void SetActHowl(void);			// 咆哮の行動設定
+	void SetActPunchGround(void);	// 地面殴りの行動設定
+	void SetActFlyAttack(void);		// 空中攻撃の行動設定
 	EAction GetAction(void);		// 行動取得
 
 private:
@@ -133,12 +144,16 @@ private:
 	void UpdateNormal(void) override;	// 通常状態時の更新
 
 	// メンバ関数
+	void LimitPosition(D3DXVECTOR3 *pPos);	// 位置範囲外の補正
 	void UpdateAttack(void);	// 攻撃更新
 	void UpdateAction(void);	// 行動更新
+	bool IsFly(void) const;		// 飛行フラグの取得
 
-	void UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot);	// 魔法陣フェードイン行動時の更新
-	void UpdateMagicFadeOut(const D3DXVECTOR3& rPos);	// 魔法陣フェードアウト行動時の更新
-	void UpdatePunchGround(void);	// 地面殴り行動時の更新
+	void UpdateMagicFadeIn(const D3DXVECTOR3& rPos);				// 魔法陣フェードイン行動時の更新
+	void UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot);	// 魔法陣フェードアウト行動時の更新
+	void UpdateHowl(void);			// 咆哮の行動時の更新
+	void UpdatePunchGround(void);	// 地面殴りの行動時の更新
+	void UpdateFlyAttack(void);		// 空中攻撃の行動時の更新
 
 	// メンバ変数
 	CGauge2D *m_pLife;				// 体力の情報

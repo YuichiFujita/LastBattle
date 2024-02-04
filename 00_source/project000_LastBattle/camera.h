@@ -109,7 +109,7 @@ public:
 
 	void SetDestRotate(void);	// カメラ目標位置設定 (回転)
 	void SetDestFollow(void);	// カメラ目標位置設定 (追従)
-	void SetFollowLook(const CObject *pLookObject);	// 追従カメラのオブジェクト視認
+	void SetFollowLook(const D3DXVECTOR3 &rLookPos);	// 追従カメラの位置視認
 
 	void SetSwing(const EType type, const SSwing swing);	// カメラ揺れ設定
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定

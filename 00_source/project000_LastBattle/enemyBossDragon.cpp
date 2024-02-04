@@ -64,8 +64,8 @@ namespace
 	const float	SCALE_MAGIC		= 35.0f;		// 魔法陣の半径変動量
 	const float	MOVE_MAGIC		= 30.0f;		// 魔法陣の上下移動量
 	const float	MAGIC_CIRCLE_RADIUS	= 250.0f;	// 魔法陣の半径
-	const float	MAGIC_ALPHA_RADIUS	= 350.0f;	// 魔法陣の半径
-	const float	MAGIC_DELPOS_PLUSY	= 150.0f;	// 魔法陣の消失位置の加算量Y
+	const float	MAGIC_ALPHA_RADIUS	= 450.0f;	// 魔法陣の透明半径
+	const float	MAGIC_DELPOS_PLUSY	= 250.0f;	// 魔法陣の消失位置の加算量Y
 
 	const char *TEXTURE_LIFEFRAME = "data\\TEXTURE\\lifeframe001.png";	// 体力フレーム表示のテクスチャファイル
 
@@ -284,6 +284,7 @@ void CEnemyBossDragon::SetTeleport
 (
 	const D3DXVECTOR3 &rPos,	// テレポート目標位置
 	const D3DXVECTOR3 &rRot,	// テレポート目標向き
+	const EMotion motion,		// テレポート後モーション
 	const bool bLook			// テレポート先にカメラを向かせるか
 )
 {
@@ -294,6 +295,9 @@ void CEnemyBossDragon::SetTeleport
 	// 魔法陣の位置・向きを現在位置の足元に設定
 	m_pMagicCircle->SetVec3Position(GetVec3Position());
 	m_pMagicCircle->SetVec3Rotation(GetVec3Rotation());
+
+	// テレポート後のモーションを設定
+	m_teleport.motion = motion;
 
 	// テレポート後のカメラ補正を設定
 	m_teleport.bLook = bLook;
@@ -306,6 +310,18 @@ void CEnemyBossDragon::SetTeleport
 }
 
 //============================================================
+//	咆哮の行動設定処理
+//============================================================
+void CEnemyBossDragon::SetActHowl(void)
+{
+	// 咆哮モーションを設定
+	SetMotion(MOTION_HOWL);
+
+	// 咆哮する行動をとらせる
+	m_action = ACT_HOWL;
+}
+
+//============================================================
 //	地面殴りの行動設定処理
 //============================================================
 void CEnemyBossDragon::SetActPunchGround(void)
@@ -315,6 +331,18 @@ void CEnemyBossDragon::SetActPunchGround(void)
 
 	// 地面を殴る行動をとらせる
 	m_action = ACT_PUNCH_GROUND;
+}
+
+//============================================================
+//	空中攻撃の行動設定処理
+//============================================================
+void CEnemyBossDragon::SetActFlyAttack(void)
+{
+	// 空中攻撃モーションを設定
+	SetMotion(MOTION_FLY_ATTACK);
+
+	// 空中で攻撃する行動をとらせる
+	m_action = ACT_FLY_ATTACK;
 }
 
 //============================================================
@@ -349,10 +377,12 @@ void CEnemyBossDragon::UpdateMotion(void)
 
 	switch (GetMotionType())
 	{ // モーションごとの処理
-	case MOTION_IDOL:
+	case MOTION_HOWL:			// 咆哮モーション
+	case MOTION_IDOL:			// 待機モーション
+	case MOTION_FLY_IDOL:		// 空中待機モーション
 		break;
 
-	case MOTION_PUNCH_GROUND:
+	case MOTION_PUNCH_GROUND:	// 地面殴りモーション
 
 		if (IsMotionFinish())
 		{ // モーションが終了していた場合
@@ -360,6 +390,22 @@ void CEnemyBossDragon::UpdateMotion(void)
 			// 待機モーションに移行
 			SetMotion(MOTION_IDOL);
 		}
+
+		break;
+
+	case MOTION_FLY_ATTACK:		// 空中攻撃モーション
+
+		if (IsMotionFinish())
+		{ // モーションが終了していた場合
+
+			// 空中待機モーションに移行
+			SetMotion(MOTION_FLY_IDOL);
+		}
+
+	case MOTION_FLY_RUSH:		// 空中突進攻撃モーション
+
+		// TODO：使うようになったらなんに遷移するか指定
+		assert(false);
 
 		break;
 
@@ -382,6 +428,23 @@ void CEnemyBossDragon::UpdateNormal(void)
 }
 
 //============================================================
+//	位置範囲外の補正処理
+//============================================================
+void CEnemyBossDragon::LimitPosition(D3DXVECTOR3 *pPos)
+{
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	if (!IsFly())
+	{ // 飛行していない場合
+
+		// ステージ範囲外の補正
+		pStage->LimitPosition(*pPos, GetStatusInfo().fRadius);
+	}
+}
+
+//============================================================
 //	攻撃の更新処理
 //============================================================
 void CEnemyBossDragon::UpdateAttack(void)
@@ -400,10 +463,10 @@ void CEnemyBossDragon::UpdateAttack(void)
 			// 攻撃の生成
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
-#if 1	// TODO：攻撃を指定
+#if 0	// TODO：攻撃を指定
 				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
 #else
-				CEnemyAttack::ATTACK_00,	// 攻撃インデックス
+				CEnemyAttack::ATTACK_01,	// 攻撃インデックス
 #endif
 				this	// 自身のポインタ
 			);
@@ -441,38 +504,52 @@ void CEnemyBossDragon::UpdateAction(void)
 	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
 	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
 
-	// ポインタを宣言
-	CStage *pStage = CScene::GetStage();				// ステージ情報
-	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
-
 	// 過去位置の更新
 	UpdateOldPosition();
 
-	// 重力の更新
-	UpdateGravity();
+	if (!IsFly())
+	{ // 飛行していない場合
+
+		// 重力の更新
+		UpdateGravity();
+	}
 
 	switch (m_action)
 	{ // 行動ごとの処理
 	case ACT_NONE:	// 何もしない
 		break;
 
+	case ACT_HOWL:	// 咆哮
+
+		// 咆哮行動時の更新
+		UpdateHowl();
+
+		break;
+
 	case ACT_MAGIC_FADEIN:	// 魔法陣フェードイン
 
 		// 魔法陣フェードイン行動時の更新
-		UpdateMagicFadeIn(&posEnemy, &rotEnemy);
+		UpdateMagicFadeIn(posEnemy);
 
 		break;
 
 	case ACT_MAGIC_FADEOUT:	// 魔法陣フェードアウト
 
 		// 魔法陣フェードアウト行動時の更新
-		UpdateMagicFadeOut(posEnemy);
+		UpdateMagicFadeOut(&posEnemy, &rotEnemy);
 
 		break;
 
 	case ACT_PUNCH_GROUND:	// 地面殴り
 
-		// 地面殴り行動時の更新
+		// 地面殴りの行動時の更新
+		UpdatePunchGround();
+
+		break;
+
+	case ACT_FLY_ATTACK:	// 空中攻撃
+
+		// 空中攻撃の行動時の更新
 		UpdatePunchGround();
 
 		break;
@@ -488,8 +565,8 @@ void CEnemyBossDragon::UpdateAction(void)
 	// 着地判定
 	UpdateLanding(&posEnemy);
 
-	// ステージ範囲外の補正
-	pStage->LimitPosition(posEnemy, GetStatusInfo().fRadius);
+	// 位置範囲外の補正
+	LimitPosition(&posEnemy);
 
 	// 位置を反映
 	SetVec3Position(posEnemy);
@@ -499,16 +576,31 @@ void CEnemyBossDragon::UpdateAction(void)
 }
 
 //============================================================
+//	飛行フラグ取得処理
+//============================================================
+bool CEnemyBossDragon::IsFly(void) const
+{
+	// 変数を宣言
+	EMotion curMotion = (EMotion)GetMotionType();	// 現在のモーション
+
+	// TODO：空中モーション追加したら記述
+
+	// 飛行状況を設定
+	bool bFly = (curMotion == MOTION_FLY_IDOL
+			  || curMotion == MOTION_FLY_ATTACK
+			  || curMotion == MOTION_FLY_RUSH);
+
+	// 飛行状況を返す
+	return bFly;
+}
+
+//============================================================
 //	魔法陣フェードイン行動時の更新処理
 //============================================================
-void CEnemyBossDragon::UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
+void CEnemyBossDragon::UpdateMagicFadeIn(const D3DXVECTOR3& rPos)
 {
 	// 変数を宣言
 	float fMagicPosY = m_pMagicCircle->GetVec3Position().y;	// 魔法陣の位置
-
-	// ポインタを宣言
-	CStage *pStage = CScene::GetStage();				// ステージ情報
-	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
 
 	switch (m_teleport.state)
 	{ // テレポート状態ごとの処理
@@ -516,6 +608,9 @@ void CEnemyBossDragon::UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 	{
 		// 魔法陣の自動描画をONにする
 		m_pMagicCircle->SetEnableDraw(true);
+
+		// 魔法陣の位置を足の下にする
+		fMagicPosY = rPos.y;
 
 		// 魔法陣の出現状態にする
 		m_teleport.state = TELEPORT_APPEAR;
@@ -576,10 +671,6 @@ void CEnemyBossDragon::UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 			// 半径を補正
 			fMagicRadius = 0.0f;
 
-			// ボスの位置・向きをテレポート先に変更
-			*pPos = m_teleport.pos;
-			*pRot = m_teleport.rot;
-
 			// テレポートの初期化状態にする
 			m_teleport.state = TELEPORT_INIT;
 
@@ -597,17 +688,14 @@ void CEnemyBossDragon::UpdateMagicFadeIn(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 		break;
 	}
 
-	// ステージ範囲外の補正
-	pStage->LimitPosition(*pPos, GetStatusInfo().fRadius);
-
 	// 魔法陣の位置を反映
-	m_pMagicCircle->SetVec3Position(D3DXVECTOR3(pPos->x, fMagicPosY, pPos->z));
+	m_pMagicCircle->SetVec3Position(D3DXVECTOR3(rPos.x, fMagicPosY, rPos.z));
 }
 
 //============================================================
 //	魔法陣フェードアウト行動時の更新処理
 //============================================================
-void CEnemyBossDragon::UpdateMagicFadeOut(const D3DXVECTOR3& rPos)
+void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 {
 	// 変数を宣言
 	float fMagicPosY = m_pMagicCircle->GetVec3Position().y;	// 魔法陣の位置
@@ -616,12 +704,31 @@ void CEnemyBossDragon::UpdateMagicFadeOut(const D3DXVECTOR3& rPos)
 	{ // テレポート状態ごとの処理
 	case TELEPORT_INIT:		// テレポートの初期化
 	{
+		if (m_teleport.motion > MOTION_NONE
+		&&  m_teleport.motion < MOTION_MAX)
+		{ // モーション指定がある場合
+
+			// モーションを設定
+			SetMotion(m_teleport.motion);
+		}
+
+		// ボスの位置・向きをテレポート先に変更
+		*pPos = m_teleport.pos;
+		*pRot = m_teleport.rot;
+
+		// 位置範囲外の補正
+		LimitPosition(pPos);
+
 		if (m_teleport.bLook)
 		{ // テレポート先を視認する場合
 
 			// テレポート後のボスを視認させる
-			GET_MANAGER->GetCamera()->SetFollowLook(this);
+			GET_MANAGER->GetCamera()->SetFollowLook(*pPos);
 		}
+
+		// 魔法陣の位置を頭の上にする
+		fMagicPosY  = GetMultiModel(MODEL_HEAD)->GetMtxWorld()._42 + MAGIC_DELPOS_PLUSY;
+		fMagicPosY += pPos->y - GetOldPosition().y;	// 過去位置から今フレームでずれたY座標分を加算
 
 		// 魔法陣の出現状態にする
 		m_teleport.state = TELEPORT_APPEAR;
@@ -700,13 +807,29 @@ void CEnemyBossDragon::UpdateMagicFadeOut(const D3DXVECTOR3& rPos)
 	}
 
 	// 魔法陣の位置を反映
-	m_pMagicCircle->SetVec3Position(D3DXVECTOR3(rPos.x, fMagicPosY, rPos.z));
+	m_pMagicCircle->SetVec3Position(D3DXVECTOR3(pPos->x, fMagicPosY, pPos->z));
+}
+
+//============================================================
+//	咆哮の行動時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateHowl(void)
+{
+
 }
 
 //============================================================
 //	地面殴り行動時の更新処理
 //============================================================
 void CEnemyBossDragon::UpdatePunchGround(void)
+{
+
+}
+
+//============================================================
+//	空中攻撃の行動時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateFlyAttack(void)
 {
 
 }

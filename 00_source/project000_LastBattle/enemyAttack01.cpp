@@ -20,8 +20,8 @@
 //************************************************************
 namespace
 {
-	const float	TELEPORT_POS_DIS	= 4800.0f;	// テレポート時のステージ中心位置から遠ざける距離
-	const float	TELEPORT_POSY		= 1200.0f;	// テレポート時のY座標
+	const float	TELEPORT_POS_DIS	= 3600.0f;	// テレポート時のステージ中心位置から遠ざける距離
+	const float	TELEPORT_POSY		= 800.0f;	// テレポート時のY座標
 	const int	ATTACK_WAIT_FRAME	= 80;		// 攻撃後の硬直フレーム
 	const int	NUM_THUNDER			= 4;		// 一回の攻撃で生成する雷の数 (中心にも生成するためプラス1される)
 	const int	DIV_LENRAND			= 201;		// ランダム距離の剰余算の値
@@ -110,7 +110,7 @@ bool CEnemyAttack01::Update(void)
 		rotEnemy.y = atan2f(vec.x, vec.z);
 
 		// ボスをテレポートさせる
-		pBoss->SetTeleport(posEnemy, rotEnemy, false);
+		pBoss->SetTeleport(posEnemy, rotEnemy, CEnemyBossDragon::MOTION_FLY_IDOL);
 
 		// テレポート状態にする
 		m_state = STATE_TELEPORT;
@@ -240,7 +240,7 @@ bool CEnemyAttack01::Update(void)
 		rotEnemy.y = atan2f(vec.x, vec.z);
 
 		// ボスをテレポートさせる
-		pBoss->SetTeleport(posEnemy, rotEnemy);
+		pBoss->SetTeleport(posEnemy, rotEnemy, CEnemyBossDragon::MOTION_IDOL);
 
 		// 中央テレポート状態にする
 		m_state = STATE_CENTER_TELEPORT;
