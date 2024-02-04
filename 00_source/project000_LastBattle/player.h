@@ -79,6 +79,7 @@ public:
 		L_MOTION_LAND,				// 着地モーション
 		L_MOTION_JUMP_ATTACK_00,	// 空中攻撃モーション一段階目
 		L_MOTION_JUMP_ATTACK_01,	// 空中攻撃モーション二段階目
+		L_MOTION_DEATH,				// 死亡モーション
 		L_MOTION_MAX				// この列挙型の総数
 	};
 
@@ -94,6 +95,7 @@ public:
 		U_MOTION_LAND,				// 着地モーション
 		U_MOTION_JUMP_ATTACK_00,	// 空中攻撃モーション一段階目
 		U_MOTION_JUMP_ATTACK_01,	// 空中攻撃モーション二段階目
+		U_MOTION_DEATH,				// 死亡モーション
 		U_MOTION_MAX				// この列挙型の総数
 	};
 

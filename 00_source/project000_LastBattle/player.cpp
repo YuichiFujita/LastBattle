@@ -315,7 +315,6 @@ void CPlayer::Update(void)
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_NONE:
-	case STATE_DEATH:
 		break;
 
 	case STATE_SPAWN:
@@ -343,6 +342,14 @@ void CPlayer::Update(void)
 
 		// 無敵状態の更新
 		UpdateInvuln((int*)&curLowMotion, (int*)&curUpMotion);
+
+		break;
+
+	case STATE_DEATH:
+
+		// 死亡モーションにする
+		curLowMotion = L_MOTION_DEATH;
+		curUpMotion  = U_MOTION_DEATH;
 
 		break;
 
@@ -887,6 +894,9 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 		break;
 
+	case L_MOTION_DEATH:	// 死亡モーション：ループON
+		break;
+
 	default:	// 例外処理
 		assert(false);
 		break;
@@ -1058,6 +1068,9 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 			SetMotion(BODY_UPPER, nMotion);
 		}
 
+		break;
+
+	case U_MOTION_DEATH:	// 死亡モーション：ループON
 		break;
 
 	default:	// 例外処理
