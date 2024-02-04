@@ -422,4 +422,7 @@ void CAttackThunder::CollisionThunder(void)
 		// ステージ範囲外の補正
 		pStage->LimitPosition(m_posOrigin, COLL_RADIUS);
 	}
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(m_posOrigin, COLL_RADIUS);
 }
