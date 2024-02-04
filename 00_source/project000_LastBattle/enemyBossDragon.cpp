@@ -296,8 +296,21 @@ void CEnemyBossDragon::SetTeleport
 	m_pMagicCircle->SetVec3Position(GetVec3Position());
 	m_pMagicCircle->SetVec3Rotation(GetVec3Rotation());
 
-	// テレポート後のモーションを設定
-	m_teleport.motion = motion;
+	if (motion == MOTION_NONE
+	||  motion == MOTION_IDOL
+	||  motion == MOTION_FLY_IDOL)
+	{ // 設定できるモーションの場合
+
+		// テレポート後のモーションを設定
+		m_teleport.motion = motion;
+	}
+	else
+	{ // 設定できないモーションの場合
+
+		// モーション指定なしを設定
+		assert(false);
+		m_teleport.motion = MOTION_NONE;
+	}
 
 	// テレポート後のカメラ補正を設定
 	m_teleport.bLook = bLook;
