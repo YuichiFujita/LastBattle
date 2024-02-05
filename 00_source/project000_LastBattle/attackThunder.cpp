@@ -299,8 +299,8 @@ void CAttackThunder::SetOriginPosition(const D3DXVECTOR3 &rPos)
 	// 原点位置を設定
 	m_posOrigin = rPos;
 
-	// 雷同士の当たり判定
-	CollisionThunder();
+	// ステージ範囲外の補正
+	pStage->LimitPosition(m_posOrigin, COLL_RADIUS);
 
 	// 警告表示の位置を設定
 	D3DXVECTOR3 posWarn = D3DXVECTOR3(m_posOrigin.x, pStage->GetStageLimit().fField, m_posOrigin.z);
@@ -390,39 +390,4 @@ void CAttackThunder::CollisionPlayer(void)
 			player->Hit(DMG_THUNDER);
 		}
 	}
-}
-
-//============================================================
-//	雷同士の当たり判定
-//============================================================
-void CAttackThunder::CollisionThunder(void)
-{
-	CStage *pStage = CScene::GetStage();	// ステージの情報
-	assert(pStage != nullptr);	// ステージ未使用
-
-	if (m_pList == nullptr)			{ return; }	// リスト未使用
-	if (m_pList->GetNumAll() <= 0)	{ return; }	// 雷が存在しない
-
-	std::list<CAttackThunder*> list = m_pList->GetList();	// 雷リスト
-	for (auto thunder : list)
-	{ // リストのすべてを繰り返す
-
-		// 自分自身なら処理スルー
-		if (thunder == this) { continue; }
-
-		// 生成済み雷との押し出し判定
-		collision::CirclePillar
-		( // 引数
-			m_posOrigin,			// 判定位置
-			thunder->m_posOrigin,	// 判定目標位置
-			COLL_RADIUS,			// 判定半径
-			COLL_RADIUS				// 判定目標半径
-		);
-
-		// ステージ範囲外の補正
-		pStage->LimitPosition(m_posOrigin, COLL_RADIUS);
-	}
-
-	// ステージ範囲外の補正
-	pStage->LimitPosition(m_posOrigin, COLL_RADIUS);
 }

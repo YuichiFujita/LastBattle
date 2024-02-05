@@ -446,21 +446,18 @@ HRESULT CManager::SetMode(const CScene::EMode mode)
 
 	// オブジェクトの全破棄
 	CObject::ReleaseAll();
+	assert(_CrtDumpMemoryLeaks());	// メモリリーク
 
+	// シーンの生成
+	assert(m_pScene == nullptr);
+	m_pScene = CScene::Create(mode);
 	if (m_pScene == nullptr)
-	{ // シーンが非使用中の場合
+	{ // 非使用中の場合
 
-		// シーンの生成
-		m_pScene = CScene::Create(mode);
-		if (m_pScene == nullptr)
-		{ // 非使用中の場合
-
-			// 失敗を返す
-			assert(false);
-			return E_FAIL;
-		}
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
 	}
-	else { assert(false); return E_FAIL; }	// 使用中
 
 	// 成功を返す
 	return S_OK;

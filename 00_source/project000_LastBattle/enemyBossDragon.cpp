@@ -415,6 +415,8 @@ void CEnemyBossDragon::UpdateMotion(void)
 			SetMotion(MOTION_FLY_IDOL);
 		}
 
+		break;
+
 	case MOTION_FLY_RUSH:		// 空中突進攻撃モーション
 
 		// TODO：使うようになったらなんに遷移するか指定

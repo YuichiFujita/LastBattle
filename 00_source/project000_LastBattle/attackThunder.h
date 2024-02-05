@@ -69,7 +69,6 @@ private:
 	void SetThunderPosition(const D3DXVECTOR3 &rPos);	// 雷位置設定
 	HRESULT SetAttack(void);		// 攻撃状態の設定
 	void CollisionPlayer(void);		// プレイヤーとの当たり判定
-	void CollisionThunder(void);	// 雷同士の当たり判定
 
 	// 静的メンバ変数
 	static CListManager<CAttackThunder> *m_pList;	// オブジェクトリスト

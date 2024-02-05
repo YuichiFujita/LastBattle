@@ -22,7 +22,8 @@ namespace
 {
 	const float	TELEPORT_POS_DIS	= 3600.0f;	// テレポート時のステージ中心位置から遠ざける距離
 	const float	TELEPORT_POSY		= 800.0f;	// テレポート時のY座標
-	const int	ATTACK_WAIT_FRAME	= 80;		// 攻撃後の硬直フレーム
+	const int	ATK_MOTION_KEY		= 1;		// 攻撃生成キー
+	const int	ATTACK_WAIT_FRAME	= 30;		// 攻撃後の硬直フレーム
 	const int	NUM_THUNDER			= 4;		// 一回の攻撃で生成する雷の数 (中心にも生成するためプラス1される)
 	const int	DIV_LENRAND			= 201;		// ランダム距離の剰余算の値
 	const int	ADD_LENRAND			= 250;		// ランダム距離の加算の値
@@ -130,10 +131,9 @@ bool CEnemyAttack01::Update(void)
 	}
 	case STATE_INIT_THUNDER:	// 波動発射の初期化
 	{
-#if 0	// TODO：ここで腕を掲げるモーションに遷移
-		// 地面殴りの行動を設定
-		pBoss->SetActPunchGround();
-#endif
+		// 空中攻撃の行動を設定
+		pBoss->SetActFlyAttack();
+
 		// 波動発射状態にする
 		m_state = STATE_THUNDER;
 
@@ -141,25 +141,14 @@ bool CEnemyAttack01::Update(void)
 	}
 	case STATE_THUNDER:	// 波動発射
 	{
-#if 0	// TODO：ここで腕を掲げるモーションから空中待機になったかの判定
-		if (pBoss->GetMotionType() != CEnemyBossDragon::MOTION_PUNCH_GROUND)
-		{ // 地面殴りモーションではない場合
+		if (pBoss->GetMotionType() != CEnemyBossDragon::MOTION_FLY_ATTACK)
+		{ // 空中攻撃モーションではない場合
 
 			// 待機状態にする
 			m_state = STATE_WAIT;
 		}
 
-		//if (pBoss->GetMotionKey() == pBoss->GetMotionNumKey() - 1 && pBoss->GetMotionKeyCounter() == 0)
-		{ // モーションが地面を殴ったタイミングの場合
-
-			// 雷攻撃の生成
-
-
-			// 攻撃回数を加算
-			m_nCounterNumAtk++;
-		}
-#else
-		//if (pBoss->GetMotionKey() == pBoss->GetMotionNumKey() - 1 && pBoss->GetMotionKeyCounter() == 0)
+		if (pBoss->GetMotionKey() == ATK_MOTION_KEY && pBoss->GetMotionKeyCounter() == 0)
 		{ // モーションが地面を殴ったタイミングの場合
 
 			CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
@@ -188,10 +177,6 @@ bool CEnemyAttack01::Update(void)
 			// 攻撃回数を加算
 			m_nCounterNumAtk++;
 		}
-
-		// 待機状態にする
-		m_state = STATE_WAIT;
-#endif
 
 		break;
 	}
