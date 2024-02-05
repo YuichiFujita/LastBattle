@@ -141,8 +141,13 @@ HRESULT CEnemyBossDragon::Init(void)
 	// 優先順位を設定
 	SetPriority(PRIORITY);
 
+#if 0	// TODO：デバッグ効率化
 	// スポーン状態にする
 	SetState(STATE_SPAWN);
+#else
+	// 通常状態にする
+	SetState(STATE_NORMAL);
+#endif
 
 	// 体力の生成
 	m_pLife = CGauge2D::Create
@@ -556,10 +561,10 @@ void CEnemyBossDragon::UpdateAttack(void)
 			// 攻撃の生成
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
-#if 1	// TODO：攻撃を指定
+#if 0	// TODO：攻撃を指定
 				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
 #else
-				CEnemyAttack::ATTACK_01,	// 攻撃インデックス
+				CEnemyAttack::ATTACK_02,	// 攻撃インデックス
 #endif
 				this	// 自身のポインタ
 			);

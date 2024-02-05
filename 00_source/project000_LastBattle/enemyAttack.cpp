@@ -10,6 +10,7 @@
 #include "enemyAttack.h"
 #include "enemyAttack00.h"
 #include "enemyAttack01.h"
+#include "enemyAttack02.h"
 #include "enemyBossDragon.h"
 #include "manager.h"
 
@@ -69,6 +70,10 @@ CEnemyAttack *CEnemyAttack::Create(const EAttack attackID, CEnemyBossDragon *pBo
 
 	case ATTACK_01:
 		pEnemyAttack = new CEnemyAttack01;
+		break;
+
+	case ATTACK_02:
+		pEnemyAttack = new CEnemyAttack02;
 		break;
 
 	default:	// ó·äOèàóù
