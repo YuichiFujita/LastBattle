@@ -31,7 +31,6 @@ namespace
 	const int	DMG_THUNDER		= 15;		// 雷のダメージ量
 	const float COLL_RADIUS		= 120.0f;	// 判定の半径
 
-	const int	WARN_FRAME	= 80;			// 警告表示持続フレーム
 	const int	DIV_DIRRAND	= 21;			// 方向の剰余算の値
 	const int	SUB_DIRRAND	= 10;			// 方向の減算の値
 	const float SHIFT_POS_LENGTH = 40.0f;	// 雷生成位置のずらす長さ
@@ -63,7 +62,8 @@ CAttackThunder::CAttackThunder() : CObject(CObject::LABEL_THUNDER, DIM_3D),
 	m_pWarning		(nullptr),		// 警告表示の情報
 	m_posOrigin		(VEC3_ZERO),	// 雷の原点位置
 	m_state			(STATE_WARN),	// 状態
-	m_nCounterState	(0)				// 状態管理カウンター
+	m_nCounterState	(0),			// 状態管理カウンター
+	m_nWarnFrame	(0)				// 警告表示フレーム数
 {
 	// メンバ変数をクリア
 	memset(&m_apThunder[0], 0, sizeof(m_apThunder));	// 雷の情報
@@ -88,6 +88,7 @@ HRESULT CAttackThunder::Init(void)
 	m_posOrigin = VEC3_ZERO;	// 雷の原点位置
 	m_state		= STATE_WARN;	// 状態
 	m_nCounterState = 0;		// 状態管理カウンター
+	m_nWarnFrame	= 0;		// 警告表示フレーム数
 
 	// 警告表示の生成
 	m_pWarning = CObject3D::Create
@@ -172,7 +173,7 @@ void CAttackThunder::Update(void)
 
 		// カウンターを加算
 		m_nCounterState++;
-		if (m_nCounterState > WARN_FRAME)
+		if (m_nCounterState > m_nWarnFrame)
 		{ // 警告表示が終了した場合
 
 			// 攻撃開始の設定
@@ -240,7 +241,11 @@ void CAttackThunder::Draw(void)
 //============================================================
 //	生成処理
 //============================================================
-CAttackThunder *CAttackThunder::Create(const D3DXVECTOR3 &rPos)
+CAttackThunder *CAttackThunder::Create
+(
+	const D3DXVECTOR3 &rPos,	// 位置
+	const int nWarnFrame		// 警告表示フレーム数
+)
 {
 	// 雷攻撃の生成
 	CAttackThunder *pAttackThunder = new CAttackThunder;
@@ -263,6 +268,9 @@ CAttackThunder *CAttackThunder::Create(const D3DXVECTOR3 &rPos)
 
 		// 雷の原点位置を設定
 		pAttackThunder->SetOriginPosition(rPos);
+
+		// 警告表示フレームを設定
+		pAttackThunder->m_nWarnFrame = nWarnFrame;
 
 		// 確保したアドレスを返す
 		return pAttackThunder;

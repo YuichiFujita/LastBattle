@@ -20,7 +20,8 @@
 //************************************************************
 namespace attackThunder
 {
-	const int NUM_THUNDER = 3;	// 雷の生成数
+	const int NUM_THUNDER	= 3;	// 雷の生成数
+	const int WARN_FRAME	= 80;	// 警告表示持続フレーム
 }
 
 //************************************************************
@@ -57,7 +58,11 @@ public:
 	void Draw(void) override;		// 描画
 
 	// 静的メンバ関数
-	static CAttackThunder *Create(const D3DXVECTOR3& rPos);	// 生成
+	static CAttackThunder *Create	// 生成
+	( // 引数
+		const D3DXVECTOR3& rPos,							// 位置
+		const int nWarnFrame = attackThunder::WARN_FRAME	// 警告表示フレーム数
+	);
 	static CListManager<CAttackThunder> *GetList(void);		// リスト取得
 
 private:
@@ -80,6 +85,7 @@ private:
 	D3DXVECTOR3 m_posOrigin;	// 雷の原点位置
 	EState m_state;				// 状態
 	int m_nCounterState;		// 状態管理カウンター
+	int m_nWarnFrame;			// 警告表示フレーム数
 };
 
 #endif	// _ATTACK_THUNDER_H_
