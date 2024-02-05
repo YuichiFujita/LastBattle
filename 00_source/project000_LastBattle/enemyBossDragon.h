@@ -82,7 +82,6 @@ public:
 	enum EAction
 	{
 		ACT_NONE = 0,		// 何もしない
-		ACT_HOWL,			// 咆哮
 		ACT_MAGIC_FADEIN,	// 魔法陣フェードイン
 		ACT_MAGIC_FADEOUT,	// 魔法陣フェードアウト
 		ACT_PUNCH_GROUND,	// 地面殴り
@@ -132,7 +131,6 @@ public:
 		const EMotion motion = MOTION_NONE,	// テレポート後モーション
 		const bool bLook = true				// テレポート先にカメラを向かせるか
 	);
-	void SetActHowl(void);			// 咆哮の行動設定
 	void SetActPunchGround(void);	// 地面殴りの行動設定
 	void SetActFlyAttack(void);		// 空中攻撃の行動設定
 	EAction GetAction(void);		// 行動取得
@@ -141,6 +139,8 @@ private:
 	// オーバーライド関数
 	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
 	void UpdateMotion(void) override;	// モーションの更新
+	void SetSpawn(void) override;		// スポーン状態の設定
+	void UpdateSpawn(void) override;	// スポーン状態時の更新
 	void UpdateNormal(void) override;	// 通常状態時の更新
 
 	// メンバ関数
@@ -151,7 +151,6 @@ private:
 
 	void UpdateMagicFadeIn(const D3DXVECTOR3& rPos);				// 魔法陣フェードイン行動時の更新
 	void UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot);	// 魔法陣フェードアウト行動時の更新
-	void UpdateHowl(void);			// 咆哮の行動時の更新
 	void UpdatePunchGround(void);	// 地面殴りの行動時の更新
 	void UpdateFlyAttack(void);		// 空中攻撃の行動時の更新
 

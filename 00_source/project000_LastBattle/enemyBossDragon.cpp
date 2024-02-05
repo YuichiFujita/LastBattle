@@ -59,7 +59,12 @@ namespace
 		"data\\MODEL\\ENEMY\\BOSS_DRAGON\\29_tail_05.x",	// 尻尾05
 	};
 
+	const CCamera::SSwing LAND_SWING = CCamera::SSwing(10.0f, 1.5f, 0.12f);		// 着地のカメラ揺れ
+	const CCamera::SSwing HOWL_SWING = CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
 	const int	PRIORITY		= 6;			// ボスドラゴンの優先順位
+	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
+	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
+	const int	HOWL_WAIT_FRAME	= 40;			// 咆哮の余韻フレーム
 	const int	ATK_WAIT_FRAME	= 300;			// 攻撃の余韻フレーム
 	const float	SCALE_MAGIC		= 35.0f;		// 魔法陣の半径変動量
 	const float	MOVE_MAGIC		= 30.0f;		// 魔法陣の上下移動量
@@ -67,11 +72,11 @@ namespace
 	const float	MAGIC_ALPHA_RADIUS	= 450.0f;	// 魔法陣の透明半径
 	const float	MAGIC_DELPOS_PLUSY	= 250.0f;	// 魔法陣の消失位置の加算量Y
 
-	const char *TEXTURE_LIFEFRAME = "data\\TEXTURE\\lifeframe001.png";	// 体力フレーム表示のテクスチャファイル
-
 	// 体力の情報
 	namespace lifeInfo
 	{
+		const char *TEXTURE_FRAME = "data\\TEXTURE\\lifeframe001.png";	// 体力フレーム表示のテクスチャファイル
+
 		const D3DXVECTOR3	POS				= D3DXVECTOR3(760.0f, 650.0f, 0.0f);			// 位置
 		const D3DXCOLOR		COL_FRONT		= D3DXCOLOR(0.77f, 0.19f, 0.94f, 1.0f);			// 表ゲージ色
 		const D3DXCOLOR		COL_BACK		= D3DXCOLOR(0.02f, 0.008f, 0.03f, 1.0f);		// 裏ゲージ色
@@ -149,7 +154,7 @@ HRESULT CEnemyBossDragon::Init(void)
 		lifeInfo::COL_FRONT,		// 表ゲージ色
 		lifeInfo::COL_BACK,			// 裏ゲージ色
 		true,						// 枠描画状況
-		TEXTURE_LIFEFRAME,			// フレームテクスチャパス
+		lifeInfo::TEXTURE_FRAME,	// フレームテクスチャパス
 		lifeInfo::SIZE_FRAME		// 枠大きさ
 	);
 
@@ -323,18 +328,6 @@ void CEnemyBossDragon::SetTeleport
 }
 
 //============================================================
-//	咆哮の行動設定処理
-//============================================================
-void CEnemyBossDragon::SetActHowl(void)
-{
-	// 咆哮モーションを設定
-	SetMotion(MOTION_HOWL);
-
-	// 咆哮する行動をとらせる
-	m_action = ACT_HOWL;
-}
-
-//============================================================
 //	地面殴りの行動設定処理
 //============================================================
 void CEnemyBossDragon::SetActPunchGround(void)
@@ -431,6 +424,91 @@ void CEnemyBossDragon::UpdateMotion(void)
 }
 
 //============================================================
+//	スポーン状態の設定処理
+//============================================================
+void CEnemyBossDragon::SetSpawn(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
+
+	// スポーン状態の設定
+	CEnemy::SetSpawn();
+
+	// 透明度を不透明に再設定
+	SetAlpha(1.0f);
+
+	// 咆哮モーションを設定
+	SetMotion(MOTION_HOWL);
+
+	// 着地判定
+	UpdateLanding(&posEnemy);
+
+	// 位置範囲外の補正
+	LimitPosition(&posEnemy);
+
+	// 位置を反映
+	SetVec3Position(posEnemy);
+
+	// 向きを反映
+	SetVec3Rotation(rotEnemy);
+}
+
+//============================================================
+//	スポーン状態時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateSpawn(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
+	assert(GetMotionType() == MOTION_HOWL);		// モーションが咆哮中じゃない
+
+	if (GetMotionKey() == LAND_MOTION_KEY && GetMotionKeyCounter() == 0)
+	{ // モーションが着地したタイミングの場合
+
+		// 着地のカメラ揺れ設定
+		GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, LAND_SWING);
+	}
+	else if (GetMotionKey() == HOWL_MOTION_KEY && GetMotionKeyCounter() == 0)
+	{ // モーションが口を開け始めたタイミングの場合
+
+		// 咆哮のカメラ揺れ設定
+		GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, HOWL_SWING);
+	}
+	else if (IsMotionFinish())
+	{ // モーションが終了していた場合
+
+		// カウンターを加算
+		m_nCounterAttack++;
+		if (m_nCounterAttack > HOWL_WAIT_FRAME)
+		{ // 余韻が終了した場合
+
+			// カウンターを初期化
+			m_nCounterAttack = 0;
+
+			// 通常状態にする
+			SetState(STATE_NORMAL);
+
+			// 待機モーションにする
+			SetMotion(MOTION_IDOL);
+		}
+	}
+
+	// 着地判定
+	UpdateLanding(&posEnemy);
+
+	// 位置範囲外の補正
+	LimitPosition(&posEnemy);
+
+	// 位置を反映
+	SetVec3Position(posEnemy);
+
+	// 向きを反映
+	SetVec3Rotation(rotEnemy);
+}
+
+//============================================================
 //	通常状態時の更新処理
 //============================================================
 void CEnemyBossDragon::UpdateNormal(void)
@@ -478,7 +556,7 @@ void CEnemyBossDragon::UpdateAttack(void)
 			// 攻撃の生成
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
-#if 0	// TODO：攻撃を指定
+#if 1	// TODO：攻撃を指定
 				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
 #else
 				CEnemyAttack::ATTACK_01,	// 攻撃インデックス
@@ -532,13 +610,6 @@ void CEnemyBossDragon::UpdateAction(void)
 	switch (m_action)
 	{ // 行動ごとの処理
 	case ACT_NONE:	// 何もしない
-		break;
-
-	case ACT_HOWL:	// 咆哮
-
-		// 咆哮行動時の更新
-		UpdateHowl();
-
 		break;
 
 	case ACT_MAGIC_FADEIN:	// 魔法陣フェードイン
@@ -823,14 +894,6 @@ void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 
 	// 魔法陣の位置を反映
 	m_pMagicCircle->SetVec3Position(D3DXVECTOR3(pPos->x, fMagicPosY, pPos->z));
-}
-
-//============================================================
-//	咆哮の行動時の更新処理
-//============================================================
-void CEnemyBossDragon::UpdateHowl(void)
-{
-
 }
 
 //============================================================

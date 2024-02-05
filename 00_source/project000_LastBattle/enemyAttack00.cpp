@@ -29,6 +29,7 @@ namespace
 	const float	IMPACT_OUTER_PLUSY	= 25.0f;	// 外周のY座標加算量
 	const float	IMPACT_MAX_RADIUS	= 3000.0f;	// 半径の最大成長量
 	const float	TELEPORT_POS_DIS	= 800.0f;	// テレポート時のプレイヤー位置から遠ざける距離
+	const int	ATK_MOTION_KEY		= 3;		// 攻撃生成キー
 	const int	ATTACK_WAIT_FRAME	= 10;		// 攻撃後の硬直フレーム
 	const int	MAX_ATTACK			= 2;		// 攻撃回数
 }
@@ -156,7 +157,7 @@ bool CEnemyAttack00::Update(void)
 			m_state = STATE_WAIT;
 		}
 
-		if (pBoss->GetMotionKey() == pBoss->GetMotionNumKey() - 1 && pBoss->GetMotionKeyCounter() == 0)
+		if (pBoss->GetMotionKey() == ATK_MOTION_KEY && pBoss->GetMotionKeyCounter() == 0)
 		{ // モーションが地面を殴ったタイミングの場合
 
 			// カメラ揺れを設定

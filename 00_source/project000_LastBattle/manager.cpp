@@ -446,7 +446,6 @@ HRESULT CManager::SetMode(const CScene::EMode mode)
 
 	// オブジェクトの全破棄
 	CObject::ReleaseAll();
-	assert(_CrtDumpMemoryLeaks());	// メモリリーク
 
 	// シーンの生成
 	assert(m_pScene == nullptr);

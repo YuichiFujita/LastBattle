@@ -149,7 +149,7 @@ bool CEnemyAttack01::Update(void)
 		}
 
 		if (pBoss->GetMotionKey() == ATK_MOTION_KEY && pBoss->GetMotionKeyCounter() == 0)
-		{ // モーションが地面を殴ったタイミングの場合
+		{ // モーションが天を仰いだタイミングの場合
 
 			CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
 			if (pList == nullptr)		 { assert(false); return false; }	// リスト未使用

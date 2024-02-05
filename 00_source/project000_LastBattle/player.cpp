@@ -72,6 +72,8 @@ namespace
 		D3DXVECTOR3(-5.8f, 0.0f, 0.0f),	// 右剣
 		D3DXVECTOR3(5.8f, 0.0f, 0.0f),	// 左剣
 	};
+	const D3DXVECTOR3 SPAWN_POS = D3DXVECTOR3(0.0f, 0.0f, -600.0f);	// スポーン位置
+	const D3DXVECTOR3 SPAWN_ROT = D3DXVECTOR3(0.0f, D3DX_PI, 0.0f);	// スポーン向き
 
 	const int	PRIORITY	= 3;		// プレイヤーの優先順位
 	const float	JUMP		= 18.0f;	// ジャンプ上昇量
@@ -624,8 +626,8 @@ void CPlayer::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock
 void CPlayer::SetSpawn(void)
 {
 	// 変数を宣言
-	D3DXVECTOR3 setPos = VEC3_ZERO;	// 位置設定用
-	D3DXVECTOR3 setRot = VEC3_ZERO;	// 向き設定用
+	D3DXVECTOR3 setPos = SPAWN_POS;	// 位置設定用
+	D3DXVECTOR3 setRot = SPAWN_ROT;	// 向き設定用
 
 	// スポーン状態にする
 	SetState(STATE_SPAWN);
