@@ -105,6 +105,29 @@ void useful::Vec3NormalizeRot(D3DXVECTOR3& rRot)
 }
 
 //============================================================
+//	ベクトルの向き変換
+//============================================================
+void useful::VecToRot(const D3DXVECTOR3 vec, float *pPhi, float *pTheta)
+{
+	// 方位角の計算
+	*pPhi = atan2f(vec.y, vec.x);
+
+	// 仰角の計算
+	*pTheta = atan2f(sqrtf((vec.x * vec.x) + (vec.y * vec.y)), vec.z);
+}
+
+//============================================================
+//	向きのベクトル変換
+//============================================================
+void useful::RotToVec(const float &rPhi, const float &rTheta, D3DXVECTOR3 *pVec)
+{
+	// ベクトルの計算
+	pVec->x = sinf(rTheta) * cosf(rPhi);
+	pVec->y = sinf(rTheta) * sinf(rPhi);
+	pVec->z = cosf(rTheta);
+}
+
+//============================================================
 //	ランダム向き取得
 //============================================================
 float useful::RandomRot(void)

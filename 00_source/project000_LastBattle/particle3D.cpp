@@ -56,12 +56,18 @@ namespace
 	namespace fire
 	{
 		const CRenderState::EBlend BLEND = CRenderState::BLEND_ADD;	// 炎のαブレンド
+		const D3DXCOLOR COL = D3DXCOLOR(1.0f, 0.35f, 0.1f, 1.0f);	// 炎の色
 
-		const float	MOVE		= 1.6f;		// 炎の移動量
+		const float	POSGAP		= 30.0f;	// 炎の位置ずれ量
+		const float	MOVE		= -2.0f;	// 炎の移動量
 		const int	SPAWN		= 4;		// 炎の生成数
 		const int	EFF_LIFE	= 12;		// 炎の寿命
-		const float	SIZE		= 200.0f;	// 炎の大きさ
-		const float	SUB_SIZE	= 0.05f;	// 炎の半径の減算量
+		const float	INIT_RAD	= 150.0f;	// 炎の半径
+		const float	INIT_SUBRAD	= 5.0f;		// 炎の半径の減算量
+		const int	DIV_RAD_RAND	= 61;	// 炎の半径の剰余算の値
+		const int	SUB_RAD_RAND	= 30;	// 炎の半径の減算の値
+		const int	DIV_SUBRAD_RAND	= 4;	// 炎の半径の減算量の剰余算の値
+		const float	MUL_SUBRAD_RAND	= 1.5f;	// 炎の半径の減算量の減算の値
 	}
 
 	// 小爆発
@@ -491,52 +497,46 @@ void CParticle3D::Heal(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 void CParticle3D::Fire(const D3DXVECTOR3& rPos)
 {
 	// 変数を宣言
-	D3DXVECTOR3 pos  = VEC3_ZERO;	// 位置の代入用
-	D3DXVECTOR3 move = VEC3_ZERO;	// 移動量の代入用
-	D3DXVECTOR3 rot  = VEC3_ZERO;	// 向きの代入用
-	float fRad    = 0.0f;
-	float fSubRad = 0.0f;
+	D3DXVECTOR3	pos  = VEC3_ZERO;	// 位置の代入用
+	D3DXVECTOR3	move = VEC3_ZERO;	// 移動量の代入用
+	D3DXVECTOR3	rot  = VEC3_ZERO;	// 向きの代入用
+	float		fRadius = 0.0f;		// 半径の代入用
+	float		fSubRad = 0.0f;		// 半径減算量の代入用
 
 	for (int nCntPart = 0; nCntPart < fire::SPAWN; nCntPart++)
 	{ // 生成されるエフェクト数分繰り返す
 
 		// 位置をランダムに設定
-		float fRotX = useful::RandomRot();
-		float fRotY = useful::RandomRot();
-		pos.x = rPos.x + 30.0f * sinf(fRotX) * sinf(fRotY);
-		pos.y = rPos.y + 30.0f * cosf(fRotX);
-		pos.z = rPos.z + 30.0f * sinf(fRotX) * cosf(fRotY);
+		float fRotX = useful::RandomRot();	// ランダム仰角
+		float fRotY = useful::RandomRot();	// ランダム方位角
+		pos.x = rPos.x + fire::POSGAP * sinf(fRotX) * sinf(fRotY);
+		pos.y = rPos.y + fire::POSGAP * cosf(fRotX);
+		pos.z = rPos.z + fire::POSGAP * sinf(fRotX) * cosf(fRotY);
 
-		// 上移動を設定
-		//float f = atan2f(rPos.x - pos.x, rPos.z - pos.z);
-		//float ff = sqrtf((rPos.x - pos.x) * (rPos.x - pos.x) + (rPos.z - pos.z) * (rPos.z - pos.z));
-		//move.x = sinf(f) * ff * 0.01f;
-		//move.z = cosf(f) * ff * 0.01f;
-		//move.y = fire::MOVE;
-
-		move.x = -1.0f * sinf(fRotX) * sinf(fRotY);
-		move.y = -1.0f * cosf(fRotX);
-		move.z = -1.0f * sinf(fRotX) * cosf(fRotY);
-		move *= 2.0f;
+		// 移動量を設定
+		move.x = fire::MOVE * sinf(fRotX) * sinf(fRotY);
+		move.y = fire::MOVE * cosf(fRotX);
+		move.z = fire::MOVE * sinf(fRotX) * cosf(fRotY);
 
 		// 向きを設定
 		rot.z = useful::RandomRot();
 
+		// 半径を設定
+		fRadius = fire::INIT_RAD + (float)(rand() % fire::DIV_RAD_RAND - fire::SUB_RAD_RAND);
 
-		fRad    = 150.0f + (float)(rand() % 61 - 30);
-		fSubRad = 5.0f   + rand() % 4 * 1.5f;
-
+		// 半径減算量を設定
+		fSubRad = fire::INIT_SUBRAD + rand() % fire::DIV_SUBRAD_RAND * fire::MUL_SUBRAD_RAND;
 
 		// エフェクト3Dオブジェクトの生成
 		CEffect3D::Create
 		( // 引数
 			pos,					// 位置
-			fRad,					// 半径
+			fRadius,				// 半径
 			CEffect3D::TYPE_FIRE,	// テクスチャ
 			fire::EFF_LIFE,			// 寿命
 			move,					// 移動量
 			rot,					// 向き
-			D3DXCOLOR(1.0f, 0.35f, 0.1f, 1.0f),	// 色
+			fire::COL,				// 色
 			fSubRad,				// 半径の減算量
 			fire::BLEND,			// 加算合成状況
 			LABEL_PARTICLE			// オブジェクトラベル

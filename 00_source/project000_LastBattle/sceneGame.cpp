@@ -20,6 +20,8 @@
 #include "enemy.h"
 #include "sword.h"
 
+#include "attackHomingFire.h"
+
 //************************************************************
 //	定数宣言
 //************************************************************
@@ -112,11 +114,11 @@ HRESULT CSceneGame::Init(void)
 
 
 	// TODO：敵の生成
-	CEnemy::Create(CEnemy::TYPE_BOSS_DRAGON, VEC3_ZERO + D3DXVECTOR3(0.0f, 0.0f, 500.0f), VEC3_ZERO);
+	//CEnemy::Create(CEnemy::TYPE_BOSS_DRAGON, VEC3_ZERO + D3DXVECTOR3(0.0f, 0.0f, 500.0f), VEC3_ZERO);
 
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
+	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
 
 
 	// ゲームマネージャーの生成
@@ -219,6 +221,11 @@ void CSceneGame::Update(void)
 	}
 
 #endif	// _DEBUG
+
+	if (GET_INPUTKEY->IsTrigger(DIK_0))
+	{
+		CAttackHomingFire::Create(D3DXVECTOR3(0.0f, 200.0f, 0.0f));
+	}
 }
 
 //============================================================

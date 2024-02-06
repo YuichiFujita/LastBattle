@@ -154,9 +154,11 @@ namespace useful
 		D3DXVECTOR3& rNor				// 法線
 	);
 
-	void NormalizeRot(float& rRot);				// 向きの正規化
-	void Vec3NormalizeRot(D3DXVECTOR3& rRot);	// 三軸向きの正規化
-	float RandomRot(void);						// ランダム向き取得
+	float RandomRot(void);			// ランダム向き取得
+	void NormalizeRot(float& rRot);	// 向きの正規化
+	void Vec3NormalizeRot(D3DXVECTOR3& rRot);		// 三軸向きの正規化
+	void VecToRot(const D3DXVECTOR3 vec, float *pPhi, float *pTheta);			// ベクトルの向き変換
+	void RotToVec(const float& rPhi, const float& rTheta, D3DXVECTOR3 *pVec);	// 向きのベクトル変換
 	D3DXVECTOR3 GetMtxWorldPosition(const D3DXMATRIX& rMtx);	// マトリックスのワールド座標取得
 
 	// テンプレート関数
@@ -176,13 +178,13 @@ namespace useful
 		T& rNum,	// 制限数値
 		const T max	// 最大範囲
 	);
-	template<class T> float ValueToRate	// 値の割合化
+	template<class T> float ValueToRate	// 値の割合変換
 	( // 引数
 		const T num,	// 割合化する数値
 		const T min,	// 最小範囲
 		const T max		// 最大範囲
 	);
-	template<class T> T RateToValue	// 割合の値化
+	template<class T> T RateToValue	// 割合の値変換
 	( // 引数
 		const float fRate,	// 値化する数値
 		const T min,		// 最小範囲
@@ -332,7 +334,7 @@ template<class T> bool useful::LimitMaxNum
 }
 
 //============================================================
-//	値の割合化処理
+//	値の割合変換
 //============================================================
 template<class T> float useful::ValueToRate
 (
@@ -346,7 +348,7 @@ template<class T> float useful::ValueToRate
 }
 
 //============================================================
-//	割合の値化処理
+//	割合の値変換
 //============================================================
 template<class T> T useful::RateToValue
 (

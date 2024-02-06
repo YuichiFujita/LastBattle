@@ -18,7 +18,7 @@
 namespace
 {
 	const int	DMG_FIRE	= 15;		// 炎のダメージ量
-	const float COLL_RADIUS	= 32.0f;	// 判定の半径
+	const float COLL_RADIUS	= 34.0f;	// 判定の半径
 }
 
 //************************************************************
@@ -101,6 +101,9 @@ void CFire::Uninit(void)
 //============================================================
 void CFire::Update(void)
 {
+	// 位置を移動
+	m_pos += m_move;
+
 	// 炎パーティクルを生成
 	CParticle3D::Create(CParticle3D::TYPE_FIRE, m_pos);
 
@@ -137,10 +140,7 @@ D3DXVECTOR3 CFire::GetVec3Position(void) const
 //============================================================
 //	生成処理
 //============================================================
-CFire *CFire::Create
-(
-	const D3DXVECTOR3 &rPos	// 位置
-)
+CFire *CFire::Create(const D3DXVECTOR3 &rPos)
 {
 	// 炎の生成
 	CFire *pFire = new CFire;
@@ -197,8 +197,9 @@ void CFire::CollisionPlayer(void)
 	if (pList->GetNumAll() != 1) { assert(false); return; }	// プレイヤーが1人じゃない
 	auto player = pList->GetList().front();					// プレイヤー情報
 
-	D3DXVECTOR3 posPlayer	= player->GetVec3Position();	// プレイヤーの位置
-	float fRadiusPlayer		= player->GetRadius();			// プレイヤーの半径
+	D3DXVECTOR3 posPlayer	 = player->GetVec3Position();	// プレイヤーの中心位置
+				posPlayer.y += player->GetHeight() * 0.5f;	// 高さの半分上にあげる
+	float fRadiusPlayer		 = player->GetRadius();			// プレイヤーの半径
 
 	if (collision::Circle3D(m_pos, posPlayer, COLL_RADIUS, fRadiusPlayer))
 	{ // 衝撃波に当たっている場合
