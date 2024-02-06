@@ -30,7 +30,7 @@ namespace
 	const int DIV_DIRRAND[] = { 6, 36 };	// 方向の剰余算の値
 	const int ADD_DIRRAND[] = { 10, 80 };	// 方向の減算の値
 
-	const int	PRIORITY		= 7;		// 雷の優先順位
+	const int	PRIORITY		= 5;		// 雷の優先順位
 	const int	PART			= 20;		// 軌跡の分割数
 	const int	MAX_SHIFT_POSY	= 120;		// 軌跡のY座標ずらし量の最大値
 	const float	DOWN_MOVE		= 200.0f;	// 雷の下移動量

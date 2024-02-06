@@ -27,6 +27,7 @@ namespace
 		"data\\TEXTURE\\EFFECT\\effect005.jpg",	// かけらテクスチャ (小)
 		"data\\TEXTURE\\EFFECT\\effect006.jpg",	// かけらテクスチャ (中)
 		"data\\TEXTURE\\EFFECT\\effect007.jpg",	// かけらテクスチャ (大)
+		"data\\TEXTURE\\EFFECT\\effect008.jpg",	// 炎テクスチャ
 	};
 
 	const int EFF_PRIO	= 3;	// エフェクト3Dの優先順位

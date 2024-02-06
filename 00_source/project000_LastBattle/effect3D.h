@@ -34,6 +34,7 @@ public:
 		TYPE_PIECE_S,		// かけらテクスチャ (小)
 		TYPE_PIECE_M,		// かけらテクスチャ (中)
 		TYPE_PIECE_L,		// かけらテクスチャ (大)
+		TYPE_FIRE,			// 炎テクスチャ
 		TYPE_MAX			// この列挙型の総数
 	};
 

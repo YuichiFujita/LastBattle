@@ -21,16 +21,13 @@ namespace
 		0,	// なし
 		24,	// ダメージ
 		1,	// 回復
-		1,	// 植物踏みつぶし
+		1,	// 炎
 		1,	// 小爆発
 		1,	// 大爆発
 		1,	// プレイヤーダメージ
-		1,	// マズルフラッシュ
-		1,	// タンクファイア
-		24,	// バブル爆発
 	};
 
-	// ダメージ・バブル爆発
+	// ダメージ爆発
 	namespace damage
 	{
 		const CRenderState::EBlend BLEND = CRenderState::BLEND_ADD;	// ダメージ・バブル爆発のαブレンド
@@ -55,16 +52,16 @@ namespace
 		const float	SUB_SIZE	= 0.5f;		// 回復の半径の減算量
 	}
 
-	// 植物踏みつぶし
-	namespace stomp
+	// 炎
+	namespace fire
 	{
-		const CRenderState::EBlend BLEND = CRenderState::BLEND_ADD;	// 植物踏みつぶしのαブレンド
+		const CRenderState::EBlend BLEND = CRenderState::BLEND_ADD;	// 炎のαブレンド
 
-		const float	MOVE		= 2.5;		// 植物踏みつぶしの移動量
-		const int	SPAWN		= 8;		// 植物踏みつぶしの生成数
-		const int	EFF_LIFE	= 28;		// 植物踏みつぶしの寿命
-		const float	SIZE		= 36.0f;	// 植物踏みつぶしの大きさ
-		const float	SUB_SIZE	= 0.05f;	// 植物踏みつぶしの半径の減算量
+		const float	MOVE		= 1.6f;		// 炎の移動量
+		const int	SPAWN		= 4;		// 炎の生成数
+		const int	EFF_LIFE	= 12;		// 炎の寿命
+		const float	SIZE		= 200.0f;	// 炎の大きさ
+		const float	SUB_SIZE	= 0.05f;	// 炎の半径の減算量
 	}
 
 	// 小爆発
@@ -148,32 +145,6 @@ namespace
 		const float	SIZE_M		= 42.0f;	// プレイヤーダメージの大きさ (中)
 		const float	SIZE_L		= 52.0f;	// プレイヤーダメージの大きさ (大)
 		const float	SUB_SIZE	= 0.25f;	// プレイヤーダメージの半径の減算量
-	}
-
-	// マズルフラッシュ
-	namespace muzzleflash
-	{
-		const CRenderState::EBlend BLEND = CRenderState::BLEND_ADD;	// マズルフラッシュのαブレンド
-		const D3DXCOLOR COL = D3DXCOLOR(1.0f, 0.38f, 0.23f, 1.0f);	// マズルフラッシュの色
-
-		const float	MOVE		= 0.64f;	// マズルフラッシュの移動量
-		const int	SPAWN		= 48;		// マズルフラッシュの生成数
-		const int	EFF_LIFE	= 8;		// マズルフラッシュの寿命
-		const float	SIZE		= 0.57f;	// マズルフラッシュの大きさ
-		const float	SUB_SIZE	= -1.42f;	// マズルフラッシュの半径の減算量
-	}
-
-	// タンクファイア
-	namespace tankfire
-	{
-		const CRenderState::EBlend BLEND = CRenderState::BLEND_ADD;	// タンクファイアのαブレンド
-		const D3DXCOLOR	COL = D3DXCOLOR(1.0f, 0.38f, 0.23f, 1.0f);	// タンクファイアの色
-
-		const float	MOVE		= 2.64f;	// タンクファイアの移動量
-		const int	SPAWN		= 58;		// タンクファイアの生成数
-		const int	EFF_LIFE	= 22;		// タンクファイアの寿命
-		const float	SIZE		= 2.57f;	// タンクファイアの大きさ
-		const float	SUB_SIZE	= -3.42f;	// タンクファイアの半径の減算量
 	}
 }
 
@@ -266,10 +237,10 @@ void CParticle3D::Update(void)
 
 		break;
 
-	case TYPE_STOMP_PLANT:
+	case TYPE_FIRE:
 
-		// 植物踏みつぶし
-		StompPlant(m_pos, m_col);
+		// 炎
+		Fire(m_pos);
 
 		break;
 
@@ -291,27 +262,6 @@ void CParticle3D::Update(void)
 
 		// プレイヤーダメージ
 		PlayerDamage(m_pos);
-
-		break;
-
-	case TYPE_MUZZLE_FLASH:
-
-		// マズルフラッシュ
-		MuzzleFlash(m_pos);
-
-		break;
-
-	case TYPE_TANK_FIRE:
-
-		// タンクファイア
-		TankFire(m_pos);
-
-		break;
-
-	case TYPE_BUBBLE_EXPLOSION:
-
-		// バブル爆発
-		BubbleExplosion(m_pos);
 
 		break;
 
@@ -389,6 +339,44 @@ D3DXCOLOR CParticle3D::GetColor(void) const
 {
 	// 色を返す
 	return m_col;
+}
+
+//============================================================
+//	生成処理
+//============================================================
+CParticle3D *CParticle3D::Create(const EType type, const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
+{
+	// パーティクル3Dの生成
+	CParticle3D *pParticle3D = new CParticle3D;
+	if (pParticle3D == nullptr)
+	{ // 生成に失敗した場合
+
+		return nullptr;
+	}
+	else
+	{ // 生成に成功した場合
+
+		// パーティクル3Dの初期化
+		if (FAILED(pParticle3D->Init()))
+		{ // 初期化に失敗した場合
+
+			// パーティクル3Dの破棄
+			SAFE_DELETE(pParticle3D);
+			return nullptr;
+		}
+
+		// 種類を設定
+		pParticle3D->SetType(type);
+
+		// 位置を設定
+		pParticle3D->SetVec3Position(rPos);
+
+		// 色を設定
+		pParticle3D->SetColor(rCol);
+
+		// 確保したアドレスを返す
+		return pParticle3D;
+	}
 }
 
 //============================================================
@@ -498,47 +486,59 @@ void CParticle3D::Heal(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
 }
 
 //============================================================
-//	植物踏みつぶし
+//	炎
 //============================================================
-void CParticle3D::StompPlant(const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
+void CParticle3D::Fire(const D3DXVECTOR3& rPos)
 {
 	// 変数を宣言
+	D3DXVECTOR3 pos  = VEC3_ZERO;	// 位置の代入用
 	D3DXVECTOR3 move = VEC3_ZERO;	// 移動量の代入用
 	D3DXVECTOR3 rot  = VEC3_ZERO;	// 向きの代入用
+	float fRad    = 0.0f;
+	float fSubRad = 0.0f;
 
-	for (int nCntPart = 0; nCntPart < stomp::SPAWN; nCntPart++)
+	for (int nCntPart = 0; nCntPart < fire::SPAWN; nCntPart++)
 	{ // 生成されるエフェクト数分繰り返す
 
-		// ベクトルをランダムに設定
-		move.x = sinf(useful::RandomRot());
-		move.y = cosf(useful::RandomRot());
-		move.z = cosf(useful::RandomRot());
+		// 位置をランダムに設定
+		float fRotX = useful::RandomRot();
+		float fRotY = useful::RandomRot();
+		pos.x = rPos.x + 30.0f * sinf(fRotX) * sinf(fRotY);
+		pos.y = rPos.y + 30.0f * cosf(fRotX);
+		pos.z = rPos.z + 30.0f * sinf(fRotX) * cosf(fRotY);
 
-		// ベクトルを正規化
-		D3DXVec3Normalize(&move, &move);
+		// 上移動を設定
+		//float f = atan2f(rPos.x - pos.x, rPos.z - pos.z);
+		//float ff = sqrtf((rPos.x - pos.x) * (rPos.x - pos.x) + (rPos.z - pos.z) * (rPos.z - pos.z));
+		//move.x = sinf(f) * ff * 0.01f;
+		//move.z = cosf(f) * ff * 0.01f;
+		//move.y = fire::MOVE;
 
-		// 移動量を設定
-		move.x *= stomp::MOVE;
-		move.y *= stomp::MOVE;
-		move.z *= stomp::MOVE;
+		move.x = -1.0f * sinf(fRotX) * sinf(fRotY);
+		move.y = -1.0f * cosf(fRotX);
+		move.z = -1.0f * sinf(fRotX) * cosf(fRotY);
+		move *= 2.0f;
 
 		// 向きを設定
-		rot.x = 0.0f;
-		rot.y = 0.0f;
 		rot.z = useful::RandomRot();
+
+
+		fRad    = 150.0f + (float)(rand() % 61 - 30);
+		fSubRad = 5.0f   + rand() % 4 * 1.5f;
+
 
 		// エフェクト3Dオブジェクトの生成
 		CEffect3D::Create
 		( // 引数
-			rPos,					// 位置
-			stomp::SIZE,			// 半径
-			CEffect3D::TYPE_LEAF,	// テクスチャ
-			stomp::EFF_LIFE,		// 寿命
+			pos,					// 位置
+			fRad,					// 半径
+			CEffect3D::TYPE_FIRE,	// テクスチャ
+			fire::EFF_LIFE,			// 寿命
 			move,					// 移動量
 			rot,					// 向き
-			rCol,					// 色
-			stomp::SUB_SIZE,		// 半径の減算量
-			stomp::BLEND,			// 加算合成状況
+			D3DXCOLOR(1.0f, 0.35f, 0.1f, 1.0f),	// 色
+			fSubRad,				// 半径の減算量
+			fire::BLEND,			// 加算合成状況
 			LABEL_PARTICLE			// オブジェクトラベル
 		);
 	}
@@ -892,190 +892,5 @@ void CParticle3D::PlayerDamage(const D3DXVECTOR3& rPos)
 			playerDamage::BLEND,		// 加算合成状況
 			LABEL_PARTICLE				// オブジェクトラベル
 		);
-	}
-}
-
-//============================================================
-//	マズルフラッシュ
-//============================================================
-void CParticle3D::MuzzleFlash(const D3DXVECTOR3& rPos)
-{
-	// 変数を宣言
-	D3DXVECTOR3 move = VEC3_ZERO;	// 移動量の代入用
-	D3DXVECTOR3 rot  = VEC3_ZERO;	// 向きの代入用
-	int nLife = 0;	// 寿命の代入用
-
-	for (int nCntPart = 0; nCntPart < muzzleflash::SPAWN; nCntPart++)
-	{ // 生成されるエフェクト数分繰り返す
-
-		// ベクトルをランダムに設定
-		move.x = sinf(useful::RandomRot());
-		move.y = cosf(useful::RandomRot());
-		move.z = cosf(useful::RandomRot());
-
-		// ベクトルを正規化
-		D3DXVec3Normalize(&move, &move);
-
-		// 移動量を設定
-		move.x *= muzzleflash::MOVE;
-		move.y *= muzzleflash::MOVE;
-		move.z *= muzzleflash::MOVE;
-
-		// 向きを設定
-		rot = VEC3_ZERO;
-
-		// 寿命を設定
-		nLife = (rand() % 6) + muzzleflash::EFF_LIFE;
-
-		// エフェクト3Dオブジェクトの生成
-		CEffect3D::Create
-		( // 引数
-			rPos,					// 位置
-			muzzleflash::SIZE,		// 半径
-			CEffect3D::TYPE_NORMAL,	// テクスチャ
-			nLife,					// 寿命
-			move,					// 移動量
-			rot,					// 向き
-			muzzleflash::COL,		// 色
-			muzzleflash::SUB_SIZE,	// 半径の減算量
-			muzzleflash::BLEND,		// 加算合成状況
-			LABEL_PARTICLE			// オブジェクトラベル
-		);
-	}
-}
-
-//============================================================
-//	タンクファイア
-//============================================================
-void CParticle3D::TankFire(const D3DXVECTOR3& rPos)
-{
-	// 変数を宣言
-	D3DXVECTOR3 move = VEC3_ZERO;	// 移動量の代入用
-	D3DXVECTOR3 rot  = VEC3_ZERO;	// 向きの代入用
-	int nLife = 0;	// 寿命の代入用
-
-	for (int nCntPart = 0; nCntPart < tankfire::SPAWN; nCntPart++)
-	{ // 生成されるエフェクト数分繰り返す
-
-		// ベクトルをランダムに設定
-		move.x = sinf(useful::RandomRot());
-		move.y = cosf(useful::RandomRot());
-		move.z = cosf(useful::RandomRot());
-
-		// ベクトルを正規化
-		D3DXVec3Normalize(&move, &move);
-
-		// 移動量を設定
-		move.x *= tankfire::MOVE;
-		move.y *= tankfire::MOVE;
-		move.z *= tankfire::MOVE;
-
-		// 向きを設定
-		rot = VEC3_ZERO;
-
-		// 寿命を設定
-		nLife = (rand() % 6) + tankfire::EFF_LIFE;
-
-		// エフェクト3Dオブジェクトの生成
-		CEffect3D::Create
-		( // 引数
-			rPos,					// 位置
-			tankfire::SIZE,			// 半径
-			CEffect3D::TYPE_NORMAL,	// テクスチャ
-			nLife,					// 寿命
-			move,					// 移動量
-			rot,					// 向き
-			tankfire::COL,			// 色
-			tankfire::SUB_SIZE,		// 半径の減算量
-			tankfire::BLEND,		// 加算合成状況
-			LABEL_PARTICLE			// オブジェクトラベル
-		);
-	}
-}
-
-//============================================================
-//	バブル爆発
-//============================================================
-void CParticle3D::BubbleExplosion(const D3DXVECTOR3& rPos)
-{
-	// 変数を宣言
-	D3DXVECTOR3 move = VEC3_ZERO;	// 移動量の代入用
-	D3DXVECTOR3 rot  = VEC3_ZERO;	// 向きの代入用
-
-	if ((m_nLife + 1) % 12 == 0)
-	{ // 寿命が12の倍数の場合
-
-		for (int nCntPart = 0; nCntPart < damage::SPAWN; nCntPart++)
-		{ // 生成されるエフェクト数分繰り返す
-
-			// ベクトルをランダムに設定
-			move.x = sinf(useful::RandomRot());
-			move.y = cosf(useful::RandomRot());
-			move.z = cosf(useful::RandomRot());
-
-			// ベクトルを正規化
-			D3DXVec3Normalize(&move, &move);
-
-			// 移動量を設定
-			move.x *= damage::MOVE;
-			move.y *= damage::MOVE;
-			move.z *= damage::MOVE;
-
-			// 向きを設定
-			rot = VEC3_ZERO;
-
-			// エフェクト3Dオブジェクトの生成
-			CEffect3D::Create
-			( // 引数
-				rPos,					// 位置
-				damage::SIZE,			// 半径
-				CEffect3D::TYPE_BUBBLE,	// テクスチャ
-				damage::EFF_LIFE,		// 寿命
-				move,					// 移動量
-				rot,					// 向き
-				XCOL_WHITE,				// 色
-				damage::SUB_SIZE,		// 半径の減算量
-				damage::BLEND,			// 加算合成状況
-				LABEL_PARTICLE			// オブジェクトラベル
-			);
-		}
-	}
-}
-
-//============================================================
-//	生成処理
-//============================================================
-CParticle3D *CParticle3D::Create(const EType type, const D3DXVECTOR3& rPos, const D3DXCOLOR& rCol)
-{
-	// パーティクル3Dの生成
-	CParticle3D *pParticle3D = new CParticle3D;
-	if (pParticle3D == nullptr)
-	{ // 生成に失敗した場合
-
-		return nullptr;
-	}
-	else
-	{ // 生成に成功した場合
-
-		// パーティクル3Dの初期化
-		if (FAILED(pParticle3D->Init()))
-		{ // 初期化に失敗した場合
-
-			// パーティクル3Dの破棄
-			SAFE_DELETE(pParticle3D);
-			return nullptr;
-		}
-
-		// 種類を設定
-		pParticle3D->SetType(type);
-
-		// 位置を設定
-		pParticle3D->SetVec3Position(rPos);
-
-		// 色を設定
-		pParticle3D->SetColor(rCol);
-
-		// 確保したアドレスを返す
-		return pParticle3D;
 	}
 }
