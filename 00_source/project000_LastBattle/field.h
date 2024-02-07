@@ -25,7 +25,7 @@ public:
 	// テクスチャ列挙
 	enum ETexture
 	{
-		TEXTURE_TILE = 0,	// タイルテクスチャ
+		TEXTURE_ASH = 0,	// 火山灰テクスチャ
 		TEXTURE_MAX			// この列挙型の総数
 	};
 
