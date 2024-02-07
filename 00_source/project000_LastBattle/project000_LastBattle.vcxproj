@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="anim2D.cpp" />
     <ClCompile Include="attackHomingFire.cpp" />
+    <ClCompile Include="attackParabolaFire.cpp" />
     <ClCompile Include="attackThunder.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="collision.cpp" />
@@ -247,6 +248,7 @@
   <ItemGroup>
     <ClInclude Include="anim2D.h" />
     <ClInclude Include="attackHomingFire.h" />
+    <ClInclude Include="attackParabolaFire.h" />
     <ClInclude Include="attackThunder.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision.h" />
