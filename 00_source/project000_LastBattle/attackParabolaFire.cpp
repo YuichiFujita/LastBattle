@@ -18,8 +18,7 @@
 //************************************************************
 namespace
 {
-	const float	MOVE	= 16.0f;	// 炎の移動量
-	const float	REV_ROT	= 0.08f;	// 炎の向き変更補正係数
+	const float	GRAVITY = -1.0f;	// 重力
 }
 
 //************************************************************
@@ -28,9 +27,11 @@ namespace
 //============================================================
 //	コンストラクタ
 //============================================================
-CAttackParabolaFire::CAttackParabolaFire()
+CAttackParabolaFire::CAttackParabolaFire() :
+	m_nCounterTime	(0),	// 攻撃時間管理カウンター
+	m_fMove			(0.0f)	// 移動量
 {
-	nCnt = 0;
+
 }
 
 //============================================================
@@ -46,6 +47,10 @@ CAttackParabolaFire::~CAttackParabolaFire()
 //============================================================
 HRESULT CAttackParabolaFire::Init(void)
 {
+	// メンバ変数を初期化
+	m_nCounterTime = 0;	// 攻撃時間管理カウンター
+	m_fMove = 0.0f;		// 移動量
+
 	// 炎の初期化
 	if (FAILED(CFire::Init()))
 	{ // 初期化に失敗した場合
@@ -92,7 +97,11 @@ void CAttackParabolaFire::Draw(void)
 //============================================================
 //	生成処理
 //============================================================
-CAttackParabolaFire *CAttackParabolaFire::Create(const D3DXVECTOR3& rPos)
+CAttackParabolaFire *CAttackParabolaFire::Create
+(
+	const D3DXVECTOR3& rPos,	// 位置
+	const float fMove			// 移動量
+)
 {
 	// カーブ攻撃炎の生成
 	CAttackParabolaFire *pAttackParabolaFire = new CAttackParabolaFire;
@@ -116,6 +125,9 @@ CAttackParabolaFire *CAttackParabolaFire::Create(const D3DXVECTOR3& rPos)
 		// 位置を設定
 		pAttackParabolaFire->SetVec3Position(rPos);
 
+		// 移動量を設定
+		pAttackParabolaFire->m_fMove = fMove;
+
 		// 確保したアドレスを返す
 		return pAttackParabolaFire;
 	}
@@ -128,76 +140,36 @@ void CAttackParabolaFire::UpdateParabolaMove(void)
 {
 	float posMaxX = 1000.0f;
 	float posMaxY = 300.0f;
-	const float v0x = 10.0f;
-	const float g = -1.0f;
+	float fMaxTime, fMaxPosY;
 
-	nCnt++;
+#if 1
+	// 現在の経過時間から炎の位置を求める
+	D3DXVECTOR2 pos = useful::CalcPosParabola(GRAVITY, m_fMove, posMaxX, posMaxY, (float)m_nCounterTime, &fMaxTime, &fMaxPosY);
 
-#if 0
-	if (nCnt <= posMaxX / v0x)
-	{
-		// 移動量を反映
-		D3DXVECTOR2 pos = CalcParabola(g, v0x, posMaxX, posMaxY, (float)nCnt);
+	if ((float)m_nCounterTime <= fMaxTime)
+	{ // 最大経過時間に到達していない場合
+
+		// 位置を反映
 		SetVec3Position(D3DXVECTOR3(pos.x, pos.y, 0.0f));
 	}
-	else
-	{
-		SetMove(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-	}
 #else
-	if (nCnt <= posMaxX / v0x)
-	{
+	// 現在の経過時間から炎の移動量を求める
+	D3DXVECTOR2 move = useful::CalcMoveParabola(GRAVITY, m_fMove, posMaxX, posMaxY, (float)m_nCounterTime, &fMaxTime, &fMaxPosY);
+
+	if ((float)m_nCounterTime <= fMaxTime)
+	{ // 最大経過時間に到達していない場合
+
 		// 移動量を反映
-		D3DXVECTOR2 move = CalcMoveParabola(g, v0x, posMaxX, posMaxY, (float)nCnt);
 		SetMove(D3DXVECTOR3(move.x, move.y, 0.0f));
 	}
 	else
-	{
-		SetMove(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	{ // 最大経過時間に到達していない場合
+
+		// 移動量を初期化
+		SetMove(VEC3_ZERO);
 	}
 #endif
 
-	GET_MANAGER->GetDebugProc()->Print(CDebugProc::POINT_CENTER, "%f %f %f\n", GetVec3Position().x, GetVec3Position().y, GetVec3Position().z);
-}
-
-D3DXVECTOR2 CAttackParabolaFire::CalcParabola(float g, float v0x, float maxX, float maxY, float t)
-{
-	D3DXVECTOR2 vecRet = VEC2_ZERO;
-
-	// x成分を求める
-	vecRet.x = v0x * t;
-
-	// タイム最大値を求める
-	const float tMax = maxX / v0x;
-	const float v0y  = -0.5f * g * tMax;
-
-	float timeHalf = tMax * 0.5f;
-	float tempMaxY = 0.5f * g * (timeHalf * timeHalf) + v0y * timeHalf;
-	float rateMaxY = maxY / tempMaxY;
-
-	// y成分を求める
-	vecRet.y = (0.5f * g * (t * t) + v0y * t) * rateMaxY;
-
-	return vecRet;
-}
-
-D3DXVECTOR2 CAttackParabolaFire::CalcMoveParabola(float g, float v0x, float maxX, float maxY, float t)
-{
-	D3DXVECTOR2 vecRet = VEC2_ZERO;
-
-	// x成分を求める
-	vecRet.x = v0x;
-
-	// タイム最大値を求める
-	const float tMax = maxX / v0x;
-	const float v0y = -0.5f * g * tMax;
-
-	float timeHalf = tMax * 0.5f;
-	float tempMaxY = 0.5f * g * (timeHalf * timeHalf) + v0y * timeHalf;
-	float rateMaxY = maxY / tempMaxY;
-
-	// y成分を求める
-	vecRet.y = (g * t + v0y) * rateMaxY;
-
-	return vecRet;
+	// 攻撃発射からのカウンターを加算
+	m_nCounterTime++;
 }

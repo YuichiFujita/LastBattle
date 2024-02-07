@@ -75,6 +75,84 @@ void useful::NormalizeNormal
 }
 
 //============================================================
+//	経過時間・X移動量・重力から放物線の位置を求める処理
+//============================================================
+D3DXVECTOR2 useful::CalcPosParabola
+(
+	const float fGravity,	// 重力
+	const float fMoveX,		// X移動量
+	const float fDestPosX,	// 最大X座標
+	const float fDestPosY,	// 最大Y座標
+	const float fTime,		// 経過時間
+	float *pMaxTime,		// 最大経過時間
+	float *pMaxPosY			// 最大到達Y座標
+)
+{
+	const float fMaxTime	= fDestPosX / fMoveX;	// 最大経過時間
+	const float fHalfTime	= fMaxTime * 0.5f;		// 半分の最大経過時間
+	const float fMoveY		= -0.5f * fGravity * fMaxTime;	// Y移動量
+	const float fMaxPosY	= 0.5f * fGravity * (fHalfTime * fHalfTime) + fMoveY * fHalfTime;	// 最大到達Y座標
+
+	if (pMaxTime != nullptr)
+	{
+		// 最大経過時間を保存
+		*pMaxTime = fMaxTime;
+	}
+	if (pMaxPosY != nullptr)
+	{
+		// 最大到達Y座標を保存
+		*pMaxPosY = fMaxPosY;
+	}
+
+	// 現在時間の位置を求める
+	D3DXVECTOR2 posTime = VEC2_ZERO;
+	posTime.x = fMoveX * fTime;
+	posTime.y = (0.5f * fGravity * (fTime * fTime) + fMoveY * fTime) * (fDestPosY / fMaxPosY);
+
+	// 現在時間の位置を返す
+	return posTime;
+}
+
+//============================================================
+//	経過時間・X移動量・重力から放物線の移動量を求める処理
+//============================================================
+D3DXVECTOR2 useful::CalcMoveParabola
+(
+	const float fGravity,	// 重力
+	const float fMoveX,		// X移動量
+	const float fDestPosX,	// 最大X座標
+	const float fDestPosY,	// 最大Y座標
+	const float fTime,		// 経過時間
+	float *pMaxTime,		// 最大経過時間
+	float *pMaxPosY			// 最大到達Y座標
+)
+{
+	const float fMaxTime	= fDestPosX / fMoveX;	// 最大経過時間
+	const float fHalfTime	= fMaxTime * 0.5f;		// 半分の最大経過時間
+	const float fMoveY		= -0.5f * fGravity * fMaxTime;	// Y移動量
+	const float fMaxPosY	= 0.5f * fGravity * (fHalfTime * fHalfTime) + fMoveY * fHalfTime;	// 最大到達Y座標
+
+	if (pMaxTime != nullptr)
+	{
+		// 最大経過時間を保存
+		*pMaxTime = fMaxTime;
+	}
+	if (pMaxPosY != nullptr)
+	{
+		// 最大到達Y座標を保存
+		*pMaxPosY = fMaxPosY;
+	}
+
+	// 現在時間の移動量を求める
+	D3DXVECTOR2 moveTime = VEC2_ZERO;
+	moveTime.x = fMoveX;
+	moveTime.y = (fGravity * fTime + fMoveY) * (fDestPosY / fMaxPosY);
+
+	// 現在時間の移動量を返す
+	return moveTime;
+}
+
+//============================================================
 //	向きの正規化
 //============================================================
 void useful::NormalizeRot(float& rRot)

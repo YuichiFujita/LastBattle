@@ -35,17 +35,19 @@ public:
 	void Draw(void) override;		// 描画
 
 	// 静的メンバ関数
-	static CAttackParabolaFire *Create(const D3DXVECTOR3& rPos);	// 生成
+	static CAttackParabolaFire *Create	// 生成
+	( // 引数
+		const D3DXVECTOR3 &rPos,	// 位置
+		const float fMove			// 移動量
+	);
 
 private:
 	// メンバ関数
 	void UpdateParabolaMove(void);	// 炎移動量の更新
 
-	// TODO：後でuseful持ってく
-	D3DXVECTOR2 CalcParabola(float g, float v0x, float maxX, float maxY, float t);
-	D3DXVECTOR2 CalcMoveParabola(float g, float v0x, float maxX, float maxY, float t);
-
-	int nCnt;
+	// メンバ変数
+	int m_nCounterTime;	// 攻撃時間管理カウンター
+	float m_fMove;		// 移動量
 };
 
 #endif	// _ATTACK_PARABOLA_FIRE_H_

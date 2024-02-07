@@ -153,6 +153,26 @@ namespace useful
 		const D3DXVECTOR3& rPosRight,	// 右位置
 		D3DXVECTOR3& rNor				// 法線
 	);
+	D3DXVECTOR2 CalcPosParabola		// 経過時間・X移動量・重力から放物線の位置を求める処理
+	( // 引数
+		const float fGravity,		// 重力
+		const float fMoveX,			// X移動量
+		const float fDestPosX,		// 最大X座標
+		const float fDestPosY,		// 最大Y座標
+		const float fTime,			// 経過時間
+		float *pMaxTime = nullptr,	// 最大経過時間
+		float *pMaxPosY = nullptr	// 最大到達Y座標
+	);
+	D3DXVECTOR2 CalcMoveParabola	// 経過時間・X移動量・重力から放物線の移動量を求める処理
+	( // 引数
+		const float fGravity,		// 重力
+		const float fMoveX,			// X移動量
+		const float fDestPosX,		// 最大X座標
+		const float fDestPosY,		// 最大Y座標
+		const float fTime,			// 経過時間
+		float *pMaxTime = nullptr,	// 最大経過時間
+		float *pMaxPosY = nullptr	// 最大到達Y座標
+	);
 
 	float RandomRot(void);			// ランダム向き取得
 	void NormalizeRot(float& rRot);	// 向きの正規化
