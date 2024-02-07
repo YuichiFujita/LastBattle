@@ -14,13 +14,12 @@
 
 #include "gameManager.h"
 #include "timerManager.h"
-#include "stage.h"
+#include "cinemaScope.h"
 #include "pause.h"
+#include "stage.h"
 #include "player.h"
 #include "enemy.h"
 #include "sword.h"
-
-#include "attackHomingFire.h"
 
 //************************************************************
 //	定数宣言
@@ -52,6 +51,7 @@ namespace
 //************************************************************
 CGameManager	*CSceneGame::m_pGameManager		= nullptr;	// ゲームマネージャー
 CTimerManager	*CSceneGame::m_pTimerManager	= nullptr;	// タイマーマネージャー
+CCinemaScope	*CSceneGame::m_pCinemaScope		= nullptr;	// シネマスコープ
 CPause			*CSceneGame::m_pPause			= nullptr;	// ポーズ
 
 //************************************************************
@@ -114,17 +114,27 @@ HRESULT CSceneGame::Init(void)
 
 
 	// TODO：敵の生成
-	//CEnemy::Create(CEnemy::TYPE_BOSS_DRAGON, VEC3_ZERO + D3DXVECTOR3(0.0f, 0.0f, 500.0f), VEC3_ZERO);
+	CEnemy::Create(CEnemy::TYPE_BOSS_DRAGON, VEC3_ZERO + D3DXVECTOR3(0.0f, 0.0f, 500.0f), VEC3_ZERO);
 
-	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
 
 
 	// ゲームマネージャーの生成
 	m_pGameManager = CGameManager::Create();
 	if (m_pGameManager == nullptr)
 	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// シネマスコープの生成
+	m_pCinemaScope = CCinemaScope::Create();
+	if (m_pCinemaScope == nullptr)
+	{ // 生成に失敗した場合
 
 		// 失敗を返す
 		assert(false);
@@ -176,6 +186,9 @@ void CSceneGame::Uninit(void)
 	// タイマーマネージャーの破棄
 	SAFE_REF_RELEASE(m_pTimerManager);
 
+	// シネマスコープの破棄
+	SAFE_REF_RELEASE(m_pCinemaScope);
+
 	// ポーズの破棄
 	SAFE_REF_RELEASE(m_pPause);
 
@@ -203,6 +216,10 @@ void CSceneGame::Update(void)
 	if (!m_pPause->IsPause())
 	{ // ポーズ中ではない場合
 
+		// シネマスコープの更新
+		assert(m_pCinemaScope != nullptr);
+		m_pCinemaScope->Update();
+
 		// シーンの更新
 		CScene::Update();
 	}
@@ -221,11 +238,6 @@ void CSceneGame::Update(void)
 	}
 
 #endif	// _DEBUG
-
-	if (GET_INPUTKEY->IsTrigger(DIK_0))
-	{
-		CAttackHomingFire::Create(D3DXVECTOR3(0.0f, 200.0f, 0.0f));
-	}
 }
 
 //============================================================
@@ -258,6 +270,18 @@ CTimerManager *CSceneGame::GetTimerManager(void)
 
 	// タイマーマネージャーのポインタを返す
 	return m_pTimerManager;
+}
+
+//============================================================
+//	シネマスコープ取得処理
+//============================================================
+CCinemaScope *CSceneGame::GetCinemaScope(void)
+{
+	// インスタンス未使用
+	assert(m_pCinemaScope != nullptr);
+
+	// シネマスコープのポインタを返す
+	return m_pCinemaScope;
 }
 
 //============================================================

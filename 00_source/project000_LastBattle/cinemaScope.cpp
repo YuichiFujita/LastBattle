@@ -122,14 +122,6 @@ void CCinemaScope::Update(void)
 	{ // ó‘Ô‚²‚Æ‚Ìˆ—
 	case STATE_NONE:
 	case STATE_WAIT:
-
-		m_nCounterScope++;
-		if (m_nCounterScope > 120)
-		{
-			m_nCounterScope = 0;
-			m_state = (EState)((m_state + 1) % STATE_MAX);
-		}
-
 		break;
 
 	case STATE_SCOPE_IN:

@@ -20,6 +20,7 @@
 //************************************************************
 class CGameManager;		// ゲームマネージャークラス
 class CTimerManager;	// タイマーマネージャークラス
+class CCinemaScope;		// シネマスコープクラス
 class CPause;			// ポーズクラス
 
 //************************************************************
@@ -44,12 +45,14 @@ public:
 	// 静的メンバ関数
 	static CGameManager		*GetGameManager(void);		// ゲームマネージャー取得
 	static CTimerManager	*GetTimerManager(void);		// タイマーマネージャー取得
+	static CCinemaScope		*GetCinemaScope(void);		// シネマスコープ取得
 	static CPause			*GetPause(void);			// ポーズ取得
 
 private:
 	// 静的メンバ変数
 	static CGameManager		*m_pGameManager;	// ゲームマネージャー
 	static CTimerManager	*m_pTimerManager;	// タイマーマネージャー
+	static CCinemaScope		*m_pCinemaScope;	// シネマスコープ
 	static CPause			*m_pPause;			// ポーズ
 };
 

@@ -30,8 +30,7 @@ namespace
 //============================================================
 //	コンストラクタ
 //============================================================
-CGameManager::CGameManager() :
-	m_state(STATE_NONE)	// 状態
+CGameManager::CGameManager() : m_state(STATE_NONE)
 {
 
 }
@@ -50,7 +49,7 @@ CGameManager::~CGameManager()
 HRESULT CGameManager::Init(void)
 {
 	// メンバ変数を初期化
-	m_state = STATE_NORMAL;	// 状態
+	m_state = STATE_NORMAL;		// 状態
 
 	// 成功を返す
 	return S_OK;
