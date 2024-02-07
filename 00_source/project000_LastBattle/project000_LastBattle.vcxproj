@@ -156,6 +156,7 @@
     <ClCompile Include="attackParabolaFire.cpp" />
     <ClCompile Include="attackThunder.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="cinemaScope.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="debugproc.cpp" />
@@ -251,6 +252,7 @@
     <ClInclude Include="attackParabolaFire.h" />
     <ClInclude Include="attackThunder.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="cinemaScope.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="debugproc.h" />
