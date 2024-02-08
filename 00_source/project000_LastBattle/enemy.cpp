@@ -271,6 +271,14 @@ float CEnemy::GetHeight(void) const
 }
 
 //============================================================
+//	UI•`‰æ‚Ìİ’èˆ—
+//============================================================
+void CEnemy::SetEnableDrawUI(const bool /*bDraw*/)
+{
+
+}
+
+//============================================================
 //	¶¬ˆ—
 //============================================================
 CEnemy *CEnemy::Create(const EType type, const D3DXVECTOR3& rPos, const D3DXVECTOR3& rRot)

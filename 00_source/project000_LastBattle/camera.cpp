@@ -77,13 +77,13 @@ namespace
 	{
 		const D3DXVECTOR2	INIT_ROT = D3DXVECTOR2(1.80f, 1.0f);	// 初期向き
 		const float			INIT_DIS = 280.0f;	// 初期距離
-		const float			UP_POSR  = 55.0f;	// 注視点の上加算量
+		const float			UP_POSR  = 52.5f;	// 注視点の上加算量
 
 		const int	SWORD_SHAKE_KEY		= 3;	// プレイヤーの剣振り下ろしキー
 		const int	SWORD_SHAKE_FRAME	= 10;	// プレイヤーの剣振り下ろしキーフレーム
 		const int	CHANGE_POSV_FRAME	= 60;	// 目標視点への移動速度
 		const float	DESTPOSV_ROTY	= -1.35f;	// 目標視点へのY向き
-		const float	DESTPOSV_DIS	= 180.0f;	// 目標視点への距離
+		const float	DESTPOSV_DIS	= 190.0f;	// 目標視点への距離
 	}
 
 	// ボス注目情報

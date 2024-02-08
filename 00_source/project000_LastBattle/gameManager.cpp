@@ -53,15 +53,23 @@ CGameManager::~CGameManager()
 //============================================================
 HRESULT CGameManager::Init(void)
 {
+	CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
+
 	// メンバ変数を初期化
 	m_state		 = STATE_START;		// 状態
 	m_startState = START_PLAYER;	// 開始状態
 
 	// スコープインさせる
-	CSceneGame::GetCinemaScope()->SetScopeIn();
+	pScope->SetScopeIn();
 
 	// プレイヤーを出現させる
-	CScene::GetPlayer()->SetSpawn();
+	pPlayer->SetSpawn();
+
+	// UIの自動描画をOFFにする
+	pPlayer->SetEnableDrawUI(false);	// プレイヤー関連UI
+	pBoss->SetEnableDrawUI(false);		// ボス関連UI
 
 	// 成功を返す
 	return S_OK;
@@ -221,6 +229,10 @@ void CGameManager::UpdateStart(void)
 		// 通常状態にする
 		pPlayer->SetState(CPlayer::STATE_NORMAL);	// プレイヤー
 		pBoss->SetState(CEnemy::STATE_NORMAL);		// ボス
+
+		// UIの自動描画をOFFにする
+		pPlayer->SetEnableDrawUI(true);	// プレイヤー関連UI
+		pBoss->SetEnableDrawUI(true);	// ボス関連UI
 
 		// スコープアウトさせる
 		CSceneGame::GetCinemaScope()->SetScopeOut();

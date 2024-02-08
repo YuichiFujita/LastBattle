@@ -90,6 +90,9 @@ public:
 	virtual void Hit(const int nDamage) = 0;	// ヒット
 	virtual void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) = 0;	// ノックバックヒット
 
+	// 仮想関数
+	virtual void SetEnableDrawUI(const bool bDraw);	// UI描画設定
+
 	// 静的メンバ関数
 	static CEnemy *Create	// 生成
 	( // 引数

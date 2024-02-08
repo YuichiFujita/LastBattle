@@ -286,6 +286,18 @@ void CEnemyBossDragon::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /
 }
 
 //============================================================
+//	UI描画の設定処理
+//============================================================
+void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
+{
+	// UI描画の設定
+	CEnemy::SetEnableDrawUI(bDraw);
+
+	// UIオブジェクトに描画状況を反映
+	m_pLife->SetEnableDraw(bDraw);	// 体力
+}
+
+//============================================================
 //	テレポートの設定処理
 //============================================================
 void CEnemyBossDragon::SetTeleport

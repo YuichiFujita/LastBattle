@@ -137,6 +137,7 @@ public:
 	static CListManager<CPlayer> *GetList(void);	// リスト取得
 
 	// メンバ関数
+	void SetEnableDrawUI(const bool bDraw);	// UI描画設定
 	void Hit(const int nDamage);	// ヒット
 	void HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKnock);	// ノックバックヒット
 	void SetSpawn(void);	// スポーン設定

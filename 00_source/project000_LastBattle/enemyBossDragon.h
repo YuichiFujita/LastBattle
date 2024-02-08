@@ -122,6 +122,7 @@ public:
 	void Draw(void) override;		// 描画
 	void Hit(const int nDamage) override;	// ヒット
 	void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
+	void SetEnableDrawUI(const bool bDraw) override;	// UI描画設定
 
 	// メンバ関数
 	void SetTeleport	// テレポート設定
