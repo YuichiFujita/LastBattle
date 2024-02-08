@@ -191,7 +191,7 @@ void useful::VecToRot(const D3DXVECTOR3 vec, float *pPhi, float *pTheta)
 	*pPhi = atan2f(vec.y, vec.x);
 
 	// ‹ÂŠp‚ÌŒvŽZ
-	*pTheta = atan2f(sqrtf((vec.x * vec.x) + (vec.y * vec.y)), vec.z);
+	*pTheta = atan2f(-vec.z, sqrtf((vec.x * vec.x) + (vec.y * vec.y)));
 }
 
 //============================================================

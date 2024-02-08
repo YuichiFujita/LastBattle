@@ -27,9 +27,14 @@ namespace
 //============================================================
 //	コンストラクタ
 //============================================================
-CAttackParabolaFire::CAttackParabolaFire() :
-	m_nCounterTime	(0),	// 攻撃時間管理カウンター
-	m_fMove			(0.0f)	// 移動量
+CAttackParabolaFire::CAttackParabolaFire(const D3DXVECTOR3 &rPosDest) :
+	m_posDest		(rPosDest),		// 目標位置
+	m_posOrigin		(VEC3_ZERO),	// 原点位置
+	m_fLength		(0.0f),			// 移動距離
+	m_fPhi			(0.0f),			// 方位角
+	m_fTheta		(0.0f),			// 仰角
+	m_fMove			(0.0f),			// 移動量
+	m_nCounterTime	(0)				// 攻撃時間管理カウンター
 {
 
 }
@@ -48,8 +53,12 @@ CAttackParabolaFire::~CAttackParabolaFire()
 HRESULT CAttackParabolaFire::Init(void)
 {
 	// メンバ変数を初期化
-	m_nCounterTime = 0;	// 攻撃時間管理カウンター
-	m_fMove = 0.0f;		// 移動量
+	m_posOrigin	= VEC3_ZERO;	// 原点位置
+	m_fLength	= 0.0f;			// 移動距離
+	m_fPhi		= 0.0f;			// 方位角
+	m_fTheta	= 0.0f;			// 仰角
+	m_fMove		= 0.0f;			// 移動量
+	m_nCounterTime = 0;			// 攻撃時間管理カウンター
 
 	// 炎の初期化
 	if (FAILED(CFire::Init()))
@@ -99,12 +108,13 @@ void CAttackParabolaFire::Draw(void)
 //============================================================
 CAttackParabolaFire *CAttackParabolaFire::Create
 (
-	const D3DXVECTOR3& rPos,	// 位置
-	const float fMove			// 移動量
+	const D3DXVECTOR3& rCurPos,		// 生成位置
+	const D3DXVECTOR3& rDestPos,	// 目標位置
+	const float fMove				// 移動量
 )
 {
 	// カーブ攻撃炎の生成
-	CAttackParabolaFire *pAttackParabolaFire = new CAttackParabolaFire;
+	CAttackParabolaFire *pAttackParabolaFire = new CAttackParabolaFire(rDestPos);
 	if (pAttackParabolaFire == nullptr)
 	{ // 生成に失敗した場合
 
@@ -122,8 +132,12 @@ CAttackParabolaFire *CAttackParabolaFire::Create
 			return nullptr;
 		}
 
-		// 位置を設定
-		pAttackParabolaFire->SetVec3Position(rPos);
+		// 生成位置を設定
+		pAttackParabolaFire->SetVec3Position(rCurPos);
+		pAttackParabolaFire->m_posOrigin = rCurPos;
+
+		// 炎の移動パラメーターを初期化
+		pAttackParabolaFire->InitParabolaParam(rCurPos);
 
 		// 移動量を設定
 		pAttackParabolaFire->m_fMove = fMove;
@@ -134,17 +148,26 @@ CAttackParabolaFire *CAttackParabolaFire::Create
 }
 
 //============================================================
+//	炎移動パラメーターの初期化処理
+//============================================================
+void CAttackParabolaFire::InitParabolaParam(const D3DXVECTOR3& rCurPos)
+{
+	D3DXVECTOR3 vecLength = m_posDest - rCurPos;		// 目標位置へのベクトル
+	m_fLength = D3DXVec3Length(&vecLength);				// ベクトルの長さ
+	useful::VecToRot(vecLength, &m_fPhi, &m_fTheta);	// ベクトルを向きに変換
+}
+
+//============================================================
 //	炎移動量の更新処理
 //============================================================
 void CAttackParabolaFire::UpdateParabolaMove(void)
 {
-	float posMaxX = 1000.0f;
-	float posMaxY = 300.0f;
-	float fMaxTime, fMaxPosY;
-
-#if 1
+#if 0
+#if 0
+#if 0
 	// 現在の経過時間から炎の位置を求める
-	D3DXVECTOR2 pos = useful::CalcPosParabola(GRAVITY, m_fMove, posMaxX, posMaxY, (float)m_nCounterTime, &fMaxTime, &fMaxPosY);
+	float fMaxTime;	// 経過時間
+	D3DXVECTOR2 pos = useful::CalcPosParabola(GRAVITY, m_fMove, m_posDest.x, m_posDest.y, (float)m_nCounterTime, &fMaxTime);
 
 	if ((float)m_nCounterTime <= fMaxTime)
 	{ // 最大経過時間に到達していない場合
@@ -154,7 +177,8 @@ void CAttackParabolaFire::UpdateParabolaMove(void)
 	}
 #else
 	// 現在の経過時間から炎の移動量を求める
-	D3DXVECTOR2 move = useful::CalcMoveParabola(GRAVITY, m_fMove, posMaxX, posMaxY, (float)m_nCounterTime, &fMaxTime, &fMaxPosY);
+	float fMaxTime;	// 経過時間
+	D3DXVECTOR2 move = useful::CalcMoveParabola(GRAVITY, m_fMove, m_posDest.x, m_posDest.y, (float)m_nCounterTime, &fMaxTime);
 
 	if ((float)m_nCounterTime <= fMaxTime)
 	{ // 最大経過時間に到達していない場合
@@ -169,7 +193,51 @@ void CAttackParabolaFire::UpdateParabolaMove(void)
 		SetMove(VEC3_ZERO);
 	}
 #endif
+#else
+	// 現在の経過時間から炎の位置を求める
+	float fMaxTime;	// 経過時間
+	D3DXVECTOR2 posPara = useful::CalcPosParabola(GRAVITY, m_fMove, m_fLength, 1000.0f, (float)m_nCounterTime, &fMaxTime);
 
-	// 攻撃発射からのカウンターを加算
+	if ((float)m_nCounterTime <= fMaxTime)
+	{ // 最大経過時間に到達していない場合
+
+		D3DXVECTOR2 posPara = useful::CalcPosParabola(GRAVITY, m_fMove, m_fLength, 1000.0f, fMaxTime);
+
+		D3DXVECTOR3 pos;	// 位置
+		D3DXMATRIX mtxTrans, mtxRot, mtxRoot, mtxWorld;	// マトリックス計算用
+
+		// 初期化
+		D3DXMatrixIdentity(&mtxWorld);
+
+		// Yaw（方位角）とPitch（仰角）から回転行列を作成
+		//D3DXMatrixRotationYawPitchRoll(&mtxRot, m_fPhi, m_fTheta, 0.0f);
+		//D3DXMatrixMultiply(&mtxWorld, &mtxRot, &mtxWorld);
+
+		// 方位角反映
+		D3DXMatrixRotationX(&mtxRoot, m_fPhi);
+		D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxRoot);
+
+		// 仰角反映
+		D3DXMatrixRotationY(&mtxRot, m_fTheta);
+		D3DXMatrixMultiply(&mtxWorld, &mtxWorld, &mtxRot);
+
+		// 位置反映
+		D3DXMatrixTranslation(&mtxTrans, 0.0f, posPara.y, -posPara.x);
+		D3DXMatrixMultiply(&mtxWorld, &mtxTrans, &mtxWorld);
+
+		//D3DXMatrixMultiply(&mtxWorld, &mtxRot, &mtxTrans);
+
+		// 位置を設定
+		pos = useful::GetMtxWorldPosition(mtxWorld);
+
+		// 位置を反映
+		SetVec3Position(pos + m_posOrigin);
+
+		GET_MANAGER->GetDebugProc()->Print(CDebugProc::POINT_CENTER, "%f %f %f\n", pos.x, pos.y, pos.z);
+	}
+#endif
+#endif
+
+	// 攻撃発射からの経過カウンターを加算
 	m_nCounterTime++;
 }
