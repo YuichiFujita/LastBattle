@@ -578,7 +578,7 @@ void CEnemyBossDragon::UpdateAttack(void)
 			// 攻撃の生成
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
-#if 0	// TODO：攻撃を指定
+#if 1	// TODO：攻撃を指定
 				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
 #else
 				CEnemyAttack::ATTACK_02,	// 攻撃インデックス

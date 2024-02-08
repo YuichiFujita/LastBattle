@@ -19,9 +19,9 @@ namespace
 {
 	const char *TEXTURE_FILE[][CLiquid::LIQUID_MAX] =	// テクスチャファイル
 	{
-		{ // 海テクスチャ
-			"data\\TEXTURE\\sea000.jpg",	// 海(下)
-			"data\\TEXTURE\\sea000.png",	// 海(上)
+		{ // マグマテクスチャ
+			"data\\TEXTURE\\lava000.png",	// マグマ (下)
+			"data\\TEXTURE\\lava001.png",	// マグマ (上)
 		},
 	};
 
@@ -40,11 +40,11 @@ static_assert(NUM_ARRAY(TEXTURE_FILE) == CLiquid::TYPE_MAX, "ERROR : Texture Cou
 //	コンストラクタ
 //============================================================
 CLiquid::CLiquid() : CObject(CObject::LABEL_LIQUID, CObject::DIM_3D, PRIORITY),
-	m_type			(TYPE_SEA),	// 種類
-	m_fMaxUp		(0.0f),		// 波の最高上昇量
-	m_fSinRot		(0.0f),		// 波打ち向き
-	m_fAddSinRot	(0.0f),		// 波打ち向き加算量
-	m_fAddVtxRot	(0.0f)		// 隣波の向き加算量
+	m_type			(TYPE_LAVA),	// 種類
+	m_fMaxUp		(0.0f),			// 波の最高上昇量
+	m_fSinRot		(0.0f),			// 波打ち向き
+	m_fAddSinRot	(0.0f),			// 波打ち向き加算量
+	m_fAddVtxRot	(0.0f)			// 隣波の向き加算量
 {
 	// メンバ変数をクリア
 	memset(&m_apLiquid[0], 0, sizeof(m_apLiquid));	// 液体の情報
@@ -65,11 +65,11 @@ HRESULT CLiquid::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_apLiquid[0], 0, sizeof(m_apLiquid));	// 液体の情報
-	m_type			= TYPE_SEA;	// 種類
-	m_fMaxUp		= 0.0f;		// 波の最高上昇量
-	m_fSinRot		= 0.0f;		// 波打ち向き
-	m_fAddSinRot	= 0.0f;		// 波打ち向き加算量
-	m_fAddVtxRot	= 0.0f;		// 隣波の向き加算量
+	m_type			= TYPE_LAVA;	// 種類
+	m_fMaxUp		= 0.0f;			// 波の最高上昇量
+	m_fSinRot		= 0.0f;			// 波打ち向き
+	m_fAddSinRot	= 0.0f;			// 波打ち向き加算量
+	m_fAddVtxRot	= 0.0f;			// 隣波の向き加算量
 
 	for (int nCntLiquid = 0; nCntLiquid < LIQUID_MAX; nCntLiquid++)
 	{ // 液体の最大数分繰り返す
