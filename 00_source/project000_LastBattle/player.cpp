@@ -649,24 +649,15 @@ void CPlayer::SetSpawn(void)
 	// 移動量を初期化
 	m_move = VEC3_ZERO;
 
-	// 描画を再開
-	SetEnableDraw(true);
-
-	// 待機モーションを設定
-	SetMotion(BODY_LOWER, L_MOTION_IDOL);
-	SetMotion(BODY_UPPER, U_MOTION_IDOL);
-
 	// マテリアルを再設定
 	ResetMaterial();
 
-	// 透明度を透明に再設定
-	SetAlpha(0.0f);
+	// 待機モーションを設定
+	SetMotion(BODY_LOWER, L_MOTION_SPAWN);
+	SetMotion(BODY_UPPER, U_MOTION_SPAWN);
 
 	// 追従カメラの目標位置の設定
 	GET_MANAGER->GetCamera()->SetDestFollow();
-
-	// サウンドの再生
-	GET_MANAGER->GetSound()->Play(CSound::LABEL_SE_SPAWN);	// 生成音
 }
 
 //============================================================
@@ -752,6 +743,7 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 		switch (GetMotionType(BODY_LOWER))
 		{ // モーションごとの処理
+		case L_MOTION_SPAWN:			// 登場モーション：ループOFF
 		case L_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
 		case L_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
 		case L_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
@@ -779,7 +771,8 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 	switch (GetMotionType(BODY_LOWER))
 	{ // モーションごとの処理
-	case L_MOTION_IDOL:	// 待機モーション：ループON
+	case L_MOTION_SPAWN:	// 登場モーション：ループOFF
+	case L_MOTION_IDOL:		// 待機モーション：ループON
 		break;
 
 	case L_MOTION_MOVE:	// 移動モーション：ループON
@@ -925,6 +918,7 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 		switch (GetMotionType(BODY_UPPER))
 		{ // モーションごとの処理
+		case U_MOTION_SPAWN:			// 登場モーション：ループOFF
 		case U_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
 		case U_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
 		case U_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
@@ -952,8 +946,9 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 	switch (GetMotionType(BODY_UPPER))
 	{ // モーションごとの処理
-	case U_MOTION_IDOL:	// 待機モーション：ループON
-	case U_MOTION_MOVE:	// 移動モーション：ループON
+	case U_MOTION_SPAWN:	// 登場モーション：ループOFF
+	case U_MOTION_IDOL:		// 待機モーション：ループON
+	case U_MOTION_MOVE:		// 移動モーション：ループON
 		break;
 	
 	case U_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
@@ -1130,16 +1125,19 @@ void CPlayer::SetLStickRotation(void)
 //============================================================
 void CPlayer::UpdateSpawn(int *pLowMotion, int *pUpMotion)
 {
-	// フェードアウト状態時の更新
-	if (UpdateFadeOut(ADD_ALPHA))
-	{ // 不透明になり切った場合
+	// 別モーションの指定がされている場合エラー
+	assert(GetMotionType(BODY_LOWER) == L_MOTION_SPAWN);
+
+	if (IsMotionFinish(BODY_LOWER))
+	{ // モーションが終了した場合
 
 		// 状態を設定
 		SetState(STATE_NORMAL);
-	}
 
-	// 通常状態の更新
-	UpdateNormal(pLowMotion, pUpMotion);
+		// 待機モーションを設定
+		SetMotion(BODY_LOWER, L_MOTION_IDOL);
+		SetMotion(BODY_UPPER, U_MOTION_IDOL);
+	}
 }
 
 //============================================================

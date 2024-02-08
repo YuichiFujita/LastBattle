@@ -70,7 +70,8 @@ public:
 	// 下半身モーション列挙
 	enum ELowerMotion
 	{
-		L_MOTION_IDOL = 0,			// 待機モーション
+		L_MOTION_SPAWN = 0,			// 登場モーション
+		L_MOTION_IDOL,				// 待機モーション
 		L_MOTION_MOVE,				// 歩行モーション
 		L_MOTION_ATTACK_00,			// 攻撃モーション一段階目
 		L_MOTION_ATTACK_01,			// 攻撃モーション二段階目
@@ -86,7 +87,8 @@ public:
 	// 上半身モーション列挙
 	enum EUpperMotion
 	{
-		U_MOTION_IDOL = 0,			// 待機モーション
+		U_MOTION_SPAWN = 0,			// 登場モーション
+		U_MOTION_IDOL,				// 待機モーション
 		U_MOTION_MOVE,				// 歩行モーション
 		U_MOTION_ATTACK_00,			// 攻撃モーション一段階目
 		U_MOTION_ATTACK_01,			// 攻撃モーション二段階目
