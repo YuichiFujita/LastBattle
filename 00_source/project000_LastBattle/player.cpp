@@ -658,7 +658,7 @@ void CPlayer::SetSpawn(void)
 
 	// カメラをプレイヤー注目状態に設定
 	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_LOOK_PLAYER);
-	GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
+	GET_MANAGER->GetCamera()->SetDestLookPlayer();	// カメラ目標位置の初期化
 }
 
 //============================================================

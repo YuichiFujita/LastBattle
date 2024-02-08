@@ -76,6 +76,12 @@ namespace
 		const D3DXVECTOR2	INIT_ROT = D3DXVECTOR2(1.80f, 1.0f);	// 初期向き
 		const float			INIT_DIS = 280.0f;	// 初期距離
 		const float			UP_POSR  = 40.0f;	// 注視点の上加算量
+
+		const int	SWORD_SHAKE_KEY		= 2;	// プレイヤーの剣振り下ろしキー
+		const int	SWORD_SHAKE_FRAME	= 10;	// プレイヤーの剣振り下ろしキーフレーム
+		const int	CHANGE_POSV_FRAME	= 60;	// 目標視点への移動速度
+		const float	DESTPOSV_ROTY	= -1.35f;	// 目標視点へのY向き
+		const float	DESTPOSV_DIS	= 180.0f;	// 目標視点への距離
 	}
 
 	// 操作カメラ情報
@@ -735,17 +741,60 @@ void CCamera::LookPlayer(void)
 	auto player = pList->GetList().front();				// プレイヤー情報
 
 	//--------------------------------------------------------
-	//	向きの更新
+	//	向き・距離の更新
 	//--------------------------------------------------------
-	// 現在向きの更新
-	m_aCamera[TYPE_MAIN].rot.x = lookPlayer::INIT_ROT.x;
-	m_aCamera[TYPE_MAIN].rot.y = lookPlayer::INIT_ROT.y;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+	if (m_look.nCounterForce > 0)
+	{ // カメラの強制操作がONの場合
 
-	//--------------------------------------------------------
-	//	距離の更新
-	//--------------------------------------------------------
-	m_aCamera[TYPE_MAIN].fDis = lookPlayer::INIT_DIS;
+		// カウンターを減算
+		m_look.nCounterForce--;
+
+		// カウンターからイージング値を計算
+		float fRate = easeing::InOutSine
+		( // 引数
+			-(m_look.nCounterForce - lookPlayer::CHANGE_POSV_FRAME),	// 現在カウンター
+			0,								// 最小値
+			lookPlayer::CHANGE_POSV_FRAME	// 最大値
+		);
+
+		// 目標向きを求める
+		float fCurRotY = m_look.fDiffRotY * fRate;	// 差分向きと割合から今の向きを求める
+		useful::NormalizeRot(fCurRotY);				// 目標向きを正規化
+
+		// 現在向きの更新
+		m_aCamera[TYPE_MAIN].rot.y = m_look.fOldRotY - fCurRotY;
+		useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot.y);	// 現在向きを正規化
+
+		// 目標距離を求める
+		float fCurDis = m_look.fDiffDis * fRate;	// 差分距離きと割合から今の距離を求める
+
+		// 現在距離の更新
+		m_aCamera[TYPE_MAIN].fDis = m_look.fOldDis + fCurDis;
+	}
+	else
+	{ // カメラの強制操作がOFFの場合
+
+		// 別モーションの指定がされている場合エラー
+		assert(player->GetMotionType(CPlayer::BODY_LOWER) == CPlayer::L_MOTION_SPAWN);
+
+		if (player->GetMotionKey(CPlayer::BODY_LOWER)		 == lookPlayer::SWORD_SHAKE_KEY
+		&&  player->GetMotionKeyCounter(CPlayer::BODY_LOWER) == lookPlayer::SWORD_SHAKE_FRAME)
+		{ // 剣を振り下ろしたタイミングの場合
+
+			// カメラ強制操作カウンターを設定
+			m_look.nCounterForce = lookPlayer::CHANGE_POSV_FRAME;
+
+			// 向き情報を設定
+			m_aCamera[TYPE_MAIN].destRot.y = lookPlayer::DESTPOSV_ROTY;					// 目標向きを設定
+			m_look.fDiffRotY = lookPlayer::DESTPOSV_ROTY - m_aCamera[TYPE_MAIN].rot.y;	// 差分向きを保存
+			m_look.fOldRotY  = m_aCamera[TYPE_MAIN].rot.y;								// 視認開始時の向きを保存
+
+			// 距離情報を設定
+			m_aCamera[TYPE_MAIN].fDestDis = lookPlayer::DESTPOSV_DIS;					// 目標距離を設定
+			m_look.fDiffDis = lookPlayer::DESTPOSV_DIS - m_aCamera[TYPE_MAIN].fDis;		// 差分距離を保存
+			m_look.fOldDis  = m_aCamera[TYPE_MAIN].fDis;								// 視認開始時の距離を保存
+		}
+	}
 
 	//--------------------------------------------------------
 	//	位置の更新

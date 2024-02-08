@@ -97,6 +97,8 @@ public:
 		int nCounterForce;	// カメラ強制操作カウンター
 		float fDiffRotY;	// 差分Y軸向き
 		float fOldRotY;		// 過去Y軸向き
+		float fDiffDis;		// 差分距離
+		float fOldDis;		// 過去距離
 	};
 
 	// メンバ関数
