@@ -24,6 +24,11 @@ namespace
 }
 
 //************************************************************
+//	スタティックアサート
+//************************************************************
+static_assert(NUM_ARRAY(MODEL_FILE) == CModelFont::TYPE_MAX, "ERROR : Type Count Mismatch");
+
+//************************************************************
 //	子クラス [CModelFont] のメンバ関数
 //************************************************************
 //============================================================
@@ -118,7 +123,7 @@ CModelFont *CModelFont::Create
 		}
 
 		// モデルを登録・割当
-		pModelFont->BindTexture(GET_MANAGER->GetModel()->Regist(MODEL_FILE[type]));
+		pModelFont->BindModel(GET_MANAGER->GetModel()->Regist(MODEL_FILE[type]));
 
 		// 位置を設定
 		pModelFont->SetVec3Position(rPos);

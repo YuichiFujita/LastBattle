@@ -15,6 +15,7 @@
 #include "cinemaScope.h"
 #include "timerManager.h"
 #include "retentionManager.h"
+#include "modelFont.h"
 #include "camera.h"
 #include "player.h"
 #include "enemy.h"
@@ -24,6 +25,8 @@
 //************************************************************
 namespace
 {
+	const D3DXVECTOR3 POS_NAME = D3DXVECTOR3(0.0f, 100.0f, 400.0f);	// 名前の表示位置
+
 	const int GAMEEND_WAIT_FRAME = 120;	// リザルト画面への遷移余韻フレーム
 }
 
@@ -34,6 +37,7 @@ namespace
 //	コンストラクタ
 //============================================================
 CGameManager::CGameManager() :
+	m_pBossName		(nullptr),		// ボスの名前モデル情報
 	m_state			(STATE_NONE),	// 状態
 	m_startState	(START_PLAYER)	// 開始状態
 {
@@ -53,13 +57,32 @@ CGameManager::~CGameManager()
 //============================================================
 HRESULT CGameManager::Init(void)
 {
+	// ポインタを宣言
 	CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
 	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
 
 	// メンバ変数を初期化
+	m_pBossName	 = nullptr;			// ボスの名前モデル情報
 	m_state		 = STATE_START;		// 状態
 	m_startState = START_PLAYER;	// 開始状態
+
+	// ボスの名前モデルの生成
+	m_pBossName = CModelFont::Create
+	( // 引数
+		CModelFont::TYPE_BOSS_NAME,	// 種類
+		POS_NAME					// 位置
+	);
+	if (m_pBossName == nullptr)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 自動描画をOFFにする
+	m_pBossName->SetEnableDraw(false);
 
 	// スコープインさせる
 	pScope->SetScopeIn();
@@ -80,7 +103,8 @@ HRESULT CGameManager::Init(void)
 //============================================================
 void CGameManager::Uninit(void)
 {
-
+	// ボスの名前モデルの終了
+	SAFE_UNINIT(m_pBossName);
 }
 
 //============================================================
@@ -98,6 +122,9 @@ void CGameManager::Update(void)
 
 		// 開始状態の更新
 		UpdateStart();
+
+		// ボスの名前モデルの更新
+		m_pBossName->Update();
 
 		break;
 
@@ -207,6 +234,9 @@ void CGameManager::UpdateStart(void)
 			// ボスを出現させる
 			pBoss->SetState(CEnemy::STATE_SPAWN);
 
+			// ボスの名前モデルの自動描画をONにする
+			m_pBossName->SetEnableDraw(true);
+
 			// ボススポーン状態にする
 			m_startState = START_BOSS;
 		}
@@ -229,6 +259,9 @@ void CGameManager::UpdateStart(void)
 		// 通常状態にする
 		pPlayer->SetState(CPlayer::STATE_NORMAL);	// プレイヤー
 		pBoss->SetState(CEnemy::STATE_NORMAL);		// ボス
+
+		// ボスの名前モデルの自動描画をOFFにする
+		m_pBossName->SetEnableDraw(false);
 
 		// UIの自動描画をOFFにする
 		pPlayer->SetEnableDrawUI(true);	// プレイヤー関連UI
