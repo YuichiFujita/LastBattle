@@ -322,7 +322,7 @@ void CPlayer::Update(void)
 	case STATE_SPAWN:
 
 		// スポーン状態時の更新
-		UpdateSpawn((int*)&curLowMotion, (int*)&curUpMotion);
+		UpdateSpawn();
 
 		break;
 
@@ -656,8 +656,9 @@ void CPlayer::SetSpawn(void)
 	SetMotion(BODY_LOWER, L_MOTION_SPAWN);
 	SetMotion(BODY_UPPER, U_MOTION_SPAWN);
 
-	// 追従カメラの目標位置の設定
-	GET_MANAGER->GetCamera()->SetDestFollow();
+	// カメラをプレイヤー注目状態に設定
+	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_LOOK_PLAYER);
+	GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
 }
 
 //============================================================
@@ -1123,7 +1124,7 @@ void CPlayer::SetLStickRotation(void)
 //============================================================
 //	スポーン状態時の更新処理
 //============================================================
-void CPlayer::UpdateSpawn(int *pLowMotion, int *pUpMotion)
+void CPlayer::UpdateSpawn(void)
 {
 	// 別モーションの指定がされている場合エラー
 	assert(GetMotionType(BODY_LOWER) == L_MOTION_SPAWN);
@@ -1131,12 +1132,16 @@ void CPlayer::UpdateSpawn(int *pLowMotion, int *pUpMotion)
 	if (IsMotionFinish(BODY_LOWER))
 	{ // モーションが終了した場合
 
-		// 状態を設定
-		SetState(STATE_NORMAL);
+		//// 状態を設定
+		//SetState(STATE_NORMAL);
 
-		// 待機モーションを設定
-		SetMotion(BODY_LOWER, L_MOTION_IDOL);
-		SetMotion(BODY_UPPER, U_MOTION_IDOL);
+		//// 待機モーションを設定
+		//SetMotion(BODY_LOWER, L_MOTION_IDOL);
+		//SetMotion(BODY_UPPER, U_MOTION_IDOL);
+
+		//// カメラを追従状態に設定
+		//GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
+		//GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
 	}
 }
 

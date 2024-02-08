@@ -210,7 +210,7 @@ private:
 	bool IsAttack(void) const;		// 攻撃状況取得
 	void SetLStickRotation(void);	// Lスティック向きを向かせる
 
-	void UpdateSpawn(int *pLowMotion, int *pUpMotion);	// スポーン状態時の更新
+	void UpdateSpawn(void);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
 	void UpdateDamage(int *pLowMotion, int *pUpMotion);	// ダメージ状態時の更新
 	void UpdateInvuln(int *pLowMotion, int *pUpMotion);	// 無敵状態時の更新

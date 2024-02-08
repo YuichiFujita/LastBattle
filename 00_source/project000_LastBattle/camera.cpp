@@ -70,6 +70,14 @@ namespace
 		const float LIMIT_ROT_LOW	= 1.0f;				// X下回転の制限値
 	}
 
+	// プレイヤー注目情報
+	namespace lookPlayer
+	{
+		const D3DXVECTOR2	INIT_ROT = D3DXVECTOR2(1.80f, 1.0f);	// 初期向き
+		const float			INIT_DIS = 280.0f;	// 初期距離
+		const float			UP_POSR  = 40.0f;	// 注視点の上加算量
+	}
+
 	// 操作カメラ情報
 	namespace control
 	{
@@ -221,6 +229,13 @@ void CCamera::Update(void)
 
 			break;
 
+		case STATE_LOOK_PLAYER:	// プレイヤー注目状態
+
+			// カメラの更新 (プレイヤー注目)
+			LookPlayer();
+
+			break;
+
 		default:	// 例外処理
 			assert(false);
 			break;
@@ -293,25 +308,26 @@ void CCamera::SetDestRotate(void)
 	//	向きの更新
 	//--------------------------------------------------------
 	// 現在向きの更新
-	m_aCamera[TYPE_MAIN].rot.x = rotate::INIT_ROT.x;
-	m_aCamera[TYPE_MAIN].rot.y = rotate::INIT_ROT.y;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+	m_aCamera[TYPE_MAIN].rot.x = m_aCamera[TYPE_MAIN].destRot.x = rotate::INIT_ROT.x;
+	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.y = rotate::INIT_ROT.y;
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
 
 	//--------------------------------------------------------
 	//	距離の更新
 	//--------------------------------------------------------
-	m_aCamera[TYPE_MAIN].fDis = rotate::INIT_DIS;
+	m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = rotate::INIT_DIS;
 
 	//--------------------------------------------------------
 	//	位置の更新
 	//--------------------------------------------------------
 	// 注視点の更新
-	m_aCamera[TYPE_MAIN].posR = rotate::INIT_POSR;
+	m_aCamera[TYPE_MAIN].posR = m_aCamera[TYPE_MAIN].destPosR = rotate::INIT_POSR;
 
 	// 視点の更新
-	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
-	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
-	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
 }
 
 //============================================================
@@ -350,12 +366,51 @@ void CCamera::SetDestFollow(void)
 	//	位置の更新
 	//----------------------------------------------------
 	// 注視点をプレイヤーの頭の位置にする
-	m_aCamera[TYPE_MAIN].destPosR = player->GetVec3Position() + D3DXVECTOR3(0.0f, player->GetHeight(), 0.0f);
+	m_aCamera[TYPE_MAIN].posR = m_aCamera[TYPE_MAIN].destPosR = player->GetVec3Position() + D3DXVECTOR3(0.0f, player->GetHeight(), 0.0f);
 
 	// 視点の更新
 	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].destPosR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
 	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].destPosR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
 	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].destPosR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+}
+
+//============================================================
+//	カメラ目標位置の設定処理 (プレイヤー注目)
+//============================================================
+void CCamera::SetDestLookPlayer(void)
+{
+	CListManager<CPlayer> *pList = CPlayer::GetList();	// プレイヤーリスト
+	if (pList == nullptr)				{ return; }		// リスト未使用
+	if (pList->GetNumAll() != 1)		{ return; }		// プレイヤーが1人じゃない
+	if (m_state != STATE_LOOK_PLAYER)	{ return; }		// カメラプレイヤー注目状態以外
+	auto player = pList->GetList().front();				// プレイヤー情報
+
+	//--------------------------------------------------------
+	//	向きの更新
+	//--------------------------------------------------------
+	// 現在向きの更新
+	m_aCamera[TYPE_MAIN].rot.x = m_aCamera[TYPE_MAIN].destRot.x = lookPlayer::INIT_ROT.x;
+	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.y = lookPlayer::INIT_ROT.y;
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
+
+	//--------------------------------------------------------
+	//	距離の更新
+	//--------------------------------------------------------
+	m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = lookPlayer::INIT_DIS;
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR = player->GetVec3Position();		// プレイヤー位置を指定
+	m_aCamera[TYPE_MAIN].posR.y += lookPlayer::UP_POSR;			// 少し上にする
+	m_aCamera[TYPE_MAIN].destPosR = m_aCamera[TYPE_MAIN].posR;	// 目標位置も同一にする
+
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
 }
 
 //============================================================
@@ -666,6 +721,43 @@ void CCamera::Follow(void)
 	m_aCamera[TYPE_MAIN].posV.x += diffPosV.x * follow::REV_POSV.x;
 	m_aCamera[TYPE_MAIN].posV.y += diffPosV.y * follow::REV_POSV.y;
 	m_aCamera[TYPE_MAIN].posV.z += diffPosV.z * follow::REV_POSV.z;
+}
+
+//============================================================
+//	カメラの更新 (プレイヤー注目)
+//============================================================
+void CCamera::LookPlayer(void)
+{
+	CListManager<CPlayer> *pList = CPlayer::GetList();	// プレイヤーリスト
+	if (pList == nullptr)				{ return; }		// リスト未使用
+	if (pList->GetNumAll() != 1)		{ return; }		// プレイヤーが1人じゃない
+	if (m_state != STATE_LOOK_PLAYER)	{ return; }		// カメラ追従状態以外
+	auto player = pList->GetList().front();				// プレイヤー情報
+
+	//--------------------------------------------------------
+	//	向きの更新
+	//--------------------------------------------------------
+	// 現在向きの更新
+	m_aCamera[TYPE_MAIN].rot.x = lookPlayer::INIT_ROT.x;
+	m_aCamera[TYPE_MAIN].rot.y = lookPlayer::INIT_ROT.y;
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+
+	//--------------------------------------------------------
+	//	距離の更新
+	//--------------------------------------------------------
+	m_aCamera[TYPE_MAIN].fDis = lookPlayer::INIT_DIS;
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR = player->GetVec3Position();	// プレイヤー位置を指定
+	m_aCamera[TYPE_MAIN].posR.y += lookPlayer::UP_POSR;
+
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
 }
 
 //============================================================
