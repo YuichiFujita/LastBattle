@@ -35,12 +35,10 @@ public:
 	// 開始状態列挙
 	enum EStartState
 	{
-		START_INIT_SCOPE = 0,	// シネマスコープイン初期化状態
-		START_SCOPE,			// シネマスコープイン状態
-		START_PLAYER,			// プレイヤースポーン状態
-		START_BOSS,				// ボススポーン状態
-		START_END,				// 終了状態
-		START_MAX				// この列挙型の総数
+		START_PLAYER = 0,	// プレイヤースポーン状態
+		START_BOSS,			// ボススポーン状態
+		START_END,			// 終了状態
+		START_MAX			// この列挙型の総数
 	};
 
 	// コンストラクタ

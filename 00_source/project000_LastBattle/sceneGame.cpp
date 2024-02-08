@@ -119,16 +119,6 @@ HRESULT CSceneGame::Init(void)
 	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
 
 
-	// ゲームマネージャーの生成
-	m_pGameManager = CGameManager::Create();
-	if (m_pGameManager == nullptr)
-	{ // 非使用中の場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
 	// シネマスコープの生成
 	m_pCinemaScope = CCinemaScope::Create();
 	if (m_pCinemaScope == nullptr)
@@ -142,6 +132,16 @@ HRESULT CSceneGame::Init(void)
 	// ポーズの生成
 	m_pPause = CPause::Create();
 	if (m_pPause == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// ゲームマネージャーの生成
+	m_pGameManager = CGameManager::Create();
+	if (m_pGameManager == nullptr)
 	{ // 非使用中の場合
 
 		// 失敗を返す

@@ -34,8 +34,8 @@ namespace
 //	コンストラクタ
 //============================================================
 CGameManager::CGameManager() :
-	m_state			(STATE_NONE),		// 状態
-	m_startState	(START_INIT_SCOPE)	// 開始状態
+	m_state			(STATE_NONE),	// 状態
+	m_startState	(START_PLAYER)	// 開始状態
 {
 
 }
@@ -54,8 +54,14 @@ CGameManager::~CGameManager()
 HRESULT CGameManager::Init(void)
 {
 	// メンバ変数を初期化
-	m_state		 = STATE_START;			// 状態
-	m_startState = START_INIT_SCOPE;	// 開始状態
+	m_state		 = STATE_START;		// 状態
+	m_startState = START_PLAYER;	// 開始状態
+
+	// スコープインさせる
+	CSceneGame::GetCinemaScope()->SetScopeIn();
+
+	// プレイヤーを出現させる
+	CScene::GetPlayer()->SetSpawn();
 
 	// 成功を返す
 	return S_OK;
@@ -185,30 +191,6 @@ void CGameManager::UpdateStart(void)
 
 	switch (m_startState)
 	{ // 開始状態ごとの処理
-	case START_INIT_SCOPE:	// シネマスコープイン初期化状態
-	{
-		// スコープインさせる
-		CSceneGame::GetCinemaScope()->SetScopeIn();
-
-		// シネマスコープイン状態にする
-		m_startState = START_SCOPE;
-
-		// 処理を抜けずに下の処理を続行
-	}
-	case START_SCOPE:	// シネマスコープイン状態
-	{
-		if (CSceneGame::GetCinemaScope()->GetState() == CCinemaScope::STATE_NONE)
-		{ // 表示が完了した場合
-
-			// プレイヤーを出現させる
-			pPlayer->SetSpawn();
-
-			// プレイヤースポーン状態にする
-			m_startState = START_PLAYER;
-		}
-
-		break;
-	}
 	case START_PLAYER:	// プレイヤースポーン状態
 	{
 		if (pPlayer->GetState() == CPlayer::STATE_NONE)

@@ -11,9 +11,11 @@
 #include "manager.h"
 #include "sceneGame.h"
 #include "renderer.h"
-#include "player.h"
-#include "multiModel.h"
 #include "stage.h"
+#include "player.h"
+#include "enemy.h"
+#include "enemyBossDragon.h"
+#include "multiModel.h"
 
 //************************************************************
 //	定数宣言
@@ -75,9 +77,9 @@ namespace
 	{
 		const D3DXVECTOR2	INIT_ROT = D3DXVECTOR2(1.80f, 1.0f);	// 初期向き
 		const float			INIT_DIS = 280.0f;	// 初期距離
-		const float			UP_POSR  = 40.0f;	// 注視点の上加算量
+		const float			UP_POSR  = 55.0f;	// 注視点の上加算量
 
-		const int	SWORD_SHAKE_KEY		= 2;	// プレイヤーの剣振り下ろしキー
+		const int	SWORD_SHAKE_KEY		= 3;	// プレイヤーの剣振り下ろしキー
 		const int	SWORD_SHAKE_FRAME	= 10;	// プレイヤーの剣振り下ろしキーフレーム
 		const int	CHANGE_POSV_FRAME	= 60;	// 目標視点への移動速度
 		const float	DESTPOSV_ROTY	= -1.35f;	// 目標視点へのY向き
@@ -87,8 +89,7 @@ namespace
 	// ボス注目情報
 	namespace lookBoss
 	{
-		const D3DXVECTOR2	INIT_ROT = D3DXVECTOR2(1.80f, 0.0f);	// 初期向き
-		const float			INIT_DIS = 800.0f;	// 初期距離
+		const D3DXVECTOR3 INIT_POSV = D3DXVECTOR3(0.0f, 100.0f, 0.0f);	// 初期視点
 	}
 
 	// 操作カメラ情報
@@ -438,7 +439,37 @@ void CCamera::SetDestLookPlayer(void)
 //============================================================
 void CCamera::SetDestLookBoss(void)
 {
+	CEnemy *pBoss = CScene::GetBoss();			// ボス情報
+	if (pBoss == nullptr)			{ return; }	// ボスが存在しない
+	if (m_state != STATE_LOOK_BOSS)	{ return; }	// ボス注目状態以外
 
+	CMultiModel *pWaist = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_WAIST);	// 腰モデル情報
+	D3DXVECTOR3 posBoss = useful::GetMtxWorldPosition(pWaist->GetMtxWorld());	// ボスの腰位置
+
+	//--------------------------------------------------------
+	//	向きの更新
+	//--------------------------------------------------------
+	// 向きの更新
+	m_aCamera[TYPE_MAIN].rot.x = m_aCamera[TYPE_MAIN].destRot.x = atan2f(posBoss.z - lookBoss::INIT_POSV.z, posBoss.y - lookBoss::INIT_POSV.y);
+	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.y = 0.0f;
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot.x);		// 現在向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].destRot.x);	// 目標向きを正規化
+
+	//--------------------------------------------------------
+	//	距離の更新
+	//--------------------------------------------------------
+	m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = 1.0f;
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV = m_aCamera[TYPE_MAIN].destPosV = lookBoss::INIT_POSV;
+
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR.x = m_aCamera[TYPE_MAIN].destPosR.x = m_aCamera[TYPE_MAIN].posV.x + ((m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posR.y = m_aCamera[TYPE_MAIN].destPosR.y = m_aCamera[TYPE_MAIN].posV.y + ((m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posR.z = m_aCamera[TYPE_MAIN].destPosR.z = m_aCamera[TYPE_MAIN].posV.z + ((m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
 }
 
 //============================================================
@@ -759,7 +790,7 @@ void CCamera::LookPlayer(void)
 	CListManager<CPlayer> *pList = CPlayer::GetList();	// プレイヤーリスト
 	if (pList == nullptr)				{ return; }		// リスト未使用
 	if (pList->GetNumAll() != 1)		{ return; }		// プレイヤーが1人じゃない
-	if (m_state != STATE_LOOK_PLAYER)	{ return; }		// カメラ追従状態以外
+	if (m_state != STATE_LOOK_PLAYER)	{ return; }		// プレイヤー注目状態以外
 	auto player = pList->GetList().front();				// プレイヤー情報
 
 	//--------------------------------------------------------
@@ -836,25 +867,23 @@ void CCamera::LookPlayer(void)
 //============================================================
 void CCamera::LookBoss(void)
 {
+	CEnemy *pBoss = CScene::GetBoss();			// ボス情報
+	if (pBoss == nullptr)			{ return; }	// ボスが存在しない
+	if (m_state != STATE_LOOK_BOSS)	{ return; }	// ボス注目状態以外
+
+	CMultiModel *pWaist = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_WAIST);	// 腰モデル情報
+	D3DXVECTOR3 posBoss = useful::GetMtxWorldPosition(pWaist->GetMtxWorld());	// ボスの腰位置
+
 	//--------------------------------------------------------
 	//	向きの更新
 	//--------------------------------------------------------
 	// 現在向きの更新
-	m_aCamera[TYPE_MAIN].rot.x = rotate::INIT_ROT.x;
-	m_aCamera[TYPE_MAIN].rot.y = 0.0f;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
-
-	//--------------------------------------------------------
-	//	距離の更新
-	//--------------------------------------------------------
-	m_aCamera[TYPE_MAIN].fDis = rotate::INIT_DIS;
+	m_aCamera[TYPE_MAIN].rot.x = atan2f(posBoss.z - lookBoss::INIT_POSV.z, posBoss.y - lookBoss::INIT_POSV.y);
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot.x);	// 現在向きを正規化
 
 	//--------------------------------------------------------
 	//	位置の更新
 	//--------------------------------------------------------
-	// 視点の更新
-	m_aCamera[TYPE_MAIN].posV = D3DXVECTOR3(0.0f, 100.0f, -300.0f);
-
 	// 注視点の更新
 	m_aCamera[TYPE_MAIN].posR.x = m_aCamera[TYPE_MAIN].posV.x + ((m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
 	m_aCamera[TYPE_MAIN].posR.y = m_aCamera[TYPE_MAIN].posV.y + ((m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
