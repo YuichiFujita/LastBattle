@@ -121,7 +121,6 @@ void CCinemaScope::Update(void)
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_NONE:
-	case STATE_WAIT:
 		break;
 
 	case STATE_SCOPE_IN:
@@ -273,8 +272,8 @@ void CCinemaScope::UpdateScopeIn(void)
 		// カウンターを初期化
 		m_nCounterScope = 0;
 
-		// 待機状態にする
-		m_state = STATE_WAIT;
+		// なにもしない状態にする
+		m_state = STATE_NONE;
 	}
 }
 

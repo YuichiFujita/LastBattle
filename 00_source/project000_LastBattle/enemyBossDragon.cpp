@@ -141,14 +141,6 @@ HRESULT CEnemyBossDragon::Init(void)
 	// 優先順位を設定
 	SetPriority(PRIORITY);
 
-#if 0	// TODO：デバッグ効率化
-	// スポーン状態にする
-	SetState(STATE_SPAWN);
-#else
-	// 通常状態にする
-	SetState(STATE_NORMAL);
-#endif
-
 	// 体力の生成
 	m_pLife = CGauge2D::Create
 	( // 引数
@@ -175,6 +167,12 @@ HRESULT CEnemyBossDragon::Init(void)
 
 	// 自動描画をOFFにする
 	m_pMagicCircle->SetEnableDraw(false);
+
+	// なにもしない状態にする
+	SetState(STATE_NONE);
+
+	// 自動描画をOFFにする
+	SetEnableDraw(false);
 
 	// 成功を返す
 	return S_OK;
@@ -443,6 +441,9 @@ void CEnemyBossDragon::SetSpawn(void)
 	// 透明度を不透明に再設定
 	SetAlpha(1.0f);
 
+	// 自動描画をONにする
+	SetEnableDraw(true);
+
 	// 咆哮モーションを設定
 	SetMotion(MOTION_HOWL);
 
@@ -457,6 +458,10 @@ void CEnemyBossDragon::SetSpawn(void)
 
 	// 向きを反映
 	SetVec3Rotation(rotEnemy);
+
+	// カメラをボス注目状態に設定
+	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_LOOK_BOSS);
+	GET_MANAGER->GetCamera()->SetDestLookBoss();	// カメラ目標位置の初期化
 }
 
 //============================================================
@@ -492,8 +497,8 @@ void CEnemyBossDragon::UpdateSpawn(void)
 			// カウンターを初期化
 			m_nCounterAttack = 0;
 
-			// 通常状態にする
-			SetState(STATE_NORMAL);
+			// なにもしない状態にする
+			SetState(STATE_NONE);
 
 			// 待機モーションにする
 			SetMotion(MOTION_IDOL);

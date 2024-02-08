@@ -26,9 +26,21 @@ public:
 	enum EState
 	{
 		STATE_NONE = 0,	// 何もしない状態
+		STATE_START,	// 開始状態
 		STATE_NORMAL,	// 通常状態
 		STATE_END,		// 終了状態
 		STATE_MAX		// この列挙型の総数
+	};
+
+	// 開始状態列挙
+	enum EStartState
+	{
+		START_INIT_SCOPE = 0,	// シネマスコープイン初期化状態
+		START_SCOPE,			// シネマスコープイン状態
+		START_PLAYER,			// プレイヤースポーン状態
+		START_BOSS,				// ボススポーン状態
+		START_END,				// 終了状態
+		START_MAX				// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -49,8 +61,12 @@ public:
 	static void Release(CGameManager *&prGameManager);	// 破棄
 
 private:
+	// メンバ関数
+	void UpdateStart(void);	// 開始状態の更新
+
 	// メンバ変数
-	EState m_state;	// 状態
+	EState		m_state;		// 状態
+	EStartState	m_startState;	// 開始状態
 };
 
 #endif	// _GAMEMANAGER_H_

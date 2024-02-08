@@ -20,11 +20,27 @@
 
 #include "stage.h"
 #include "player.h"
+#include "enemy.h"
+
+//************************************************************
+//	定数宣言
+//************************************************************
+namespace
+{
+	// ボスの情報
+	namespace boss
+	{
+		const D3DXVECTOR3 SPAWN_POS = D3DXVECTOR3(0.0f, 0.0f, 600.0f);	// スポーン位置
+		const D3DXVECTOR3 SPAWN_ROT = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// スポーン向き
+	}
+}
 
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
-CStage	*CScene::m_pStage	= nullptr;	// ステージ
+CStage	*CScene::m_pStage	= nullptr;	// ステージの情報
+CPlayer	*CScene::m_pPlayer	= nullptr;	// プレイヤーの情報
+CEnemy	*CScene::m_pBoss	= nullptr;	// ボスの情報
 
 //************************************************************
 //	親クラス [CScene] のメンバ関数
@@ -61,7 +77,26 @@ HRESULT CScene::Init(void)
 	}
 
 	// プレイヤーの生成
-	CPlayer::Create(m_mode);
+	m_pPlayer = CPlayer::Create(m_mode);
+
+	if (m_mode == MODE_GAME)
+	{ // ゲーム画面の場合
+
+		// ボスの生成
+		m_pBoss = CEnemy::Create
+		( // 引数
+			CEnemy::TYPE_BOSS_DRAGON,	// 種類
+			boss::SPAWN_POS,			// 位置
+			boss::SPAWN_ROT				// 向き
+		);
+		if (m_pBoss == nullptr)
+		{ // 非使用中の場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+	}
 
 	// 成功を返す
 	return S_OK;
@@ -185,6 +220,24 @@ CStage *CScene::GetStage(void)
 
 	// ステージのポインタを返す
 	return m_pStage;
+}
+
+//============================================================
+//	プレイヤー取得処理
+//============================================================
+CPlayer *CScene::GetPlayer(void)
+{
+	// プレイヤーのポインタを返す
+	return m_pPlayer;
+}
+
+//============================================================
+//	ボス取得処理
+//============================================================
+CEnemy *CScene::GetBoss(void)
+{
+	// ボスのポインタを返す
+	return m_pBoss;
 }
 
 //============================================================

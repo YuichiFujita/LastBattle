@@ -14,6 +14,8 @@
 //	前方宣言
 //************************************************************
 class CStage;	// ステージクラス
+class CPlayer;	// プレイヤークラス
+class CEnemy;	// 敵クラス
 
 //************************************************************
 //	クラス定義
@@ -51,7 +53,9 @@ public:
 	static CScene *Create(EMode mode);		// 生成
 	static void Release(CScene *&prScene);	// 破棄
 
-	static CStage *GetStage(void);	// ステージ取得
+	static CStage  *GetStage(void);		// ステージ取得
+	static CPlayer *GetPlayer(void);	// プレイヤー取得
+	static CEnemy  *GetBoss(void);		// ボス取得
 
 	// メンバ関数
 	void SetMode(const EMode mode);	// モード設定
@@ -59,7 +63,9 @@ public:
 
 private:
 	// 静的メンバ変数
-	static CStage *m_pStage;	// ステージ
+	static CStage  *m_pStage;	// ステージの情報
+	static CPlayer *m_pPlayer;	// プレイヤーの情報
+	static CEnemy  *m_pBoss;	// ボスの情報
 
 	// メンバ変数
 	EMode m_mode;	// モード

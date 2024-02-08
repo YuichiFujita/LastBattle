@@ -34,13 +34,14 @@ public:
 	// 状態列挙
 	enum EState
 	{
-		STATE_SPAWN = 0,	// スポーン状態
-		STATE_NORMAL,		// 通常状態
-		STATE_DAMAGE,		// ダメージ状態
-		STATE_INVULN,		// 無敵状態
-		STATE_STAN,			// スタン状態
-		STATE_DEATH,		// 死亡状態
-		STATE_MAX			// この列挙型の総数
+		STATE_NONE = 0,	// なにもしない状態
+		STATE_SPAWN,	// スポーン状態
+		STATE_NORMAL,	// 通常状態
+		STATE_DAMAGE,	// ダメージ状態
+		STATE_INVULN,	// 無敵状態
+		STATE_STAN,		// スタン状態
+		STATE_DEATH,	// 死亡状態
+		STATE_MAX		// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -118,6 +119,7 @@ protected:
 	// 仮想関数
 	virtual void SetSpawn(void);		// スポーン状態の設定
 	virtual void SetInvuln(void);		// 無敵状態の設定
+	virtual void UpdateNone(void);		// なにもしない状態時の更新
 	virtual void UpdateSpawn(void);		// スポーン状態時の更新
 	virtual void UpdateNormal(void);	// 通常状態時の更新
 	virtual void UpdateDamage(void);	// ダメージ状態時の更新

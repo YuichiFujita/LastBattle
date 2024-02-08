@@ -110,15 +110,13 @@ HRESULT CSceneGame::Init(void)
 	m_pTimerManager->SetEnableLogoDraw(true);
 
 	// シーンの初期化
-	CScene::Init();		// ステージ・プレイヤーの生成
+	CScene::Init();	// ステージ・プレイヤーの生成
 
 
-	// TODO：敵の生成
-	CEnemy::Create(CEnemy::TYPE_BOSS_DRAGON, VEC3_ZERO + D3DXVECTOR3(0.0f, 0.0f, 500.0f), VEC3_ZERO);
-
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
+	//// TODO：敵の生成
+	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
+	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
 
 
 	// ゲームマネージャーの生成
@@ -154,20 +152,6 @@ HRESULT CSceneGame::Init(void)
 	//--------------------------------------------------------
 	//	初期設定
 	//--------------------------------------------------------
-	CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
-	if (pList == nullptr)		 { assert(false); return E_FAIL; }	// リスト未使用
-	if (pList->GetNumAll() != 1) { assert(false); return E_FAIL; }	// プレイヤーが1人じゃない
-	auto player = pList->GetList().front();							// プレイヤー情報
-
-	// カメラを設定
-	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);	// カメラを追従状態に設定
-
-	// プレイヤーを出現させる
-	player->SetSpawn();
-
-	// タイマーの計測開始
-	m_pTimerManager->Start();
-
 	// BGMの再生
 	GET_MANAGER->GetSound()->Play(CSound::LABEL_BGM_GAME);
 

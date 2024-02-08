@@ -32,7 +32,6 @@ public:
 	{
 		STATE_NONE = 0,		// なにもしない
 		STATE_SCOPE_IN,		// スコープイン
-		STATE_WAIT,			// 待機
 		STATE_SCOPE_OUT,	// スコープアウト
 		STATE_MAX			// この列挙型の総数
 	};
@@ -58,7 +57,8 @@ public:
 	void Draw(void);		// 描画
 	void SetScopeIn(void);	// スコープイン設定
 	void SetScopeOut(void);	// スコープアウト設定
-	void SetEnableDraw(const bool bDraw);	// 描画状況設定
+	void SetEnableDraw(const bool bDraw);			// 描画状況設定
+	EState GetState(void) const { return m_state; }	// 状態取得
 
 	// 静的メンバ関数
 	static CCinemaScope *Create(void);					// 生成

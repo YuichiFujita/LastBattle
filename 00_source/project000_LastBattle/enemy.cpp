@@ -49,6 +49,7 @@ CMotion::SInfo		CEnemy::m_aMotionInfo[TYPE_MAX]	= {};	// モーション情報
 CEnemy::SStatusInfo	CEnemy::m_aStatusInfo[TYPE_MAX] = {};	// ステータス情報
 CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =		// 状態更新関数
 {
+	&CEnemy::UpdateNone,	// なにもしない状態時の更新
 	&CEnemy::UpdateSpawn,	// スポーン状態時の更新
 	&CEnemy::UpdateNormal,	// 通常状態時の更新
 	&CEnemy::UpdateDamage,	// ダメージ状態時の更新
@@ -70,7 +71,7 @@ CEnemy::CEnemy(const EType type) : CObjectChara(CObject::LABEL_ENEMY, CObject::D
 	m_motion		(m_aMotionInfo[type]),	// モーション定数
 	m_oldPos		(VEC3_ZERO),			// 過去位置
 	m_move			(VEC3_ZERO),			// 移動量
-	m_state			(STATE_SPAWN),			// 状態
+	m_state			(STATE_NONE),			// 状態
 	m_fSinAlpha		(0.0f),					// 透明向き
 	m_bJump			(false),				// ジャンプ状況
 	m_nCounterState	(0)						// 状態管理カウンター
@@ -94,7 +95,7 @@ HRESULT CEnemy::Init(void)
 	// メンバ変数を初期化
 	m_oldPos	= VEC3_ZERO;	// 過去位置
 	m_move		= VEC3_ZERO;	// 移動量
-	m_state		= STATE_SPAWN;	// 状態
+	m_state		= STATE_NONE;	// 状態
 	m_fSinAlpha = 0.0f;			// 透明向き
 	m_bJump		= false;		// ジャンプ状況
 	m_nCounterState	= 0;		// 状態管理カウンター
@@ -207,6 +208,7 @@ void CEnemy::SetState(const int nState)
 
 	switch (m_state)
 	{ // 状態ごとの処理
+	case STATE_NONE:	// なにもしない状態
 	case STATE_NORMAL:	// 通常状態
 	case STATE_DAMAGE:	// ダメージ状態
 	case STATE_DEATH:	// 死亡状態
@@ -447,6 +449,14 @@ void CEnemy::SetInvuln(void)
 
 	// 無敵の基礎透明度を設定
 	SetAlpha(INVULN_ALPHA);
+}
+
+//============================================================
+//	なにもしない状態時の更新処理
+//============================================================
+void CEnemy::UpdateNone(void)
+{
+
 }
 
 //============================================================

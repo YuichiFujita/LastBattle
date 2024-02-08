@@ -84,6 +84,13 @@ namespace
 		const float	DESTPOSV_DIS	= 180.0f;	// 目標視点への距離
 	}
 
+	// ボス注目情報
+	namespace lookBoss
+	{
+		const D3DXVECTOR2	INIT_ROT = D3DXVECTOR2(1.80f, 0.0f);	// 初期向き
+		const float			INIT_DIS = 800.0f;	// 初期距離
+	}
+
 	// 操作カメラ情報
 	namespace control
 	{
@@ -239,6 +246,13 @@ void CCamera::Update(void)
 
 			// カメラの更新 (プレイヤー注目)
 			LookPlayer();
+
+			break;
+
+		case STATE_LOOK_BOSS:	// ボス注目状態
+
+			// カメラの更新 (ボス注目)
+			LookBoss();
 
 			break;
 
@@ -417,6 +431,14 @@ void CCamera::SetDestLookPlayer(void)
 	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
 	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
 	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+}
+
+//============================================================
+//	カメラ目標位置の設定処理 (ボス注目)
+//============================================================
+void CCamera::SetDestLookBoss(void)
+{
+
 }
 
 //============================================================
@@ -730,7 +752,7 @@ void CCamera::Follow(void)
 }
 
 //============================================================
-//	カメラの更新 (プレイヤー注目)
+//	カメラの更新処理 (プレイヤー注目)
 //============================================================
 void CCamera::LookPlayer(void)
 {
@@ -807,6 +829,36 @@ void CCamera::LookPlayer(void)
 	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
 	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
 	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+}
+
+//============================================================
+//	カメラの更新処理 (ボス注目)
+//============================================================
+void CCamera::LookBoss(void)
+{
+	//--------------------------------------------------------
+	//	向きの更新
+	//--------------------------------------------------------
+	// 現在向きの更新
+	m_aCamera[TYPE_MAIN].rot.x = rotate::INIT_ROT.x;
+	m_aCamera[TYPE_MAIN].rot.y = 0.0f;
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+
+	//--------------------------------------------------------
+	//	距離の更新
+	//--------------------------------------------------------
+	m_aCamera[TYPE_MAIN].fDis = rotate::INIT_DIS;
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV = D3DXVECTOR3(0.0f, 100.0f, -300.0f);
+
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR.x = m_aCamera[TYPE_MAIN].posV.x + ((m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posR.y = m_aCamera[TYPE_MAIN].posV.y + ((m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posR.z = m_aCamera[TYPE_MAIN].posV.z + ((m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
 }
 
 //============================================================

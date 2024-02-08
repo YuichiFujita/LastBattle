@@ -245,6 +245,9 @@ HRESULT CPlayer::Init(void)
 		return E_FAIL;
 	}
 
+	// 自動描画をOFFにする
+	SetEnableDraw(false);
+
 	if (m_pList == nullptr)
 	{ // リストマネージャーが存在しない場合
 
@@ -649,6 +652,9 @@ void CPlayer::SetSpawn(void)
 	// 移動量を初期化
 	m_move = VEC3_ZERO;
 
+	// 自動描画をONにする
+	SetEnableDraw(true);
+
 	// マテリアルを再設定
 	ResetMaterial();
 
@@ -773,6 +779,16 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 	switch (GetMotionType(BODY_LOWER))
 	{ // モーションごとの処理
 	case L_MOTION_SPAWN:	// 登場モーション：ループOFF
+
+		if (IsMotionFinish(BODY_LOWER))
+		{ // モーションが終了した場合
+
+			// 待機モーションの設定
+			SetMotion(BODY_LOWER, L_MOTION_IDOL);
+		}
+
+		break;
+
 	case L_MOTION_IDOL:		// 待機モーション：ループON
 		break;
 
@@ -948,6 +964,16 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 	switch (GetMotionType(BODY_UPPER))
 	{ // モーションごとの処理
 	case U_MOTION_SPAWN:	// 登場モーション：ループOFF
+
+		if (IsMotionFinish(BODY_UPPER))
+		{ // モーションが終了した場合
+
+			// 待機モーションの設定
+			SetMotion(BODY_UPPER, U_MOTION_IDOL);
+		}
+
+		break;
+
 	case U_MOTION_IDOL:		// 待機モーション：ループON
 	case U_MOTION_MOVE:		// 移動モーション：ループON
 		break;
@@ -1129,19 +1155,11 @@ void CPlayer::UpdateSpawn(void)
 	// 別モーションの指定がされている場合エラー
 	assert(GetMotionType(BODY_LOWER) == L_MOTION_SPAWN);
 
-	if (IsMotionFinish(BODY_LOWER))
-	{ // モーションが終了した場合
+	if (IsMotionCancel(BODY_LOWER))
+	{ // モーションがキャンセルできる場合
 
-		//// 状態を設定
-		//SetState(STATE_NORMAL);
-
-		//// 待機モーションを設定
-		//SetMotion(BODY_LOWER, L_MOTION_IDOL);
-		//SetMotion(BODY_UPPER, U_MOTION_IDOL);
-
-		//// カメラを追従状態に設定
-		//GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
-		//GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
+		// 何もしない状態にする
+		SetState(STATE_NONE);
 	}
 }
 
