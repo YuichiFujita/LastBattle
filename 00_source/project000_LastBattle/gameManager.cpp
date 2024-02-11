@@ -58,6 +58,7 @@ CGameManager::~CGameManager()
 HRESULT CGameManager::Init(void)
 {
 	// ポインタを宣言
+	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
 	CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
 	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
@@ -91,6 +92,8 @@ HRESULT CGameManager::Init(void)
 	pPlayer->SetSpawn();
 
 	// UIの自動描画をOFFにする
+	pTimer->SetEnableLogoDraw(false);	// タイマーロゴ
+	pTimer->SetEnableDraw(false);		// タイマー
 	pPlayer->SetEnableDrawUI(false);	// プレイヤー関連UI
 	pBoss->SetEnableDrawUI(false);		// ボス関連UI
 
@@ -256,6 +259,9 @@ void CGameManager::UpdateStart(void)
 	}
 	case START_END:	// 終了状態
 	{
+		CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
+		CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
+
 		// 通常状態にする
 		pPlayer->SetState(CPlayer::STATE_NORMAL);	// プレイヤー
 		pBoss->SetState(CEnemy::STATE_NORMAL);		// ボス
@@ -264,18 +270,20 @@ void CGameManager::UpdateStart(void)
 		m_pBossName->SetEnableDraw(false);
 
 		// UIの自動描画をOFFにする
-		pPlayer->SetEnableDrawUI(true);	// プレイヤー関連UI
-		pBoss->SetEnableDrawUI(true);	// ボス関連UI
+		pTimer->SetEnableLogoDraw(true);	// タイマーロゴ
+		pTimer->SetEnableDraw(true);		// タイマー
+		pPlayer->SetEnableDrawUI(true);		// プレイヤー関連UI
+		pBoss->SetEnableDrawUI(true);		// ボス関連UI
 
 		// スコープアウトさせる
-		CSceneGame::GetCinemaScope()->SetScopeOut();
+		pScope->SetScopeOut();
 
 		// カメラを追従状態に設定
 		GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
 		GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
 
 		// タイマーの計測開始
-		CSceneGame::GetTimerManager()->Start();
+		pTimer->Start();
 
 		// 通常状態にする
 		m_state = STATE_NORMAL;
