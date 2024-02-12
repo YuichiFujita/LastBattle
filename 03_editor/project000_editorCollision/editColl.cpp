@@ -293,6 +293,11 @@ void CEditColl::SubColl(void)
 		{
 			// 選択中の判定を削除
 			pColl->SubColl(m_nCurSelectColl);
+
+			// 削除後の配列の要素数より大きい値の場合補正
+			int nMaxSelect = (int)pColl->GetVector().size() - 1;	// 最高選択可能インデックス
+			useful::LimitMinNum(nMaxSelect, 0);						// 0より小さい場合補正
+			useful::LimitNum(m_nCurSelectColl, 0, nMaxSelect);		// 選択中の要素番号を補正
 		}
 	}
 }

@@ -79,9 +79,7 @@ void CCollSphere::Update(void)
 void CCollSphere::SetInfo(const SInfo& rInfo, const int nID)
 {
 	auto info = m_coll.begin();	// 配列の先頭イテレーター
-
-	// イテレーターをインデックス分動かす
-	info += nID;
+	info += nID;	// イテレーターをインデックス分動かす
 
 	// イテレーターの中身を設定
 	*info = rInfo;
@@ -93,9 +91,7 @@ void CCollSphere::SetInfo(const SInfo& rInfo, const int nID)
 CCollSphere::SInfo CCollSphere::GetInfo(const int nID) const
 {
 	auto info = m_coll.begin();	// 配列の先頭イテレーター
-
-	// イテレーターをインデックス分動かす
-	info += nID;
+	info += nID;	// イテレーターをインデックス分動かす
 
 	// イテレーターの中身を返す
 	return *info;
@@ -144,9 +140,7 @@ void CCollSphere::AddColl
 void CCollSphere::SubColl(const int nID)
 {
 	auto info = m_coll.begin();	// 配列の先頭イテレーター
-
-	// イテレーターをインデックス分動かす
-	info += nID;
+	info += nID;	// イテレーターをインデックス分動かす
 
 	// デバッグ用の見た目を終了
 	SAFE_UNINIT(info->pVisual);
