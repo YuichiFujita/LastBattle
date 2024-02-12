@@ -20,11 +20,10 @@ public:
 	// 状態列挙
 	enum EState
 	{
-		STATE_NONE = 0,		// 何もしない状態
-		STATE_PLAY,			// プレイ状態
-		STATE_COLLISION,	// 判定設定状態
-		STATE_END,			// 終了状態
-		STATE_MAX			// この列挙型の総数
+		STATE_NONE = 0,	// 何もしない状態
+		STATE_NORMAL,	// 通常状態
+		STATE_END,		// 終了状態
+		STATE_MAX		// この列挙型の総数
 	};
 
 	// コンストラクタ

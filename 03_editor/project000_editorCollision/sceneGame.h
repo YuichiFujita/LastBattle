@@ -20,6 +20,7 @@
 //************************************************************
 class CGameManager;	// ゲームマネージャークラス
 class CPause;		// ポーズクラス
+class CEdit;		// エディットクラス
 
 //************************************************************
 //	クラス定義
@@ -43,11 +44,13 @@ public:
 	// 静的メンバ関数
 	static CGameManager	*GetGameManager(void);	// ゲームマネージャー取得
 	static CPause		*GetPause(void);		// ポーズ取得
+	static CEdit		*GetEdit(void);			// エディット取得
 
 private:
 	// 静的メンバ変数
 	static CGameManager	*m_pGameManager;	// ゲームマネージャー
 	static CPause		*m_pPause;			// ポーズ
+	static CEdit		*m_pEdit;			// エディット
 };
 
 #endif	// _SCENE_GAME_H_

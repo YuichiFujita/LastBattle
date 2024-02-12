@@ -1,36 +1,31 @@
 //============================================================
 //
-//	ゲームマネージャー処理 [gameManager.cpp]
+//	エディット処理 [edit.cpp]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "gameManager.h"
-#include "manager.h"
-#include "fade.h"
-#include "scene.h"
-#include "sceneGame.h"
-#include "retentionManager.h"
-#include "camera.h"
-#include "player.h"
+#include "edit.h"
+#include "editPlay.h"
+#include "editColl.h"
 
 //************************************************************
 //	定数宣言
 //************************************************************
 namespace
 {
-	const int GAMEEND_WAIT_FRAME = 120;	// リザルト画面への遷移余韻フレーム
+
 }
 
 //************************************************************
-//	親クラス [CGameManager] のメンバ関数
+//	子クラス [CEdit] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
 //============================================================
-CGameManager::CGameManager() : m_state(STATE_NONE)
+CEdit::CEdit() : m_mode(MODE_PLAY)
 {
 
 }
@@ -38,7 +33,7 @@ CGameManager::CGameManager() : m_state(STATE_NONE)
 //============================================================
 //	デストラクタ
 //============================================================
-CGameManager::~CGameManager()
+CEdit::~CEdit()
 {
 
 }
@@ -46,10 +41,10 @@ CGameManager::~CGameManager()
 //============================================================
 //	初期化処理
 //============================================================
-HRESULT CGameManager::Init(void)
+HRESULT CEdit::Init(void)
 {
 	// メンバ変数を初期化
-	m_state = STATE_NORMAL;	// 状態
+	m_mode = MODE_PLAY;	// エディットモード
 
 	// 成功を返す
 	return S_OK;
@@ -58,7 +53,7 @@ HRESULT CGameManager::Init(void)
 //============================================================
 //	終了処理
 //============================================================
-void CGameManager::Uninit(void)
+void CEdit::Uninit(void)
 {
 
 }
@@ -66,68 +61,81 @@ void CGameManager::Uninit(void)
 //============================================================
 //	更新処理
 //============================================================
-void CGameManager::Update(void)
+void CEdit::Update(void)
 {
-	switch (m_state)
-	{ // 状態ごとの処理
-	case STATE_NONE:
-	case STATE_END:
-	case STATE_NORMAL:
-		break;
 
-	default:	// 例外処理
-		assert(false);
-		break;
-	}
 }
 
 //============================================================
-//	状態取得処理
+//	描画処理
 //============================================================
-CGameManager::EState CGameManager::GetState(void) const
+void CEdit::Draw(void)
 {
-	// 状態を返す
-	return m_state;
+
+}
+
+//============================================================
+//	エディットモード取得処理
+//============================================================
+CEdit::EMode CEdit::GetMode(void)
+{
+	// エディットモードを返す
+	return m_mode;
 }
 
 //============================================================
 //	生成処理
 //============================================================
-CGameManager *CGameManager::Create(void)
+CEdit *CEdit::Create(const EMode mode)
 {
-	// ゲームマネージャーの生成
-	CGameManager *pGameManager = new CGameManager;
-	if (pGameManager == nullptr)
-	{ // 生成に失敗した場合
+	// エディットの生成
+	CEdit *pEdit = nullptr;
+	switch (mode)
+	{ // モードごとの処理
+	case MODE_PLAY:
+		pEdit = new CEditPlay;
+		break;
+
+	case MODE_COLL_SET:
+		pEdit = new CEditColl;
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	if (pEdit == nullptr)
+	{ // 生成していない場合
 
 		return nullptr;
 	}
 	else
-	{ // 生成に成功した場合
+	{ // 生成している場合
 
-		// ゲームマネージャーの初期化
-		if (FAILED(pGameManager->Init()))
+		// エディットの初期化
+		if (FAILED(pEdit->Init()))
 		{ // 初期化に失敗した場合
 
-			// ゲームマネージャーの破棄
-			SAFE_DELETE(pGameManager);
+			// エディットの破棄
+			SAFE_DELETE(pEdit);
 			return nullptr;
 		}
 
 		// 確保したアドレスを返す
-		return pGameManager;
+		return pEdit;
 	}
 }
 
 //============================================================
 //	破棄処理
 //============================================================
-void CGameManager::Release(CGameManager *&prGameManager)
+void CEdit::Release(CEdit *&prEdit)
 {
-	// ゲームマネージャーの終了
-	assert(prGameManager != nullptr);
-	prGameManager->Uninit();
+	// エディットの終了
+	assert(prEdit != nullptr);
+	prEdit->Uninit();
 
 	// メモリ開放
-	SAFE_DELETE(prGameManager);
+	SAFE_DELETE(prEdit);
 }

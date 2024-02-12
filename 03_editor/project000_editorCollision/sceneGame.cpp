@@ -14,6 +14,8 @@
 
 #include "gameManager.h"
 #include "pause.h"
+#include "edit.h"
+
 #include "stage.h"
 #include "player.h"
 
@@ -30,6 +32,7 @@ namespace
 //************************************************************
 CGameManager	*CSceneGame::m_pGameManager	= nullptr;	// ゲームマネージャー
 CPause			*CSceneGame::m_pPause		= nullptr;	// ポーズ
+CEdit			*CSceneGame::m_pEdit		= nullptr;	// エディット
 
 //************************************************************
 //	子クラス [CSceneGame] のメンバ関数
@@ -60,6 +63,16 @@ HRESULT CSceneGame::Init(void)
 	//--------------------------------------------------------
 	// シーンの初期化
 	CScene::Init();	// ステージ・プレイヤーの生成
+
+	// エディットの生成
+	m_pEdit = CEdit::Create(CEdit::MODE_PLAY);
+	if (m_pEdit == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// ポーズの生成
 	m_pPause = CPause::Create();
@@ -96,6 +109,9 @@ void CSceneGame::Uninit(void)
 	// ポーズの破棄
 	SAFE_REF_RELEASE(m_pPause);
 
+	// エディットの破棄
+	SAFE_REF_RELEASE(m_pEdit);
+
 	// シーンの終了
 	CScene::Uninit();
 }
@@ -113,7 +129,11 @@ void CSceneGame::Update(void)
 	assert(m_pPause != nullptr);
 	m_pPause->Update();
 
-	if (!m_pPause->IsPause() && m_pGameManager->GetState() == CGameManager::STATE_PLAY)
+	// エディットの更新
+	assert(m_pEdit != nullptr);
+	m_pEdit->Update();
+
+	if (!m_pPause->IsPause() && m_pEdit->GetMode() == CEdit::MODE_PLAY)
 	{ // ポーズ中ではない且つ、プレイ状態の場合
 
 		// シーンの更新
@@ -166,4 +186,16 @@ CPause *CSceneGame::GetPause(void)
 
 	// ポーズのポインタを返す
 	return m_pPause;
+}
+
+//============================================================
+//	エディット取得処理
+//============================================================
+CEdit *CSceneGame::GetEdit(void)
+{
+	// インスタンス未使用
+	assert(m_pEdit != nullptr);
+
+	// エディットのポインタを返す
+	return m_pEdit;
 }
