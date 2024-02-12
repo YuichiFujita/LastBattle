@@ -19,8 +19,9 @@
 //************************************************************
 namespace
 {
-	const float INIT_COLL_RAD = 20.0f;	// 生成時の判定半径
+	const char *SAVE_TXT = "data\\TXT\\save_collision.txt";	// 判定保存テキスト
 
+	const float INIT_COLL_RAD = 20.0f;	// 生成時の判定半径
 	const float MOVE_OFFSET	= 2.5f;		// オフセット移動量
 	const float MOVE_RAD	= 1.0f;		// 半径変更量
 	const float MIN_RAD		= 1.0f;		// 最小半径
@@ -32,6 +33,9 @@ namespace
 //************************************************************
 #define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
 #define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
+
+#define KEY_SAVE	(DIK_F5)	// 保存キー
+#define NAME_SAVE	("F5")		// 保存表示
 
 #define KEY_ADD_COLL	(DIK_0)		// 判定追加キー
 #define NAME_ADD_COLL	("0")		// 判定追加表示
@@ -167,6 +171,9 @@ void CEditColl::Update(void)
 	// 判定情報の更新
 	UpdateCollInfo();
 
+	// 判定保存
+	SaveColl();
+
 	// エディットの更新
 	CEdit::Update();
 }
@@ -191,6 +198,7 @@ void CEditColl::DrawEditControl(void)
 	// エディット操作表示
 	CEdit::DrawEditControl();
 
+	pDebug->Print(CDebugProc::POINT_RIGHT, "保存：[%s]\n", NAME_SAVE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "パーツ変更：[%s/%s]\n", NAME_UP_PARTS, NAME_DOWN_PARTS);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定変更：[%s/%s]\n", NAME_UP_COLL, NAME_DOWN_COLL);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定追加/削除：[%s/%s]\n", NAME_ADD_COLL, NAME_SUB_COLL);
@@ -439,5 +447,65 @@ void CEditColl::UpdateCollInfo(void)
 
 		// 当たり判定の更新
 		pPlayer->GetCollision(nCntParts)->Update();
+	}
+}
+
+//============================================================
+//	判定保存処理
+//============================================================
+void CEditColl::SaveColl(void)
+{
+	if (!GET_INPUTKEY->IsTrigger(KEY_SAVE)) { return; }	// セーブ操作されていない場合抜ける
+
+	// ファイルを書き出し形式で開く
+	FILE *pFile = fopen(SAVE_TXT, "w");
+	if (pFile != nullptr)
+	{ // ファイルが開けた場合
+
+		fprintf(pFile, "#==============================================================================\n");
+		fprintf(pFile, "#\n");
+		fprintf(pFile, "#	判定セーブテキスト [save_collison.txt]\n");
+		fprintf(pFile, "#	Author : you\n");
+		fprintf(pFile, "#\n");
+		fprintf(pFile, "#==============================================================================\n");
+		fprintf(pFile, "---------->--<---------- ここから下を コピーし貼り付け ---------->--<----------\n\n");
+
+		fprintf(pFile, "SETCOLLISION\n\n");
+
+		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+		for (int nCntParts = 0; nCntParts < pPlayer->GetNumModel(); nCntParts++)
+		{ // パーツの最大数分繰り返す
+
+			CCollSphere *pColl = pPlayer->GetCollision(nCntParts);			// 円判定情報
+			std::vector<CCollSphere::SInfo> vector = pColl->GetVector();	// 円判定配列
+			if (vector.size() <= 0) { continue; }	// 判定が一つもない場合次のループへ
+
+			fprintf(pFile, "	SETCOLL\n\n");
+
+			fprintf(pFile, "		PARTS = %d\n", nCntParts);
+			fprintf(pFile, "		NUMCOLL = %d\n\n", (int)vector.size());
+
+			for (auto info : vector)
+			{ // 判定数分繰り返す
+
+				fprintf(pFile, "		COLL\n");
+				fprintf(pFile, "			OFFSET = %.2f %.2f %.2f\n", info.offset.x, info.offset.y, info.offset.z);
+				fprintf(pFile, "			RADIUS = %.2f\n", info.fRadius);
+				fprintf(pFile, "		END_COLL\n\n");
+			}
+
+			fprintf(pFile, "	END_SETCOLL\n\n");
+		}
+
+		fprintf(pFile, "END_SETCOLLISION\n\n");
+
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{ // ファイルが開けなかった場合
+
+		// エラーメッセージボックス
+		MessageBox(nullptr, "判定保存ファイルの書き出しに失敗！", "警告！", MB_ICONWARNING);
 	}
 }

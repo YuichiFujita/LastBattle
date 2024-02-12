@@ -45,6 +45,7 @@ private:
 	void UpdateCollOffset(void);	// 判定オフセット更新
 	void UpdateCollRadius(void);	// 判定半径更新
 	void UpdateCollInfo(void);		// 判定情報更新
+	void SaveColl(void);			// 判定保存
 
 	// メンバ変数
 	int m_nCurSelectParts;	// 現在の選択パーツ
