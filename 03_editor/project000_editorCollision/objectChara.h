@@ -20,6 +20,7 @@
 //	前方宣言
 //************************************************************
 class CMultiModel;	// マルチモデルクラス
+class CCollSphere;	// 円判定クラス
 
 //************************************************************
 //	クラス定義
@@ -75,6 +76,7 @@ public:
 	D3DXVECTOR3 GetPartsRotation(const int nPartsID) const;				// パーツ向き取得
 
 	CMultiModel *GetMultiModel(const int nPartsID) const;	// マルチモデル取得
+	CCollSphere *GetCollision(const int nPartsID) const;	// 当たり判定取得
 	CMotion *GetMotion(void) const;							// モーション取得
 
 	void SetMaterial(const D3DXMATERIAL& rMat, const int nPartsID, const int nMatID);	// マテリアル設定
@@ -104,6 +106,7 @@ private:
 
 	// メンバ変数
 	CMultiModel	*m_apMultiModel[motion::MAX_PARTS];	// モデルの情報
+	CCollSphere	*m_apCollision[motion::MAX_PARTS];	// 円判定クラス
 	CMotion		*m_pMotion;		// モーションの情報
 	D3DXMATRIX	m_mtxWorld;		// ワールドマトリックス
 	D3DXVECTOR3	m_pos;			// 位置

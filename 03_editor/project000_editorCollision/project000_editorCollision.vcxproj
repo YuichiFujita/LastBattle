@@ -154,6 +154,7 @@
     <ClCompile Include="anim2D.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="collision.cpp" />
+    <ClCompile Include="collSphere.cpp" />
     <ClCompile Include="debug.cpp" />
     <ClCompile Include="debugCollSphere.cpp" />
     <ClCompile Include="debugproc.cpp" />
@@ -227,6 +228,7 @@
     <ClInclude Include="anim2D.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision.h" />
+    <ClInclude Include="collSphere.h" />
     <ClInclude Include="debug.h" />
     <ClInclude Include="debugCollSphere.h" />
     <ClInclude Include="debugproc.h" />

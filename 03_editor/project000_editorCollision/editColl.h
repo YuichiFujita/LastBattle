@@ -38,10 +38,19 @@ public:
 
 private:
 	// メンバ関数
-	void SelectParts(void);	// パーツ選択更新
+	void SelectParts(void);			// パーツ選択更新
+	void AddColl(void);				// 判定追加更新
+	void SubColl(void);				// 判定削除更新
+	void SelectColl(void);			// 判定選択更新
+	void UpdateCollOffset(void);	// 判定オフセット更新
+	void UpdateCollRadius(void);	// 判定半径更新
+	void UpdateCollInfo(void);		// 判定情報更新
 
 	// メンバ変数
-	int m_nSelectParts;	// 選択パーツ
+	int m_nCurSelectParts;	// 現在の選択パーツ
+	int m_nOldSelectParts;	// 前回の選択パーツ
+	int m_nCurSelectColl;	// 現在の選択判定
+	int m_nOldSelectColl;	// 前回の選択判定
 };
 
 #endif	// _EDIT_COLL_H_

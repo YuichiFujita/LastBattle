@@ -12,6 +12,7 @@
 #include "renderer.h"
 #include "multiModel.h"
 #include "motion.h"
+#include "collSphere.h"
 
 //************************************************************
 //	子クラス [CObjectChara] のメンバ関数
@@ -27,6 +28,7 @@ CObjectChara::CObjectChara(const CObject::ELabel label, const CObject::EDim dime
 {
 	// メンバ変数をクリア
 	memset(&m_apMultiModel[0], 0, sizeof(m_apMultiModel));	// モデルの情報
+	memset(&m_apCollision[0], 0, sizeof(m_apCollision));	// 当たり判定の情報
 	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 }
 
@@ -45,6 +47,7 @@ HRESULT CObjectChara::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_apMultiModel[0], 0, sizeof(m_apMultiModel));	// モデルの情報
+	memset(&m_apCollision[0], 0, sizeof(m_apCollision));	// 当たり判定の情報
 	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 	m_pMotion	= nullptr;		// モーションの情報
 	m_pos		= VEC3_ZERO;	// 位置
@@ -75,6 +78,9 @@ void CObjectChara::Uninit(void)
 
 		// マルチモデルの終了
 		SAFE_UNINIT(m_apMultiModel[nCntObjectChara]);
+
+		// 当たり判定の終了
+		SAFE_REF_RELEASE(m_apCollision[nCntObjectChara]);
 	}
 
 	// モーションの破棄
@@ -94,6 +100,13 @@ void CObjectChara::Update(void)
 
 		// モーションの更新
 		m_pMotion->Update();
+	}
+
+	for (int nCntObjectChara = 0; nCntObjectChara < m_nNumModel; nCntObjectChara++)
+	{ // パーツの最大数分繰り返す
+
+		// 当たり判定の更新
+		m_apCollision[nCntObjectChara]->Update();
 	}
 }
 
@@ -275,6 +288,9 @@ void CObjectChara::SetPartsInfo
 		// モデルの生成
 		m_apMultiModel[nID] = CMultiModel::Create(rPos, rRot);
 
+		// 当たり判定の生成
+		m_apCollision[nID] = CCollSphere::Create(m_apMultiModel[nID]);
+
 		// モデルの原点位置・向きを設定
 		m_pMotion->SetOriginPosition(rPos, nID);
 		m_pMotion->SetOriginRotation(rRot, nID);
@@ -411,6 +427,20 @@ CMultiModel *CObjectChara::GetMultiModel(const int nPartsID) const
 		return m_apMultiModel[nPartsID];
 	}
 	else { assert(false); return m_apMultiModel[0]; }
+}
+
+//============================================================
+//	当たり判定取得処理
+//============================================================
+CCollSphere *CObjectChara::GetCollision(const int nPartsID) const
+{
+	if (nPartsID < m_nNumModel)
+	{ // 使用可能なインデックスの場合
+
+		// 当たり判定の情報を返す
+		return m_apCollision[nPartsID];
+	}
+	else { assert(false); return m_apCollision[0]; }
 }
 
 //============================================================
