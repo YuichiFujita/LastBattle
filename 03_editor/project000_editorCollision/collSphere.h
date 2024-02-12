@@ -18,8 +18,11 @@
 //************************************************************
 //	前方宣言
 //************************************************************
-class CDebugCollSphere;	// 球体判定デバッグ表示クラス
 class CObject;	// オブジェクトクラス
+
+#if _DEBUG
+class CDebugCollSphere;	// 球体判定デバッグ表示クラス
+#endif	// _DEBUG
 
 //************************************************************
 //	クラス定義
@@ -37,9 +40,12 @@ public:
 	// 判定情報構造体
 	struct SInfo
 	{
-		CDebugCollSphere *pVisual;	// 判定表示
 		D3DXVECTOR3 offset;	// 判定位置オフセット
 		float fRadius;		// 判定半径
+
+#if _DEBUG
+		CDebugCollSphere *pVisual;	// 判定表示
+#endif	// _DEBUG
 	};
 
 	// メンバ関数

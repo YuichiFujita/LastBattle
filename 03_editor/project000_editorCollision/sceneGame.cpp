@@ -64,6 +64,8 @@ HRESULT CSceneGame::Init(void)
 	// シーンの初期化
 	CScene::Init();	// ステージ・プレイヤーの生成
 
+#if _DEBUG
+
 	// エディットの生成
 	m_pEdit = CEdit::Create(CEdit::MODE_PLAY);
 	if (m_pEdit == nullptr)
@@ -73,6 +75,8 @@ HRESULT CSceneGame::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+
+#endif	// _DEBUG
 
 	// ポーズの生成
 	m_pPause = CPause::Create();
@@ -93,6 +97,10 @@ HRESULT CSceneGame::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
+
+	// 操作カメラを設定
+	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+	pCamera->SetState(CCamera::STATE_CONTROL);		// 操作カメラ設定
 
 	// 成功を返す
 	return S_OK;
@@ -121,11 +129,14 @@ void CSceneGame::Uninit(void)
 //============================================================
 void CSceneGame::Update(void)
 {
-	// エディットの更新
-	assert(m_pEdit != nullptr);
-	m_pEdit->DrawEditControl();
-	m_pEdit->DrawEditData();
-	m_pEdit->Update();
+	if (m_pEdit != nullptr)
+	{ // 使用中の場合
+
+		// エディットの更新
+		m_pEdit->DrawEditControl();
+		m_pEdit->DrawEditData();
+		m_pEdit->Update();
+	}
 
 	// ポーズの更新
 	assert(m_pPause != nullptr);
@@ -208,9 +219,17 @@ void CSceneGame::SetEdit(CEdit *pEdit)
 //============================================================
 CEdit *CSceneGame::GetEdit(void)
 {
+#if _DEBUG
+
 	// インスタンス未使用
 	assert(m_pEdit != nullptr);
 
 	// エディットのポインタを返す
 	return m_pEdit;
+
+#else	// NDEBUG
+
+	return nullptr;
+
+#endif	// _DEBUG
 }

@@ -41,7 +41,7 @@ CDebugCollSphere::~CDebugCollSphere()
 //============================================================
 HRESULT CDebugCollSphere::Init(void)
 {
-	// オブジェクトメッシュドームの初期化
+	// オブジェクトメッシュスフィアの初期化
 	if (FAILED(CObjectMeshSphere::Init()))
 	{ // 初期化に失敗した場合
 
@@ -59,7 +59,7 @@ HRESULT CDebugCollSphere::Init(void)
 //============================================================
 void CDebugCollSphere::Uninit(void)
 {
-	// オブジェクトメッシュドームの終了
+	// オブジェクトメッシュスフィアの終了
 	CObjectMeshSphere::Uninit();
 }
 
@@ -68,7 +68,7 @@ void CDebugCollSphere::Uninit(void)
 //============================================================
 void CDebugCollSphere::Update(void)
 {
-	// オブジェクトメッシュドームの更新
+	// オブジェクトメッシュスフィアの更新
 	CObjectMeshSphere::Update();
 }
 
@@ -77,7 +77,7 @@ void CDebugCollSphere::Update(void)
 //============================================================
 void CDebugCollSphere::Draw(void)
 {
-	// オブジェクトメッシュドームの描画
+	// オブジェクトメッシュスフィアの描画
 	CObjectMeshSphere::Draw();
 }
 

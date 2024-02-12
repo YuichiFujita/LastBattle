@@ -10,9 +10,7 @@
 #include "edit.h"
 #include "editPlay.h"
 #include "editColl.h"
-
 #include "manager.h"
-#include "camera.h"
 #include "sceneGame.h"
 
 //************************************************************
@@ -46,7 +44,8 @@ static_assert(NUM_ARRAY(MODE_NAME) == CEdit::MODE_MAX, "ERROR : Mode Count Misma
 //============================================================
 CEdit::CEdit() : m_mode(MODE_PLAY)
 {
-
+#if _DEBUG
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -54,7 +53,8 @@ CEdit::CEdit() : m_mode(MODE_PLAY)
 //============================================================
 CEdit::~CEdit()
 {
-
+#if _DEBUG
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -62,15 +62,15 @@ CEdit::~CEdit()
 //============================================================
 HRESULT CEdit::Init(void)
 {
+#if _DEBUG
+
 	// メンバ変数を初期化
 	m_mode = MODE_PLAY;	// エディットモード
 
-	// 操作カメラを設定
-	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
-	pCamera->SetState(CCamera::STATE_CONTROL);		// 操作カメラ設定
-
 	// 成功を返す
 	return S_OK;
+
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -78,7 +78,8 @@ HRESULT CEdit::Init(void)
 //============================================================
 void CEdit::Uninit(void)
 {
-
+#if _DEBUG
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -86,12 +87,16 @@ void CEdit::Uninit(void)
 //============================================================
 void CEdit::Update(void)
 {
+#if _DEBUG
+
 	if (GET_INPUTKEY->IsTrigger(KEY_MODE_CHANGE))
 	{
 		CEdit *pEdit = CSceneGame::GetEdit();	// エディット取得
 		CEdit::NextMode(pEdit);					// エディット変更
 		CSceneGame::SetEdit(pEdit);				// エディット設定
 	}
+
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -99,7 +104,8 @@ void CEdit::Update(void)
 //============================================================
 void CEdit::Draw(void)
 {
-
+#if _DEBUG
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -107,6 +113,8 @@ void CEdit::Draw(void)
 //============================================================
 void CEdit::DrawEditControl(void)
 {
+#if _DEBUG
+
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグの情報
 
@@ -114,6 +122,8 @@ void CEdit::DrawEditControl(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "[エディット操作]　\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "エディットモード変更：[%s]\n", NAME_MODE_CHANGE);
+
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -121,6 +131,8 @@ void CEdit::DrawEditControl(void)
 //============================================================
 void CEdit::DrawEditData(void)
 {
+#if _DEBUG
+
 	// ポインタを宣言
 	CDebugProc *pDebug = CManager::GetInstance()->GetDebugProc();	// デバッグの情報
 
@@ -128,6 +140,8 @@ void CEdit::DrawEditData(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "[エディット情報]　\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "======================================\n");
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%s：[エディットモード]\n", MODE_NAME[m_mode]);
+
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -135,13 +149,23 @@ void CEdit::DrawEditData(void)
 //============================================================
 CEdit::EMode CEdit::GetMode(void)
 {
+#if _DEBUG
+
 	// エディットモードを返す
 	return m_mode;
+
+#else	// NDEBUG
+
+	return (EMode)0;
+
+#endif	// _DEBUG
 }
 
 //============================================================
 //	生成処理
 //============================================================
+#if _DEBUG
+
 CEdit *CEdit::Create(const EMode mode)
 {
 	// エディットの生成
@@ -186,9 +210,20 @@ CEdit *CEdit::Create(const EMode mode)
 	}
 }
 
+#else	// NDEBUG
+
+CEdit *CEdit::Create(const EMode /*mode*/)
+{
+	return nullptr;
+}
+
+#endif	// _DEBUG
+
 //============================================================
 //	破棄処理
 //============================================================
+#if _DEBUG
+
 void CEdit::Release(CEdit *&prEdit)
 {
 	// エディットの終了
@@ -199,9 +234,20 @@ void CEdit::Release(CEdit *&prEdit)
 	SAFE_DELETE(prEdit);
 }
 
+#else	// NDEBUG
+
+void CEdit::Release(CEdit *& /*prEdit*/)
+{
+
+}
+
+#endif	// _DEBUG
+
 //============================================================
 //	次のモード設定処理
 //============================================================
+#if _DEBUG
+
 void CEdit::NextMode(CEdit *&prEdit)
 {
 	EMode nextMode = (EMode)((prEdit->m_mode + 1) % MODE_MAX);	// 次のモード
@@ -214,3 +260,12 @@ void CEdit::NextMode(CEdit *&prEdit)
 	assert(prEdit == nullptr);
 	prEdit = CEdit::Create(nextMode);
 }
+
+#else	// NDEBUG
+
+void CEdit::NextMode(CEdit *& /*prEdit*/)
+{
+
+}
+
+#endif	// _DEBUG

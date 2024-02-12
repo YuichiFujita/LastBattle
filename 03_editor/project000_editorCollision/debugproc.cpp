@@ -71,7 +71,7 @@ HRESULT CDebugProc::Init(void)
 #else
 
 	// ‰Šú•\¦İ’è
-	m_bDisp = true;
+	m_bDisp = false;
 
 #endif
 

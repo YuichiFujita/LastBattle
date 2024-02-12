@@ -57,6 +57,8 @@ void CCollSphere::Uninit(void)
 //============================================================
 void CCollSphere::Update(void)
 {
+#if _DEBUG
+
 	for (auto info : m_coll)
 	{ // 全要素分繰り返す
 
@@ -71,6 +73,8 @@ void CCollSphere::Update(void)
 		info.pVisual->SetVec3Position(posColl);	// 位置
 		info.pVisual->SetRadius(info.fRadius);	// 半径
 	}
+
+#endif	// _DEBUG
 }
 
 //============================================================
@@ -120,6 +124,8 @@ void CCollSphere::AddColl
 	tempInfo.offset  = rOffset;	// オフセット
 	tempInfo.fRadius = fRadius;	// 半径
 
+#if _DEBUG
+
 	// オフセットマトリックスを求める
 	D3DXMATRIX mtxParent = m_pParent->GetMtxWorld();	// 親マトリックス
 	D3DXMATRIX mtxOffset;	// オフセット計算マトリックス
@@ -129,6 +135,8 @@ void CCollSphere::AddColl
 	// オフセットワールド座標を見た目に設定
 	D3DXVECTOR3 posColl = useful::GetMtxWorldPosition(mtxOffset);
 	tempInfo.pVisual = CDebugCollSphere::Create(posColl, fRadius);
+
+#endif	// _DEBUG
 
 	// 配列最後尾に追加情報を設定
 	m_coll.push_back(tempInfo);
@@ -142,8 +150,12 @@ void CCollSphere::SubColl(const int nID)
 	auto info = m_coll.begin();	// 配列の先頭イテレーター
 	info += nID;	// イテレーターをインデックス分動かす
 
+#if _DEBUG
+
 	// デバッグ用の見た目を終了
 	SAFE_UNINIT(info->pVisual);
+
+#endif	// _DEBUG
 
 	// 配列の要素から削除
 	m_coll.erase(info);
