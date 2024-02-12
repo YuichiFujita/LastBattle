@@ -103,14 +103,14 @@ HRESULT CSceneGame::Init(void)
 //============================================================
 void CSceneGame::Uninit(void)
 {
-	// ゲームマネージャーの破棄
-	SAFE_REF_RELEASE(m_pGameManager);
+	// エディットの破棄
+	SAFE_REF_RELEASE(m_pEdit);
 
 	// ポーズの破棄
 	SAFE_REF_RELEASE(m_pPause);
 
-	// エディットの破棄
-	SAFE_REF_RELEASE(m_pEdit);
+	// ゲームマネージャーの破棄
+	SAFE_REF_RELEASE(m_pGameManager);
 
 	// シーンの終了
 	CScene::Uninit();
@@ -121,17 +121,19 @@ void CSceneGame::Uninit(void)
 //============================================================
 void CSceneGame::Update(void)
 {
-	// ゲームマネージャーの更新
-	assert(m_pGameManager != nullptr);
-	m_pGameManager->Update();
+	// エディットの更新
+	assert(m_pEdit != nullptr);
+	m_pEdit->DrawEditControl();
+	m_pEdit->DrawEditData();
+	m_pEdit->Update();
 
 	// ポーズの更新
 	assert(m_pPause != nullptr);
 	m_pPause->Update();
 
-	// エディットの更新
-	assert(m_pEdit != nullptr);
-	m_pEdit->Update();
+	// ゲームマネージャーの更新
+	assert(m_pGameManager != nullptr);
+	m_pGameManager->Update();
 
 	if (!m_pPause->IsPause() && m_pEdit->GetMode() == CEdit::MODE_PLAY)
 	{ // ポーズ中ではない且つ、プレイ状態の場合
@@ -154,6 +156,7 @@ void CSceneGame::Update(void)
 	}
 
 #endif	// _DEBUG
+
 }
 
 //============================================================
@@ -186,6 +189,18 @@ CPause *CSceneGame::GetPause(void)
 
 	// ポーズのポインタを返す
 	return m_pPause;
+}
+
+//============================================================
+//	エディット設定処理
+//============================================================
+void CSceneGame::SetEdit(CEdit *pEdit)
+{
+	// インスタンス未使用
+	assert(pEdit != nullptr);
+
+	// エディットのポインタを設定
+	m_pEdit = pEdit;
 }
 
 //============================================================

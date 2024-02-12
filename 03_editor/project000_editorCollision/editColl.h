@@ -33,6 +33,15 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
+	void DrawEditControl(void) override;	// エディット操作表示
+	void DrawEditData(void) override;		// エディット情報表示
+
+private:
+	// メンバ関数
+	void SelectParts(void);	// パーツ選択更新
+
+	// メンバ変数
+	int m_nSelectParts;	// 選択パーツ
 };
 
 #endif	// _EDIT_COLL_H_

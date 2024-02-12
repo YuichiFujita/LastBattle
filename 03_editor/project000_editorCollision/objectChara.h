@@ -73,9 +73,12 @@ public:
 	D3DXVECTOR3 GetPartsPosition(const int nPartsID) const;				// パーツ位置取得
 	void SetPartsRotation(const int nPartsID, const D3DXVECTOR3& rRot);	// パーツ向き設定
 	D3DXVECTOR3 GetPartsRotation(const int nPartsID) const;				// パーツ向き取得
-	CMultiModel *GetMultiModel(const int nPartsID) const;				// マルチモデル取得
+
+	CMultiModel *GetMultiModel(const int nPartsID) const;	// マルチモデル取得
+	CMotion *GetMotion(void) const;							// モーション取得
 
 	void SetMaterial(const D3DXMATERIAL& rMat, const int nPartsID, const int nMatID);	// マテリアル設定
+	void SetPartsMaterial(const D3DXMATERIAL& rMat, const int nPartsID);				// パーツマテリアル設定
 	void SetAlpha(const float fAlpha);		// 透明度設定
 	float GetAlpha(void) const;				// 透明度取得
 	float GetMaxAlpha(void) const;			// 最大透明度取得

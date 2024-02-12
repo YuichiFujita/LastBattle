@@ -275,6 +275,10 @@ void CObjectChara::SetPartsInfo
 		// モデルの生成
 		m_apMultiModel[nID] = CMultiModel::Create(rPos, rRot);
 
+		// モデルの原点位置・向きを設定
+		m_pMotion->SetOriginPosition(rPos, nID);
+		m_pMotion->SetOriginRotation(rRot, nID);
+
 		// モデルを割当
 		m_apMultiModel[nID]->BindModel(pFileName);
 
@@ -410,6 +414,18 @@ CMultiModel *CObjectChara::GetMultiModel(const int nPartsID) const
 }
 
 //============================================================
+//	モーション取得処理
+//============================================================
+CMotion *CObjectChara::GetMotion(void) const
+{
+	// インスタンス未使用
+	assert(m_pMotion != nullptr);
+
+	// モーションの情報を返す
+	return m_pMotion;
+}
+
+//============================================================
 //	マテリアルの設定処理
 //============================================================
 void CObjectChara::SetMaterial(const D3DXMATERIAL& rMat, const int nPartsID, const int nMatID)
@@ -419,6 +435,20 @@ void CObjectChara::SetMaterial(const D3DXMATERIAL& rMat, const int nPartsID, con
 
 		// 引数のマテリアルを設定
 		m_apMultiModel[nPartsID]->SetMaterial(rMat, nMatID);
+	}
+	else { assert(false); }
+}
+
+//============================================================
+//	パーツマテリアルの設定処理
+//============================================================
+void CObjectChara::SetPartsMaterial(const D3DXMATERIAL & rMat, const int nPartsID)
+{
+	if (nPartsID < m_nNumModel)
+	{ // 使用可能なインデックスの場合
+
+		// 引数のマテリアルを設定
+		m_apMultiModel[nPartsID]->SetAllMaterial(rMat);
 	}
 	else { assert(false); }
 }

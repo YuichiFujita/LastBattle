@@ -44,7 +44,9 @@ public:
 	// 静的メンバ関数
 	static CGameManager	*GetGameManager(void);	// ゲームマネージャー取得
 	static CPause		*GetPause(void);		// ポーズ取得
-	static CEdit		*GetEdit(void);			// エディット取得
+
+	static void  SetEdit(CEdit *pEdit);	// エディット設定
+	static CEdit *GetEdit(void);		// エディット取得
 
 private:
 	// 静的メンバ変数

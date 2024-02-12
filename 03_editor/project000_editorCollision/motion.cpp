@@ -241,6 +241,54 @@ void CMotion::Set(const int nType)
 }
 
 //============================================================
+//	再設定処理
+//============================================================
+void CMotion::Reset(void)
+{
+	// モーション情報を初期化
+	m_info.nType		 = 0;		// モーション種類
+	m_info.nKey			 = 0;		// モーションキー番号
+	m_info.nKeyCounter	 = 0;		// モーションキーカウンター
+	m_info.nWholeCounter = 0;		// モーション全体カウンター
+	m_info.bFinish		 = false;	// モーション終了状況
+
+	// パーツの位置の初期化
+	for (int nCntKey = 0; nCntKey < m_nNumModel; nCntKey++)
+	{ // モデルのパーツ数分繰り返す
+
+		// 原点位置と原点向きを設定
+		m_ppModel[nCntKey]->SetVec3Position(m_info.aOriginKey[nCntKey].pos);
+		m_ppModel[nCntKey]->SetVec3Rotation(m_info.aOriginKey[nCntKey].rot);
+	}
+}
+
+//============================================================
+//	原点位置の設定処理
+//============================================================
+void CMotion::SetOriginPosition(const D3DXVECTOR3 &rPos, const int nParts)
+{
+	if (nParts > NONE_IDX && nParts < motion::MAX_PARTS)
+	{
+		// 原点位置を設定
+		m_info.aOriginKey[nParts].pos = rPos;
+	}
+	else { assert(false); }
+}
+
+//============================================================
+//	原点向きの設定処理
+//============================================================
+void CMotion::SetOriginRotation(const D3DXVECTOR3 &rRot, const int nParts)
+{
+	if (nParts > NONE_IDX && nParts < motion::MAX_PARTS)
+	{
+		// 原点向きを設定
+		m_info.aOriginKey[nParts].rot = rRot;
+	}
+	else { assert(false); }
+}
+
+//============================================================
 //	モーション情報の設定処理
 //============================================================
 void CMotion::SetInfo(const SMotionInfo info)

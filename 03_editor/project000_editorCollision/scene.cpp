@@ -68,11 +68,6 @@ HRESULT CScene::Init(void)
 	// プレイヤーの生成
 	m_pPlayer = CPlayer::Create();
 
-	// 追従カメラを設定
-	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
-	pCamera->SetState(CCamera::STATE_FOLLOW);		// 追従カメラ設定
-	pCamera->SetDestFollow();						// 目標位置に補正
-
 	// 成功を返す
 	return S_OK;
 }

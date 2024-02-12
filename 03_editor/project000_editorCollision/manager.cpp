@@ -261,15 +261,6 @@ void CManager::Uninit(void)
 	SAFE_REF_RELEASE(m_pDebug);
 
 	//--------------------------------------------------------
-	//	情報の破棄
-	//--------------------------------------------------------
-	// テクスチャの破棄
-	SAFE_REF_RELEASE(m_pTexture);
-
-	// モデルの破棄
-	SAFE_REF_RELEASE(m_pModel);
-
-	//--------------------------------------------------------
 	//	システムの破棄
 	//--------------------------------------------------------
 	// データ保存マネージャーの破棄
@@ -299,11 +290,20 @@ void CManager::Uninit(void)
 	// キーボードの破棄
 	SAFE_REF_RELEASE(m_pKeyboard);
 
-	// レンダラーの破棄
-	SAFE_REF_RELEASE(m_pRenderer);
-
 	// タイムの破棄
 	SAFE_REF_RELEASE(m_pTime);
+
+	//--------------------------------------------------------
+	//	情報の破棄
+	//--------------------------------------------------------
+	// テクスチャの破棄
+	SAFE_REF_RELEASE(m_pTexture);
+
+	// モデルの破棄
+	SAFE_REF_RELEASE(m_pModel);
+
+	// レンダラーの破棄
+	SAFE_REF_RELEASE(m_pRenderer);
 
 	// オブジェクトの全破棄
 	CObject::ReleaseAll();
