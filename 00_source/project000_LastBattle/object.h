@@ -88,6 +88,7 @@ public:
 		LABEL_SCENERY,		// 景色
 		LABEL_SKY,			// 空
 		LABEL_LIQUID,		// 液体
+		LABEL_DEBUG,		// デバッグ
 		LABEL_MAX			// この列挙型の総数
 	};
 

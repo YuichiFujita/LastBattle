@@ -78,6 +78,7 @@ public:
 	struct SInfo
 	{
 		SMotionInfo aMotionInfo[motion::MAX_MOTION];	// モーション情報
+		SKey aOriginKey[motion::MAX_PARTS];	// キーモデル原点情報
 		int  nNumType;		// モーション種類総数
 		int  nType;			// モーション種類
 		int  nKey;			// モーションキー番号
@@ -93,6 +94,8 @@ public:
 	void UpdateMove(void);		// 移動更新
 	void UpdateParts(void);		// パーツ更新
 	void Set(const int nType);	// 設定
+	void SetOriginPosition(const D3DXVECTOR3& rPos, const int nParts);	// 原点位置の設定
+	void SetOriginRotation(const D3DXVECTOR3& rRot, const int nParts);	// 原点向きの設定
 	void SetInfo(const SMotionInfo info);					// モーション情報設定
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
 	void SetModel(CMultiModel **ppModel, const int nNum);	// モデル情報設定

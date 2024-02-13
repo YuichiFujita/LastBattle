@@ -110,19 +110,23 @@ void CMotion::UpdateMove(void)
 	float fRate = 1.0f / (float)m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].nFrame;	// キーフレーム割合
 	D3DXVECTOR3 moveRate = m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].move * fRate;	// フレーム移動量
 
-	// 移動量をマトリックスに反映
-	D3DXMATRIX mtxMove;	// マトリックス計算用
-	D3DXMatrixTranslation(&mtxMove, moveRate.x, moveRate.y, moveRate.z);
-	D3DXMatrixMultiply(&mtxChara, &mtxMove, &mtxChara);
+	if (m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].nFrame > 0)
+	{ // フレームが設定されている場合
 
-	// 移動量を与えたマトリックスのワールド座標を求める
-	posCurChara = useful::GetMtxWorldPosition(mtxChara);
+		// 移動量をマトリックスに反映
+		D3DXMATRIX mtxMove;	// マトリックス計算用
+		D3DXMatrixTranslation(&mtxMove, moveRate.x, moveRate.y, moveRate.z);
+		D3DXMatrixMultiply(&mtxChara, &mtxMove, &mtxChara);
 
-	// 過去と現在の位置から移動量を求め、位置に与える
-	posSetChara += posOldChara - posCurChara;
+		// 移動量を与えたマトリックスのワールド座標を求める
+		posCurChara = useful::GetMtxWorldPosition(mtxChara);
 
-	// 位置を反映
-	m_pChara->SetVec3Position(posSetChara);
+		// 過去と現在の位置から移動量を求め、位置に与える
+		posSetChara += posOldChara - posCurChara;
+
+		// 位置を反映
+		m_pChara->SetVec3Position(posSetChara);
+	}
 }
 
 //============================================================
@@ -234,6 +238,34 @@ void CMotion::Set(const int nType)
 		m_ppModel[nCntKey]->SetVec3Position(m_info.aMotionInfo[nType].aKeyInfo[m_info.nKey].aKey[nCntKey].pos);
 		m_ppModel[nCntKey]->SetVec3Rotation(m_info.aMotionInfo[nType].aKeyInfo[m_info.nKey].aKey[nCntKey].rot);
 	}
+}
+
+//============================================================
+//	原点位置の設定処理
+//============================================================
+void CMotion::SetOriginPosition(const D3DXVECTOR3 &rPos, const int nParts)
+{
+	if (nParts > NONE_IDX && nParts < motion::MAX_PARTS)
+	{ // パーツ数がオーバーしていない場合
+
+		// 原点位置を設定
+		m_info.aOriginKey[nParts].pos = rPos;
+	}
+	else { assert(false); }
+}
+
+//============================================================
+//	原点向きの設定処理
+//============================================================
+void CMotion::SetOriginRotation(const D3DXVECTOR3 &rRot, const int nParts)
+{
+	if (nParts > NONE_IDX && nParts < motion::MAX_PARTS)
+	{ // パーツ数がオーバーしていない場合
+
+		// 原点向きを設定
+		m_info.aOriginKey[nParts].rot = rRot;
+	}
+	else { assert(false); }
 }
 
 //============================================================

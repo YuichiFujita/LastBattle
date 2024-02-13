@@ -15,6 +15,8 @@
 #include "enemyBossDragon.h"
 #include "enemyMiniDragon.h"
 
+#include "collSphere.h"
+
 //************************************************************
 //	定数宣言
 //************************************************************
@@ -44,9 +46,10 @@ namespace
 //	静的メンバ変数宣言
 //************************************************************
 CListManager<CEnemy> *CEnemy::m_pList = nullptr;			// オブジェクトリスト
-CEnemy::SPartsInfo	CEnemy::m_aPartsInfo[TYPE_MAX]	= {};	// パーツ情報
 CMotion::SInfo		CEnemy::m_aMotionInfo[TYPE_MAX]	= {};	// モーション情報
-CEnemy::SStatusInfo	CEnemy::m_aStatusInfo[TYPE_MAX] = {};	// ステータス情報
+CEnemy::SPartsInfo	CEnemy::m_aPartsInfo[TYPE_MAX]	= {};	// パーツ情報
+CEnemy::SStatusInfo	CEnemy::m_aStatusInfo[TYPE_MAX]	= {};	// ステータス情報
+CEnemy::SCollInfo	CEnemy::m_aCollInfo[TYPE_MAX]	= {};	// 当たり判定情報
 CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =		// 状態更新関数
 {
 	&CEnemy::UpdateNone,	// なにもしない状態時の更新
@@ -128,6 +131,16 @@ HRESULT CEnemy::Init(void)
 			m_parts.aInfo[nCntEnemy].rot,		// 向き
 			GetModelFileName(nCntEnemy)			// ファイル名
 		);
+
+		// 判定情報の設定
+		CCollSphere *pColl = GetCollision(nCntEnemy);	// 円判定情報
+		std::vector<CCollSphere::SInfo> vector = m_aCollInfo[m_type].apInfo[nCntEnemy]->GetVector();	// 円判定配列
+		for (auto info : vector)
+		{ // 配列の要素数分繰り返す
+
+			// 判定を追加
+			pColl->AddColl(info.offset, info.fRadius);
+		}
 	}
 
 	// モデル情報の設定
@@ -352,6 +365,23 @@ CEnemy::SStatusInfo CEnemy::GetStatusInfo(const int nType)
 {
 	// 引数の種類のステータス情報を返す
 	return m_aStatusInfo[nType];
+}
+
+//============================================================
+//	セットアップ破棄処理
+//============================================================
+void CEnemy::ReleaseSetup(void)
+{
+	for (int nCntType = 0; nCntType < TYPE_MAX; nCntType++)
+	{ // 種類の総数分繰り返す
+
+		for (int nCntParts = 0; nCntParts < motion::MAX_PARTS; nCntParts++)
+		{ // パーツの最大数分繰り返す
+
+			// 判定情報を破棄
+			SAFE_REF_RELEASE(m_aCollInfo[nCntType].apInfo[nCntParts]);
+		}
+	}
 }
 
 //============================================================
@@ -789,10 +819,13 @@ void CEnemy::LoadAllSetup(void)
 void CEnemy::LoadSetup(const EType typeID)
 {
 	// 変数を宣言
-	CMotion::SMotionInfo info;		// ポーズの代入用
+	std::vector<CCollSphere::SInfo> vector;	// 円判定配列
+	CMotion::SMotionInfo infoKey;	// キーの代入用
+	CCollSphere::SInfo infoColl;	// 判定情報
 	D3DXVECTOR3 pos = VEC3_ZERO;	// 位置の代入用
 	D3DXVECTOR3 rot = VEC3_ZERO;	// 向きの代入用
 	int nID			= 0;			// インデックスの代入用
+	int nParts		= 0;			// パーツ番号
 	int nNowPose	= 0;			// 現在のポーズ番号
 	int nNowKey		= 0;			// 現在のキー番号
 	int nWeapon		= 0;			// 武器表示のON/OFFの変換用
@@ -806,9 +839,10 @@ void CEnemy::LoadSetup(const EType typeID)
 	FILE *pFile;	// ファイルポインタ
 
 	// 引数の静的メンバ変数の情報をクリア
-	memset(&m_aStatusInfo[typeID],	0, sizeof(m_aStatusInfo[typeID]));	// ステータス情報
-	memset(&m_aPartsInfo[typeID],	0, sizeof(m_aPartsInfo[typeID]));	// パーツ情報
 	memset(&m_aMotionInfo[typeID],	0, sizeof(m_aMotionInfo[typeID]));	// モーション情報
+	memset(&m_aPartsInfo[typeID],	0, sizeof(m_aPartsInfo[typeID]));	// パーツ情報
+	memset(&m_aStatusInfo[typeID],	0, sizeof(m_aStatusInfo[typeID]));	// ステータス情報
+	memset(&m_aCollInfo[typeID],	0, sizeof(m_aCollInfo[typeID]));	// 当たり判定情報
 
 	// ファイルを読み込み形式で開く
 	pFile = fopen(SETUP_TXT[typeID], "r");
@@ -862,7 +896,7 @@ void CEnemy::LoadSetup(const EType typeID)
 						fscanf(pFile, "%s", &aString[0]);							// = を読み込む (不要)
 						fscanf(pFile, "%f", &m_aStatusInfo[typeID].fCollRadius);	// 当たり判定の半径を読み込む
 					}
-				} while (strcmp(&aString[0], "END_STATUSSET") != 0);		// 読み込んだ文字列が END_STATUSSET ではない場合ループ
+				} while (strcmp(&aString[0], "END_STATUSSET") != 0);	// 読み込んだ文字列が END_STATUSSET ではない場合ループ
 			}
 
 			// キャラクターの設定
@@ -920,6 +954,73 @@ void CEnemy::LoadSetup(const EType typeID)
 				} while (strcmp(&aString[0], "END_CHARACTERSET") != 0);		// 読み込んだ文字列が END_CHARACTERSET ではない場合ループ
 			}
 
+			// 当たり判定の設定
+			else if (strcmp(&aString[0], "COLLISIONSET") == 0)
+			{ // 読み込んだ文字列が COLLISIONSET の場合
+
+				do
+				{ // 読み込んだ文字列が END_COLLISIONSET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "COLLSET") == 0)
+					{ // 読み込んだ文字列が COLLSET の場合
+
+						do
+						{ // 読み込んだ文字列が END_COLLSET ではない場合ループ
+
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+
+							if (strcmp(&aString[0], "PARTS") == 0)
+							{ // 読み込んだ文字列が PARTS の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nParts);		// パーツ番号を読み込む
+
+								// 円判定情報を設定
+								m_aCollInfo->apInfo[nParts] = CCollSphere::Create(nullptr);
+
+								// 円判定配列を設定
+								vector = m_aCollInfo->apInfo[nParts]->GetVector();
+							}
+							else if (strcmp(&aString[0], "COLL") == 0)
+							{ // 読み込んだ文字列が COLL の場合
+
+								do
+								{ // 読み込んだ文字列が END_COLL ではない場合ループ
+
+									// ファイルから文字列を読み込む
+									fscanf(pFile, "%s", &aString[0]);
+
+									if (strcmp(&aString[0], "OFFSET") == 0)
+									{ // 読み込んだ文字列が OFFSET の場合
+
+										fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+										fscanf(pFile, "%f", &infoColl.offset.x);	// Xオフセットを読み込む
+										fscanf(pFile, "%f", &infoColl.offset.y);	// Yオフセットを読み込む
+										fscanf(pFile, "%f", &infoColl.offset.z);	// Zオフセットを読み込む
+									}
+									else if (strcmp(&aString[0], "RADIUS") == 0)
+									{ // 読み込んだ文字列が RADIUS の場合
+
+										fscanf(pFile, "%s", &aString[0]);		// = を読み込む (不要)
+										fscanf(pFile, "%f", &infoColl.fRadius);	// 半径を読み込む
+									}
+								} while (strcmp(&aString[0], "END_COLL") != 0);	// 読み込んだ文字列が END_COLL ではない場合ループ
+
+								// 判定情報を配列に追加
+								vector.push_back(infoColl);
+							}
+						} while (strcmp(&aString[0], "END_COLLSET") != 0);	// 読み込んだ文字列が END_COLLSET ではない場合ループ
+
+						// 判定情報の配列を設定
+						m_aCollInfo->apInfo[nParts]->SetVector(vector);
+					}
+				} while (strcmp(&aString[0], "END_COLLISIONSET") != 0);		// 読み込んだ文字列が END_COLLISIONSET ではない場合ループ
+			}
+
 			// モーションの設定
 			else if (strcmp(&aString[0], "MOTIONSET") == 0)
 			{ // 読み込んだ文字列が MOTIONSET の場合
@@ -928,19 +1029,19 @@ void CEnemy::LoadSetup(const EType typeID)
 				nNowPose = 0;
 
 				// ポーズ代入用の変数を初期化
-				memset(&info, 0, sizeof(info));
+				memset(&infoKey, 0, sizeof(infoKey));
 
 				// キャンセルフレームをなしにする
-				info.nCancelFrame = NONE_IDX;
+				infoKey.nCancelFrame = NONE_IDX;
 
 				// 攻撃判定情報を初期化
-				info.collLeft.nMin  = NONE_IDX;
-				info.collLeft.nMax  = NONE_IDX;
-				info.collRight.nMin = NONE_IDX;
-				info.collRight.nMax = NONE_IDX;
+				infoKey.collLeft.nMin  = NONE_IDX;
+				infoKey.collLeft.nMax  = NONE_IDX;
+				infoKey.collRight.nMin = NONE_IDX;
+				infoKey.collRight.nMax = NONE_IDX;
 
 				// 武器表示をOFFにする
-				info.bWeaponDisp = false;
+				infoKey.bWeaponDisp = false;
 
 				do
 				{ // 読み込んだ文字列が END_MOTION ではない場合ループ
@@ -955,7 +1056,7 @@ void CEnemy::LoadSetup(const EType typeID)
 						fscanf(pFile, "%d", &nWeapon);		// 武器表示のON/OFFを読み込む
 
 						// 読み込んだ値をbool型に変換
-						info.bWeaponDisp = (nWeapon == 0) ? false : true;
+						infoKey.bWeaponDisp = (nWeapon == 0) ? false : true;
 					}
 					else if (strcmp(&aString[0], "LOOP") == 0)
 					{ // 読み込んだ文字列が LOOP の場合
@@ -964,33 +1065,33 @@ void CEnemy::LoadSetup(const EType typeID)
 						fscanf(pFile, "%d", &nLoop);		// ループのON/OFFを読み込む
 
 						// 読み込んだ値をbool型に変換
-						info.bLoop = (nLoop == 0) ? false : true;
+						infoKey.bLoop = (nLoop == 0) ? false : true;
 					}
 					else if (strcmp(&aString[0], "NUM_KEY") == 0)
 					{ // 読み込んだ文字列が NUM_KEY の場合
 
-						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.nNumKey);	// キーの総数を読み込む
+						fscanf(pFile, "%s", &aString[0]);		// = を読み込む (不要)
+						fscanf(pFile, "%d", &infoKey.nNumKey);	// キーの総数を読み込む
 					}
 					else if (strcmp(&aString[0], "CANCEL") == 0)
 					{ // 読み込んだ文字列が CANCEL の場合
 
 						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.nCancelFrame);	// キャンセル可能フレームを読み込む
+						fscanf(pFile, "%d", &infoKey.nCancelFrame);	// キャンセル可能フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "LEFT_COLL") == 0)
 					{ // 読み込んだ文字列が LEFT_COLL の場合
 
-						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.collLeft.nMin);	// 判定を出す開始フレームを読み込む
-						fscanf(pFile, "%d", &info.collLeft.nMax);	// 判定を消す終了フレームを読み込む
+						fscanf(pFile, "%s", &aString[0]);				// = を読み込む (不要)
+						fscanf(pFile, "%d", &infoKey.collLeft.nMin);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &infoKey.collLeft.nMax);	// 判定を消す終了フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "RIGHT_COLL") == 0)
 					{ // 読み込んだ文字列が RIGHT_COLL の場合
 
-						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.collRight.nMin);	// 判定を出す開始フレームを読み込む
-						fscanf(pFile, "%d", &info.collRight.nMax);	// 判定を消す終了フレームを読み込む
+						fscanf(pFile, "%s", &aString[0]);				// = を読み込む (不要)
+						fscanf(pFile, "%d", &infoKey.collRight.nMin);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &infoKey.collRight.nMax);	// 判定を消す終了フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "KEYSET") == 0)
 					{ // 読み込んだ文字列が KEYSET の場合
@@ -1007,16 +1108,16 @@ void CEnemy::LoadSetup(const EType typeID)
 							if (strcmp(&aString[0], "FRAME") == 0)
 							{ // 読み込んだ文字列が FRAME の場合
 
-								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
-								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nFrame);	// キーが切り替わるまでのフレーム数を読み込む
+								fscanf(pFile, "%s", &aString[0]);							// = を読み込む (不要)
+								fscanf(pFile, "%d", &infoKey.aKeyInfo[nNowPose].nFrame);	// キーが切り替わるまでのフレーム数を読み込む
 							}
 							else if (strcmp(&aString[0], "MOVE") == 0)
 							{ // 読み込んだ文字列が MOVE の場合
 
-								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
-								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.x);	// キーが切り替わるまでの移動量を読み込む
-								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.y);	// キーが切り替わるまでの移動量を読み込む
-								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.z);	// キーが切り替わるまでの移動量を読み込む
+								fscanf(pFile, "%s", &aString[0]);							// = を読み込む (不要)
+								fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].move.x);	// キーが切り替わるまでの移動量を読み込む
+								fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].move.y);	// キーが切り替わるまでの移動量を読み込む
+								fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].move.z);	// キーが切り替わるまでの移動量を読み込む
 							}
 							else if (strcmp(&aString[0], "KEY") == 0)
 							{ // 読み込んだ文字列が KEY の場合
@@ -1030,29 +1131,29 @@ void CEnemy::LoadSetup(const EType typeID)
 									if (strcmp(&aString[0], "POS") == 0)
 									{ // 読み込んだ文字列が POS の場合
 
-										fscanf(pFile, "%s", &aString[0]);									// = を読み込む (不要)
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.x);	// X位置を読み込む
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.y);	// Y位置を読み込む
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.z);	// Z位置を読み込む
+										fscanf(pFile, "%s", &aString[0]);										// = を読み込む (不要)
+										fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].aKey[nNowKey].pos.x);	// X位置を読み込む
+										fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].aKey[nNowKey].pos.y);	// Y位置を読み込む
+										fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].aKey[nNowKey].pos.z);	// Z位置を読み込む
 
 										// 読み込んだ位置にパーツの初期位置を加算
-										info.aKeyInfo[nNowPose].aKey[nNowKey].pos += m_aPartsInfo[typeID].aInfo[nNowKey].pos;
+										infoKey.aKeyInfo[nNowPose].aKey[nNowKey].pos += m_aPartsInfo[typeID].aInfo[nNowKey].pos;
 									}
 									else if (strcmp(&aString[0], "ROT") == 0)
 									{ // 読み込んだ文字列が ROT の場合
 
-										fscanf(pFile, "%s", &aString[0]);									// = を読み込む (不要)
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);	// X向きを読み込む
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);	// Y向きを読み込む
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);	// Z向きを読み込む
+										fscanf(pFile, "%s", &aString[0]);										// = を読み込む (不要)
+										fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);	// X向きを読み込む
+										fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);	// Y向きを読み込む
+										fscanf(pFile, "%f", &infoKey.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);	// Z向きを読み込む
 
 										// 読み込んだ向きにパーツの初期向きを加算
-										info.aKeyInfo[nNowPose].aKey[nNowKey].rot += m_aPartsInfo[typeID].aInfo[nNowKey].rot;
+										infoKey.aKeyInfo[nNowPose].aKey[nNowKey].rot += m_aPartsInfo[typeID].aInfo[nNowKey].rot;
 
 										// 初期向きを正規化
-										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);
-										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);
-										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);
+										useful::NormalizeRot(infoKey.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);
+										useful::NormalizeRot(infoKey.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);
+										useful::NormalizeRot(infoKey.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);
 									}
 
 								} while (strcmp(&aString[0], "END_KEY") != 0);	// 読み込んだ文字列が END_KEY ではない場合ループ
@@ -1068,7 +1169,7 @@ void CEnemy::LoadSetup(const EType typeID)
 				} while (strcmp(&aString[0], "END_MOTIONSET") != 0);	// 読み込んだ文字列が END_MOTIONSET ではない場合ループ
 
 				// モーション情報の設定
-				m_aMotionInfo[typeID].aMotionInfo[m_aMotionInfo[typeID].nNumType] = info;
+				m_aMotionInfo[typeID].aMotionInfo[m_aMotionInfo[typeID].nNumType] = infoKey;
 
 				// モーション数を加算
 				m_aMotionInfo[typeID].nNumType++;

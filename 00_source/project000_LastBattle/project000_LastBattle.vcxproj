@@ -158,7 +158,9 @@
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="cinemaScope.cpp" />
     <ClCompile Include="collision.cpp" />
+    <ClCompile Include="collSphere.cpp" />
     <ClCompile Include="debug.cpp" />
+    <ClCompile Include="debugCollSphere.cpp" />
     <ClCompile Include="debugproc.cpp" />
     <ClCompile Include="effect2D.cpp" />
     <ClCompile Include="effect3D.cpp" />
@@ -203,6 +205,7 @@
     <ClCompile Include="objectMeshDome.cpp" />
     <ClCompile Include="objectMeshField.cpp" />
     <ClCompile Include="objectMeshRing.cpp" />
+    <ClCompile Include="objectMeshSphere.cpp" />
     <ClCompile Include="objectMeshWall.cpp" />
     <ClCompile Include="objectModel.cpp" />
     <ClCompile Include="objectTornado.cpp" />
@@ -255,7 +258,9 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="cinemaScope.h" />
     <ClInclude Include="collision.h" />
+    <ClInclude Include="collSphere.h" />
     <ClInclude Include="debug.h" />
+    <ClInclude Include="debugCollSphere.h" />
     <ClInclude Include="debugproc.h" />
     <ClInclude Include="effect2D.h" />
     <ClInclude Include="effect3D.h" />
@@ -300,6 +305,7 @@
     <ClInclude Include="objectMeshDome.h" />
     <ClInclude Include="objectMeshField.h" />
     <ClInclude Include="objectMeshRing.h" />
+    <ClInclude Include="objectMeshSphere.h" />
     <ClInclude Include="objectMeshWall.h" />
     <ClInclude Include="objectModel.h" />
     <ClInclude Include="objectTornado.h" />

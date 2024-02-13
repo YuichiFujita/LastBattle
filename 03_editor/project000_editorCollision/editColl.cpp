@@ -588,9 +588,9 @@ void CEditColl::LoadColl(void)
 		CCollSphere *pColl = nullptr;			// 円判定情報
 		std::vector<CCollSphere::SInfo> vector;	// 円判定配列
 
-		CCollSphere::SInfo info;
-		int nParts = 0;	// パーツ番号
-		int nEnd = 0;	// テキスト読み込み終了の確認用
+		CCollSphere::SInfo info;	// 判定情報
+		int nParts = 0;				// パーツ番号
+		int nEnd = 0;				// テキスト読み込み終了の確認用
 		char aString[MAX_STRING];	// テキストの文字列の代入用
 
 		do
@@ -655,16 +655,11 @@ void CEditColl::LoadColl(void)
 									}
 								} while (strcmp(&aString[0], "END_COLL") != 0);	// 読み込んだ文字列が END_COLL ではない場合ループ
 
-#if 0
-								// 判定情報を配列に追加
-								vector.push_back(info);
-#else
 								if (pColl != nullptr)
 								{
 									// 判定を追加
 									pColl->AddColl(info.offset, info.fRadius);
 								}
-#endif
 							}
 						} while (strcmp(&aString[0], "END_COLLSET") != 0);	// 読み込んだ文字列が END_COLLSET ではない場合ループ
 					}

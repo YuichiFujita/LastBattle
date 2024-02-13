@@ -17,6 +17,11 @@
 #include "motion.h"
 
 //************************************************************
+//	前方宣言
+//************************************************************
+class CCollSphere;	// 円判定クラス
+
+//************************************************************
 //	クラス定義
 //************************************************************
 // 敵クラス
@@ -75,6 +80,13 @@ public:
 		int nNumParts;	// パーツ数
 	};
 
+	// 当たり判定構造体
+	struct SCollInfo
+	{
+		CCollSphere *apInfo[motion::MAX_PARTS];	// 判定情報
+		int nNumColl;	// 判定数
+	};
+
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
@@ -102,6 +114,7 @@ public:
 	);
 	static CListManager<CEnemy> *GetList(void);			// リスト取得
 	static SStatusInfo GetStatusInfo(const int nType);	// ステータス情報取得
+	static void ReleaseSetup(void);						// セットアップ破棄
 	static void LoadAllSetup(void);						// 全セットアップ
 	static void LoadSetup(const EType typeID);			// セットアップ
 
@@ -149,9 +162,10 @@ private:
 
 	// 静的メンバ変数
 	static CListManager<CEnemy> *m_pList;			// オブジェクトリスト
-	static SPartsInfo m_aPartsInfo[TYPE_MAX];		// パーツ情報
 	static CMotion::SInfo m_aMotionInfo[TYPE_MAX];	// モーション情報
+	static SPartsInfo m_aPartsInfo[TYPE_MAX];		// パーツ情報
 	static SStatusInfo m_aStatusInfo[TYPE_MAX];		// ステータス情報
+	static SCollInfo m_aCollInfo[TYPE_MAX];			// 当たり判定情報
 	static AFuncUpdateState m_aFuncUpdateState[];	// 状態更新関数
 
 	// メンバ変数

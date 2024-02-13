@@ -12,6 +12,7 @@
 #include "renderer.h"
 #include "multiModel.h"
 #include "motion.h"
+#include "collSphere.h"
 
 //************************************************************
 //	子クラス [CObjectChara] のメンバ関数
@@ -27,6 +28,7 @@ CObjectChara::CObjectChara(const CObject::ELabel label, const CObject::EDim dime
 {
 	// メンバ変数をクリア
 	memset(&m_apMultiModel[0], 0, sizeof(m_apMultiModel));	// モデルの情報
+	memset(&m_apCollision[0], 0, sizeof(m_apCollision));	// 当たり判定の情報
 	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 }
 
@@ -45,6 +47,7 @@ HRESULT CObjectChara::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_apMultiModel[0], 0, sizeof(m_apMultiModel));	// モデルの情報
+	memset(&m_apCollision[0], 0, sizeof(m_apCollision));	// 当たり判定の情報
 	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 	m_pMotion	= nullptr;		// モーションの情報
 	m_pos		= VEC3_ZERO;	// 位置
@@ -70,11 +73,14 @@ HRESULT CObjectChara::Init(void)
 //============================================================
 void CObjectChara::Uninit(void)
 {
-	for (int nCntObjectChara = 0; nCntObjectChara < motion::MAX_PARTS; nCntObjectChara++)
+	for (int nCntChara = 0; nCntChara < motion::MAX_PARTS; nCntChara++)
 	{ // パーツの最大数分繰り返す
 
 		// マルチモデルの終了
-		SAFE_UNINIT(m_apMultiModel[nCntObjectChara]);
+		SAFE_UNINIT(m_apMultiModel[nCntChara]);
+
+		// 当たり判定の終了
+		SAFE_REF_RELEASE(m_apCollision[nCntChara]);
 	}
 
 	// モーションの破棄
@@ -94,6 +100,13 @@ void CObjectChara::Update(void)
 
 		// モーションの更新
 		m_pMotion->Update();
+	}
+
+	for (int nCntChara = 0; nCntChara < m_nNumModel; nCntChara++)
+	{ // パーツの最大数分繰り返す
+
+		// 当たり判定の更新
+		m_apCollision[nCntChara]->Update();
 	}
 }
 
@@ -122,11 +135,11 @@ void CObjectChara::Draw(void)
 	// ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
 
-	for (int nCntObjectChara = 0; nCntObjectChara < m_nNumModel; nCntObjectChara++)
+	for (int nCntChara = 0; nCntChara < m_nNumModel; nCntChara++)
 	{ // パーツの総数分繰り返す
 
 		// パーツの描画
-		m_apMultiModel[nCntObjectChara]->Draw();
+		m_apMultiModel[nCntChara]->Draw();
 	}
 }
 
@@ -174,11 +187,11 @@ D3DXVECTOR3 CObjectChara::GetVec3Rotation(void) const
 //============================================================
 void CObjectChara::SetAllMaterial(const D3DXMATERIAL& rMat)
 {
-	for (int nCntObjectChara = 0; nCntObjectChara < m_nNumModel; nCntObjectChara++)
+	for (int nCntChara = 0; nCntChara < m_nNumModel; nCntChara++)
 	{ // パーツの総数分繰り返す
 
 		// 引数のマテリアルを全マテリアルに設定
-		m_apMultiModel[nCntObjectChara]->SetAllMaterial(rMat);
+		m_apMultiModel[nCntChara]->SetAllMaterial(rMat);
 	}
 }
 
@@ -187,11 +200,11 @@ void CObjectChara::SetAllMaterial(const D3DXMATERIAL& rMat)
 //============================================================
 void CObjectChara::ResetMaterial(void)
 {
-	for (int nCntObjectChara = 0; nCntObjectChara < m_nNumModel; nCntObjectChara++)
+	for (int nCntChara = 0; nCntChara < m_nNumModel; nCntChara++)
 	{ // パーツの総数分繰り返す
 
 		// 全マテリアルに初期マテリアルを再設定
-		m_apMultiModel[nCntObjectChara]->ResetMaterial();
+		m_apMultiModel[nCntChara]->ResetMaterial();
 	}
 }
 
@@ -274,6 +287,13 @@ void CObjectChara::SetPartsInfo
 
 		// モデルの生成
 		m_apMultiModel[nID] = CMultiModel::Create(rPos, rRot);
+
+		// 当たり判定の生成
+		m_apCollision[nID] = CCollSphere::Create(m_apMultiModel[nID]);
+
+		// モデルの原点位置・向きを設定
+		m_pMotion->SetOriginPosition(rPos, nID);
+		m_pMotion->SetOriginRotation(rRot, nID);
 
 		// モデルを割当
 		m_apMultiModel[nID]->BindModel(pFileName);
@@ -407,6 +427,32 @@ CMultiModel *CObjectChara::GetMultiModel(const int nPartsID) const
 		return m_apMultiModel[nPartsID];
 	}
 	else { assert(false); return m_apMultiModel[0]; }
+}
+
+//============================================================
+//	当たり判定取得処理
+//============================================================
+CCollSphere *CObjectChara::GetCollision(const int nPartsID) const
+{
+	if (nPartsID < m_nNumModel)
+	{ // 使用可能なインデックスの場合
+
+		// 当たり判定の情報を返す
+		return m_apCollision[nPartsID];
+	}
+	else { assert(false); return m_apCollision[0]; }
+}
+
+//============================================================
+//	モーション取得処理
+//============================================================
+CMotion *CObjectChara::GetMotion(void) const
+{
+	// インスタンス未使用
+	assert(m_pMotion != nullptr);
+
+	// モーションの情報を返す
+	return m_pMotion;
 }
 
 //============================================================

@@ -164,6 +164,9 @@ HRESULT CSceneGame::Init(void)
 //============================================================
 void CSceneGame::Uninit(void)
 {
+	// 敵のセットアップ破棄
+	CEnemy::ReleaseSetup();
+
 	// ゲームマネージャーの破棄
 	SAFE_REF_RELEASE(m_pGameManager);
 
