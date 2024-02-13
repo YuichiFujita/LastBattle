@@ -24,7 +24,7 @@ namespace debugCollSphere
 	const D3DXCOLOR DEFAULT_COL	= D3DXCOLOR(0.0f, 0.0f, 1.0f, 0.3f);	// 色
 	const D3DXCOLOR CHOICE_COL	= D3DXCOLOR(1.0f, 0.0f, 0.0f, 0.3f);	// 色
 
-	const POSGRID2	PART	= POSGRID2(16, 16);	// 分割数
+	const POSGRID2	PART	= POSGRID2(8, 4);	// 分割数
 	const POSGRID2	TEXPART	= POSGRID2(1, 1);	// テクスチャ分割数
 }
 

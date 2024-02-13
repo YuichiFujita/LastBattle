@@ -23,7 +23,10 @@ namespace
 {
 	const char *SAVE_TXT = "data\\TXT\\save_collision.txt";	// 判定保存テキスト
 
-	const float INIT_COLL_RAD = 20.0f;	// 生成時の判定半径
+	const int	SUB_DRAWINFO	= 2;		// 判定情報表示の開始ID減算量
+	const int	NUM_DRAWINFO	= 5;		// 判定情報表示の総数
+	const float INIT_COLL_RAD	= 20.0f;	// 生成時の判定半径
+
 	const float MOVE_OFFSET	= 2.5f;		// オフセット移動量
 	const float MOVE_RAD	= 1.0f;		// 半径変更量
 	const float MIN_RAD		= 1.0f;		// 最小半径
@@ -33,11 +36,15 @@ namespace
 //************************************************************
 //	マクロ定義
 //************************************************************
+#define KEY_DOUBLE		(DIK_LCONTROL)	// 二重化キー
+#define NAME_DOUBLE		("LCTRL")		// 二重化表示
 #define KEY_TRIGGER		(DIK_LSHIFT)	// トリガー化キー
 #define NAME_TRIGGER	("LSHIFT")		// トリガー化表示
 
 #define KEY_SAVE	(DIK_F5)	// 保存キー
 #define NAME_SAVE	("F5")		// 保存表示
+#define KEY_LOAD	(DIK_F6)	// 読込キー
+#define NAME_LOAD	("F6")		// 読込表示
 
 #define KEY_ADD_COLL	(DIK_0)		// 判定追加キー
 #define NAME_ADD_COLL	("0")		// 判定追加表示
@@ -176,6 +183,9 @@ void CEditColl::Update(void)
 	// 判定保存
 	SaveColl();
 
+	// 判定読込
+	LoadColl();
+
 	// エディットの更新
 	CEdit::Update();
 }
@@ -201,6 +211,7 @@ void CEditColl::DrawEditControl(void)
 	CEdit::DrawEditControl();
 
 	pDebug->Print(CDebugProc::POINT_RIGHT, "保存：[%s]\n", NAME_SAVE);
+	pDebug->Print(CDebugProc::POINT_RIGHT, "読込：[%s+%s]\n", NAME_LOAD, NAME_DOUBLE);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "パーツ変更：[%s/%s]\n", NAME_UP_PARTS, NAME_DOWN_PARTS);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定変更：[%s/%s]\n", NAME_UP_COLL, NAME_DOWN_COLL);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "判定追加/削除：[%s/%s]\n", NAME_ADD_COLL, NAME_SUB_COLL);
@@ -228,14 +239,36 @@ void CEditColl::DrawEditData(void)
 	pDebug->Print(CDebugProc::POINT_RIGHT, "%d：[選択判定]\n", m_nCurSelectColl);
 	pDebug->Print(CDebugProc::POINT_RIGHT, "\n");
 
-	int nCntColl = 0;	// 繰り返し数
-	for (auto info : vector)
-	{ // 判定数分繰り返す
+	if (vector.size() > 0)
+	{ // 配列が存在する場合
 
-		nCntColl++;
-		pDebug->Print(CDebugProc::POINT_RIGHT, "******************** [判定番号：%d] ***\n", nCntColl);
-		pDebug->Print(CDebugProc::POINT_RIGHT, "%f %f %f：[オフセット]\n", info.offset.x, info.offset.y, info.offset.z);
-		pDebug->Print(CDebugProc::POINT_RIGHT, "%f：[半径]\n", info.fRadius);
+		// 配列の先頭イテレーター
+		auto info = vector.begin();
+
+		// 判定情報表示の先頭インデックス
+		int nDrawColl = m_nCurSelectColl - SUB_DRAWINFO;
+		useful::LimitMinNum(nDrawColl, 0);	// 0未満の場合補正
+
+		// イテレーターを表示インデックス分進める
+		info += nDrawColl;
+
+		for (int nCntColl = 0; nCntColl < NUM_DRAWINFO; nCntColl++)
+		{ // 判定数分繰り返す
+
+			// 配列の最後尾の場合抜ける
+			if (info == vector.end()) { break; }
+
+			// 判定番号
+			pDebug->Print(CDebugProc::POINT_RIGHT, "********************* [判定番号：%d] ", nCntColl + nDrawColl);
+			pDebug->Print(CDebugProc::POINT_RIGHT, (nCntColl + nDrawColl == m_nCurSelectColl) ? "<>\n" : "**\n");	// 選択中の判定なら強調表示
+
+			// 判定情報
+			pDebug->Print(CDebugProc::POINT_RIGHT, "%f %f %f：[オフセット]\n", info->offset.x, info->offset.y, info->offset.z);
+			pDebug->Print(CDebugProc::POINT_RIGHT, "%f：[半径]\n", info->fRadius);
+
+			// イテレーターを進める
+			info++;
+		}
 	}
 }
 
@@ -280,7 +313,7 @@ void CEditColl::SelectParts(void)
 	pPlayer->ResetMaterial();
 
 	// 選択パーツのマテリアルを変更
-	pPlayer->SetPartsMaterial(material::Blue(), m_nCurSelectParts);
+	pPlayer->SetPartsMaterial(material::GlowGreen(), m_nCurSelectParts);
 }
 
 //============================================================
@@ -342,6 +375,11 @@ void CEditColl::SelectColl(void)
 	if (oldVector.size() > 0)
 	{ // 前回パーツの配列が存在する場合
 
+		// 前回の選択を補正
+		int nOldMaxSelect = (int)pOldColl->GetVector().size() - 1;	// 最高選択可能インデックス
+		useful::LimitMinNum(nOldMaxSelect, 0);						// 0より小さい場合補正
+		useful::LimitNum(m_nOldSelectColl, 0, nOldMaxSelect);		// 前回選択の補正
+
 		// 前回の選択判定の色を元に戻す
 		CCollSphere::SInfo oldInfo = pOldColl->GetInfo(m_nOldSelectColl);	// 前回の判定情報
 		oldInfo.pVisual->SetColor(debugCollSphere::DEFAULT_COL);	// 色を設定
@@ -364,6 +402,11 @@ void CEditColl::SelectColl(void)
 			int nNumColl = curVector.size();	// 判定の総数
 			m_nCurSelectColl = (m_nCurSelectColl + 1) % nNumColl;
 		}
+
+		// 現在の選択を補正
+		int nCurMaxSelect = (int)pCurColl->GetVector().size() - 1;	// 最高選択可能インデックス
+		useful::LimitMinNum(nCurMaxSelect, 0);						// 0より小さい場合補正
+		useful::LimitNum(m_nCurSelectColl, 0, nCurMaxSelect);		// 現在選択の補正
 
 		// 現在の選択判定の色を設定
 		CCollSphere::SInfo curInfo = pCurColl->GetInfo(m_nCurSelectColl);	// 現在の判定情報
@@ -471,7 +514,8 @@ void CEditColl::UpdateCollInfo(void)
 //============================================================
 void CEditColl::SaveColl(void)
 {
-	if (!GET_INPUTKEY->IsTrigger(KEY_SAVE)) { return; }	// セーブ操作されていない場合抜ける
+	// セーブ操作されていない場合抜ける
+	if (!GET_INPUTKEY->IsTrigger(KEY_SAVE)) { return; }
 
 	// ファイルを書き出し形式で開く
 	FILE *pFile = fopen(SAVE_TXT, "w");
@@ -486,7 +530,7 @@ void CEditColl::SaveColl(void)
 		fprintf(pFile, "#==============================================================================\n");
 		fprintf(pFile, "---------->--<---------- ここから下を コピーし貼り付け ---------->--<----------\n\n");
 
-		fprintf(pFile, "SETCOLLISION\n\n");
+		fprintf(pFile, "COLLISIONSET\n\n");
 
 		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
 		for (int nCntParts = 0; nCntParts < pPlayer->GetNumModel(); nCntParts++)
@@ -496,7 +540,7 @@ void CEditColl::SaveColl(void)
 			std::vector<CCollSphere::SInfo> vector = pColl->GetVector();	// 円判定配列
 			if (vector.size() <= 0) { continue; }	// 判定が一つもない場合次のループへ
 
-			fprintf(pFile, "	SETCOLL\n\n");
+			fprintf(pFile, "	COLLSET\n\n");
 
 			fprintf(pFile, "		PARTS = %d\n", nCntParts);
 			fprintf(pFile, "		NUMCOLL = %d\n\n", (int)vector.size());
@@ -510,10 +554,10 @@ void CEditColl::SaveColl(void)
 				fprintf(pFile, "		END_COLL\n\n");
 			}
 
-			fprintf(pFile, "	END_SETCOLL\n\n");
+			fprintf(pFile, "	END_COLLSET\n\n");
 		}
 
-		fprintf(pFile, "END_SETCOLLISION\n\n");
+		fprintf(pFile, "END_COLLISIONSET\n\n");
 
 		// ファイルを閉じる
 		fclose(pFile);
@@ -523,6 +567,119 @@ void CEditColl::SaveColl(void)
 
 		// エラーメッセージボックス
 		MessageBox(nullptr, "判定保存ファイルの書き出しに失敗！", "警告！", MB_ICONWARNING);
+	}
+}
+
+//============================================================
+//	判定読込処理
+//============================================================
+void CEditColl::LoadColl(void)
+{
+	// ロード操作されていない場合抜ける
+	if (!GET_INPUTKEY->IsPress(KEY_DOUBLE)) { return; }
+	if (!GET_INPUTKEY->IsTrigger(KEY_LOAD)) { return; }
+
+	// ファイルを読み込み形式で開く
+	FILE *pFile = fopen(SAVE_TXT, "r");
+	if (pFile != nullptr)
+	{ // ファイルが開けた場合
+
+		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+		CCollSphere *pColl = nullptr;			// 円判定情報
+		std::vector<CCollSphere::SInfo> vector;	// 円判定配列
+
+		CCollSphere::SInfo info;
+		int nParts = 0;	// パーツ番号
+		int nEnd = 0;	// テキスト読み込み終了の確認用
+		char aString[MAX_STRING];	// テキストの文字列の代入用
+
+		do
+		{ // 読み込んだ文字列が EOF ではない場合ループ
+
+			// ファイルから文字列を読み込む
+			nEnd = fscanf(pFile, "%s", &aString[0]);	// テキストを読み込みきったら EOF を返す
+
+			if (strcmp(&aString[0], "COLLISIONSET") == 0)
+			{ // 読み込んだ文字列が COLLISIONSET の場合
+
+				do
+				{ // 読み込んだ文字列が END_COLLISIONSET ではない場合ループ
+
+					// ファイルから文字列を読み込む
+					fscanf(pFile, "%s", &aString[0]);
+
+					if (strcmp(&aString[0], "COLLSET") == 0)
+					{ // 読み込んだ文字列が COLLSET の場合
+
+						do
+						{ // 読み込んだ文字列が END_COLLSET ではない場合ループ
+
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+
+							if (strcmp(&aString[0], "PARTS") == 0)
+							{ // 読み込んだ文字列が PARTS の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nParts);		// パーツ番号を読み込む
+
+								// 円判定情報を設定
+								pColl = pPlayer->GetCollision(nParts);
+
+								// 円判定配列を設定
+								vector = pColl->GetVector();
+								pColl->Uninit();	// 判定情報のクリア・メッシュ破棄
+							}
+							else if (strcmp(&aString[0], "COLL") == 0)
+							{ // 読み込んだ文字列が COLL の場合
+
+								do
+								{ // 読み込んだ文字列が END_COLL ではない場合ループ
+
+									// ファイルから文字列を読み込む
+									fscanf(pFile, "%s", &aString[0]);
+
+									if (strcmp(&aString[0], "OFFSET") == 0)
+									{ // 読み込んだ文字列が OFFSET の場合
+
+										fscanf(pFile, "%s", &aString[0]);		// = を読み込む (不要)
+										fscanf(pFile, "%f", &info.offset.x);	// Xオフセットを読み込む
+										fscanf(pFile, "%f", &info.offset.y);	// Yオフセットを読み込む
+										fscanf(pFile, "%f", &info.offset.z);	// Zオフセットを読み込む
+									}
+									else if (strcmp(&aString[0], "RADIUS") == 0)
+									{ // 読み込んだ文字列が RADIUS の場合
+
+										fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+										fscanf(pFile, "%f", &info.fRadius);	// 半径を読み込む
+									}
+								} while (strcmp(&aString[0], "END_COLL") != 0);	// 読み込んだ文字列が END_COLL ではない場合ループ
+
+#if 0
+								// 判定情報を配列に追加
+								vector.push_back(info);
+#else
+								if (pColl != nullptr)
+								{
+									// 判定を追加
+									pColl->AddColl(info.offset, info.fRadius);
+								}
+#endif
+							}
+						} while (strcmp(&aString[0], "END_COLLSET") != 0);	// 読み込んだ文字列が END_COLLSET ではない場合ループ
+					}
+				} while (strcmp(&aString[0], "END_COLLISIONSET") != 0);		// 読み込んだ文字列が END_COLLISIONSET ではない場合ループ
+			}
+		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
+
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{ // ファイルが開けなかった場合
+
+		// エラーメッセージボックス
+		MessageBox(nullptr, "判定保存ファイルの読み込みに失敗！", "警告！", MB_ICONWARNING);
 	}
 }
 

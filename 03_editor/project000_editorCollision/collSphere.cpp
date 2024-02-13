@@ -48,6 +48,17 @@ HRESULT CCollSphere::Init(void)
 //============================================================
 void CCollSphere::Uninit(void)
 {
+#if _DEBUG
+
+	for (auto info : m_coll)
+	{ // 要素数分繰り返す
+
+		// 判定表示の終了
+		SAFE_UNINIT(info.pVisual);
+	}
+
+#endif	// _DEBUG
+
 	// 要素をクリア
 	m_coll.clear();
 }
