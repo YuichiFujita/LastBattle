@@ -86,6 +86,24 @@ void CCollSphere::Update(void)
 }
 
 //============================================================
+//	判定位置の計算処理
+//============================================================
+D3DXVECTOR3 CCollSphere::CalcWorldPosition(const int nID) const
+{
+	auto info = m_coll.begin();	// 配列の先頭イテレーター
+	info += nID;	// イテレーターをインデックス分動かす
+
+	// オフセットマトリックスを求める
+	D3DXMATRIX mtxParent = m_pParent->GetMtxWorld();	// 親マトリックス
+	D3DXMATRIX mtxOffset;	// オフセット計算マトリックス
+	D3DXMatrixTranslation(&mtxOffset, info->offset.x, info->offset.y, info->offset.z);
+	D3DXMatrixMultiply(&mtxOffset, &mtxOffset, &mtxParent);
+
+	// 判定位置を返す
+	return useful::GetMtxWorldPosition(mtxOffset);
+}
+
+//============================================================
 //	判定情報の設定処理
 //============================================================
 void CCollSphere::SetInfo(const SInfo& rInfo, const int nID)

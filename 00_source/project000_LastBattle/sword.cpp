@@ -13,6 +13,7 @@
 #include "collision.h"
 #include "orbit.h"
 #include "enemy.h"
+#include "collSphere.h"
 
 //************************************************************
 //	定数宣言
@@ -294,43 +295,58 @@ void CSword::CollisionEnemy(void)
 	for (auto enemy : list)
 	{ // リストのすべてを繰り返す
 
-		// 敵の判定中心位置を求める
-		D3DXVECTOR3 posCollEnemy = enemy->GetVec3Position() + D3DXVECTOR3(0.0f, enemy->GetHeight() * 0.5f, 0.0f);
+		int nNumParts = enemy->GetNumModel();	// パーツ数
+		for (int nCntColl = 0; nCntColl < nNumParts; nCntColl++)
+		{ // パーツ数分繰り返す
 
-		for (int i = 0; i < m_collInfo.nNumColl; i++)
-		{ // 判定数分繰り返す
+			int nCntArray = 0;	// 判定情報の要素番号
+			CCollSphere *pColl = enemy->GetCollision(nCntColl);				// 円判定情報
+			std::vector<CCollSphere::SInfo> vector = pColl->GetVector();	// 円判定配列
+			for (auto coll : vector)
+			{ // 配列の要素数分繰り返す
 
-			D3DXVECTOR3 posCollSword;		// 剣の判定位置
-			D3DXMATRIX mtxTrans, mtxColl;	// マトリックス計算用
+				// 敵の判定位置を計算
+				D3DXVECTOR3 posCollEnemy = pColl->CalcWorldPosition(nCntArray);
 
-			// オフセットマトリックスを作成
-			D3DXMatrixTranslation
-			( // 引数
-				&mtxTrans,
-				m_collInfo.pColl[i].offset.x,
-				m_collInfo.pColl[i].offset.y,
-				m_collInfo.pColl[i].offset.z
-			);
+				// 要素番号を次に
+				nCntArray++;
 
-			// 剣のマトリックスと掛け合わせる
-			D3DXMatrixMultiply(&mtxColl, &mtxTrans, &mtxWorld);
+				for (int i = 0; i < m_collInfo.nNumColl; i++)
+				{ // 判定数分繰り返す
 
-			// 武器の判定中心位置を設定
-			posCollSword = useful::GetMtxWorldPosition(mtxColl);
+					D3DXVECTOR3 posCollSword;		// 剣の判定位置
+					D3DXMATRIX mtxTrans, mtxColl;	// マトリックス計算用
 
-			// 攻撃の当たり判定
-			bool bHit = collision::Circle3D
-			( // 引数
-				posCollSword,	// 判定位置
-				posCollEnemy,	// 判定目標位置
-				m_collInfo.pColl[i].fRadius,		// 判定半径
-				enemy->GetStatusInfo().fCollRadius	// 判定目標半径
-			);
-			if (bHit)
-			{ // 攻撃が当たった場合
+					// オフセットマトリックスを作成
+					D3DXMatrixTranslation
+					( // 引数
+						&mtxTrans,
+						m_collInfo.pColl[i].offset.x,
+						m_collInfo.pColl[i].offset.y,
+						m_collInfo.pColl[i].offset.z
+					);
 
-				// 敵のヒット処理
-				enemy->Hit(DMG_HIT);
+					// 剣のマトリックスと掛け合わせる
+					D3DXMatrixMultiply(&mtxColl, &mtxTrans, &mtxWorld);
+
+					// 武器の判定中心位置を設定
+					posCollSword = useful::GetMtxWorldPosition(mtxColl);
+
+					// 攻撃の当たり判定
+					bool bHit = collision::Circle3D
+					( // 引数
+						posCollSword,	// 判定位置
+						posCollEnemy,	// 判定目標位置
+						m_collInfo.pColl[i].fRadius,	// 判定半径
+						coll.fRadius					// 判定目標半径
+					);
+					if (bHit)
+					{ // 攻撃が当たった場合
+
+						// 敵のヒット処理
+						enemy->Hit(DMG_HIT);
+					}
+				}
 			}
 		}
 	}

@@ -52,6 +52,7 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
+	D3DXVECTOR3 CalcWorldPosition(const int nID) const;	// 判定位置計算
 	void SetInfo(const SInfo& rInfo, const int nID);	// 判定情報設定
 	SInfo GetInfo(const int nID) const;					// 判定情報取得
 	void SetVector(const std::vector<SInfo>& rVector);	// 配列設定
