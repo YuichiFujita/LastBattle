@@ -246,6 +246,10 @@ void CEditColl::SelectParts(void)
 {
 	CInputKeyboard *pKey = GET_INPUTKEY;	// キーボード情報
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+	CCollSphere *pOldColl = pPlayer->GetCollision(m_nOldSelectParts);	// 前回の円判定情報
+	std::vector<CCollSphere::SInfo> oldVector = pOldColl->GetVector();	// 前回の円判定配列
+	CCollSphere *pCurColl = pPlayer->GetCollision(m_nCurSelectParts);	// 現在の円判定情報
+	std::vector<CCollSphere::SInfo> curVector = pCurColl->GetVector();	// 現在の円判定配列
 
 	// 前回の選択パーツを設定
 	m_nOldSelectParts = m_nCurSelectParts;
@@ -261,6 +265,16 @@ void CEditColl::SelectParts(void)
 		int nNumParts = pPlayer->GetNumModel();	// パーツの総数
 		m_nCurSelectParts = (m_nCurSelectParts + 1) % nNumParts;
 	}
+
+	// 前回の選択を補正
+	int nOldMaxSelect = (int)pOldColl->GetVector().size() - 1;	// 最高選択可能インデックス
+	useful::LimitMinNum(nOldMaxSelect, 0);						// 0より小さい場合補正
+	useful::LimitNum(m_nOldSelectColl, 0, nOldMaxSelect);		// 前回選択の補正
+
+	// 現在の選択を補正
+	int nCurMaxSelect = (int)pCurColl->GetVector().size() - 1;	// 最高選択可能インデックス
+	useful::LimitMinNum(nCurMaxSelect, 0);						// 0より小さい場合補正
+	useful::LimitNum(m_nCurSelectColl, 0, nCurMaxSelect);		// 現在選択の補正
 
 	// マテリアルを再設定
 	pPlayer->ResetMaterial();
@@ -328,10 +342,15 @@ void CEditColl::SelectColl(void)
 	if (oldVector.size() > 0)
 	{ // 前回パーツの配列が存在する場合
 
+		// 前回の選択を補正
+		int nOldMaxSelect = (int)pOldColl->GetVector().size() - 1;	// 最高選択可能インデックス
+		useful::LimitMinNum(nOldMaxSelect, 0);						// 0より小さい場合補正
+		useful::LimitNum(m_nOldSelectColl, 0, nOldMaxSelect);		// 前回選択の補正
+
 		// 前回の選択判定の色を元に戻す
 		CCollSphere::SInfo oldInfo = pOldColl->GetInfo(m_nOldSelectColl);	// 前回の判定情報
 		oldInfo.pVisual->SetColor(debugCollSphere::DEFAULT_COL);	// 色を設定
-		pOldColl->SetInfo(oldInfo, m_nCurSelectColl);				// 判定情報を反映
+		pOldColl->SetInfo(oldInfo, m_nOldSelectColl);				// 判定情報を反映
 	}
 
 	CCollSphere *pCurColl = pPlayer->GetCollision(m_nCurSelectParts);	// 現在の円判定情報
@@ -350,6 +369,11 @@ void CEditColl::SelectColl(void)
 			int nNumColl = curVector.size();	// 判定の総数
 			m_nCurSelectColl = (m_nCurSelectColl + 1) % nNumColl;
 		}
+
+		// 現在の選択を補正
+		int nCurMaxSelect = (int)pCurColl->GetVector().size() - 1;	// 最高選択可能インデックス
+		useful::LimitMinNum(nCurMaxSelect, 0);						// 0より小さい場合補正
+		useful::LimitNum(m_nCurSelectColl, 0, nCurMaxSelect);		// 現在選択の補正
 
 		// 現在の選択判定の色を設定
 		CCollSphere::SInfo curInfo = pCurColl->GetInfo(m_nCurSelectColl);	// 現在の判定情報
