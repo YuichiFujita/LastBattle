@@ -613,6 +613,15 @@ int CObjectChara::GetMotionCancelFrame(void) const
 }
 
 //============================================================
+//	モーションコンボフレーム取得処理
+//============================================================
+int CObjectChara::GetMotionComboFrame(void) const
+{
+	// 現在モーションのコンボフレームを返す
+	return m_pMotion->GetComboFrame(m_pMotion->GetType());
+}
+
+//============================================================
 //	モーション終了取得処理
 //============================================================
 bool CObjectChara::IsMotionFinish(void) const
@@ -637,6 +646,15 @@ bool CObjectChara::IsMotionCancel(void) const
 {
 	// 現在モーションのキャンセル状況を返す
 	return m_pMotion->IsCancel(m_pMotion->GetType());
+}
+
+//============================================================
+//	モーションコンボ取得処理
+//============================================================
+bool CObjectChara::IsMotionCombo(void) const
+{
+	// 現在モーションのコンボ状況を返す
+	return m_pMotion->IsCombo(m_pMotion->GetType());
 }
 
 //============================================================

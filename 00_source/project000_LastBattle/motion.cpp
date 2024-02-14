@@ -53,8 +53,9 @@ HRESULT CMotion::Init(void)
 	for (int nCntMotion = 0; nCntMotion < motion::MAX_MOTION; nCntMotion++)
 	{ // モーションの最大数分繰り返す
 
-		// キャンセルフレームをなしにする
+		// キャンセル・コンボフレームをなしにする
 		m_info.aMotionInfo[nCntMotion].nCancelFrame = NONE_IDX;
+		m_info.aMotionInfo[nCntMotion].nComboFrame  = NONE_IDX;
 
 		// 攻撃判定情報を初期化
 		m_info.aMotionInfo[nCntMotion].collLeft.nMin  = NONE_IDX;
@@ -391,6 +392,15 @@ int CMotion::GetCancelFrame(const int nType) const
 }
 
 //============================================================
+//	モーションコンボフレーム取得処理
+//============================================================
+int CMotion::GetComboFrame(const int nType) const
+{
+	// 引数モーションのコンボフレームを返す
+	return m_info.aMotionInfo[nType].nComboFrame;
+}
+
+//============================================================
 //	終了取得処理
 //============================================================
 bool CMotion::IsFinish(void) const
@@ -423,6 +433,25 @@ bool CMotion::IsCancel(const int nType) const
 	{ // キャンセルフレームが設定されていない場合
 
 		// キャンセル不可を返す
+		return false;
+	}
+}
+
+//============================================================
+//	コンボ取得処理
+//============================================================
+bool CMotion::IsCombo(const int nType) const
+{
+	if (m_info.aMotionInfo[nType].nComboFrame != NONE_IDX)
+	{ // コンボフレームが設定されている場合
+
+		// 引数モーションのコンボ状況を返す
+		return (m_info.nWholeCounter >= m_info.aMotionInfo[nType].nComboFrame);
+	}
+	else
+	{ // コンボフレームが設定されていない場合
+
+		// コンボ不可を返す
 		return false;
 	}
 }

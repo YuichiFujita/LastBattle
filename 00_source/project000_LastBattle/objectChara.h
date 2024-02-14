@@ -92,9 +92,11 @@ public:
 	int GetMotionWholeCounter(void) const;	// モーション全体カウンター取得
 	int GetMotionWholeFrame(void) const;	// モーション全体フレーム数取得
 	int GetMotionCancelFrame(void) const;	// モーションキャンセルフレーム取得
+	int GetMotionComboFrame(void) const;	// モーションコンボフレーム取得
 	bool IsMotionFinish(void) const;		// モーション終了取得
 	bool IsMotionLoop(void) const;			// モーションループ取得
 	bool IsMotionCancel(void) const;		// モーションキャンセル取得
+	bool IsMotionCombo(void) const;			// モーションコンボ取得
 	bool IsWeaponDisp(void) const;			// モーション武器表示取得
 	bool IsLeftWeaponCollision(void);		// 左の攻撃判定フラグ取得
 	bool IsRightWeaponCollision(void);		// 右の攻撃判定フラグ取得
