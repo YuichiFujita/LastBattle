@@ -746,7 +746,7 @@ void CPlayer::UpdateMotion(const int nLowMotion, const int nUpMotion)
 void CPlayer::UpdateMotionLower(const int nMotion)
 {
 	if (IsMotionLoop(BODY_LOWER))
-	{ // ループするモーションの場合
+	{ // ループするモーション中の場合
 
 		if (GetMotionType(BODY_LOWER) != nMotion)
 		{ // 現在のモーションが再生中のモーションと一致しない場合
@@ -756,19 +756,10 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		}
 	}
 	else
-	{ // ループしないモーションの場合
+	{ // ループしないモーション中の場合
 
 		switch (GetMotionType(BODY_LOWER))
 		{ // モーションごとの処理
-		case L_MOTION_SPAWN:			// 登場モーション：ループOFF
-		case L_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
-		case L_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
-		case L_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
-		case L_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
-		case L_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
-		case L_MOTION_JUMP:				// ジャンプモーション：ループOFF
-			break;
-
 		case L_MOTION_LAND:	// 着地モーション：ループOFF
 
 			if (nMotion != L_MOTION_IDOL)
@@ -780,8 +771,24 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 			break;
 
-		default:	// 例外処理
-			assert(false);
+		// TODO：攻撃モーション追加したらここにも記述
+		case L_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
+		case L_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
+		case L_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
+		case L_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+		case L_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
+
+			if (IsMotionCancel(BODY_LOWER))
+			{ // キャンセルできる場合
+
+				if (nMotion != L_MOTION_IDOL)
+				{ // 待機モーション以外の場合
+
+					// 現在のモーションの設定
+					SetMotion(BODY_LOWER, nMotion);
+				}
+			}
+
 			break;
 		}
 	}
@@ -931,7 +938,7 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 void CPlayer::UpdateMotionUpper(const int nMotion)
 {
 	if (IsMotionLoop(BODY_UPPER))
-	{ // ループするモーションの場合
+	{ // ループするモーション中の場合
 
 		if (GetMotionType(BODY_UPPER) != nMotion)
 		{ // 現在のモーションが再生中のモーションと一致しない場合
@@ -941,19 +948,10 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 		}
 	}
 	else
-	{ // ループしないモーションの場合
+	{ // ループしないモーション中の場合
 
 		switch (GetMotionType(BODY_UPPER))
 		{ // モーションごとの処理
-		case U_MOTION_SPAWN:			// 登場モーション：ループOFF
-		case U_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
-		case U_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
-		case U_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
-		case U_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
-		case U_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
-		case U_MOTION_JUMP:				// ジャンプモーション：ループOFF
-			break;
-
 		case U_MOTION_LAND:	// 着地モーション：ループOFF
 
 			if (nMotion != U_MOTION_IDOL)
@@ -965,8 +963,24 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 			break;
 
-		default:	// 例外処理
-			assert(false);
+		// TODO：攻撃モーション追加したらここにも記述
+		case L_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
+		case L_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
+		case L_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
+		case L_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+		case L_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
+
+			if (IsMotionCancel(BODY_UPPER))
+			{ // キャンセルできる場合
+
+				if (nMotion != L_MOTION_IDOL)
+				{ // 待機モーション以外の場合
+
+					// 現在のモーションの設定
+					SetMotion(BODY_UPPER, nMotion);
+				}
+			}
+
 			break;
 		}
 	}
@@ -1326,8 +1340,8 @@ void CPlayer::UpdateLandAttack(void)
 		if (GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_02)	// TODO：一番最後の攻撃にする
 		{ // 最終攻撃モーションではない場合
 
-			// 現在のモーションの残りフレームを計算
-			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
+			// キャンセル可能までの残りフレームを計算
+			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionCancelFrame(BODY_UPPER);
 			if (nWholeFrame < ATTACK_BUFFER_FRAME)
 			{ // 先行入力が可能な場合
 
@@ -1408,8 +1422,8 @@ void CPlayer::UpdateDodge(void)
 	else
 	{ // 回避中ではない場合
 
-		if (IsAttack())	{ return; }	// 攻撃中の場合抜ける
-		if (m_bJump)	{ return; }	// ジャンプ中の場合抜ける
+		if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
+		if (m_bJump) { return; }	// ジャンプ中の場合抜ける
 
 		if (m_dodge.nWaitCounter > 0)
 		{ // クールタイムが残っている場合
@@ -1461,7 +1475,7 @@ void CPlayer::UpdateDodge(void)
 //============================================================
 void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 {
-	if (IsAttack())		{ return; }	// 攻撃中の場合抜ける
+	if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
 	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
 
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド

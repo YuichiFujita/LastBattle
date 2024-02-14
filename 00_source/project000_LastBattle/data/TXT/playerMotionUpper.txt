@@ -1332,8 +1332,8 @@ MOTIONSET
 	NUM_KEY = 5	# キー数
 	CANCEL = 30	# キャンセルフレーム
 	
-	LEFT_COLL = 12 20	# 左攻撃の判定時間[MIN, MAX]
-	RIGHT_COLL = 12 20	# 右攻撃の判定時間[MIN, MAX]
+	LEFT_COLL = 12 25	# 左攻撃の判定時間[MIN, MAX]
+	RIGHT_COLL = 12 25	# 右攻撃の判定時間[MIN, MAX]
 	
 	KEYSET
 	
@@ -1475,7 +1475,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 13
+		FRAME = 28
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -1521,7 +1521,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 13
+		FRAME = 28
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -1577,8 +1577,8 @@ MOTIONSET
 	NUM_KEY = 5	# キー数
 	CANCEL = 30	# キャンセルフレーム
 	
-	LEFT_COLL = 12 28	# 左攻撃の判定時間[MIN, MAX]
-	RIGHT_COLL = 12 28	# 右攻撃の判定時間[MIN, MAX]
+	LEFT_COLL = 12 29	# 左攻撃の判定時間[MIN, MAX]
+	RIGHT_COLL = 12 29	# 右攻撃の判定時間[MIN, MAX]
 
 	KEYSET
 	
@@ -1720,7 +1720,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 9
+		FRAME = 26
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -1766,7 +1766,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 9
+		FRAME = 26
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -1820,7 +1820,7 @@ MOTIONSET
 	WEAPON = 1	# 武器を表示するかどうか[0:表示しない / 1:表示する]
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 5	# キー数
-	CANCEL = 26	# キャンセルフレーム
+	CANCEL = 23	# キャンセルフレーム
 	
 	LEFT_COLL = 10 25	# 左攻撃の判定時間[MIN, MAX]
 	RIGHT_COLL = 10 25	# 右攻撃の判定時間[MIN, MAX]
@@ -1965,7 +1965,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 10
+		FRAME = 25
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -2011,7 +2011,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 10
+		FRAME = 25
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
