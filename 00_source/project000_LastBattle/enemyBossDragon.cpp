@@ -385,6 +385,42 @@ CEnemyBossDragon::EAction CEnemyBossDragon::GetAction(void)
 }
 
 //============================================================
+//	通常状態の初期化処理
+//============================================================
+void CEnemyBossDragon::InitNormal(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
+
+	// 通常状態の初期化
+	CEnemy::InitNormal();
+
+	// 通常状態にする
+	SetState(STATE_NORMAL);
+
+	// 自動描画をONにする
+	SetEnableDraw(true);
+
+	// 透明度を不透明に再設定
+	SetAlpha(1.0f);
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 待機モーションを設定
+	SetMotion(MOTION_IDOL);
+
+	// 着地判定
+	UpdateLanding(&posEnemy);
+
+	// 位置範囲外の補正
+	LimitPosition(&posEnemy);
+
+	// 位置を反映
+	SetVec3Position(posEnemy);
+}
+
+//============================================================
 //	モデルファイル取得処理
 //============================================================
 const char *CEnemyBossDragon::GetModelFileName(const int nModel) const

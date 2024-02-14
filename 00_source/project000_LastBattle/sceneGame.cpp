@@ -196,9 +196,13 @@ void CSceneGame::Update(void)
 	assert(m_pTimerManager != nullptr);
 	m_pTimerManager->Update();
 
-	// ポーズの更新
-	assert(m_pPause != nullptr);
-	m_pPause->Update();
+	if (m_pGameManager->GetState() == CGameManager::STATE_NORMAL)
+	{ // ゲームが通常状態の場合
+
+		// ポーズの更新
+		assert(m_pPause != nullptr);
+		m_pPause->Update();
+	}
 
 	if (!m_pPause->IsPause())
 	{ // ポーズ中ではない場合

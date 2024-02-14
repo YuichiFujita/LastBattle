@@ -140,6 +140,7 @@ public:
 	void SetEnableDrawUI(const bool bDraw);	// UI描画設定
 	void Hit(const int nDamage);	// ヒット
 	void HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKnock);	// ノックバックヒット
+	void InitNormal(void);	// 通常状態の初期化
 	void SetSpawn(void);	// スポーン設定
 	void SetInvuln(void);	// 無敵設定
 

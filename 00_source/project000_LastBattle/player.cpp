@@ -634,6 +634,57 @@ void CPlayer::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock
 }
 
 //============================================================
+//	通常状態の初期化処理
+//============================================================
+void CPlayer::InitNormal(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 通常状態にする
+	SetState(STATE_NORMAL);
+
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// 移動量を初期化
+	m_move = VEC3_ZERO;
+
+	// 自動描画をONにする
+	SetEnableDraw(true);
+
+	// 透明度を不透明に再設定
+	SetAlpha(1.0f);
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 待機モーションを設定
+	SetMotion(BODY_LOWER, L_MOTION_IDOL);
+	SetMotion(BODY_UPPER, U_MOTION_IDOL);
+
+	// 着地判定
+	UpdateLanding(&posPlayer);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posPlayer, RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+
+	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
+	{ // 剣の数分繰り返す
+
+		// 剣の自動描画をOFFにする
+		m_apSowrd[nCntSword]->SetState(CSword::STATE_NONE);
+	}
+}
+
+//============================================================
 //	スポーンの設定処理
 //============================================================
 void CPlayer::SetSpawn(void)
@@ -668,7 +719,7 @@ void CPlayer::SetSpawn(void)
 	// マテリアルを再設定
 	ResetMaterial();
 
-	// 待機モーションを設定
+	// 出現モーションを設定
 	SetMotion(BODY_LOWER, L_MOTION_SPAWN);
 	SetMotion(BODY_UPPER, U_MOTION_SPAWN);
 
@@ -796,16 +847,6 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 	switch (GetMotionType(BODY_LOWER))
 	{ // モーションごとの処理
 	case L_MOTION_SPAWN:	// 登場モーション：ループOFF
-
-		if (IsMotionFinish(BODY_LOWER))
-		{ // モーションが終了した場合
-
-			// 待機モーションの設定
-			SetMotion(BODY_LOWER, L_MOTION_IDOL);
-		}
-
-		break;
-
 	case L_MOTION_IDOL:		// 待機モーション：ループON
 		break;
 
@@ -823,8 +864,8 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 	case L_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
 	case L_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
 
-		if (IsMotionCancel(BODY_LOWER))
-		{ // モーションキャンセルができる場合
+		if (IsMotionCombo(BODY_LOWER))
+		{ // モーションコンボができる場合
 
 			if (m_attack.bInput)
 			{ // 攻撃が先行入力されている場合
@@ -881,8 +922,8 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 	case L_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
 
-		if (IsMotionCancel(BODY_LOWER))
-		{ // モーションキャンセルができる場合
+		if (IsMotionCombo(BODY_LOWER))
+		{ // モーションコンボができる場合
 
 			if (m_attack.bInput)
 			{ // 攻撃が先行入力されている場合
@@ -988,16 +1029,6 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 	switch (GetMotionType(BODY_UPPER))
 	{ // モーションごとの処理
 	case U_MOTION_SPAWN:	// 登場モーション：ループOFF
-
-		if (IsMotionFinish(BODY_UPPER))
-		{ // モーションが終了した場合
-
-			// 待機モーションの設定
-			SetMotion(BODY_UPPER, U_MOTION_IDOL);
-		}
-
-		break;
-
 	case U_MOTION_IDOL:		// 待機モーション：ループON
 	case U_MOTION_MOVE:		// 移動モーション：ループON
 		break;
@@ -1005,8 +1036,8 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 	case U_MOTION_ATTACK_00:	// 攻撃モーション一段階目：ループOFF
 	case U_MOTION_ATTACK_01:	// 攻撃モーション二段階目：ループOFF
 
-		if (IsMotionCancel(BODY_UPPER))
-		{ // モーションキャンセルができる場合
+		if (IsMotionCombo(BODY_UPPER))
+		{ // モーションコンボができる場合
 
 			if (m_attack.bInput)
 			{ // 攻撃が先行入力されている場合
@@ -1063,8 +1094,8 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 	case U_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
 
-		if (IsMotionCancel(BODY_UPPER))
-		{ // モーションキャンセルができる場合
+		if (IsMotionCombo(BODY_UPPER))
+		{ // モーションコンボができる場合
 
 			if (m_attack.bInput)
 			{ // 攻撃が先行入力されている場合
@@ -1340,8 +1371,8 @@ void CPlayer::UpdateLandAttack(void)
 		if (GetMotionType(BODY_UPPER) != U_MOTION_ATTACK_02)	// TODO：一番最後の攻撃にする
 		{ // 最終攻撃モーションではない場合
 
-			// キャンセル可能までの残りフレームを計算
-			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionCancelFrame(BODY_UPPER);
+			// コンボ可能までの残りフレームを計算
+			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionComboFrame(BODY_UPPER);
 			if (nWholeFrame < ATTACK_BUFFER_FRAME)
 			{ // 先行入力が可能な場合
 
@@ -1836,8 +1867,9 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 				// ポーズ代入用の変数を初期化
 				memset(&info, 0, sizeof(info));
 
-				// キャンセルフレームをなしにする
+				// キャンセル・コンボフレームをなしにする
 				info.nCancelFrame = NONE_IDX;
+				info.nComboFrame  = NONE_IDX;
 
 				// 攻撃判定情報を初期化
 				info.collLeft.nMin  = NONE_IDX;
@@ -1883,6 +1915,12 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 
 						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
 						fscanf(pFile, "%d", &info.nCancelFrame);	// キャンセル可能フレームを読み込む
+					}
+					else if (strcmp(&aString[0], "COMBO") == 0)
+					{ // 読み込んだ文字列が COMBO の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &info.nComboFrame);		// コンボ可能フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "LEFT_COLL") == 0)
 					{ // 読み込んだ文字列が LEFT_COLL の場合

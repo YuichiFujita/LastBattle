@@ -259,34 +259,8 @@ void CGameManager::UpdateStart(void)
 	}
 	case START_END:	// 終了状態
 	{
-		CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
-		CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
-
-		// 通常状態にする
-		pPlayer->SetState(CPlayer::STATE_NORMAL);	// プレイヤー
-		pBoss->SetState(CEnemy::STATE_NORMAL);		// ボス
-
-		// ボスの名前モデルの自動描画をOFFにする
-		m_pBossName->SetEnableDraw(false);
-
-		// UIの自動描画をOFFにする
-		pTimer->SetEnableLogoDraw(true);	// タイマーロゴ
-		pTimer->SetEnableDraw(true);		// タイマー
-		pPlayer->SetEnableDrawUI(true);		// プレイヤー関連UI
-		pBoss->SetEnableDrawUI(true);		// ボス関連UI
-
-		// スコープアウトさせる
-		pScope->SetScopeOut();
-
-		// カメラを追従状態に設定
-		GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
-		GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
-
-		// タイマーの計測開始
-		pTimer->Start();
-
-		// 通常状態にする
-		m_state = STATE_NORMAL;
+		// 開始演出の終了
+		EndStart();
 
 		break;
 	}
@@ -295,45 +269,67 @@ void CGameManager::UpdateStart(void)
 		break;
 	}
 
-	// TODO：ちゃんとしたスキップの作成
-	if (GET_INPUTKEY->IsTrigger(DIK_0))
-	{
-		if (m_startState != START_END)
-		{
-			CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
-			CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
+	// 開始演出のスキップ
+	SkipStart();
+}
 
-			// 終了状態にする
-			m_startState = START_END;
+//============================================================
+//	開始演出の終了処理
+//============================================================
+void CGameManager::EndStart(void)
+{
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+	CEnemy  *pBoss   = CScene::GetBoss();	// ボス情報
+	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
+	CCinemaScope *pScope  = CSceneGame::GetCinemaScope();	// シネマスコープの情報
 
-			// ボスを出現させる
-			pBoss->SetState(CEnemy::STATE_SPAWN);
+	// 通常状態の設定・初期化
+	pPlayer->InitNormal();	// プレイヤー
+	pBoss->InitNormal();	// ボス
 
-			// 通常状態にする
-			pPlayer->SetState(CPlayer::STATE_NORMAL);	// プレイヤー
-			pBoss->SetState(CEnemy::STATE_NORMAL);		// ボス
+	// ボスの名前モデルの自動描画をOFFにする
+	m_pBossName->SetEnableDraw(false);
 
-			// ボスの名前モデルの自動描画をOFFにする
-			m_pBossName->SetEnableDraw(false);
+	// UIの自動描画をONにする
+	pTimer->SetEnableLogoDraw(true);	// タイマーロゴ
+	pTimer->SetEnableDraw(true);		// タイマー
+	pPlayer->SetEnableDrawUI(true);		// プレイヤー関連UI
+	pBoss->SetEnableDrawUI(true);		// ボス関連UI
 
-			// UIの自動描画をOFFにする
-			pTimer->SetEnableLogoDraw(true);	// タイマーロゴ
-			pTimer->SetEnableDraw(true);		// タイマー
-			pPlayer->SetEnableDrawUI(true);		// プレイヤー関連UI
-			pBoss->SetEnableDrawUI(true);		// ボス関連UI
+	// スコープアウトさせる
+	pScope->SetScopeOut();
 
-			// スコープアウトさせる
-			pScope->SetScopeOut();
+	// カメラを追従状態に設定
+	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
+	GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
 
-			// カメラを追従状態に設定
-			GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
-			GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
+	// タイマーの計測開始
+	pTimer->Start();
 
-			// タイマーの計測開始
-			pTimer->Start();
+	// 通常状態にする
+	m_state = STATE_NORMAL;
+}
 
-			// 通常状態にする
-			m_state = STATE_NORMAL;
-		}
+//============================================================
+//	開始演出のスキップ処理
+//============================================================
+void CGameManager::SkipStart(void)
+{
+	// 開始演出が終了済みの場合抜ける
+	if (m_startState == START_END) { return; }
+
+	CInputKeyboard	*pKeyboard	= GET_INPUTKEY;	// キーボード
+	CInputPad		*pPad		= GET_INPUTPAD;	// パッド
+
+	if (pKeyboard->IsTrigger(DIK_RETURN)  || pKeyboard->IsTrigger(DIK_SPACE)
+	||  pPad->IsTrigger(CInputPad::KEY_A) || pPad->IsTrigger(CInputPad::KEY_B)
+	||  pPad->IsTrigger(CInputPad::KEY_X) || pPad->IsTrigger(CInputPad::KEY_Y))
+	{ // 決定の操作が行われた場合
+
+		// 開始演出を終了状態にする
+		m_startState = START_END;
+
+		// 開始演出の終了
+		EndStart();
 	}
 }

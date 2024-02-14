@@ -66,6 +66,8 @@ public:
 private:
 	// メンバ関数
 	void UpdateStart(void);	// 開始状態の更新
+	void EndStart(void);	// 開始演出の終了
+	void SkipStart(void);	// 開始演出のスキップ
 
 	// メンバ変数
 	CModelFont *m_pBossName;	// ボスの名前モデル情報

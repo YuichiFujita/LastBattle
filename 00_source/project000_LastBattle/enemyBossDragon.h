@@ -136,6 +136,7 @@ public:
 	void SetActPunchGround(void);	// 地面殴りの行動設定
 	void SetActFlyAttack(void);		// 空中攻撃の行動設定
 	EAction GetAction(void);		// 行動取得
+	void InitNormal(void);			// 通常状態の初期化
 
 private:
 	// オーバーライド関数

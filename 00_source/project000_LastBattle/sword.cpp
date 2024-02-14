@@ -264,6 +264,10 @@ void CSword::SetState(const EState state)
 	switch (m_state)
 	{ // ó‘Ô‚²‚Æ‚Ìˆ—
 	case STATE_NONE:	// ‰½‚à‚µ‚È‚¢ó‘Ô
+
+		// ‹OÕ‚Ì©“®•`‰æ‚ğOFF‚É‚·‚é
+		m_pOrbit->SetState(COrbit::STATE_NONE);
+
 	case STATE_VANISH:	// Á¸ó‘Ô
 		break;
 

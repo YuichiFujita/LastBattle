@@ -284,6 +284,18 @@ float CEnemy::GetHeight(void) const
 }
 
 //============================================================
+//	通常状態の初期化処理
+//============================================================
+void CEnemy::InitNormal(void)
+{
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// 移動量を初期化
+	m_move = VEC3_ZERO;
+}
+
+//============================================================
 //	UI描画の設定処理
 //============================================================
 void CEnemy::SetEnableDrawUI(const bool /*bDraw*/)
@@ -1031,8 +1043,9 @@ void CEnemy::LoadSetup(const EType typeID)
 				// ポーズ代入用の変数を初期化
 				memset(&infoKey, 0, sizeof(infoKey));
 
-				// キャンセルフレームをなしにする
+				// キャンセル・コンボフレームをなしにする
 				infoKey.nCancelFrame = NONE_IDX;
+				infoKey.nComboFrame  = NONE_IDX;
 
 				// 攻撃判定情報を初期化
 				infoKey.collLeft.nMin  = NONE_IDX;
@@ -1078,6 +1091,12 @@ void CEnemy::LoadSetup(const EType typeID)
 
 						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
 						fscanf(pFile, "%d", &infoKey.nCancelFrame);	// キャンセル可能フレームを読み込む
+					}
+					else if (strcmp(&aString[0], "COMBO") == 0)
+					{ // 読み込んだ文字列が COMBO の場合
+
+						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+						fscanf(pFile, "%d", &infoKey.nComboFrame);	// コンボ可能フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "LEFT_COLL") == 0)
 					{ // 読み込んだ文字列が LEFT_COLL の場合

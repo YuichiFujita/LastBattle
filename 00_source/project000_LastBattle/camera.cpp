@@ -274,6 +274,27 @@ void CCamera::Update(void)
 }
 
 //============================================================
+//	再設定処理
+//============================================================
+void CCamera::Reset(void)
+{
+	// 視認の情報を初期化
+	memset(&m_look, 0, sizeof(m_look));
+
+	for (int nCntCamera = 0; nCntCamera < TYPE_MAX; nCntCamera++)
+	{ // カメラの総数分繰り返す
+
+		// カメラ揺れ情報を初期化
+		SSwing *pSwing = &m_aCamera[nCntCamera].swingInfo;
+		pSwing->shiftPos	 = VEC3_ZERO;	// 位置ずれ量
+		pSwing->fShiftAngle	 = 0.0f;		// 位置をずらす角度
+		pSwing->fShiftLength = 0.0f;		// 位置をずらす距離
+		pSwing->fSubAngle	 = 0.0f;		// ずらす角度の減算量
+		pSwing->fSubLength	 = 0.0f;		// ずらす距離の減算量
+	}
+}
+
+//============================================================
 //	カメラ設定処理
 //============================================================
 void CCamera::SetCamera(const EType type)
@@ -566,6 +587,9 @@ void CCamera::SetState(const EState state)
 {
 	// 状態を設定
 	m_state = state;
+
+	// 再設定
+	Reset();
 }
 
 //============================================================

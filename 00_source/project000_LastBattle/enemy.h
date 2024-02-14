@@ -104,6 +104,7 @@ public:
 	virtual void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) = 0;	// ノックバックヒット
 
 	// 仮想関数
+	virtual void InitNormal(void);	// 通常状態の初期化
 	virtual void SetEnableDrawUI(const bool bDraw);	// UI描画設定
 
 	// 静的メンバ関数
