@@ -26,6 +26,7 @@
 #include "shadow.h"
 #include "stage.h"
 #include "field.h"
+#include "enemy.h"
 
 #include "effect3D.h"
 #include "particle3D.h"
@@ -1200,6 +1201,9 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	// 位置更新
 	UpdatePosition(&posPlayer);
 
+	// 敵との当たり判定の更新
+	UpdateCollEnemy(&posPlayer);
+
 	// 着地判定
 	UpdateLanding(&posPlayer);
 
@@ -1555,6 +1559,44 @@ void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 			SetMotion(BODY_LOWER, L_MOTION_LAND);
 			SetMotion(BODY_UPPER, U_MOTION_LAND);
 		}
+	}
+}
+
+//============================================================
+//	敵との当たり判定の更新処理
+//============================================================
+void CPlayer::UpdateCollEnemy(D3DXVECTOR3 *pPos)
+{
+	CListManager<CEnemy> *pList = CEnemy::GetList();	// リストマネージャー
+	if (pList == nullptr)		 { return; }	// リスト未使用
+	if (pList->GetNumAll() <= 0) { return; }	// 敵が存在しない
+
+	D3DXVECTOR3 heightPlayer = D3DXVECTOR3(0.0f, HEIGHT, 0.0f);	// プレイヤーの縦幅
+	D3DXVECTOR3 posPlayerCent = *pPos + heightPlayer * 0.5f;	// プレイヤーの中心位置
+	std::list<CEnemy*> list = pList->GetList();	// 敵リスト
+	for (auto enemy : list)
+	{ // リストのすべてを繰り返す
+
+		float fRadiusEnemy = enemy->GetStatusInfo().fCollRadius;	// 敵の半径
+		int   nHeadID = enemy->GetHeadModelID();					// 敵の頭モデルインデックス
+		D3DXMATRIX  mtxEnemyHead = enemy->GetMultiModel(nHeadID)->GetMtxWorld();	// 敵の頭のワールドマトリックス
+		D3DXVECTOR3 posEnemyHead = useful::GetMtxWorldPosition(mtxEnemyHead);		// 敵の頭の位置
+		D3DXVECTOR3 posEnemyOrigin = enemy->GetVec3Position();						// 敵の原点位置
+		D3DXVECTOR3 heightEnemy = posEnemyHead - posEnemyOrigin;					// 敵の縦幅
+		D3DXVECTOR3 posEnemyCent = enemy->GetVec3Position() + heightEnemy * 0.5f;	// 敵の中心位置
+
+		// 敵との押し戻し判定
+		collision::ResponseCapsule3D
+		( // 引数
+			&posPlayerCent,	// 判定位置
+			posEnemyCent,	// 判定目標位置
+			RADIUS,			// 判定半径
+			fRadiusEnemy,	// 判定目標半径
+			heightEnemy.y	// 判定目標縦幅
+		);
+
+		// プレイヤーの中心位置から縦幅分減算
+		*pPos = posPlayerCent - heightPlayer * 0.5f;
 	}
 }
 

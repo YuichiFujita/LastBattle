@@ -25,8 +25,8 @@ public:
 	// モデル列挙
 	enum EModel
 	{
-		MODEL_NORMAL = 0,	// 通常
-		MODEL_MAX			// この列挙型の総数
+		MODEL_HEAD = 0,	// 通常
+		MODEL_MAX		// この列挙型の総数
 	};
 
 	// モーション列挙
@@ -47,6 +47,7 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
+	int GetHeadModelID(void) const override;	// 頭モデルのインデックス取得
 
 private:
 	// オーバーライド関数

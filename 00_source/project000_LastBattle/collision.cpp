@@ -8,6 +8,7 @@
 //	インクルードファイル
 //************************************************************
 #include "collision.h"
+#include "effect3D.h"
 
 //============================================================
 //	XZ平面の矩形の当たり判定
@@ -516,6 +517,109 @@ bool collision::ResponseBox3D
 				*pSide = true;
 			}
 		}
+	}
+
+	// 衝突判定を返す
+	return bHit;
+}
+
+//============================================================
+//	三軸の円の衝突判定
+//============================================================
+bool collision::ResponseCircle3D
+(
+	D3DXVECTOR3& rCenterPos,	// 判定位置
+	D3DXVECTOR3 targetPos,		// 判定目標位置
+	float fCenterRadius,		// 判定半径
+	float fTargetRadius			// 判定目標半径
+)
+{
+	// 変数を宣言
+	float fLength = 0.0f;	// 判定位置と判定目標位置の間の距離
+
+	// 判定位置と判定目標位置の距離を求める
+	fLength = (rCenterPos.x - targetPos.x) * (rCenterPos.x - targetPos.x)
+			+ (rCenterPos.y - targetPos.y) * (rCenterPos.y - targetPos.y)
+			+ (rCenterPos.z - targetPos.z) * (rCenterPos.z - targetPos.z);
+
+	if (fLength < ((fCenterRadius + fTargetRadius) * (fCenterRadius + fTargetRadius)))
+	{ // 判定内の場合
+
+		// 変数を宣言
+		D3DXVECTOR3 vecRev = rCenterPos - targetPos;	// 補正方向
+		D3DXVECTOR3 sphere;	// 球座標
+		float fPhi, fTheta;	// 方位角・仰角
+
+		// ベクトルを向きに変換し、向きから球座標を求める
+		useful::VecToRot(vecRev, &fPhi, &fTheta);
+		useful::RotToVec(fPhi, fTheta, &sphere);
+
+		// 位置を補正
+		rCenterPos = targetPos + sphere * (fCenterRadius + fTargetRadius);
+
+		// 真を返す
+		return true;
+	}
+
+	// 偽を返す
+	return false;
+}
+
+//============================================================
+//	三軸のカプセルの衝突判定
+//============================================================
+bool collision::ResponseCapsule3D
+(
+	D3DXVECTOR3 *pCenterPos,	// 判定位置
+	D3DXVECTOR3& rTargetPos,	// 判定目標位置
+	float fCenterRadius,		// 判定半径
+	float fTargetRadius,		// 判定目標半径
+	float fTargetHeight			// 判定目標縦幅
+)
+{
+	// 変数を宣言
+	bool bHit = false;	// 衝突判定結果
+	float fHalfHeight = (fTargetHeight - (fTargetRadius * 2.0f)) * 0.5f;			// 円柱縦幅の半分
+	D3DXVECTOR3 centUp   = *pCenterPos + D3DXVECTOR3(0.0f, fCenterRadius, 0.0f);	// 判定位置の上
+	D3DXVECTOR3 centDown = *pCenterPos - D3DXVECTOR3(0.0f, fCenterRadius, 0.0f);	// 判定位置の下
+	D3DXVECTOR3 targUp   = rTargetPos + D3DXVECTOR3(0.0f, fHalfHeight, 0.0f);		// 判定目標位置の上
+	D3DXVECTOR3 targDown = rTargetPos - D3DXVECTOR3(0.0f, fHalfHeight, 0.0f);		// 判定目標位置の下
+
+	if (centDown.y >= targUp.y)
+	{ // 円柱判定の上側にいる場合
+
+		// 上の球判定
+		bHit = collision::ResponseCircle3D
+		( // 引数
+			*pCenterPos,	// 判定位置
+			targUp,			// 判定目標位置
+			fCenterRadius,	// 判定半径
+			fTargetRadius	// 判定目標半径
+		);
+	}
+	else if (centUp.y <= targDown.y)
+	{ // 円柱判定の下側にいる場合
+
+		// 下の球判定
+		bHit = collision::ResponseCircle3D
+		( // 引数
+			*pCenterPos,	// 判定位置
+			targDown,		// 判定目標位置
+			fCenterRadius,	// 判定半径
+			fTargetRadius	// 判定目標半径
+		);
+	}
+	else
+	{ // 上下の範囲内の場合
+
+		// 円柱の判定
+		bHit = collision::CirclePillar
+		( // 引数
+			*pCenterPos,	// 判定位置
+			rTargetPos,		// 判定目標位置
+			fCenterRadius,	// 判定半径
+			fTargetRadius	// 判定目標半径
+		);
 	}
 
 	// 衝突判定を返す

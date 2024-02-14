@@ -120,7 +120,8 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(void) override;		// 描画
-	void Hit(const int nDamage) override;	// ヒット
+	int  GetHeadModelID(void) const override;	// 頭モデルのインデックス取得
+	void Hit(const int nDamage) override;		// ヒット
 	void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
 	void SetEnableDrawUI(const bool bDraw) override;	// UI描画設定
 

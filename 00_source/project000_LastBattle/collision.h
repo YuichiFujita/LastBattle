@@ -91,6 +91,21 @@ namespace collision
 		bool *pSide = nullptr,	// 横からの判定
 		bool *pDown = nullptr	// 下からの判定
 	);
+	bool ResponseCircle3D	// 三軸の円の衝突判定
+	( // 引数
+		D3DXVECTOR3& rCenterPos,	// 判定位置
+		D3DXVECTOR3 targetPos,		// 判定目標位置
+		float fCenterRadius,		// 判定半径
+		float fTargetRadius			// 判定目標半径
+	);
+	bool ResponseCapsule3D	// 三軸のカプセルの衝突判定
+	( // 引数
+		D3DXVECTOR3 *pCenterPos,	// 判定位置
+		D3DXVECTOR3& rTargetPos,	// 判定目標位置
+		float fCenterRadius,		// 判定半径
+		float fTargetRadius,		// 判定目標半径
+		float fTargetHeight			// 判定目標縦幅
+	);
 
 	bool ResponseSingleX	// X軸の衝突判定
 	( // 引数

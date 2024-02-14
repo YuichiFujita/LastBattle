@@ -177,8 +177,8 @@ namespace useful
 	float RandomRot(void);			// ランダム向き取得
 	void NormalizeRot(float& rRot);	// 向きの正規化
 	void Vec3NormalizeRot(D3DXVECTOR3& rRot);		// 三軸向きの正規化
-	void VecToRot(const D3DXVECTOR3 vec, float *pPhi, float *pTheta);			// ベクトルの向き変換
-	void RotToVec(const float& rPhi, const float& rTheta, D3DXVECTOR3 *pVec);	// 向きのベクトル変換
+	void VecToRot(const D3DXVECTOR3& rVec, float *pPhi, float *pTheta);		// ベクトルの向き変換
+	void RotToVec(const float fPhi, const float fTheta, D3DXVECTOR3 *pVec);	// 向きのベクトル変換
 	D3DXVECTOR3 GetMtxWorldPosition(const D3DXMATRIX& rMtx);	// マトリックスのワールド座標取得
 
 	// テンプレート関数

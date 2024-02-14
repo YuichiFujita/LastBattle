@@ -223,13 +223,14 @@ private:
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
 
-	void UpdateOldPosition(void);			// 過去位置の更新
-	void UpdateGravity(void);				// 重力の更新
-	void UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
-	void UpdatePosition(D3DXVECTOR3 *pPos);	// 位置の更新
-	void UpdateRotation(D3DXVECTOR3 *pRot);	// 向きの更新
-	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
-	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
+	void UpdateOldPosition(void);				// 過去位置の更新
+	void UpdateGravity(void);					// 重力の更新
+	void UpdateLanding(D3DXVECTOR3 *pPos);		// 着地状況の更新
+	void UpdateCollEnemy(D3DXVECTOR3 *pPos);	// 敵との当たり判定の更新
+	void UpdatePosition(D3DXVECTOR3 *pPos);		// 位置の更新
+	void UpdateRotation(D3DXVECTOR3 *pRot);		// 向きの更新
+	bool UpdateFadeOut(const float fAdd);		// フェードアウト状態時の更新
+	bool UpdateFadeIn(const float fSub);		// フェードイン状態時の更新
 
 	// 静的メンバ変数
 	static CListManager<CPlayer> *m_pList;			// オブジェクトリスト

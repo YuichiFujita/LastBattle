@@ -95,6 +95,15 @@ void CEnemyMiniDragon::Draw(void)
 }
 
 //============================================================
+//	頭モデルのインデックス取得処理
+//============================================================
+int CEnemyMiniDragon::GetHeadModelID(void) const
+{
+	// 頭モデルのインデックスを返す
+	return MODEL_HEAD;
+}
+
+//============================================================
 //	モデルファイル取得処理
 //============================================================
 const char *CEnemyMiniDragon::GetModelFileName(const int nModel) const

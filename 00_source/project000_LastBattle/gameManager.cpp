@@ -294,4 +294,46 @@ void CGameManager::UpdateStart(void)
 		assert(false);
 		break;
 	}
+
+	// TODO：ちゃんとしたスキップの作成
+	if (GET_INPUTKEY->IsTrigger(DIK_0))
+	{
+		if (m_startState != START_END)
+		{
+			CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
+			CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
+
+			// 終了状態にする
+			m_startState = START_END;
+
+			// ボスを出現させる
+			pBoss->SetState(CEnemy::STATE_SPAWN);
+
+			// 通常状態にする
+			pPlayer->SetState(CPlayer::STATE_NORMAL);	// プレイヤー
+			pBoss->SetState(CEnemy::STATE_NORMAL);		// ボス
+
+			// ボスの名前モデルの自動描画をOFFにする
+			m_pBossName->SetEnableDraw(false);
+
+			// UIの自動描画をOFFにする
+			pTimer->SetEnableLogoDraw(true);	// タイマーロゴ
+			pTimer->SetEnableDraw(true);		// タイマー
+			pPlayer->SetEnableDrawUI(true);		// プレイヤー関連UI
+			pBoss->SetEnableDrawUI(true);		// ボス関連UI
+
+			// スコープアウトさせる
+			pScope->SetScopeOut();
+
+			// カメラを追従状態に設定
+			GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
+			GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
+
+			// タイマーの計測開始
+			pTimer->Start();
+
+			// 通常状態にする
+			m_state = STATE_NORMAL;
+		}
+	}
 }

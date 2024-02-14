@@ -65,7 +65,7 @@ namespace
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
 	const int	HOWL_WAIT_FRAME	= 40;			// 咆哮の余韻フレーム
-	const int	ATK_WAIT_FRAME	= 300;			// 攻撃の余韻フレーム
+	const int	ATK_WAIT_FRAME	= 300			// 攻撃の余韻フレーム
 	const float	SCALE_MAGIC		= 35.0f;		// 魔法陣の半径変動量
 	const float	MOVE_MAGIC		= 30.0f;		// 魔法陣の上下移動量
 	const float	MAGIC_CIRCLE_RADIUS	= 250.0f;	// 魔法陣の半径
@@ -206,6 +206,15 @@ void CEnemyBossDragon::Draw(void)
 {
 	// 敵の描画
 	CEnemy::Draw();
+}
+
+//============================================================
+//	頭モデルのインデックス取得処理
+//============================================================
+int CEnemyBossDragon::GetHeadModelID(void) const
+{
+	// 頭モデルのインデックスを返す
+	return MODEL_HEAD;
 }
 
 //============================================================

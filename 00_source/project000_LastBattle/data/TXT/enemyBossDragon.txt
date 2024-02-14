@@ -11,9 +11,9 @@ STATUSSET
 
 	LIFE = 300			# ‘Ì—Í
 	RADIUS = 250.0		# ”¼Œa
-	HEIGHT = 300.0		# c•
+	HEIGHT = 200.0		# c•
 	LOOK_REV = 0.25		# U‚èŒü‚«•â³ŒW”
-	COLL_RADIUS = 300.0	# “–‚½‚è”»’è‚Ì”¼Œa
+	COLL_RADIUS = 130.0	# “–‚½‚è”»’è‚Ì”¼Œa
 
 END_STATUSSET
 
