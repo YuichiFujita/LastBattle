@@ -209,15 +209,26 @@ private:
 	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション更新
 	void UpdateMotionLower(const int nMotion);	// 下半身モーション更新
 	void UpdateMotionUpper(const int nMotion);	// 上半身モーション更新
-	bool IsAttack(void) const;		// 攻撃状況取得
+
+	void SetDestLookEnemy	// 目標向きを敵にする
+	( // 引数
+		const D3DXVECTOR3& rPosPlayer,	// プレイヤー位置
+		const D3DXVECTOR3& rRotPlayer,	// プレイヤー向き
+		const float fRate				// 向き補正係数
+	);
 	void SetLStickRotation(void);	// Lスティック向きを向かせる
+	bool IsAttack(void) const;		// 攻撃状況取得
 
 	void UpdateSpawn(void);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
 	void UpdateDamage(int *pLowMotion, int *pUpMotion);	// ダメージ状態時の更新
 	void UpdateInvuln(int *pLowMotion, int *pUpMotion);	// 無敵状態時の更新
 
-	void UpdateAttack(void);		// 攻撃操作の更新
+	void UpdateAttack	// 攻撃操作の更新
+	( // 引数
+		const D3DXVECTOR3& rPos,	// プレイヤー位置
+		const D3DXVECTOR3& rRot		// プレイヤー向き
+	);
 	void UpdateLandAttack(void);	// 地上攻撃操作の更新
 	void UpdateSkyAttack(void);		// 空中攻撃操作の更新
 	void UpdateDodge(void);			// 回避操作の更新

@@ -88,6 +88,8 @@ namespace
 	const float	LAND_REV	= 0.16f;	// 地上の移動量の減衰係数
 	const float	STICK_REV	= 0.00015f;	// 移動操作スティックの傾き量の補正係数
 	const float	ADD_ALPHA	= 0.03f;	// 透明度の加算量
+	const float	LOOK_RADIUS	= 500.0f;	// 敵の方向を向かせる際の敵検知半径
+	const float	LOOK_REV	= 0.5f;		// 敵の方向を向かせる際の補正係数
 	const int	WALK_SOUND	= 4;		// 歩行の効果音のキータイミング
 
 	const int	DAMAGE_FRAME	= 14;		// ダメージ状態の維持フレーム
@@ -1159,24 +1161,81 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 }
 
 //============================================================
-//	攻撃状況の取得処理
+//	目標向きを敵にする処理
 //============================================================
-bool CPlayer::IsAttack(void) const
+void CPlayer::SetDestLookEnemy
+(
+	const D3DXVECTOR3& rPosPlayer,	// プレイヤー位置
+	const D3DXVECTOR3& rRotPlayer,	// プレイヤー向き
+	const float fRate				// 向き補正係数
+)
 {
-	// 変数を宣言
-	EUpperMotion curMotion = (EUpperMotion)GetMotionType(BODY_UPPER);	// 現在のモーション
+	CEnemy *pEnemy = nullptr;	// 向きを補正する敵
 
-	// TODO：攻撃追加したら記述
+	// 向きの補正をする敵を指定
+	{
+		CListManager<CEnemy> *pList = CEnemy::GetList();	// リストマネージャー
+		if (pList == nullptr)		 { return; }	// リスト未使用
+		if (pList->GetNumAll() <= 0) { return; }	// 敵が存在しない
 
-	// 攻撃状況を設定
-	bool bAttack = (curMotion == U_MOTION_ATTACK_00
-				 || curMotion == U_MOTION_ATTACK_01
-				 || curMotion == U_MOTION_ATTACK_02
-				 || curMotion == U_MOTION_JUMP_ATTACK_00
-				 || curMotion == U_MOTION_JUMP_ATTACK_01);
+		float fMinLength = 0.0f;	// 一番プレイヤーに近い距離
+		std::list<CEnemy*> list = pList->GetList();	// 敵リスト
+		for (auto enemy : list)
+		{ // リストのすべてを繰り返す
 
-	// 攻撃状況を返す
-	return bAttack;
+			// XZ平面の円の当たり判定
+			float fLength = 0.0f;	// プレイヤーからの距離
+			bool bHit = collision::Circle2D
+			( // 引数
+				rPosPlayer,					// 判定位置
+				enemy->GetVec3Position(),	// 判定目標位置
+				LOOK_RADIUS,	// 判定半径
+				0.0f,			// 判定目標半径
+				&fLength		// 判定目標との距離
+			);
+			if (bHit)
+			{ // 判定内の場合
+
+				if (pEnemy == nullptr)
+				{ // 近い敵が設定されていない場合
+
+					// 初期情報を保存
+					pEnemy = enemy;			// 一番プレイヤーに近い敵
+					fMinLength = fLength;	// 一番プレイヤーに近い距離
+				}
+				else
+				{ // 近い敵が設定されている場合
+
+					if (fLength < fMinLength)
+					{ // 設定中の敵よりさらに近い場合
+
+						// 情報を保存
+						pEnemy = enemy;			// 一番プレイヤーに近い敵
+						fMinLength = fLength;	// 一番プレイヤーに近い距離
+					}
+				}
+			}
+		}
+	}
+
+	// 敵の方向を向かせる
+	{
+		if (pEnemy == nullptr) { return; }	// 敵指定ない場合抜ける
+
+		D3DXVECTOR3 posEnemy = pEnemy->GetVec3Position();	// 敵位置
+		float fDestRotY, fDiffRotY;	// 目標・差分向き
+
+		// 目標向きを設定
+		fDestRotY = atan2f(rPosPlayer.x - posEnemy.x, rPosPlayer.z - posEnemy.z);
+		useful::NormalizeRot(fDestRotY);	// 向き正規化
+
+		// 差分向きを設定
+		fDiffRotY = fDestRotY - rRotPlayer.y;
+		useful::NormalizeRot(fDiffRotY);	// 向き正規化
+
+		// 実際の目標向きを設定
+		m_destRot.y += fDiffRotY * fRate;
+	}
 }
 
 //============================================================
@@ -1200,6 +1259,27 @@ void CPlayer::SetLStickRotation(void)
 		m_destRot.y = atan2f(-vec.x, -vec.z);	// 目標向き
 		SetVec3Rotation(m_destRot);				// 向き
 	}
+}
+
+//============================================================
+//	攻撃状況の取得処理
+//============================================================
+bool CPlayer::IsAttack(void) const
+{
+	// 変数を宣言
+	EUpperMotion curMotion = (EUpperMotion)GetMotionType(BODY_UPPER);	// 現在のモーション
+
+	// TODO：攻撃追加したら記述
+
+	// 攻撃状況を設定
+	bool bAttack = (curMotion == U_MOTION_ATTACK_00
+				 || curMotion == U_MOTION_ATTACK_01
+				 || curMotion == U_MOTION_ATTACK_02
+				 || curMotion == U_MOTION_JUMP_ATTACK_00
+				 || curMotion == U_MOTION_JUMP_ATTACK_01);
+
+	// 攻撃状況を返す
+	return bAttack;
 }
 
 //============================================================
@@ -1232,7 +1312,7 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
 
 	// 攻撃操作
-	UpdateAttack();
+	UpdateAttack(posPlayer, rotPlayer);
 
 	// 回避操作
 	UpdateDodge();
@@ -1332,7 +1412,11 @@ void CPlayer::UpdateInvuln(int *pLowMotion, int *pUpMotion)
 //============================================================
 //	攻撃操作の更新処理
 //============================================================
-void CPlayer::UpdateAttack(void)
+void CPlayer::UpdateAttack
+(
+	const D3DXVECTOR3& rPos,	// プレイヤー位置
+	const D3DXVECTOR3& rRot		// プレイヤー向き
+)
 {
 	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
 
@@ -1350,6 +1434,14 @@ void CPlayer::UpdateAttack(void)
 			// 空中攻撃操作の更新
 			UpdateSkyAttack();
 		}
+
+		// 目標向きを敵方向にする
+		SetDestLookEnemy
+		( // 引数
+			rPos,		// プレイヤー位置
+			rRot,		// プレイヤー向き
+			LOOK_REV	// 向き補正係数
+		);
 	}
 }
 
@@ -1624,11 +1716,20 @@ void CPlayer::UpdateCollEnemy(D3DXVECTOR3 *pPos)
 
 		float fRadiusEnemy = enemy->GetStatusInfo().fCollRadius;	// 敵の半径
 		int   nHeadID = enemy->GetHeadModelID();					// 敵の頭モデルインデックス
+		int   nWaistID = enemy->GetWaistModelID();					// 敵の腰モデルインデックス
 		D3DXMATRIX  mtxEnemyHead = enemy->GetMultiModel(nHeadID)->GetMtxWorld();	// 敵の頭のワールドマトリックス
 		D3DXVECTOR3 posEnemyHead = useful::GetMtxWorldPosition(mtxEnemyHead);		// 敵の頭の位置
+		D3DXMATRIX  mtxEnemyWaist = enemy->GetMultiModel(nWaistID)->GetMtxWorld();	// 敵の腰のワールドマトリックス
+		D3DXVECTOR3 posEnemyWaist = useful::GetMtxWorldPosition(mtxEnemyWaist);		// 敵の腰の位置
 		D3DXVECTOR3 posEnemyOrigin = enemy->GetVec3Position();						// 敵の原点位置
-		D3DXVECTOR3 heightEnemy = posEnemyHead - posEnemyOrigin;					// 敵の縦幅
-		D3DXVECTOR3 posEnemyCent = enemy->GetVec3Position() + heightEnemy * 0.5f;	// 敵の中心位置
+
+		float fHeightEnemy = posEnemyHead.y - posEnemyOrigin.y;	// 敵の縦幅
+		D3DXVECTOR3 posEnemyCent = D3DXVECTOR3	// 敵の中心位置
+		(
+			posEnemyWaist.x,
+			posEnemyOrigin.y + fHeightEnemy * 0.5f,
+			posEnemyWaist.z
+		);
 
 		// 敵との押し戻し判定
 		collision::ResponseCapsule3D
@@ -1637,7 +1738,7 @@ void CPlayer::UpdateCollEnemy(D3DXVECTOR3 *pPos)
 			posEnemyCent,	// 判定目標位置
 			RADIUS,			// 判定半径
 			fRadiusEnemy,	// 判定目標半径
-			heightEnemy.y	// 判定目標縦幅
+			fHeightEnemy	// 判定目標縦幅
 		);
 
 		// プレイヤーの中心位置から縦幅分減算

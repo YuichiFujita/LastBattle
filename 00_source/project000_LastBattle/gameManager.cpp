@@ -126,9 +126,6 @@ void CGameManager::Update(void)
 		// 開始状態の更新
 		UpdateStart();
 
-		// ボスの名前モデルの更新
-		m_pBossName->Update();
-
 		break;
 
 	case STATE_NORMAL:
@@ -271,6 +268,9 @@ void CGameManager::UpdateStart(void)
 
 	// 開始演出のスキップ
 	SkipStart();
+
+	// ボスの名前モデルの更新
+	m_pBossName->Update();
 }
 
 //============================================================

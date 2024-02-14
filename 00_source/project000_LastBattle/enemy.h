@@ -99,8 +99,9 @@ public:
 	float GetHeight(void) const override;		// 縦幅取得
 
 	// 純粋仮想関数
-	virtual int GetHeadModelID(void) const = 0;	// 頭モデルのインデックス取得
-	virtual void Hit(const int nDamage) = 0;	// ヒット
+	virtual int GetWaistModelID(void) const = 0;	// 腰モデルのインデックス取得
+	virtual int GetHeadModelID(void) const = 0;		// 頭モデルのインデックス取得
+	virtual void Hit(const int nDamage) = 0;		// ヒット
 	virtual void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) = 0;	// ノックバックヒット
 
 	// 仮想関数
