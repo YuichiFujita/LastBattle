@@ -21,6 +21,8 @@ namespace
 	{
 		nullptr,	// ƒeƒNƒXƒ`ƒƒ‚È‚µ
 		"data\\TEXTURE\\wave000.png",	// Œ•‚Ì”g“®
+		"data\\TEXTURE\\wave001.png",	// ÕŒ‚”g‚Ì”g“®
+
 	};
 
 	const int PRIORITY = 4;	// ”g“®‚Ì—Dæ‡ˆÊ

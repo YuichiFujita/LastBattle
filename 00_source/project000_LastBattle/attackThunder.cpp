@@ -202,6 +202,7 @@ void CAttackThunder::Update(void)
 				( // ˆø”
 					CWave::TEXTURE_NONE,	// í—Ş
 					posImpact,				// ˆÊ’u
+					XCOL_WHITE,				// F
 					impact::GROW,			// ¬’·—Ê
 					impact::ADDGROW,		// ¬’·‰Á‘¬—Ê
 					impact::HOLE_RADIUS,	// ŒŠ‚Ì”¼Œa

@@ -38,7 +38,8 @@ public:
 	static CImpact *Create	// ¶¬
 	( // ˆø”
 		const ETexture texture,		// í—Ş
-		const D3DXVECTOR3 &rPos,	// ˆÊ’u
+		const D3DXVECTOR3& rPos,	// ˆÊ’u
+		const D3DXCOLOR& rCol,		// F
 		const SGrow& rGrow,			// ¬’·—Ê
 		const SGrow& rAddGrow,		// ¬’·‰Á‘¬—Ê
 		const float fHoleRadius,	// ŒŠ‚Ì”¼Œa

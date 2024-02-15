@@ -65,7 +65,7 @@ namespace
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
 	const int	HOWL_WAIT_FRAME	= 40;			// 咆哮の余韻フレーム
-	const int	ATK_WAIT_FRAME	= 300;			// 攻撃の余韻フレーム
+	const int	ATK_WAIT_FRAME	= 30;			// 攻撃の余韻フレーム
 	const float	SCALE_MAGIC		= 35.0f;		// 魔法陣の半径変動量
 	const float	MOVE_MAGIC		= 30.0f;		// 魔法陣の上下移動量
 	const float	MAGIC_CIRCLE_RADIUS	= 250.0f;	// 魔法陣の半径
@@ -632,10 +632,10 @@ void CEnemyBossDragon::UpdateAttack(void)
 			// 攻撃の生成
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
-#if 1	// TODO：攻撃を指定
+#if 0	// TODO：攻撃を指定
 				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
 #else
-				CEnemyAttack::ATTACK_02,	// 攻撃インデックス
+				CEnemyAttack::ATTACK_00,	// 攻撃インデックス
 #endif
 				this	// 自身のポインタ
 			);

@@ -16,10 +16,12 @@
 //************************************************************
 namespace
 {
-	const POSGRID2	PART		= POSGRID2(64, 1);	// 分割数
-	const POSGRID2	TEX_PART	= POSGRID2(8, 1);	// テクスチャ分割数
-	const float		SUB_ALPHA	= 0.05f;			// 衝撃波の透明度減算量
-	const int		DMG_IMPACT	= 15;				// 衝撃波のダメージ量
+	const POSGRID2	PART			= POSGRID2(64, 1);	// 分割数
+	const POSGRID2	TEX_PART		= POSGRID2(32, 1);	// テクスチャ分割数
+	const float		SUB_ALPHA		= 0.05f;			// 衝撃波の透明度減算量
+	const float		MOVE_TEXU		= 0.05f;			// テクスチャ横移動量
+	const int		DMG_IMPACT		= 15;				// 衝撃波のダメージ量
+	const int		ALPHA_NUMREF	= 10;				// αテストの参照値
 }
 
 //************************************************************
@@ -75,6 +77,20 @@ HRESULT CImpact::Init(void)
 	// テクスチャ分割数の設定
 	SetTexPattern(TEX_PART);
 
+	// 横座標の移動量を設定
+	SetMoveU(MOVE_TEXU);
+
+	// レンダーステートの情報を取得
+	CRenderState *pRenderState = GetRenderState();
+
+	// αブレンドの設定
+	pRenderState->SetAlphaBlend(CRenderState::BLEND_ADD);
+
+	// αテストの設定
+	pRenderState->SetAlphaTest(true);			// αテストの有効 / 無効の設定
+	pRenderState->SetAlphaFunc(D3DCMP_GREATER);	// αテストの設定
+	pRenderState->SetAlphaNumRef(ALPHA_NUMREF);	// αテストの参照値設定
+
 	// 成功を返す
 	return S_OK;
 }
@@ -99,6 +115,7 @@ void CImpact::Update(void)
 	// プレイヤーとの当たり判定
 	CollisionPlayer();
 
+#if 0
 	if (GetHoleRadius() + GetThickness() > m_fMaxGrowRadius)
 	{ // 半径の最大値に到達した場合
 
@@ -114,10 +131,39 @@ void CImpact::Update(void)
 		SGrow curGrow = GetGrow();	// 現在の成長情報
 		SetGrow(SGrow
 		( // 引数
-			curGrow.fAddHoleRadius	+ m_addGrow.fAddHoleRadius,	// 穴の半径の成長量
-			curGrow.fAddThickness	+ m_addGrow.fAddThickness,	// 太さの成長量
-			curGrow.fSubAlpha		+ m_addGrow.fSubAlpha		// 透明度の成長量
+			curGrow.fAddHoleRadius + m_addGrow.fAddHoleRadius,	// 穴の半径の成長量
+			curGrow.fAddThickness + m_addGrow.fAddThickness,	// 太さの成長量
+			curGrow.fSubAlpha + m_addGrow.fSubAlpha		// 透明度の成長量
 		));
+	}
+#endif
+
+	// 成長を加速させる
+	SGrow curGrow = GetGrow();	// 現在の成長情報
+	SetGrow(SGrow
+	( // 引数
+		curGrow.fAddHoleRadius	+ m_addGrow.fAddHoleRadius,	// 穴の半径の成長量
+		curGrow.fAddThickness	+ m_addGrow.fAddThickness,	// 太さの成長量
+		curGrow.fSubAlpha		+ m_addGrow.fSubAlpha		// 透明度の成長量
+	));
+
+	if (GetHoleRadius() + GetThickness() > m_fMaxGrowRadius)
+	{ // 半径の最大値に到達した場合
+
+		float fHeight = GetOuterPlusY();	// 外周の高さ
+
+		// 外周の高さを下げる
+		fHeight -= 1.0f;
+		if (fHeight <= 0.0f)
+		{ // 見えなくなった場合
+
+			// 自身の終了
+			Uninit();
+			return;
+		}
+
+		// 外周の高さを反映
+		SetOuterPlusY(fHeight);
 	}
 }
 
@@ -137,6 +183,7 @@ CImpact *CImpact::Create
 (
 	const ETexture texture,		// 種類
 	const D3DXVECTOR3& rPos,	// 位置
+	const D3DXCOLOR& rCol,		// 色
 	const SGrow& rGrow,			// 成長量
 	const SGrow& rAddGrow,		// 成長加速量
 	const float fHoleRadius,	// 穴の半径
@@ -170,6 +217,9 @@ CImpact *CImpact::Create
 
 		// 位置を設定
 		pImpact->SetVec3Position(rPos);
+
+		// 色を設定
+		pImpact->SetColor(rCol);
 
 		// 成長情報を設定
 		pImpact->SetGrow(rGrow);

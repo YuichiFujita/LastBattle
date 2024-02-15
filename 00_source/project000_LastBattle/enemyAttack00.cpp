@@ -20,18 +20,40 @@
 //************************************************************
 namespace
 {
-	const CWave::SGrow		IMPACT_GROW		= CWave::SGrow(6.0f, 0.0f, 0.0f);		// 成長量
-	const CWave::SGrow		IMPACT_ADDGROW	= CWave::SGrow(0.2f, 0.002f, 0.0f);		// 成長加速量
-	const CCamera::SSwing	PUNCH_SWING		= CCamera::SSwing(12.0f, 1.5f, 0.25f);	// 地面殴り時のカメラ揺れ
-
-	const float	IMPACT_HOLE_RADIUS	= 10.0f;	// 穴の半径
-	const float	IMPACT_THICKNESS	= 0.0f;		// 太さ
-	const float	IMPACT_OUTER_PLUSY	= 25.0f;	// 外周のY座標加算量
-	const float	IMPACT_MAX_RADIUS	= 3000.0f;	// 半径の最大成長量
 	const float	TELEPORT_POS_DIS	= 800.0f;	// テレポート時のプレイヤー位置から遠ざける距離
-	const int	ATK_MOTION_KEY		= 3;		// 攻撃生成キー
-	const int	ATTACK_WAIT_FRAME	= 10;		// 攻撃後の硬直フレーム
-	const int	MAX_ATTACK			= 2;		// 攻撃回数
+	const int	ATK_1ST_MOTION_KEY	= 3;		// 攻撃生成キー:一段階目
+	const int	ATK_2ND_MOTION_KEY	= 7;		// 攻撃生成キー:二段階目
+	const int	ATK_3RD_MOTION_KEY	= 13;		// 攻撃生成キー:三段階目
+	const int	ATTACK_WAIT_FRAME	= 0;		// 攻撃後の硬直フレーム
+
+	namespace impact
+	{
+		namespace little
+		{
+			const CCamera::SSwing	PUNCH_SWING	= CCamera::SSwing(14.0f, 1.5f, 0.5f);	// 地面殴り時のカメラ揺れ (小)
+			const CWave::SGrow		GROW		= CWave::SGrow(5.5f, 0.0f, 0.0f);		// 成長量
+			const CWave::SGrow		ADDGROW		= CWave::SGrow(0.05f, 0.0f, 0.0f);		// 成長加速量
+
+			const D3DXCOLOR COL = XCOL_CYAN;	// 色
+			const float	HOLE_RADIUS	= 0.0f;		// 穴の半径
+			const float	THICKNESS	= 0.0f;		// 太さ
+			const float	OUTER_PLUSY	= 40.0f;	// 外周のY座標加算量
+			const float	MAX_RADIUS	= 1400.0f;	// 半径の最大成長量
+		}
+
+		namespace big
+		{
+			const CCamera::SSwing	PUNCH_SWING	= CCamera::SSwing(32.0f, 1.5f, 1.5f);	// 地面殴り時のカメラ揺れ (大)
+			const CWave::SGrow		GROW		= CWave::SGrow(6.5f, 0.0f, 0.0f);		// 成長量
+			const CWave::SGrow		ADDGROW		= CWave::SGrow(0.05f, 0.0f, 0.0f);		// 成長加速量
+
+			const D3DXCOLOR COL = XCOL_CYAN;	// 色
+			const float	HOLE_RADIUS	= 0.0f;		// 穴の半径
+			const float	THICKNESS	= 0.0f;		// 太さ
+			const float	OUTER_PLUSY	= 80.0f;	// 外周のY座標加算量
+			const float	MAX_RADIUS	= 1600.0f;	// 半径の最大成長量
+		}
+	}
 }
 
 //************************************************************
@@ -41,9 +63,8 @@ namespace
 //	コンストラクタ
 //============================================================
 CEnemyAttack00::CEnemyAttack00() :
-	m_state				(STATE_INIT_TELEPORT),	// 状態
-	m_nCounterState		(0),					// 状態管理カウンター
-	m_nCounterNumAtk	(0)						// 攻撃回数カウンター
+	m_state			(STATE_INIT_TELEPORT),	// 状態
+	m_nCounterState	(0)						// 状態管理カウンター
 {
 
 }
@@ -63,8 +84,7 @@ HRESULT CEnemyAttack00::Init(void)
 {
 	// メンバ変数を初期化
 	m_state = STATE_INIT_TELEPORT;	// 状態
-	m_nCounterState  = 0;			// 状態管理カウンター
-	m_nCounterNumAtk = 0;			// 攻撃回数カウンター
+	m_nCounterState = 0;			// 状態管理カウンター
 
 	// 敵攻撃の初期化
 	if (FAILED(CEnemyAttack::Init()))
@@ -157,29 +177,107 @@ bool CEnemyAttack00::Update(void)
 			m_state = STATE_WAIT;
 		}
 
-		if (pBoss->GetMotionKey() == ATK_MOTION_KEY && pBoss->GetMotionKeyCounter() == 0)
-		{ // モーションが地面を殴ったタイミングの場合
+		if (pBoss->GetMotionKeyCounter() != 1) { break; }	// マトリックスがキーの開始位置になっていない場合抜ける
+
+		switch (pBoss->GetMotionKey())
+		{ // モーションキーごとの処理
+		case ATK_1ST_MOTION_KEY:	// 殴り一回目：右手
+		{
+			D3DXVECTOR3 posHand;	// 手のワールド座標
+
+			// 左手のマトリックスを取得
+			D3DXMATRIX mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();
+
+			// 左手のワールド座標を設定
+			posHand = useful::GetMtxWorldPosition(mtxHandL);
+
+			// Y座標は足元にする
+			posHand.y = pBoss->GetVec3Position().y;
 
 			// カメラ揺れを設定
-			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, PUNCH_SWING);
+			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::little::PUNCH_SWING);
 
 			// 衝撃波の生成
-			D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス
-			D3DXVECTOR3 posHandL = D3DXVECTOR3(mtxHandL._41, pBoss->GetVec3Position().y, mtxHandL._43);	// 左手のワールド座標
 			CImpact::Create
 			( // 引数
-				CWave::TEXTURE_NONE,	// 種類
-				posHandL,				// 位置
-				IMPACT_GROW,			// 成長量
-				IMPACT_ADDGROW,			// 成長加速量
-				IMPACT_HOLE_RADIUS,		// 穴の半径
-				IMPACT_THICKNESS,		// 太さ
-				IMPACT_OUTER_PLUSY,		// 外周のY座標加算量
-				IMPACT_MAX_RADIUS		// 半径の最大成長量
+				CWave::TEXTURE_IMPACT,			// 種類
+				posHand,						// 位置
+				impact::little::COL,			// 色
+				impact::little::GROW,			// 成長量
+				impact::little::ADDGROW,		// 成長加速量
+				impact::little::HOLE_RADIUS,	// 穴の半径
+				impact::little::THICKNESS,		// 太さ
+				impact::little::OUTER_PLUSY,	// 外周のY座標加算量
+				impact::little::MAX_RADIUS		// 半径の最大成長量
 			);
 
-			// 攻撃回数を加算
-			m_nCounterNumAtk++;
+			break;
+		}
+		case ATK_2ND_MOTION_KEY:	// 殴り二回目：左手
+		{
+			D3DXVECTOR3 posHand;	// 手のワールド座標
+
+			// 右手のマトリックスを取得
+			D3DXMATRIX mtxHandR = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_R)->GetMtxWorld();
+
+			// 右手のワールド座標を設定
+			posHand = useful::GetMtxWorldPosition(mtxHandR);
+
+			// Y座標は足元にする
+			posHand.y = pBoss->GetVec3Position().y;
+
+			// カメラ揺れを設定
+			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::little::PUNCH_SWING);
+
+			// 衝撃波の生成
+			CImpact::Create
+			( // 引数
+				CWave::TEXTURE_IMPACT,			// 種類
+				posHand,						// 位置
+				impact::little::COL,			// 色
+				impact::little::GROW,			// 成長量
+				impact::little::ADDGROW,		// 成長加速量
+				impact::little::HOLE_RADIUS,	// 穴の半径
+				impact::little::THICKNESS,		// 太さ
+				impact::little::OUTER_PLUSY,	// 外周のY座標加算量
+				impact::little::MAX_RADIUS		// 半径の最大成長量
+			);
+
+			break;
+		}
+		case ATK_3RD_MOTION_KEY:	// 殴り三回目：両手
+		{
+			D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス
+			D3DXMATRIX  mtxHandR = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_R)->GetMtxWorld();	// 右手のマトリックス
+			D3DXVECTOR3 posHandL = useful::GetMtxWorldPosition(mtxHandL);	// 左手のワールド座標
+			D3DXVECTOR3 posHandR = useful::GetMtxWorldPosition(mtxHandR);	// 右手のワールド座標
+			D3DXVECTOR3 posHand;	// 手のワールド座標
+
+			// 両手の中間ワールド座標を設定
+			D3DXVec3Lerp(&posHand, &posHandL, &posHandR, 0.5f);
+
+			// Y座標は足元にする
+			posHand.y = pBoss->GetVec3Position().y;
+
+			// カメラ揺れを設定
+			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::big::PUNCH_SWING);
+
+			// 衝撃波の生成
+			CImpact::Create
+			( // 引数
+				CWave::TEXTURE_IMPACT,		// 種類
+				posHand,					// 位置
+				impact::big::COL,			// 色
+				impact::big::GROW,			// 成長量
+				impact::big::ADDGROW,		// 成長加速量
+				impact::big::HOLE_RADIUS,	// 穴の半径
+				impact::big::THICKNESS,		// 太さ
+				impact::big::OUTER_PLUSY,	// 外周のY座標加算量
+				impact::big::MAX_RADIUS		// 半径の最大成長量
+			);
+
+			break;
+		}
 		}
 
 		break;
@@ -194,21 +292,8 @@ bool CEnemyAttack00::Update(void)
 			// カウンターを初期化
 			m_nCounterState = 0;
 
-			if (m_nCounterNumAtk < MAX_ATTACK)
-			{ // 攻撃回数が総数に到達していない場合
-
-				// テレポート初期化状態にする
-				m_state = STATE_INIT_TELEPORT;
-			}
-			else
-			{ // 攻撃回数が総数に到達した場合
-
-				// 攻撃回数を初期化
-				m_nCounterNumAtk = 0;
-
-				// 終了状態にする
-				m_state = STATE_END;
-			}
+			// 終了状態にする
+			m_state = STATE_END;
 		}
 
 		break;

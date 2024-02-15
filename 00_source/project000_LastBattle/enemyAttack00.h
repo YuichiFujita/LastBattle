@@ -52,7 +52,6 @@ private:
 	// メンバ変数
 	EState m_state;			// 状態
 	int m_nCounterState;	// 状態管理カウンター
-	int m_nCounterNumAtk;	// 攻撃回数カウンター
 };
 
 #endif	// _ENEMY_ATTACK00_H_
