@@ -11,9 +11,12 @@
 #include "manager.h"
 #include "renderer.h"
 #include "collision.h"
+#include "swordWaveManager.h"
 #include "orbit.h"
 #include "enemy.h"
 #include "collSphere.h"
+#include "scene.h"
+#include "player.h"
 
 //************************************************************
 //	定数宣言
@@ -28,7 +31,13 @@ namespace
 	const float	SUB_ALPHA	= 0.05f;	// 透明度の減算量
 	const int	DMG_HIT		= 10;		// ヒット時のダメージ量
 	const int	ORBIT_PART	= 18;		// 分割数
-	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset(D3DXVECTOR3(0.0f, 0.0f, -10.0f), D3DXVECTOR3(0.0f, 0.0f, -65.0f), XCOL_CYAN);	// オフセット情報
+
+	const COrbit::SOffset ORBIT_OFFSET = COrbit::SOffset	// オフセット情報
+	(
+		D3DXVECTOR3(0.0f, 0.0f, -10.0f),
+		D3DXVECTOR3(0.0f, 0.0f, -65.0f),
+		D3DXCOLOR(0.0f, 1.0f, 1.0f, 0.5f)
+	);
 }
 
 //************************************************************
@@ -48,6 +57,7 @@ static_assert(NUM_ARRAY(MODEL_FILE) == CSword::MODEL_MAX, "ERROR : Model Count M
 //	コンストラクタ
 //============================================================
 CSword::CSword() : CMultiModel(LABEL_NONE, DIM_3D, object::DEFAULT_PRIO),
+	m_pWaveManager	(nullptr),		// 剣波動生成マネージャー
 	m_state			(STATE_NONE),	// 状態
 	m_bAttack		(false),		// 攻撃状況
 	m_nCounterState	(0)				// 状態管理カウンター
@@ -69,9 +79,10 @@ CSword::~CSword()
 HRESULT CSword::Init(void)
 {
 	// メンバ変数を初期化
-	m_state		= STATE_NONE;	// 状態
-	m_bAttack	= true;			// 攻撃状況
-	m_nCounterState = 0;		// 状態管理カウンター
+	m_pWaveManager	= nullptr;		// 剣波動生成マネージャー
+	m_state			= STATE_NONE;	// 状態
+	m_bAttack		= true;			// 攻撃状況
+	m_nCounterState	= 0;			// 状態管理カウンター
 
 	// マルチモデルの初期化
 	if (FAILED(CMultiModel::Init()))
@@ -85,6 +96,16 @@ HRESULT CSword::Init(void)
 	// モデルを登録・割当
 	BindModel(MODEL_FILE[MODEL_SWORD]);
 
+	// 剣波動生成マネージャーの生成
+	m_pWaveManager = CSwordWaveManager::Create();
+	if (m_pWaveManager == nullptr)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
 	// 軌跡の生成
 	m_pOrbit = COrbit::Create
 	( // 引数
@@ -93,7 +114,7 @@ HRESULT CSword::Init(void)
 		ORBIT_PART			// 分割数
 	);
 	if (m_pOrbit == nullptr)
-	{ // 非使用中の場合
+	{ // 生成に失敗した場合
 
 		// 失敗を返す
 		assert(false);
@@ -114,6 +135,9 @@ void CSword::Uninit(void)
 {
 	// 判定情報の破棄
 	SAFE_DEL_ARRAY(m_collInfo.pColl);
+
+	// 剣波動生成マネージャーの破棄
+	SAFE_REF_RELEASE(m_pWaveManager);
 
 	// 軌跡の終了
 	SAFE_UNINIT(m_pOrbit);
@@ -164,8 +188,14 @@ void CSword::Update(void)
 		m_pOrbit->SetState(COrbit::STATE_VANISH);
 	}
 
+	// TODO：剣自体の判定をOFF
+#if 0
 	// 敵との当たり判定
 	CollisionEnemy();
+#endif
+
+	// 剣波動生成マネージャーの更新
+	m_pWaveManager->Update();
 
 	// 軌跡の更新
 	m_pOrbit->Update();
@@ -201,7 +231,7 @@ int CSword::GetState(void) const
 //============================================================
 CSword *CSword::Create
 (
-	CObject *pObject,			// 親オブジェクト
+	CObject *pParent,			// 親オブジェクト
 	const D3DXVECTOR3 &rPos,	// 位置
 	const D3DXVECTOR3 &rRot		// 向き
 )
@@ -226,7 +256,7 @@ CSword *CSword::Create
 		}
 
 		// 親オブジェクトを設定
-		pSword->SetParentObject(pObject);
+		pSword->SetParentObject(pParent);
 
 		// 位置を設定
 		pSword->SetVec3Position(rPos);

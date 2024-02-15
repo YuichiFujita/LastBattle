@@ -20,6 +20,7 @@ namespace
 	const char *TEXTURE_FILE[] =	// テクスチャファイル
 	{
 		nullptr,	// テクスチャなし
+		"data\\TEXTURE\\wave000.png",	// 剣の波動
 	};
 
 	const int PRIORITY = 4;	// 波動の優先順位

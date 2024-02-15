@@ -38,6 +38,7 @@ public:
 	enum ETexture
 	{
 		TEXTURE_NONE = 0,	// テクスチャなし
+		TEXTURE_SWORD,		// 剣の波動
 		TEXTURE_MAX			// この列挙型の総数
 	};
 

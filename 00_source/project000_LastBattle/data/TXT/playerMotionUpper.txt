@@ -1336,6 +1336,14 @@ MOTIONSET
 	LEFT_COLL = 12 25	# 左攻撃の判定時間[MIN, MAX]
 	RIGHT_COLL = 12 25	# 右攻撃の判定時間[MIN, MAX]
 	
+	# 剣の波動
+	WAVE
+		SWORD = 1	# 剣インデックス[0:左 / 1:右]
+		FRAME = 18	# 生成フレーム
+		OFFSETPOS = 0.0 50.0 -15.0	# 位置オフセット
+		OFFSETROT = 0.1 0.0 -0.4	# 向きオフセット
+	END_WAVE
+	
 	KEYSET
 	
 		FRAME = 12
@@ -1581,7 +1589,15 @@ MOTIONSET
 	
 	LEFT_COLL = 12 29	# 左攻撃の判定時間[MIN, MAX]
 	RIGHT_COLL = 12 29	# 右攻撃の判定時間[MIN, MAX]
-
+	
+	# 剣の波動
+	WAVE
+		SWORD = 0	# 剣インデックス[0:左 / 1:右]
+		FRAME = 18	# 生成フレーム
+		OFFSETPOS = 0.0 34.0 -15.0	# 位置オフセット
+		OFFSETROT = 0.08 0.0 -0.08	# 向きオフセット
+	END_WAVE
+	
 	KEYSET
 	
 		FRAME = 12
@@ -1827,7 +1843,23 @@ MOTIONSET
 	
 	LEFT_COLL = 10 25	# 左攻撃の判定時間[MIN, MAX]
 	RIGHT_COLL = 10 25	# 右攻撃の判定時間[MIN, MAX]
-
+	
+	# 剣の波動
+	WAVE
+		SWORD = 0	# 剣インデックス[0:左 / 1:右]
+		FRAME = 16	# 生成フレーム
+		OFFSETPOS = 0.0 54.0 -11.0	# 位置オフセット
+		OFFSETROT = 0.0 0.0 0.6		# 向きオフセット
+	END_WAVE
+	
+	# 剣の波動
+	WAVE
+		SWORD = 1	# 剣インデックス[0:左 / 1:右]
+		FRAME = 16	# 生成フレーム
+		OFFSETPOS = 0.0 57.0 -11.0	# 位置オフセット
+		OFFSETROT = 0.0 0.0 -0.6	# 向きオフセット
+	END_WAVE
+	
 	KEYSET
 	
 		FRAME = 8
@@ -2364,6 +2396,14 @@ MOTIONSET
 	
 	LEFT_COLL = 0 15	# 左攻撃の判定時間[MIN, MAX]
 
+	# 剣の波動
+	WAVE
+		SWORD = 0	# 剣インデックス[0:左 / 1:右]
+		FRAME = 10	# 生成フレーム
+		OFFSETPOS = 0.0 36.0 -7.0	# 位置オフセット
+		OFFSETROT = 0.3 0.0 -0.3	# 向きオフセット
+	END_WAVE
+
 	KEYSET
 	
 		FRAME = 7
@@ -2608,7 +2648,15 @@ MOTIONSET
 	CANCEL = 25	# キャンセルフレーム
 
 	RIGHT_COLL = 0 15	# 右攻撃の判定時間[MIN, MAX]
-
+	
+	# 剣の波動
+	WAVE
+		SWORD = 1	# 剣インデックス[0:左 / 1:右]
+		FRAME = 10	# 生成フレーム
+		OFFSETPOS = 0.0 49.0 -7.0	# 位置オフセット
+		OFFSETROT = 0.4 0.0 -0.3	# 向きオフセット
+	END_WAVE
+	
 	KEYSET
 	
 		FRAME = 7

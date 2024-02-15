@@ -18,6 +18,7 @@
 //************************************************************
 //	前方宣言
 //************************************************************
+class CSwordWaveManager;	// 剣波動生成クラス
 class COrbit;	// 軌跡クラス
 
 //************************************************************
@@ -74,15 +75,16 @@ public:
 	static void LoadSetup(void);	// セットアップ
 	static CSword *Create	// 生成
 	( // 引数
-		CObject *pObject,						// 親オブジェクト
+		CObject *pParent,						// 親オブジェクト
 		const D3DXVECTOR3 &rPos = VEC3_ZERO,	// 位置
 		const D3DXVECTOR3 &rRot = VEC3_ZERO		// 向き
 	);
 
 	// メンバ関数
 	void SetState(const EState state);	// 状態設定
-	void SetEnableAttack(const bool bAttack) { m_bAttack = bAttack; }	// 攻撃状況設定
-	bool IsAttack(void) const				 { return m_bAttack; }		// 攻撃状況取得
+	void SetEnableAttack(const bool bAttack) { m_bAttack = bAttack; }		// 攻撃状況設定
+	bool IsAttack(void) const				 { return m_bAttack; }			// 攻撃状況取得
+	CSwordWaveManager *GetWaveManager(void)	 { return m_pWaveManager; }		// 剣波動生成マネージャー取得
 
 private:
 	// メンバ関数
@@ -92,6 +94,7 @@ private:
 	static SCollInfo m_collInfo;	// 判定情報
 
 	// メンバ変数
+	CSwordWaveManager *m_pWaveManager;	// 剣波動生成マネージャー
 	COrbit	*m_pOrbit;			// 軌跡の情報
 	EState	m_state;			// 状態
 	int		m_nCounterState;	// 状態管理カウンター

@@ -46,14 +46,14 @@ public:
 		int nMax;	// 攻撃判定の終了カウント
 	};
 
-	// パーツ管理構造体
+	// キー情報構造体
 	struct SKey
 	{
 		D3DXVECTOR3 pos;	// モデル位置
 		D3DXVECTOR3 rot;	// モデル向き
 	};
 
-	// ポーズ管理構造体
+	// キー管理構造体
 	struct SKeyInfo
 	{
 		SKey		aKey[motion::MAX_PARTS];	// キーモデル情報
@@ -61,7 +61,7 @@ public:
 		int			nFrame;	// キー再生フレーム数
 	};
 
-	// キー管理構造体
+	// モーション管理構造体
 	struct SMotionInfo
 	{
 		SKeyInfo  aKeyInfo[motion::MAX_KEY];	// キー情報
@@ -75,7 +75,7 @@ public:
 		bool bWeaponDisp;		// 武器表示 ON/OFF
 	};
 
-	// モーション管理構造体
+	// モーション情報構造体
 	struct SInfo
 	{
 		SMotionInfo aMotionInfo[motion::MAX_MOTION];	// モーション情報

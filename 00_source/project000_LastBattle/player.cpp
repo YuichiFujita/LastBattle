@@ -22,6 +22,7 @@
 #include "objectChara.h"
 #include "multiModel.h"
 #include "sword.h"
+#include "swordWaveManager.h"
 #include "gauge2D.h"
 #include "shadow.h"
 #include "stage.h"
@@ -196,19 +197,19 @@ HRESULT CPlayer::Init(void)
 		return E_FAIL;
 	}
 
-	// 体力の生成
-	m_pLife = CGauge2D::Create
-	( // 引数
-		lifeInfo::MAX_LIFE,		// 最大表示値
-		lifeInfo::CHANGE_FRAME,	// 表示値変動フレーム
-		lifeInfo::POS,			// 位置
-		lifeInfo::SIZE_GAUGE,	// ゲージ大きさ
-		lifeInfo::COL_FRONT,	// 表ゲージ色
-		lifeInfo::COL_BACK,		// 裏ゲージ色
-		true,
-		TEXTURE_LIFEFRAME,
-		lifeInfo::SIZE_GAUGE + D3DXVECTOR3(16.5f, 16.5f, 0.0f)
-	);
+	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
+	{ // 剣の数分繰り返す
+
+		// 剣の生成
+		m_apSowrd[nCntSword] = CSword::Create(nullptr, SWORD_OFFSET[nCntSword]);
+		if (m_apSowrd[nCntSword] == nullptr)
+		{ // 非使用中の場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+	}
 
 	// セットアップの読込
 	LoadSetup(BODY_LOWER, MODEL_PASS[BODY_LOWER]);
@@ -223,20 +224,23 @@ HRESULT CPlayer::Init(void)
 	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 	{ // 剣の数分繰り返す
 
-		// 剣の生成
-		m_apSowrd[nCntSword] = CSword::Create
-		( // 引数
-			GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntSword),	// 親オブジェクト
-			SWORD_OFFSET[nCntSword]
-		);
-		if (m_apSowrd[nCntSword] == nullptr)
-		{ // 非使用中の場合
-
-			// 失敗を返す
-			assert(false);
-			return E_FAIL;
-		}
+		// 親オブジェクト (持ち手) の設定
+		m_apSowrd[nCntSword]->SetParentObject(GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntSword));
 	}
+
+	// 体力の生成
+	m_pLife = CGauge2D::Create
+	( // 引数
+		lifeInfo::MAX_LIFE,		// 最大表示値
+		lifeInfo::CHANGE_FRAME,	// 表示値変動フレーム
+		lifeInfo::POS,			// 位置
+		lifeInfo::SIZE_GAUGE,	// ゲージ大きさ
+		lifeInfo::COL_FRONT,	// 表ゲージ色
+		lifeInfo::COL_BACK,		// 裏ゲージ色
+		true,
+		TEXTURE_LIFEFRAME,
+		lifeInfo::SIZE_GAUGE + D3DXVECTOR3(16.5f, 16.5f, 0.0f)
+	);
 
 	// 影の生成
 	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, SHADOW_SIZE, this);
@@ -1874,9 +1878,11 @@ bool CPlayer::UpdateFadeIn(const float fSub)
 void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 {
 	// 変数を宣言
-	CMotion::SMotionInfo info;		// ポーズの代入用
+	CSwordWaveManager::STiming waveTiming;	// 波動スポーンの代入用
+	CMotion::SMotionInfo keyInfo;	// キーの代入用
 	D3DXVECTOR3 pos = VEC3_ZERO;	// 位置の代入用
 	D3DXVECTOR3 rot = VEC3_ZERO;	// 向きの代入用
+	int nSword		= NONE_IDX;		// 剣インデックス
 	int nID			= 0;	// インデックスの代入用
 	int nParentID	= 0;	// 親インデックスの代入用
 	int nNowPose	= 0;	// 現在のポーズ番号
@@ -1966,20 +1972,20 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 				nNowPose = 0;
 
 				// ポーズ代入用の変数を初期化
-				memset(&info, 0, sizeof(info));
+				memset(&keyInfo, 0, sizeof(keyInfo));
 
 				// キャンセル・コンボフレームをなしにする
-				info.nCancelFrame = NONE_IDX;
-				info.nComboFrame  = NONE_IDX;
+				keyInfo.nCancelFrame = NONE_IDX;
+				keyInfo.nComboFrame  = NONE_IDX;
 
 				// 攻撃判定情報を初期化
-				info.collLeft.nMin  = NONE_IDX;
-				info.collLeft.nMax  = NONE_IDX;
-				info.collRight.nMin = NONE_IDX;
-				info.collRight.nMax = NONE_IDX;
+				keyInfo.collLeft.nMin  = NONE_IDX;
+				keyInfo.collLeft.nMax  = NONE_IDX;
+				keyInfo.collRight.nMin = NONE_IDX;
+				keyInfo.collRight.nMax = NONE_IDX;
 
 				// 武器表示をOFFにする
-				info.bWeaponDisp = false;
+				keyInfo.bWeaponDisp = false;
 
 				do
 				{ // 読み込んだ文字列が END_MOTIONSET ではない場合ループ
@@ -1994,7 +2000,7 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 						fscanf(pFile, "%d", &nWeapon);		// 武器表示のON/OFFを読み込む
 
 						// 読み込んだ値をbool型に変換
-						info.bWeaponDisp = (nWeapon == 0) ? false : true;
+						keyInfo.bWeaponDisp = (nWeapon == 0) ? false : true;
 					}
 					else if (strcmp(&aString[0], "LOOP") == 0)
 					{ // 読み込んだ文字列が LOOP の場合
@@ -2003,39 +2009,87 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 						fscanf(pFile, "%d", &nLoop);		// ループのON/OFFを読み込む
 
 						// 読み込んだ値をbool型に変換
-						info.bLoop = (nLoop == 0) ? false : true;
+						keyInfo.bLoop = (nLoop == 0) ? false : true;
 					}
 					else if (strcmp(&aString[0], "NUM_KEY") == 0)
 					{ // 読み込んだ文字列が NUM_KEY の場合
 
-						fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.nNumKey);	// キーの総数を読み込む
+						fscanf(pFile, "%s", &aString[0]);		// = を読み込む (不要)
+						fscanf(pFile, "%d", &keyInfo.nNumKey);	// キーの総数を読み込む
 					}
 					else if (strcmp(&aString[0], "CANCEL") == 0)
 					{ // 読み込んだ文字列が CANCEL の場合
 
 						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.nCancelFrame);	// キャンセル可能フレームを読み込む
+						fscanf(pFile, "%d", &keyInfo.nCancelFrame);	// キャンセル可能フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "COMBO") == 0)
 					{ // 読み込んだ文字列が COMBO の場合
 
 						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.nComboFrame);		// コンボ可能フレームを読み込む
+						fscanf(pFile, "%d", &keyInfo.nComboFrame);	// コンボ可能フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "LEFT_COLL") == 0)
 					{ // 読み込んだ文字列が LEFT_COLL の場合
 
-						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.collLeft.nMin);	// 判定を出す開始フレームを読み込む
-						fscanf(pFile, "%d", &info.collLeft.nMax);	// 判定を消す終了フレームを読み込む
+						fscanf(pFile, "%s", &aString[0]);				// = を読み込む (不要)
+						fscanf(pFile, "%d", &keyInfo.collLeft.nMin);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &keyInfo.collLeft.nMax);	// 判定を消す終了フレームを読み込む
 					}
 					else if (strcmp(&aString[0], "RIGHT_COLL") == 0)
 					{ // 読み込んだ文字列が RIGHT_COLL の場合
 
-						fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
-						fscanf(pFile, "%d", &info.collRight.nMin);	// 判定を出す開始フレームを読み込む
-						fscanf(pFile, "%d", &info.collRight.nMax);	// 判定を消す終了フレームを読み込む
+						fscanf(pFile, "%s", &aString[0]);				// = を読み込む (不要)
+						fscanf(pFile, "%d", &keyInfo.collRight.nMin);	// 判定を出す開始フレームを読み込む
+						fscanf(pFile, "%d", &keyInfo.collRight.nMax);	// 判定を消す終了フレームを読み込む
+					}
+					else if (strcmp(&aString[0], "WAVE") == 0)
+					{ // 読み込んだ文字列が WAVE の場合
+
+						do
+						{ // 読み込んだ文字列が END_WAVE ではない場合ループ
+
+							// ファイルから文字列を読み込む
+							fscanf(pFile, "%s", &aString[0]);
+
+							if (strcmp(&aString[0], "SWORD") == 0)
+							{ // 読み込んだ文字列が SWORD の場合
+
+								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
+								fscanf(pFile, "%d", &nSword);		// 剣インデックスを読み込む
+							}
+							else if (strcmp(&aString[0], "FRAME") == 0)
+							{ // 読み込んだ文字列が FRAME の場合
+
+								fscanf(pFile, "%s", &aString[0]);			// = を読み込む (不要)
+								fscanf(pFile, "%d", &waveTiming.nFrame);	// 生成フレームを読み込む
+							}
+							else if (strcmp(&aString[0], "OFFSETPOS") == 0)
+							{ // 読み込んだ文字列が OFFSETPOS の場合
+
+								fscanf(pFile, "%s", &aString[0]);				// = を読み込む (不要)
+								fscanf(pFile, "%f", &waveTiming.posOffset.x);	// X位置オフセットを読み込む
+								fscanf(pFile, "%f", &waveTiming.posOffset.y);	// Y位置オフセットを読み込む
+								fscanf(pFile, "%f", &waveTiming.posOffset.z);	// Z位置オフセットを読み込む
+							}
+							else if (strcmp(&aString[0], "OFFSETROT") == 0)
+							{ // 読み込んだ文字列が OFFSETROT の場合
+
+								fscanf(pFile, "%s", &aString[0]);				// = を読み込む (不要)
+								fscanf(pFile, "%f", &waveTiming.rotOffset.x);	// X向きオフセットを読み込む
+								fscanf(pFile, "%f", &waveTiming.rotOffset.y);	// Y向きオフセットを読み込む
+								fscanf(pFile, "%f", &waveTiming.rotOffset.z);	// Z向きオフセットを読み込む
+							}
+						} while (strcmp(&aString[0], "END_WAVE") != 0);	// 読み込んだ文字列が END_WAVE ではない場合ループ
+
+						if (nSword > NONE_IDX && nSword < player::NUM_SWORD)
+						{ // 剣インデックスが範囲内の場合
+
+							// 剣の波動タイミングを追加
+							waveTiming.nMotion = GetMotionNumType(bodyID);	// 現在のモーションを設定
+							m_apSowrd[nSword]->GetWaveManager()->AddTiming(waveTiming);
+						}
+						else { assert(false); }	// 範囲外
 					}
 					else if (strcmp(&aString[0], "KEYSET") == 0)
 					{ // 読み込んだ文字列が KEYSET の場合
@@ -2052,16 +2106,16 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 							if (strcmp(&aString[0], "FRAME") == 0)
 							{ // 読み込んだ文字列が FRAME の場合
 
-								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
-								fscanf(pFile, "%d", &info.aKeyInfo[nNowPose].nFrame);	// キーが切り替わるまでのフレーム数を読み込む
+								fscanf(pFile, "%s", &aString[0]);							// = を読み込む (不要)
+								fscanf(pFile, "%d", &keyInfo.aKeyInfo[nNowPose].nFrame);	// キーが切り替わるまでのフレーム数を読み込む
 							}
 							else if (strcmp(&aString[0], "MOVE") == 0)
 							{ // 読み込んだ文字列が MOVE の場合
 
-								fscanf(pFile, "%s", &aString[0]);						// = を読み込む (不要)
-								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.x);	// キーが切り替わるまでの移動量を読み込む
-								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.y);	// キーが切り替わるまでの移動量を読み込む
-								fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].move.z);	// キーが切り替わるまでの移動量を読み込む
+								fscanf(pFile, "%s", &aString[0]);							// = を読み込む (不要)
+								fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].move.x);	// キーが切り替わるまでの移動量を読み込む
+								fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].move.y);	// キーが切り替わるまでの移動量を読み込む
+								fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].move.z);	// キーが切り替わるまでの移動量を読み込む
 							}
 							else if (strcmp(&aString[0], "KEY") == 0)
 							{ // 読み込んだ文字列が KEY の場合
@@ -2075,29 +2129,29 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 									if (strcmp(&aString[0], "POS") == 0)
 									{ // 読み込んだ文字列が POS の場合
 
-										fscanf(pFile, "%s", &aString[0]);									// = を読み込む (不要)
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.x);	// X位置を読み込む
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.y);	// Y位置を読み込む
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].pos.z);	// Z位置を読み込む
+										fscanf(pFile, "%s", &aString[0]);										// = を読み込む (不要)
+										fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].pos.x);	// X位置を読み込む
+										fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].pos.y);	// Y位置を読み込む
+										fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].pos.z);	// Z位置を読み込む
 
 										// 読み込んだ位置にパーツの初期位置を加算
-										info.aKeyInfo[nNowPose].aKey[nNowKey].pos += GetPartsPosition(bodyID, nNowKey);
+										keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].pos += GetPartsPosition(bodyID, nNowKey);
 									}
 									else if (strcmp(&aString[0], "ROT") == 0)
 									{ // 読み込んだ文字列が ROT の場合
 
-										fscanf(pFile, "%s", &aString[0]);									// = を読み込む (不要)
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);	// X向きを読み込む
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);	// Y向きを読み込む
-										fscanf(pFile, "%f", &info.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);	// Z向きを読み込む
+										fscanf(pFile, "%s", &aString[0]);										// = を読み込む (不要)
+										fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);	// X向きを読み込む
+										fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);	// Y向きを読み込む
+										fscanf(pFile, "%f", &keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);	// Z向きを読み込む
 
 										// 読み込んだ向きにパーツの初期向きを加算
-										info.aKeyInfo[nNowPose].aKey[nNowKey].rot += GetPartsRotation(bodyID, nNowKey);
+										keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].rot += GetPartsRotation(bodyID, nNowKey);
 
 										// 初期向きを正規化
-										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);
-										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);
-										useful::NormalizeRot(info.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);
+										useful::NormalizeRot(keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].rot.x);
+										useful::NormalizeRot(keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].rot.y);
+										useful::NormalizeRot(keyInfo.aKeyInfo[nNowPose].aKey[nNowKey].rot.z);
 									}
 
 								} while (strcmp(&aString[0], "END_KEY") != 0);	// 読み込んだ文字列が END_KEY ではない場合ループ
@@ -2113,7 +2167,7 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 				} while (strcmp(&aString[0], "END_MOTIONSET") != 0);	// 読み込んだ文字列が END_MOTIONSET ではない場合ループ
 
 				// モーション情報の設定
-				SetMotionInfo(bodyID, info);
+				SetMotionInfo(bodyID, keyInfo);
 			}
 		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
 		
