@@ -761,13 +761,18 @@ void CPlayer::SetInvuln(void)
 //============================================================
 //	モーションの設定処理
 //============================================================
-void CPlayer::SetMotion(const EBody bodyID, const int nType)
+void CPlayer::SetMotion
+(
+	const EBody bodyID,		// 身体インデックス
+	const int nType,		// モーション種類
+	const int nBlendFrame	// ブレンドフレーム
+)
 {
 	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
 	{ // 正規インデックスの場合
 
 		// 引数インデックスのモーションを設定
-		CObjectDivChara::SetMotion(bodyID, nType);
+		CObjectDivChara::SetMotion(bodyID, nType, nBlendFrame);
 
 		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 		{ // 剣の数分繰り返す

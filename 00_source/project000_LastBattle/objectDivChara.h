@@ -66,7 +66,12 @@ public:
 	);
 
 	// 仮想関数
-	virtual void SetMotion(const EBody bodyID, const int nType);	// モーション設定
+	virtual void SetMotion	// モーション設定
+	( // 引数
+		const EBody bodyID,			// 身体インデックス
+		const int nType,			// モーション種類
+		const int nBlendFrame = 0	// ブレンドフレーム
+	);
 
 	// メンバ関数
 	void SetPartsInfo	// パーツ情報設定

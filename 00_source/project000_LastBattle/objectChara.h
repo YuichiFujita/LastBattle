@@ -53,7 +53,7 @@ public:
 	static CObjectChara *Create(const D3DXVECTOR3 &rPos, const D3DXVECTOR3 &rRot = VEC3_ZERO);	// 生成
 
 	// 仮想関数
-	virtual void SetMotion(const int nType);	// モーション設定
+	virtual void SetMotion(const int nType, const int nBlendFrame = 0);	// モーション設定
 
 	// メンバ関数
 	void SetPartsInfo	// パーツ情報設定

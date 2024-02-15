@@ -264,10 +264,10 @@ CObjectChara *CObjectChara::Create(const D3DXVECTOR3 &rPos, const D3DXVECTOR3 &r
 //============================================================
 //	モーションの設定処理
 //============================================================
-void CObjectChara::SetMotion(const int nType)
+void CObjectChara::SetMotion(const int nType, const int nBlendFrame)
 {
 	// モーションの設定
-	m_pMotion->Set(nType);
+	m_pMotion->Set(nType, nBlendFrame);
 }
 
 //============================================================

@@ -88,18 +88,27 @@ public:
 		bool bFinish;		// モーション終了状況
 	};
 
+	// ブレンド情報構造体
+	struct SBlend
+	{
+		SKey aKey[motion::MAX_PARTS];	// ブレンド開始パーツ情報
+		int nFrame;			// ブレンド再生フレーム数
+		int nWholeCounter;	// ブレンド全体カウンター
+	};
+
 	// メンバ関数
 	HRESULT Init(void);			// 初期化
 	void Uninit(void);			// 終了
 	void Update(void);			// 更新
 	void UpdateMove(void);		// 移動更新
-	void UpdateParts(void);		// パーツ更新
-	void Set(const int nType);	// 設定
-	void SetOriginPosition(const D3DXVECTOR3& rPos, const int nParts);	// 原点位置の設定
-	void SetOriginRotation(const D3DXVECTOR3& rRot, const int nParts);	// 原点向きの設定
+	void UpdateMotion(void);	// モーション更新
+	void UpdateBlend(void);		// ブレンド更新
+	void Set(const int nType, const int nBlendFrame = 0);	// 設定
 	void SetInfo(const SMotionInfo info);					// モーション情報設定
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
 	void SetModel(CMultiModel **ppModel, const int nNum);	// モデル情報設定
+	void SetOriginPosition(const D3DXVECTOR3& rPos, const int nParts);	// 原点位置の設定
+	void SetOriginRotation(const D3DXVECTOR3& rRot, const int nParts);	// 原点向きの設定
 	int  GetType(void) const;					// 種類取得
 	int  GetNumType(void) const;				// 種類総数取得
 	int  GetKey(void) const;					// キー番号取得
@@ -125,9 +134,10 @@ private:
 	// メンバ変数
 	CMultiModel **m_ppModel;	// モデル情報
 	CObjectChara *m_pChara;		// オブジェクトキャラクター情報
-	SInfo m_info;				// モーション情報
-	int  m_nNumModel;			// モデルのパーツ数
-	bool m_bUpdate;				// 更新状況
+	SInfo m_info;		// モーション情報
+	SBlend m_blend; 	// ブレンド情報
+	int  m_nNumModel;	// モデルのパーツ数
+	bool m_bUpdate;		// 更新状況
 };
 
 #endif	// _MOTION_H_

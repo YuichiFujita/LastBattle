@@ -276,13 +276,18 @@ CObjectDivChara *CObjectDivChara::Create
 //============================================================
 //	モーションの設定処理
 //============================================================
-void CObjectDivChara::SetMotion(const EBody bodyID, const int nType)
+void CObjectDivChara::SetMotion
+(
+	const EBody bodyID,		// 身体インデックス
+	const int nType,		// モーション種類
+	const int nBlendFrame	// ブレンドフレーム
+)
 {
 	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
 	{ // 正規インデックスの場合
 
 		// 引数インデックスのモーションを設定
-		m_apBody[bodyID]->SetMotion(nType);
+		m_apBody[bodyID]->SetMotion(nType, nBlendFrame);
 	}
 	else { assert(false); }	// インデックスエラー
 }

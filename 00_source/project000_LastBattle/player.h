@@ -202,7 +202,12 @@ private:
 	typedef void (CPlayer::*AFuncUpdateMotion)(const int);
 
 	// オーバーライド関数
-	void SetMotion(const EBody bodyID, const int nType) override;	// モーション設定
+	void SetMotion	// モーション設定
+	( // 引数
+		const EBody bodyID,			// 身体インデックス
+		const int nType,			// モーション種類
+		const int nBlendFrame = 0	// ブレンドフレーム
+	) override;
 
 	// メンバ関数
 	void LoadSetup(const EBody bodyID, const char **ppModelPass);	// セットアップ
