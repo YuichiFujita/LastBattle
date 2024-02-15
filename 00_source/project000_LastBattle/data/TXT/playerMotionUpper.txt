@@ -2392,7 +2392,7 @@ MOTIONSET
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 5	# キー数
 	COMBO = 20	# コンボフレーム
-	CANCEL = 25	# キャンセルフレーム
+	CANCEL = 28	# キャンセルフレーム
 	
 	LEFT_COLL = 0 15	# 左攻撃の判定時間[MIN, MAX]
 
@@ -2645,7 +2645,7 @@ MOTIONSET
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 5	# キー数
 	COMBO = 20	# コンボフレーム
-	CANCEL = 25	# キャンセルフレーム
+	CANCEL = 28	# キャンセルフレーム
 
 	RIGHT_COLL = 0 15	# 右攻撃の判定時間[MIN, MAX]
 	

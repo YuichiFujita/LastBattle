@@ -1510,8 +1510,8 @@ void CPlayer::UpdateSkyAttack(void)
 		if (GetMotionType(BODY_UPPER) != U_MOTION_JUMP_ATTACK_01)	// TODO：一番最後の攻撃にする
 		{ // 最終攻撃モーションではない場合
 
-			// 現在のモーションの残りフレームを計算
-			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
+			// コンボ可能までの残りフレームを計算
+			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionComboFrame(BODY_UPPER);
 			if (nWholeFrame < ATTACK_BUFFER_FRAME)
 			{ // 先行入力が可能な場合
 
