@@ -67,6 +67,7 @@ namespace
 	const int	HOWL_MOTION_KEY	= 13;			// ƒ‚[ƒVƒ‡ƒ“‚Ì™ôšK‚ÌŠJŽnƒL[
 	const int	HOWL_WAIT_FRAME	= 40;			// ™ôšK‚Ì—]‰CƒtƒŒ[ƒ€
 	const int	ATK_WAIT_FRAME	= 30;			// UŒ‚‚Ì—]‰CƒtƒŒ[ƒ€
+	const float	REV_ROTA		= 0.15f;		// Œü‚«•ÏX‚Ì•â³ŒW”
 	const float	SCALE_MAGIC		= 35.0f;		// –‚–@w‚Ì”¼Œa•Ï“®—Ê
 	const float	MOVE_MAGIC		= 30.0f;		// –‚–@w‚Ìã‰ºˆÚ“®—Ê
 	const float	MAGIC_CIRCLE_RADIUS	= 250.0f;	// –‚–@w‚Ì”¼Œa
@@ -314,6 +315,19 @@ void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
 
 	// UIƒIƒuƒWƒFƒNƒg‚É•`‰æó‹µ‚ð”½‰f
 	m_pLife->SetEnableDraw(bDraw);	// ‘Ì—Í
+}
+
+//============================================================
+//	Œü‚«‚ÌÝ’èˆ—
+//============================================================
+void CEnemyBossDragon::SetVec3Rotation(const D3DXVECTOR3& rRot)
+{
+	// Œü‚«‚ðÝ’è
+	CEnemy::SetVec3Rotation(rRot);
+
+	// –Ú•WŒü‚«‚ðÝ’è
+	m_destRot = rRot;
+	useful::Vec3NormalizeRot(m_destRot);
 }
 
 //============================================================
@@ -590,11 +604,18 @@ void CEnemyBossDragon::UpdateSpawn(void)
 //============================================================
 void CEnemyBossDragon::UpdateNormal(void)
 {
+	// •Ï”‚ðéŒ¾
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// “GŒü‚«
+
 	// UŒ‚‚ÌXV
 	UpdateAttack();
 
 	// s“®‚ÌXV
 	UpdateAction();
+
+	// Œü‚«‚ÌXVE”½‰f
+	UpdateRotation(&rotEnemy);
+	SetVec3Rotation(rotEnemy);
 }
 
 //============================================================
@@ -612,6 +633,30 @@ void CEnemyBossDragon::LimitPosition(D3DXVECTOR3 *pPos)
 		// ƒXƒe[ƒW”ÍˆÍŠO‚Ì•â³
 		pStage->LimitPosition(*pPos, GetStatusInfo().fRadius);
 	}
+}
+
+//============================================================
+//	Œü‚«‚ÌXVˆ—
+//============================================================
+void CEnemyBossDragon::UpdateRotation(D3DXVECTOR3 *pRot)
+{
+	// •Ï”‚ðéŒ¾
+	float fDiffRot = 0.0f;	// ·•ªŒü‚«
+
+	// –Ú•WŒü‚«‚Ì³‹K‰»
+	useful::NormalizeRot(m_destRot.y);
+
+	// –Ú•WŒü‚«‚Ü‚Å‚Ì·•ª‚ðŒvŽZ
+	fDiffRot = m_destRot.y - pRot->y;
+
+	// ·•ªŒü‚«‚Ì³‹K‰»
+	useful::NormalizeRot(fDiffRot);
+
+	// Œü‚«‚ÌXV
+	pRot->y += fDiffRot * REV_ROTA;
+
+	// Œü‚«‚Ì³‹K‰»
+	useful::NormalizeRot(pRot->y);
 }
 
 //============================================================

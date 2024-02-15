@@ -22,11 +22,10 @@
 //************************************************************
 namespace
 {
-	const float	TELEPORT_POS_DIS	= 800.0f;	// テレポート時のプレイヤー位置から遠ざける距離
-	const int	ATK_1ST_MOTION_KEY	= 3;		// 攻撃生成キー:一段階目
-	const int	ATK_2ND_MOTION_KEY	= 7;		// 攻撃生成キー:二段階目
-	const int	ATK_3RD_MOTION_KEY	= 13;		// 攻撃生成キー:三段階目
-	const int	ATTACK_WAIT_FRAME	= 0;		// 攻撃後の硬直フレーム
+	const int	ATK_1ST_MOTION_KEY	= 3;	// 攻撃生成キー:一段階目
+	const int	ATK_2ND_MOTION_KEY	= 7;	// 攻撃生成キー:二段階目
+	const int	ATK_3RD_MOTION_KEY	= 13;	// 攻撃生成キー:三段階目
+	const int	ATTACK_WAIT_FRAME	= 0;	// 攻撃後の硬直フレーム
 
 	namespace impact
 	{

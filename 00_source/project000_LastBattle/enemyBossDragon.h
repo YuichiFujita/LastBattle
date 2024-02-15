@@ -124,7 +124,8 @@ public:
 	int  GetHeadModelID(void) const override;	// 頭モデルのインデックス取得
 	void Hit(const int nDamage) override;		// ヒット
 	void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
-	void SetEnableDrawUI(const bool bDraw) override;	// UI描画設定
+	void SetEnableDrawUI(const bool bDraw) override;		// UI描画設定
+	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 
 	// メンバ関数
 	void SetTeleport	// テレポート設定
@@ -149,6 +150,7 @@ private:
 
 	// メンバ関数
 	void LimitPosition(D3DXVECTOR3 *pPos);	// 位置範囲外の補正
+	void UpdateRotation(D3DXVECTOR3 *pRot);	// 向きの更新
 	void UpdateAttack(void);	// 攻撃更新
 	void UpdateAction(void);	// 行動更新
 	bool IsFly(void) const;		// 飛行フラグの取得
@@ -163,6 +165,7 @@ private:
 	CEnemyAttack *m_pAttack;		// 攻撃の情報
 	CMagicCircle *m_pMagicCircle;	// 魔法陣の情報
 	STeleport m_teleport;	// テレポートの情報
+	D3DXVECTOR3 m_destRot;	// 目標向き
 	EAction m_action;		// 行動
 	int m_nCounterAttack;	// 攻撃管理カウンター
 };
