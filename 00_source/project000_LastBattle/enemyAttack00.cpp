@@ -11,9 +11,11 @@
 #include "enemyBossDragon.h"
 #include "manager.h"
 #include "camera.h"
+#include "stage.h"
 #include "player.h"
 #include "multiModel.h"
 #include "impact.h"
+#include "collision.h"
 
 //************************************************************
 //	定数宣言
@@ -120,30 +122,8 @@ bool CEnemyAttack00::Update(void)
 	{ // 状態ごとの処理
 	case STATE_INIT_TELEPORT:	// テレポートの初期化
 	{
-		CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
-		if (pList == nullptr)		 { assert(false); return false; }	// リスト未使用
-		if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
-		auto player = pList->GetList().front();							// プレイヤー情報
-
-		float fRandRot = useful::RandomRot();				// ランダム向き
-		D3DXVECTOR3 posPlayer = player->GetVec3Position();	// プレイヤーの位置
-
-		D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
-		D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き
-
-		// プレイヤーからランダム方向に遠ざけた位置を設定
-		posEnemy.x += posPlayer.x + sinf(fRandRot) * TELEPORT_POS_DIS;
-		posEnemy.z += posPlayer.z + cosf(fRandRot) * TELEPORT_POS_DIS;
-
-		// プレイヤー方向を設定
-		D3DXVECTOR3 vec = posEnemy - posPlayer;
-		rotEnemy.y = atan2f(vec.x, vec.z);
-
-		// ボスをテレポートさせる
-		pBoss->SetTeleport(posEnemy, rotEnemy);
-
-		// テレポート状態にする
-		m_state = STATE_TELEPORT;
+		// テレポートの初期化
+		InitTeleport();
 
 		// 処理は抜けずテレポートの状態更新に移行
 	}
@@ -170,115 +150,8 @@ bool CEnemyAttack00::Update(void)
 	}
 	case STATE_WAVE:	// 波動発射
 	{
-		if (pBoss->GetMotionType() != CEnemyBossDragon::MOTION_PUNCH_GROUND)
-		{ // 地面殴りモーションではない場合
-
-			// 待機状態にする
-			m_state = STATE_WAIT;
-		}
-
-		if (pBoss->GetMotionKeyCounter() != 1) { break; }	// マトリックスがキーの開始位置になっていない場合抜ける
-
-		switch (pBoss->GetMotionKey())
-		{ // モーションキーごとの処理
-		case ATK_1ST_MOTION_KEY:	// 殴り一回目：右手
-		{
-			D3DXVECTOR3 posHand;	// 手のワールド座標
-
-			// 左手のマトリックスを取得
-			D3DXMATRIX mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();
-
-			// 左手のワールド座標を設定
-			posHand = useful::GetMtxWorldPosition(mtxHandL);
-
-			// Y座標は足元にする
-			posHand.y = pBoss->GetVec3Position().y;
-
-			// カメラ揺れを設定
-			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::little::PUNCH_SWING);
-
-			// 衝撃波の生成
-			CImpact::Create
-			( // 引数
-				CWave::TEXTURE_IMPACT,			// 種類
-				posHand,						// 位置
-				impact::little::COL,			// 色
-				impact::little::GROW,			// 成長量
-				impact::little::ADDGROW,		// 成長加速量
-				impact::little::HOLE_RADIUS,	// 穴の半径
-				impact::little::THICKNESS,		// 太さ
-				impact::little::OUTER_PLUSY,	// 外周のY座標加算量
-				impact::little::MAX_RADIUS		// 半径の最大成長量
-			);
-
-			break;
-		}
-		case ATK_2ND_MOTION_KEY:	// 殴り二回目：左手
-		{
-			D3DXVECTOR3 posHand;	// 手のワールド座標
-
-			// 右手のマトリックスを取得
-			D3DXMATRIX mtxHandR = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_R)->GetMtxWorld();
-
-			// 右手のワールド座標を設定
-			posHand = useful::GetMtxWorldPosition(mtxHandR);
-
-			// Y座標は足元にする
-			posHand.y = pBoss->GetVec3Position().y;
-
-			// カメラ揺れを設定
-			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::little::PUNCH_SWING);
-
-			// 衝撃波の生成
-			CImpact::Create
-			( // 引数
-				CWave::TEXTURE_IMPACT,			// 種類
-				posHand,						// 位置
-				impact::little::COL,			// 色
-				impact::little::GROW,			// 成長量
-				impact::little::ADDGROW,		// 成長加速量
-				impact::little::HOLE_RADIUS,	// 穴の半径
-				impact::little::THICKNESS,		// 太さ
-				impact::little::OUTER_PLUSY,	// 外周のY座標加算量
-				impact::little::MAX_RADIUS		// 半径の最大成長量
-			);
-
-			break;
-		}
-		case ATK_3RD_MOTION_KEY:	// 殴り三回目：両手
-		{
-			D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス
-			D3DXMATRIX  mtxHandR = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_R)->GetMtxWorld();	// 右手のマトリックス
-			D3DXVECTOR3 posHandL = useful::GetMtxWorldPosition(mtxHandL);	// 左手のワールド座標
-			D3DXVECTOR3 posHandR = useful::GetMtxWorldPosition(mtxHandR);	// 右手のワールド座標
-			D3DXVECTOR3 posHand;	// 手のワールド座標
-
-			// 両手の中間ワールド座標を設定
-			D3DXVec3Lerp(&posHand, &posHandL, &posHandR, 0.5f);
-
-			// Y座標は足元にする
-			posHand.y = pBoss->GetVec3Position().y;
-
-			// カメラ揺れを設定
-			GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::big::PUNCH_SWING);
-
-			// 衝撃波の生成
-			CImpact::Create
-			( // 引数
-				CWave::TEXTURE_IMPACT,		// 種類
-				posHand,					// 位置
-				impact::big::COL,			// 色
-				impact::big::GROW,			// 成長量
-				impact::big::ADDGROW,		// 成長加速量
-				impact::big::HOLE_RADIUS,	// 穴の半径
-				impact::big::THICKNESS,		// 太さ
-				impact::big::OUTER_PLUSY,	// 外周のY座標加算量
-				impact::big::MAX_RADIUS		// 半径の最大成長量
-			);
-
-			break;
-		}
-		}
+		// 波動発射の更新
+		UpdateWave();
 
 		break;
 	}
@@ -310,4 +183,179 @@ bool CEnemyAttack00::Update(void)
 
 	// 攻撃非終了を返す
 	return false;
+}
+
+//============================================================
+//	テレポートの初期化処理
+//============================================================
+void CEnemyAttack00::InitTeleport(void)
+{
+	// ポインタを宣言
+	CStage  *pStage  = CScene::GetStage();	// ステージの情報
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	CStage::SStageLimit stageLimit = pStage->GetStageLimit();	// ステージ範囲情報
+	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();			// プレイヤーの位置
+	D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
+	D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き
+
+	// ステージ中央との当たり判定
+	bool bHit = collision::Circle2D
+	( // 引数
+		posPlayer,					// 判定位置
+		stageLimit.center,			// 判定目標位置
+		pPlayer->GetRadius(),		// 判定半径
+		stageLimit.fRadius * 0.5f	// 判定目標半径
+	);
+	if (bHit)
+	{ // ステージの中央にいた場合
+
+		// 中心からプレイヤーへの向きを求める
+		D3DXVECTOR3 vec = stageLimit.center - posPlayer;
+		float fRot = atan2f(vec.x, vec.z);
+
+		// 最大限遠ざけた位置を設定
+		posEnemy.x += posPlayer.x + sinf(fRot) * stageLimit.fRadius;
+		posEnemy.z += posPlayer.z + cosf(fRot) * stageLimit.fRadius;
+	}
+	else
+	{ // ステージの外周にいた場合
+
+		// 中央位置を設定
+		posEnemy.x += stageLimit.center.x;
+		posEnemy.z += stageLimit.center.z;
+	}
+
+	// プレイヤー方向を向かせる
+	D3DXVECTOR3 vecPlayer = posEnemy - posPlayer;
+	rotEnemy.y = atan2f(vecPlayer.x, vecPlayer.z);
+
+	// ボスをテレポートさせる
+	pBoss->SetTeleport(posEnemy, rotEnemy);
+
+	// テレポート状態にする
+	m_state = STATE_TELEPORT;
+}
+
+//============================================================
+//	波動発射の更新処理
+//============================================================
+void CEnemyAttack00::UpdateWave(void)
+{
+	// ポインタを宣言
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	if (pBoss->GetMotionType() != CEnemyBossDragon::MOTION_PUNCH_GROUND)
+	{ // 地面殴りモーションではない場合
+
+		// 待機状態にする
+		m_state = STATE_WAIT;
+	}
+
+	// マトリックスがキーの開始位置になっていない場合抜ける
+	if (pBoss->GetMotionKeyCounter() != 1) { return; }
+
+	switch (pBoss->GetMotionKey())
+	{ // モーションキーごとの処理
+	case ATK_1ST_MOTION_KEY:	// 殴り一回目：右手
+	{
+		D3DXVECTOR3 posHand;	// 手のワールド座標
+
+		// 左手のマトリックスを取得
+		D3DXMATRIX mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();
+
+		// 左手のワールド座標を設定
+		posHand = useful::GetMtxWorldPosition(mtxHandL);
+
+		// Y座標は足元にする
+		posHand.y = pBoss->GetVec3Position().y;
+
+		// カメラ揺れを設定
+		GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::little::PUNCH_SWING);
+
+		// 衝撃波の生成
+		CImpact::Create
+		( // 引数
+			CWave::TEXTURE_IMPACT,			// 種類
+			posHand,						// 位置
+			impact::little::COL,			// 色
+			impact::little::GROW,			// 成長量
+			impact::little::ADDGROW,		// 成長加速量
+			impact::little::HOLE_RADIUS,	// 穴の半径
+			impact::little::THICKNESS,		// 太さ
+			impact::little::OUTER_PLUSY,	// 外周のY座標加算量
+			impact::little::MAX_RADIUS		// 半径の最大成長量
+		);
+
+		break;
+	}
+	case ATK_2ND_MOTION_KEY:	// 殴り二回目：左手
+	{
+		D3DXVECTOR3 posHand;	// 手のワールド座標
+
+		// 右手のマトリックスを取得
+		D3DXMATRIX mtxHandR = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_R)->GetMtxWorld();
+
+		// 右手のワールド座標を設定
+		posHand = useful::GetMtxWorldPosition(mtxHandR);
+
+		// Y座標は足元にする
+		posHand.y = pBoss->GetVec3Position().y;
+
+		// カメラ揺れを設定
+		GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::little::PUNCH_SWING);
+
+		// 衝撃波の生成
+		CImpact::Create
+		( // 引数
+			CWave::TEXTURE_IMPACT,			// 種類
+			posHand,						// 位置
+			impact::little::COL,			// 色
+			impact::little::GROW,			// 成長量
+			impact::little::ADDGROW,		// 成長加速量
+			impact::little::HOLE_RADIUS,	// 穴の半径
+			impact::little::THICKNESS,		// 太さ
+			impact::little::OUTER_PLUSY,	// 外周のY座標加算量
+			impact::little::MAX_RADIUS		// 半径の最大成長量
+		);
+
+		break;
+	}
+	case ATK_3RD_MOTION_KEY:	// 殴り三回目：両手
+	{
+		D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス
+		D3DXMATRIX  mtxHandR = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_R)->GetMtxWorld();	// 右手のマトリックス
+		D3DXVECTOR3 posHandL = useful::GetMtxWorldPosition(mtxHandL);	// 左手のワールド座標
+		D3DXVECTOR3 posHandR = useful::GetMtxWorldPosition(mtxHandR);	// 右手のワールド座標
+		D3DXVECTOR3 posHand;	// 手のワールド座標
+
+		// 両手の中間ワールド座標を設定
+		D3DXVec3Lerp(&posHand, &posHandL, &posHandR, 0.5f);
+
+		// Y座標は足元にする
+		posHand.y = pBoss->GetVec3Position().y;
+
+		// カメラ揺れを設定
+		GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, impact::big::PUNCH_SWING);
+
+		// 衝撃波の生成
+		CImpact::Create
+		( // 引数
+			CWave::TEXTURE_IMPACT,		// 種類
+			posHand,					// 位置
+			impact::big::COL,			// 色
+			impact::big::GROW,			// 成長量
+			impact::big::ADDGROW,		// 成長加速量
+			impact::big::HOLE_RADIUS,	// 穴の半径
+			impact::big::THICKNESS,		// 太さ
+			impact::big::OUTER_PLUSY,	// 外周のY座標加算量
+			impact::big::MAX_RADIUS		// 半径の最大成長量
+		);
+
+		break;
+	}
+	default:
+		break;
+	}
 }

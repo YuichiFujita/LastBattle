@@ -62,6 +62,7 @@ namespace
 	const CCamera::SSwing LAND_SWING = CCamera::SSwing(10.0f, 1.5f, 0.12f);		// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING = CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
 	const int	PRIORITY		= 6;			// ボスドラゴンの優先順位
+	const int	BLEND_FRAME		= 8;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
 	const int	HOWL_WAIT_FRAME	= 40;			// 咆哮の余韻フレーム
@@ -366,7 +367,7 @@ void CEnemyBossDragon::SetTeleport
 void CEnemyBossDragon::SetActPunchGround(void)
 {
 	// 地面殴りモーションを設定
-	SetMotion(MOTION_PUNCH_GROUND);
+	SetMotion(MOTION_PUNCH_GROUND, BLEND_FRAME);
 
 	// 地面を殴る行動をとらせる
 	m_action = ACT_PUNCH_GROUND;
@@ -378,7 +379,7 @@ void CEnemyBossDragon::SetActPunchGround(void)
 void CEnemyBossDragon::SetActFlyAttack(void)
 {
 	// 空中攻撃モーションを設定
-	SetMotion(MOTION_FLY_ATTACK);
+	SetMotion(MOTION_FLY_ATTACK, BLEND_FRAME);
 
 	// 空中で攻撃する行動をとらせる
 	m_action = ACT_FLY_ATTACK;
@@ -463,7 +464,7 @@ void CEnemyBossDragon::UpdateMotion(void)
 		{ // モーションが終了していた場合
 
 			// 待機モーションに移行
-			SetMotion(MOTION_IDOL);
+			SetMotion(MOTION_IDOL, BLEND_FRAME);
 		}
 
 		break;
@@ -474,7 +475,7 @@ void CEnemyBossDragon::UpdateMotion(void)
 		{ // モーションが終了していた場合
 
 			// 空中待機モーションに移行
-			SetMotion(MOTION_FLY_IDOL);
+			SetMotion(MOTION_FLY_IDOL, BLEND_FRAME);
 		}
 
 		break;
@@ -567,7 +568,7 @@ void CEnemyBossDragon::UpdateSpawn(void)
 			SetState(STATE_NONE);
 
 			// 待機モーションにする
-			SetMotion(MOTION_IDOL);
+			SetMotion(MOTION_IDOL, BLEND_FRAME);
 		}
 	}
 
@@ -871,7 +872,7 @@ void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 		{ // モーション指定がある場合
 
 			// モーションを設定
-			SetMotion(m_teleport.motion);
+			SetMotion(m_teleport.motion, BLEND_FRAME);
 		}
 
 		// ボスの位置・向きをテレポート先に変更

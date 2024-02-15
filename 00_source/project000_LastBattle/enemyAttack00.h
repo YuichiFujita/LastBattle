@@ -49,6 +49,10 @@ public:
 	bool Update(void) override;		// 更新
 
 private:
+	// メンバ関数
+	void InitTeleport(void);	// テレポートの初期化
+	void UpdateWave(void);		// 波動発射の更新
+
 	// メンバ変数
 	EState m_state;			// 状態
 	int m_nCounterState;	// 状態管理カウンター
