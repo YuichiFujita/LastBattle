@@ -318,19 +318,6 @@ void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
 }
 
 //============================================================
-//	向きの設定処理
-//============================================================
-void CEnemyBossDragon::SetVec3Rotation(const D3DXVECTOR3& rRot)
-{
-	// 向きを設定
-	CEnemy::SetVec3Rotation(rRot);
-
-	// 目標向きを設定
-	m_destRot = rRot;
-	useful::Vec3NormalizeRot(m_destRot);
-}
-
-//============================================================
 //	テレポートの設定処理
 //============================================================
 void CEnemyBossDragon::SetTeleport
@@ -604,18 +591,11 @@ void CEnemyBossDragon::UpdateSpawn(void)
 //============================================================
 void CEnemyBossDragon::UpdateNormal(void)
 {
-	// 変数を宣言
-	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
-
 	// 攻撃の更新
 	UpdateAttack();
 
 	// 行動の更新
 	UpdateAction();
-
-	// 向きの更新・反映
-	UpdateRotation(&rotEnemy);
-	SetVec3Rotation(rotEnemy);
 }
 
 //============================================================
@@ -633,30 +613,6 @@ void CEnemyBossDragon::LimitPosition(D3DXVECTOR3 *pPos)
 		// ステージ範囲外の補正
 		pStage->LimitPosition(*pPos, GetStatusInfo().fRadius);
 	}
-}
-
-//============================================================
-//	向きの更新処理
-//============================================================
-void CEnemyBossDragon::UpdateRotation(D3DXVECTOR3 *pRot)
-{
-	// 変数を宣言
-	float fDiffRot = 0.0f;	// 差分向き
-
-	// 目標向きの正規化
-	useful::NormalizeRot(m_destRot.y);
-
-	// 目標向きまでの差分を計算
-	fDiffRot = m_destRot.y - pRot->y;
-
-	// 差分向きの正規化
-	useful::NormalizeRot(fDiffRot);
-
-	// 向きの更新
-	pRot->y += fDiffRot * REV_ROTA;
-
-	// 向きの正規化
-	useful::NormalizeRot(pRot->y);
 }
 
 //============================================================
