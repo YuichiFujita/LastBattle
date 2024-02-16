@@ -1,14 +1,14 @@
 //============================================================
 //
-//	衝撃波ヘッダー [impact.h]
+//	着地波動ヘッダー [waveLand.h]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	二重インクルード防止
 //************************************************************
-#ifndef _IMPACT_H_
-#define _IMPACT_H_
+#ifndef _WAVE_LAND_H_
+#define _WAVE_LAND_H_
 
 //************************************************************
 //	インクルードファイル
@@ -18,15 +18,15 @@
 //************************************************************
 //	クラス定義
 //************************************************************
-// 衝撃波クラス
-class CImpact : public CWave
+// 着地波動クラス
+class CWaveLand : public CWave
 {
 public:
 	// コンストラクタ
-	CImpact();
+	CWaveLand();
 
 	// デストラクタ
-	~CImpact() override;
+	~CWaveLand() override;
 
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
@@ -35,7 +35,7 @@ public:
 	void Draw(void) override;		// 描画
 
 	// 静的メンバ関数
-	static CImpact *Create	// 生成
+	static CWaveLand *Create	// 生成
 	( // 引数
 		const ETexture texture,		// 種類
 		const D3DXVECTOR3& rPos,	// 位置
@@ -54,12 +54,9 @@ public:
 	float GetMaxGrowRadius(void) const		{ return m_fMaxGrowRadius; }	// 成長情報取得
 
 private:
-	// メンバ関数
-	void CollisionPlayer(void);	// プレイヤーとの当たり判定
-
 	// メンバ変数
 	float m_fMaxGrowRadius;	// 半径の最大成長量
 	SGrow m_addGrow;		// 成長加速量
 };
 
-#endif	// _IMPACT_H_
+#endif	// _WAVE_LAND_H_

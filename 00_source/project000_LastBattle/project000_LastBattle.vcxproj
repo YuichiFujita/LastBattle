@@ -251,6 +251,7 @@
     <ClCompile Include="valueUI.cpp" />
     <ClCompile Include="wall.cpp" />
     <ClCompile Include="wave.cpp" />
+    <ClCompile Include="waveLand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="anim2D.h" />
@@ -351,6 +352,7 @@
     <ClInclude Include="valueUI.h" />
     <ClInclude Include="wall.h" />
     <ClInclude Include="wave.h" />
+    <ClInclude Include="waveLand.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />

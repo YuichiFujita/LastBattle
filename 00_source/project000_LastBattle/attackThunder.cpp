@@ -14,7 +14,7 @@
 #include "scene.h"
 #include "stage.h"
 #include "collision.h"
-#include "impact.h"
+#include "waveLand.h"
 #include "player.h"
 #include "camera.h"
 
@@ -36,10 +36,12 @@ namespace
 	const float SHIFT_POS_LENGTH = 40.0f;	// 雷生成位置のずらす長さ
 
 	// 衝撃波の情報
-	namespace impact
+	namespace wave
 	{
 		const CWave::SGrow GROW		= CWave::SGrow(4.5f, 2.0f, 0.0f);	// 成長量
 		const CWave::SGrow ADDGROW	= CWave::SGrow(0.0f, 0.0f, 0.0f);	// 成長加速量
+
+		const D3DXCOLOR COL = XCOL_WHITE;	// 色
 		const float	HOLE_RADIUS	= 80.0f;	// 穴の半径
 		const float	THICKNESS	= 1.0f;		// 太さ
 		const float	OUTER_PLUSY	= 20.0f;	// 外周のY座標加算量
@@ -198,18 +200,17 @@ void CAttackThunder::Update(void)
 
 				// 衝撃波の生成
 				D3DXVECTOR3 posImpact = D3DXVECTOR3(m_posOrigin.x, pStage->GetStageLimit().fField, m_posOrigin.z);
-				CImpact::Create
+				CWaveLand::Create
 				( // 引数
 					CWave::TEXTURE_NONE,	// 種類
 					posImpact,				// 位置
-					XCOL_WHITE,				// 色
-					impact::GROW,			// 成長量
-					impact::ADDGROW,		// 成長加速量
-					impact::HOLE_RADIUS,	// 穴の半径
-					impact::THICKNESS,		// 太さ
-					impact::OUTER_PLUSY,	// 外周のY座標加算量
-					impact::MAX_RADIUS,		// 半径の最大成長量
-					false					// 当たり判定
+					wave::COL,				// 色
+					wave::GROW,				// 成長量
+					wave::ADDGROW,			// 成長加速量
+					wave::HOLE_RADIUS,		// 穴の半径
+					wave::THICKNESS,		// 太さ
+					wave::OUTER_PLUSY,		// 外周のY座標加算量
+					wave::MAX_RADIUS		// 半径の最大成長量
 				);
 
 				// 自身を終了
