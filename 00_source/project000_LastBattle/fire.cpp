@@ -34,7 +34,9 @@ CListManager<CFire> *CFire::m_pList = nullptr;	// オブジェクトリスト
 //============================================================
 CFire::CFire() : CObject(CObject::LABEL_FIRE, DIM_3D),
 	m_pos	(VEC3_ZERO),	// 位置
-	m_move	(VEC3_ZERO)		// 移動量
+	m_move	(VEC3_ZERO),	// 移動量
+	m_nLife	(0)				// 寿命
+
 {
 
 }
@@ -53,8 +55,9 @@ CFire::~CFire()
 HRESULT CFire::Init(void)
 {
 	// メンバ変数をクリア
-	m_pos  = VEC3_ZERO;	// 位置
-	m_move = VEC3_ZERO;	// 移動量
+	m_pos	= VEC3_ZERO;	// 位置
+	m_move	= VEC3_ZERO;	// 移動量
+	m_nLife = 0;			// 寿命
 
 	if (m_pList == nullptr)
 	{ // リストマネージャーが存在しない場合
@@ -109,6 +112,20 @@ void CFire::Update(void)
 
 	// プレイヤーとの当たり判定
 	CollisionPlayer();
+
+	if (m_nLife > NONE_IDX)
+	{ // 寿命管理がされている場合
+
+		// 寿命を減らす
+		m_nLife--;
+		if (m_nLife <= 0)
+		{ // 寿命がなくなった場合
+
+			// 自身の終了
+			Uninit();
+			return;
+		}
+	}
 }
 
 //============================================================
@@ -140,7 +157,11 @@ D3DXVECTOR3 CFire::GetVec3Position(void) const
 //============================================================
 //	生成処理
 //============================================================
-CFire *CFire::Create(const D3DXVECTOR3 &rPos)
+CFire *CFire::Create
+(
+	const D3DXVECTOR3& rPos,	// 生成位置
+	const int nLife				// 寿命
+)
 {
 	// 炎の生成
 	CFire *pFire = new CFire;
@@ -163,6 +184,9 @@ CFire *CFire::Create(const D3DXVECTOR3 &rPos)
 
 		// 位置を設定
 		pFire->SetVec3Position(rPos);
+
+		// 寿命を設定
+		pFire->SetLife(nLife);
 
 		// 確保したアドレスを返す
 		return pFire;

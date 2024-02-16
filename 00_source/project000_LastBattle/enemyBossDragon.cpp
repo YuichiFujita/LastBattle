@@ -637,7 +637,7 @@ void CEnemyBossDragon::UpdateAttack(void)
 #if 0	// TODO：攻撃を指定
 				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
 #else
-				CEnemyAttack::ATTACK_02,	// 攻撃インデックス
+				CEnemyAttack::ATTACK_04,	// 攻撃インデックス
 #endif
 				this	// 自身のポインタ
 			);

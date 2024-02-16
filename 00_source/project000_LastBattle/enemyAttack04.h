@@ -1,14 +1,14 @@
 //============================================================
 //
-//	敵攻撃02ヘッダー [enemyAttack02.h]
+//	敵攻撃04ヘッダー [enemyAttack04.h]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	二重インクルード防止
 //************************************************************
-#ifndef _ENEMY_ATTACK02_H_
-#define _ENEMY_ATTACK02_H_
+#ifndef _ENEMY_ATTACK04_H_
+#define _ENEMY_ATTACK04_H_
 
 //************************************************************
 //	インクルードファイル
@@ -18,11 +18,11 @@
 //************************************************************
 //	クラス定義
 //************************************************************
-// 敵攻撃02クラス
+// 敵攻撃04クラス
 /*
-	@brief ボスの攻撃管理クラス 雷を中心からステージ外周に向かって放つ
+	@brief ボスの攻撃管理クラス 炎を外周から吐き出す
 */
-class CEnemyAttack02 : public CEnemyAttack
+class CEnemyAttack04 : public CEnemyAttack
 {
 public:
 	// 状態列挙
@@ -32,16 +32,16 @@ public:
 		STATE_TELEPORT,				// テレポート
 		STATE_INIT_WAIT,			// 攻撃待機の初期化
 		STATE_WAIT,					// 攻撃待機
-		STATE_THUNDER,				// 雷発射
+		STATE_FIRE,					// 炎発射
 		STATE_END,					// 終了
 		STATE_MAX					// この列挙型の総数
 	};
 
 	// コンストラクタ
-	CEnemyAttack02();
+	CEnemyAttack04();
 
 	// デストラクタ
-	~CEnemyAttack02() override;
+	~CEnemyAttack04() override;
 
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
@@ -51,7 +51,8 @@ public:
 private:
 	// メンバ関数
 	void InitTeleport(void);	// テレポートの初期化
-	void UpdateThunder(void);	// 雷発射の更新
+	void UpdateFire(void);		// 炎発射の更新
+	void CreateFire(void);		// 炎の生成
 
 	// メンバ変数
 	EState m_state;			// 状態
@@ -60,4 +61,4 @@ private:
 	int m_nWaitFrame;		// 余韻フレーム数
 };
 
-#endif	// _ENEMY_ATTACK02_H_
+#endif	// _ENEMY_ATTACK04_H_

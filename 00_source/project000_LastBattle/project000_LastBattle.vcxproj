@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="anim2D.cpp" />
     <ClCompile Include="attackHomingFire.cpp" />
+    <ClCompile Include="attackMoveFire.cpp" />
     <ClCompile Include="attackParabolaFire.cpp" />
     <ClCompile Include="attackThunder.cpp" />
     <ClCompile Include="camera.cpp" />
@@ -170,6 +171,7 @@
     <ClCompile Include="enemyAttack01.cpp" />
     <ClCompile Include="enemyAttack02.cpp" />
     <ClCompile Include="enemyAttack03.cpp" />
+    <ClCompile Include="enemyAttack04.cpp" />
     <ClCompile Include="enemyBossDragon.cpp" />
     <ClCompile Include="enemyMiniDragon.cpp" />
     <ClCompile Include="enemySmall.cpp" />
@@ -256,6 +258,7 @@
   <ItemGroup>
     <ClInclude Include="anim2D.h" />
     <ClInclude Include="attackHomingFire.h" />
+    <ClInclude Include="attackMoveFire.h" />
     <ClInclude Include="attackParabolaFire.h" />
     <ClInclude Include="attackThunder.h" />
     <ClInclude Include="camera.h" />
@@ -273,6 +276,7 @@
     <ClInclude Include="enemyAttack01.h" />
     <ClInclude Include="enemyAttack02.h" />
     <ClInclude Include="enemyAttack03.h" />
+    <ClInclude Include="enemyAttack04.h" />
     <ClInclude Include="enemyBossDragon.h" />
     <ClInclude Include="enemyMiniDragon.h" />
     <ClInclude Include="enemySmall.h" />

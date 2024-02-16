@@ -35,7 +35,7 @@ namespace
 			const CWave::SGrow		GROW		= CWave::SGrow(5.5f, 0.0f, 0.0f);		// 成長量
 			const CWave::SGrow		ADDGROW		= CWave::SGrow(0.05f, 0.0f, 0.0f);		// 成長加速量
 
-			const D3DXCOLOR COL = XCOL_CYAN;	// 色
+			const D3DXCOLOR COL = XCOL_YELLOW;	// 色
 			const float	HOLE_RADIUS	= 0.0f;		// 穴の半径
 			const float	THICKNESS	= 0.0f;		// 太さ
 			const float	OUTER_PLUSY	= 40.0f;	// 外周のY座標加算量
@@ -48,7 +48,7 @@ namespace
 			const CWave::SGrow		GROW		= CWave::SGrow(6.5f, 0.0f, 0.0f);		// 成長量
 			const CWave::SGrow		ADDGROW		= CWave::SGrow(0.05f, 0.0f, 0.0f);		// 成長加速量
 
-			const D3DXCOLOR COL = XCOL_CYAN;	// 色
+			const D3DXCOLOR COL = XCOL_YELLOW;	// 色
 			const float	HOLE_RADIUS	= 0.0f;		// 穴の半径
 			const float	THICKNESS	= 0.0f;		// 太さ
 			const float	OUTER_PLUSY	= 80.0f;	// 外周のY座標加算量

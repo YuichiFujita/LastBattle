@@ -1,19 +1,18 @@
 //============================================================
 //
-//	敵攻撃02処理 [enemyAttack02.cpp]
+//	敵攻撃04処理 [enemyAttack04.cpp]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "enemyAttack02.h"
+#include "enemyAttack04.h"
 #include "enemyBossDragon.h"
-#include "manager.h"
-#include "camera.h"
 #include "player.h"
 #include "stage.h"
-#include "attackThunder.h"
+#include "multiModel.h"
+#include "attackMoveFire.h"
 
 //************************************************************
 //	定数宣言
@@ -23,18 +22,15 @@ namespace
 	const int	ATK_MOTION_KEY	= 2;		// 攻撃生成キー
 	const int	INIT_WAIT_FRAME	= 26;		// 初期攻撃待機フレーム
 	const int	NUM_ATTACK		= 8;		// 攻撃の生成数
-	const int	ADD_WAIT_FRAME	= 4;		// 一攻撃ごとの攻撃待機フレーム加算量
-	const int	MUL_NUM_CREATE	= 9;		// 一攻撃ごとの攻撃生成数の乗算量
-	const float	CREATE_LENGTH	= 240.0f;	// 一攻撃ごとの距離の乗算量
 }
 
 //************************************************************
-//	子クラス [CEnemyAttack02] のメンバ関数
+//	子クラス [CEnemyAttack04] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
 //============================================================
-CEnemyAttack02::CEnemyAttack02() :
+CEnemyAttack04::CEnemyAttack04() :
 	m_state				(STATE_INIT_TELEPORT),	// 状態
 	m_nCounterWait		(0),					// 余韻管理カウンター
 	m_nCounterNumAtk	(0),					// 攻撃回数カウンター
@@ -46,7 +42,7 @@ CEnemyAttack02::CEnemyAttack02() :
 //============================================================
 //	デストラクタ
 //============================================================
-CEnemyAttack02::~CEnemyAttack02()
+CEnemyAttack04::~CEnemyAttack04()
 {
 
 }
@@ -54,7 +50,7 @@ CEnemyAttack02::~CEnemyAttack02()
 //============================================================
 //	初期化処理
 //============================================================
-HRESULT CEnemyAttack02::Init(void)
+HRESULT CEnemyAttack04::Init(void)
 {
 	// メンバ変数を初期化
 	m_state				= STATE_INIT_TELEPORT;	// 状態
@@ -78,7 +74,7 @@ HRESULT CEnemyAttack02::Init(void)
 //============================================================
 //	終了処理
 //============================================================
-void CEnemyAttack02::Uninit(void)
+void CEnemyAttack04::Uninit(void)
 {
 	// 敵攻撃の終了
 	CEnemyAttack::Uninit();
@@ -87,7 +83,7 @@ void CEnemyAttack02::Uninit(void)
 //============================================================
 //	更新処理
 //============================================================
-bool CEnemyAttack02::Update(void)
+bool CEnemyAttack04::Update(void)
 {
 	// ポインタを宣言
 	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
@@ -128,16 +124,16 @@ bool CEnemyAttack02::Update(void)
 		&&  pBoss->GetMotionKeyCounter() == 1)
 		{ // 手を振り上げたタイミングの場合
 
-			// 雷発射状態にする
-			m_state = STATE_THUNDER;
+			// 炎発射状態にする
+			m_state = STATE_FIRE;
 		}
 
 		break;
 	}
-	case STATE_THUNDER:	// 雷発射
+	case STATE_FIRE:	// 炎発射
 	{
-		// 雷発射の更新
-		UpdateThunder();
+		// 炎発射の更新
+		UpdateFire();
 
 		break;
 	}
@@ -158,7 +154,7 @@ bool CEnemyAttack02::Update(void)
 //============================================================
 //	テレポートの初期化処理
 //============================================================
-void CEnemyAttack02::InitTeleport(void)
+void CEnemyAttack04::InitTeleport(void)
 {
 	// ポインタを宣言
 	CStage  *pStage  = CScene::GetStage();	// ステージの情報
@@ -170,9 +166,7 @@ void CEnemyAttack02::InitTeleport(void)
 	D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
 	D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き
 
-	// 敵の位置を中央に設定
-	posEnemy.x += stageLimit.center.x;
-	posEnemy.z += stageLimit.center.z;
+
 
 	// プレイヤー方向を向かせる
 	D3DXVECTOR3 vecPlayer = posEnemy - posPlayer;
@@ -186,9 +180,9 @@ void CEnemyAttack02::InitTeleport(void)
 }
 
 //============================================================
-//	雷発射の更新処理
+//	炎発射の更新処理
 //============================================================
-void CEnemyAttack02::UpdateThunder(void)
+void CEnemyAttack04::UpdateFire(void)
 {
 	// カウンターを加算
 	m_nCounterWait++;
@@ -198,22 +192,8 @@ void CEnemyAttack02::UpdateThunder(void)
 		// カウンターを初期化
 		m_nCounterWait = 0;
 
-		// 余韻の長さを延長
-		m_nWaitFrame += ADD_WAIT_FRAME;
-
-		int   nLoop = m_nCounterNumAtk * MUL_NUM_CREATE + 1;	// 攻撃生成数
-		float fRotRate = (D3DX_PI * 2.0f) / nLoop;				// 攻撃方向の割合
-		for (int nCntAttack = 0; nCntAttack < nLoop; nCntAttack++)
-		{ // 雷生成数分繰り返す
-
-			float fThunderRot = fRotRate * nCntAttack;	// 雷の生成方向
-			D3DXVECTOR3 posThunder = VEC3_ZERO;			// 雷の生成位置
-			posThunder.x = sinf(fThunderRot) * m_nCounterNumAtk * CREATE_LENGTH;
-			posThunder.z = cosf(fThunderRot) * m_nCounterNumAtk * CREATE_LENGTH;
-
-			// 雷攻撃をランダム位置に生成
-			CAttackThunder::Create(posThunder);
-		}
+		// 炎の生成
+		CreateFire();
 
 		// 攻撃回数を加算
 		m_nCounterNumAtk++;
@@ -224,4 +204,25 @@ void CEnemyAttack02::UpdateThunder(void)
 			m_state = STATE_END;
 		}
 	}
+}
+
+//============================================================
+//	炎の生成処理
+//============================================================
+void CEnemyAttack04::CreateFire(void)
+{
+	CEnemyBossDragon *pBoss	= GetBoss();	// ボスの情報
+	CMultiModel	*pObjJaw	= pBoss->GetMultiModel(CEnemyBossDragon::MODEL_JAW);	// 顎モデル
+	D3DXMATRIX	mtxJaw		= pObjJaw->GetMtxWorld();				// 顎マトリックス
+	D3DXVECTOR3	posJaw		= useful::GetMtxWorldPosition(mtxJaw);	// 顎ワールド座標
+
+	// 炎攻撃の生成
+	CAttackMoveFire::Create
+	( // 引数
+		posJaw,
+		D3DXVECTOR3(1.0f, 0.0f, 0.0f),
+		12.5f,
+		0.08f,
+		100
+	);
 }

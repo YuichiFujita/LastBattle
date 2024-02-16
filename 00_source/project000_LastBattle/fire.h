@@ -37,12 +37,18 @@ public:
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 
 	// 静的メンバ関数
-	static CFire *Create(const D3DXVECTOR3& rPos);	// 生成
+	static CFire *Create	// 生成
+	( // 引数
+		const D3DXVECTOR3& rPos,	// 生成位置
+		const int nLife = NONE_IDX	// 寿命
+	);
 	static CListManager<CFire> *GetList(void);		// リスト取得
 
 	// メンバ関数
 	void SetMove(const D3DXVECTOR3& rMove)	{ m_move = rMove; }	// 移動量設定
 	D3DXVECTOR3 GetMove(void) const			{ return m_move; }	// 移動量取得
+	void SetLife(const int nLife)	{ m_nLife = nLife; }	// 寿命設定
+	int GetLife(void) const			{ return m_nLife; }		// 寿命取得
 
 private:
 	// オーバーライド関数
@@ -58,6 +64,7 @@ private:
 	CListManager<CFire>::AIterator m_iterator;	// イテレーター
 	D3DXVECTOR3	m_pos;	// 位置
 	D3DXVECTOR3	m_move;	// 移動量
+	int m_nLife;		// 寿命
 };
 
 #endif	// _FIRE_H_
