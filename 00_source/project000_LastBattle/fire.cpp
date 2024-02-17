@@ -11,12 +11,16 @@
 #include "collision.h"
 #include "player.h"
 #include "particle3D.h"
+#include "shadow.h"
 
 //************************************************************
 //	定数宣言
 //************************************************************
 namespace
 {
+	const D3DXVECTOR3 SHADOW_SIZE = D3DXVECTOR3(70.0f, 0.0f, 70.0f);	// 影の大きさ
+	const float SHADOW_MAX_ALPHA  = 0.35f;	// 影の最大透明度
+
 	const int	DMG_FIRE	= 15;		// 炎のダメージ量
 	const float COLL_RADIUS	= 34.0f;	// 判定の半径
 }
@@ -33,9 +37,10 @@ CListManager<CFire> *CFire::m_pList = nullptr;	// オブジェクトリスト
 //	コンストラクタ
 //============================================================
 CFire::CFire() : CObject(CObject::LABEL_FIRE, DIM_3D),
-	m_pos	(VEC3_ZERO),	// 位置
-	m_move	(VEC3_ZERO),	// 移動量
-	m_nLife	(0)				// 寿命
+	m_pShadow	(nullptr),		// 影の情報
+	m_pos		(VEC3_ZERO),	// 位置
+	m_move		(VEC3_ZERO),	// 移動量
+	m_nLife		(0)				// 寿命
 
 {
 
@@ -55,9 +60,27 @@ CFire::~CFire()
 HRESULT CFire::Init(void)
 {
 	// メンバ変数をクリア
-	m_pos	= VEC3_ZERO;	// 位置
-	m_move	= VEC3_ZERO;	// 移動量
-	m_nLife = 0;			// 寿命
+	m_pShadow	= nullptr;		// 影の情報
+	m_pos		= VEC3_ZERO;	// 位置
+	m_move		= VEC3_ZERO;	// 移動量
+	m_nLife		= 0;			// 寿命
+
+	// 影の生成
+	m_pShadow = CShadow::Create
+	( // 引数
+		CShadow::TEXTURE_NORMAL,	// 種類
+		SHADOW_SIZE,				// 大きさ
+		this,						// 親オブジェクト
+		shadow::MIN_ALPHA,			// 透明度の最小値
+		SHADOW_MAX_ALPHA			// 透明度の最大値
+	);
+	if (m_pShadow == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	if (m_pList == nullptr)
 	{ // リストマネージャーが存在しない場合
@@ -85,6 +108,10 @@ HRESULT CFire::Init(void)
 //============================================================
 void CFire::Uninit(void)
 {
+	// 影の終了
+	m_pShadow->DeleteObjectParent();	// 親オブジェクトを削除
+	SAFE_UNINIT(m_pShadow);
+
 	// リストから自身のオブジェクトを削除
 	m_pList->DeleteList(m_iterator);
 
@@ -126,6 +153,9 @@ void CFire::Update(void)
 			return;
 		}
 	}
+
+	// 影の更新
+	m_pShadow->Update();
 }
 
 //============================================================
@@ -143,6 +173,10 @@ void CFire::SetVec3Position(const D3DXVECTOR3 &rPos)
 {
 	// 位置を設定
 	m_pos = rPos;
+
+	// 描画情報を設定
+	assert(m_pShadow != nullptr);
+	m_pShadow->SetDrawInfo();
 }
 
 //============================================================

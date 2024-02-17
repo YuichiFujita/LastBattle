@@ -58,7 +58,6 @@ private:
 	EState m_state;			// 状態
 	int m_nCounterWait;		// 余韻管理カウンター
 	int m_nCounterNumAtk;	// 攻撃回数カウンター
-	int m_nWaitFrame;		// 余韻フレーム数
 };
 
 #endif	// _ENEMY_ATTACK04_H_

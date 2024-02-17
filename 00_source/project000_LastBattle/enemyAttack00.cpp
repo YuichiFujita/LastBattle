@@ -215,8 +215,8 @@ void CEnemyAttack00::InitTeleport(void)
 		float fRot = atan2f(vec.x, vec.z);
 
 		// 最大限遠ざけた位置を設定
-		posEnemy.x += posPlayer.x + sinf(fRot) * stageLimit.fRadius;
-		posEnemy.z += posPlayer.z + cosf(fRot) * stageLimit.fRadius;
+		posEnemy.x += stageLimit.center.x + sinf(fRot) * stageLimit.fRadius;
+		posEnemy.z += stageLimit.center.z + cosf(fRot) * stageLimit.fRadius;
 	}
 	else
 	{ // ステージの外周にいた場合

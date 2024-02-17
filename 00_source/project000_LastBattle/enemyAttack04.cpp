@@ -19,9 +19,10 @@
 //************************************************************
 namespace
 {
-	const int	ATK_MOTION_KEY	= 2;		// 攻撃生成キー
-	const int	INIT_WAIT_FRAME	= 26;		// 初期攻撃待機フレーム
-	const int	NUM_ATTACK		= 8;		// 攻撃の生成数
+	const int	ATK_MOTION_KEY	= 2;	// 攻撃生成キー
+	const int	WAIT_FRAME		= 150;	// 攻撃待機フレーム
+	const int	NUM_FIRE		= 8;	// 炎の生成数
+	const int	NUM_ATTACK		= 3;	// 攻撃の生成数
 }
 
 //************************************************************
@@ -33,8 +34,7 @@ namespace
 CEnemyAttack04::CEnemyAttack04() :
 	m_state				(STATE_INIT_TELEPORT),	// 状態
 	m_nCounterWait		(0),					// 余韻管理カウンター
-	m_nCounterNumAtk	(0),					// 攻撃回数カウンター
-	m_nWaitFrame		(0)						// 余韻フレーム数
+	m_nCounterNumAtk	(0)						// 攻撃回数カウンター
 {
 
 }
@@ -56,7 +56,6 @@ HRESULT CEnemyAttack04::Init(void)
 	m_state				= STATE_INIT_TELEPORT;	// 状態
 	m_nCounterWait		= 0;					// 余韻管理カウンター
 	m_nCounterNumAtk	= 0;					// 攻撃回数カウンター
-	m_nWaitFrame		= INIT_WAIT_FRAME;		// 余韻フレーム数
 
 	// 敵攻撃の初期化
 	if (FAILED(CEnemyAttack::Init()))
@@ -110,8 +109,8 @@ bool CEnemyAttack04::Update(void)
 	}
 	case STATE_INIT_WAIT:	// 攻撃待機の初期化
 	{
-		// 空中攻撃の行動を設定
-		pBoss->SetActFlyAttack();
+		// 炎攻撃の行動を設定
+		//pBoss->SetActFire();
 
 		// 攻撃待機状態にする
 		m_state = STATE_WAIT;
@@ -120,7 +119,7 @@ bool CEnemyAttack04::Update(void)
 	}
 	case STATE_WAIT:	// 攻撃待機
 	{
-		if (pBoss->GetMotionKey() == ATK_MOTION_KEY
+		if (pBoss->GetMotionKey() == 2
 		&&  pBoss->GetMotionKeyCounter() == 1)
 		{ // 手を振り上げたタイミングの場合
 
@@ -166,7 +165,13 @@ void CEnemyAttack04::InitTeleport(void)
 	D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
 	D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き
 
+	// 中心からプレイヤーへの向きを求める
+	D3DXVECTOR3 vec = stageLimit.center - posPlayer;
+	float fRot = atan2f(vec.x, vec.z);
 
+	// 最大限遠ざけた位置を設定
+	posEnemy.x += stageLimit.center.x + sinf(fRot) * stageLimit.fRadius * 0.5f;
+	posEnemy.z += stageLimit.center.z + cosf(fRot) * stageLimit.fRadius * 0.5f;
 
 	// プレイヤー方向を向かせる
 	D3DXVECTOR3 vecPlayer = posEnemy - posPlayer;
@@ -186,7 +191,7 @@ void CEnemyAttack04::UpdateFire(void)
 {
 	// カウンターを加算
 	m_nCounterWait++;
-	if (m_nCounterWait > m_nWaitFrame)
+	if (m_nCounterWait > WAIT_FRAME)
 	{ // 余韻フレームが終了した場合
 
 		// カウンターを初期化
@@ -216,13 +221,30 @@ void CEnemyAttack04::CreateFire(void)
 	D3DXMATRIX	mtxJaw		= pObjJaw->GetMtxWorld();				// 顎マトリックス
 	D3DXVECTOR3	posJaw		= useful::GetMtxWorldPosition(mtxJaw);	// 顎ワールド座標
 
-	// 炎攻撃の生成
-	CAttackMoveFire::Create
-	( // 引数
-		posJaw,
-		D3DXVECTOR3(1.0f, 0.0f, 0.0f),
-		12.5f,
-		0.08f,
-		100
-	);
+	// TODO：モーション変えたら消す
+	posJaw.y = 100.0f;
+
+	int nNumFire = NUM_FIRE + m_nCounterNumAtk * 3;	// 攻撃生成数
+
+	float fFf = D3DX_PI * 0.25f;
+	float fRotRate = (D3DX_PI - fFf * 2.0f) / (nNumFire - 1);	// 攻撃方向の割合
+
+	float fStartRot	= pBoss->GetVec3Rotation().y + (D3DX_PI * 0.5f) + fFf;	// 攻撃生成開始向き
+
+	for (int nCntAttack = 0; nCntAttack < nNumFire; nCntAttack++)
+	{ // 攻撃の生成数分繰り返す
+
+		float fMoveRot = fStartRot + fRotRate * nCntAttack;	// 炎の生成方向
+		D3DXVECTOR3 vecMove = D3DXVECTOR3(sinf(fMoveRot), 0.0f, cosf(fMoveRot));	// 炎の移動方向
+
+		// 炎攻撃の生成
+		CAttackMoveFire::Create
+		( // 引数
+			posJaw,		// 生成位置
+			vecMove,	// 移動方向
+			16.5f,		// 移動量
+			0.09f,		// 加速量
+			100			// 寿命
+		);
+	}
 }
