@@ -13,7 +13,7 @@
 #include "renderState.h"
 #include "camera.h"
 #include "texture.h"
-#include "object2D.h"
+#include "screen.h"
 #include "debug.h"
 
 //************************************************************
@@ -34,14 +34,12 @@ namespace
 //	コンストラクタ
 //============================================================
 CRenderer::CRenderer() :
-	m_pD3D				(nullptr),	// Direct3Dオブジェクト
-	m_pD3DDevice		(nullptr),	// Direct3Dデバイス
-	m_pDrawScreen		(nullptr),	// 画面描画用の2Dポリゴン
-	m_nRenderTextureID	(0),		// レンダーテクスチャのインデックス
-	m_pRenderTextureSurface		(nullptr),	// 描画サーフェイスへのポインタ
-	m_pDepthStencilSurface		(nullptr),	// Zバッファ・ステンシルバッファのサーフェイスへのポインタ
-	m_pDefRenderTextureSurface	(nullptr),	// 元の描画サーフェイス保存用
-	m_pDefDepthStencilSurface	(nullptr)	// 元のZバッファ・ステンシルバッファのサーフェイス保存用
+	m_pD3D			(nullptr),	// Direct3Dオブジェクト
+	m_pD3DDevice	(nullptr),	// Direct3Dデバイス
+	m_nScreenTexID	(0),		// スクリーンテクスチャのインデックス
+	m_pDrawScreen	(nullptr),	// スクリーン描画ポリゴン
+	m_pSurScreen	(nullptr),	// スクリーン描画サーフェイスへのポインタ
+	m_pDefSurScreen	(nullptr)	// 元のスクリーン描画サーフェイス保存用
 {
 
 }
@@ -64,15 +62,12 @@ HRESULT CRenderer::Init(HWND hWnd, BOOL bWindow)
 	D3DPRESENT_PARAMETERS	d3dpp;	// プレゼンテーションパラメータ
 
 	// メンバ変数を初期化
-	m_pD3D				= nullptr;	// Direct3Dオブジェクト
-	m_pD3DDevice		= nullptr;	// Direct3Dデバイス
-	m_pDrawScreen		= nullptr;	// 画面描画用の2Dポリゴン
-	m_nRenderTextureID	= NONE_IDX;	// レンダーテクスチャのインデックス
-
-	m_pRenderTextureSurface		= nullptr;	// 描画サーフェイスへのポインタ
-	m_pDepthStencilSurface		= nullptr;	// Zバッファ・ステンシルバッファのサーフェイスへのポインタ
-	m_pDefRenderTextureSurface	= nullptr;	// 元の描画サーフェイス保存用
-	m_pDefDepthStencilSurface	= nullptr;	// 元のZバッファ・ステンシルバッファのサーフェイス保存用
+	m_pD3D			= nullptr;	// Direct3Dオブジェクト
+	m_pD3DDevice	= nullptr;	// Direct3Dデバイス
+	m_nScreenTexID	= NONE_IDX;	// スクリーンテクスチャのインデックス
+	m_pDrawScreen	= nullptr;	// スクリーン描画ポリゴン
+	m_pSurScreen	= nullptr;	// スクリーン描画サーフェイスへのポインタ
+	m_pDefSurScreen	= nullptr;	// 元のスクリーン描画サーフェイス保存用
 
 	// Direct3Dオブジェクトの生成
 	m_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
@@ -151,20 +146,14 @@ HRESULT CRenderer::Init(HWND hWnd, BOOL bWindow)
 //============================================================
 void CRenderer::Uninit(void)
 {
-	// 画面描画用の2Dポリゴンの終了
+	// スクリーン描画ポリゴンの終了
 	SAFE_UNINIT(m_pDrawScreen);
 
-	// 描画サーフェイスの破棄
-	SAFE_RELEASE(m_pRenderTextureSurface);
+	// スクリーン描画サーフェイスの破棄
+	SAFE_RELEASE(m_pSurScreen);
 
-	// Zバッファ・ステンシルバッファのサーフェイスの破棄
-	SAFE_RELEASE(m_pDepthStencilSurface);
-
-	// 元の描画サーフェイスの破棄
-	SAFE_RELEASE(m_pDefRenderTextureSurface);
-
-	// 元のZバッファ・ステンシルバッファのサーフェイス破棄
-	SAFE_RELEASE(m_pDefDepthStencilSurface);
+	// 元のスクリーン描画サーフェイスの破棄
+	SAFE_RELEASE(m_pDefSurScreen);
 
 	// Direct3Dデバイスの破棄
 	SAFE_RELEASE(m_pD3DDevice);
@@ -188,8 +177,8 @@ void CRenderer::Update(void)
 void CRenderer::Draw(void)
 {
 	// 変数を宣言
-	HRESULT			hr;				// 異常終了の確認用
-	D3DVIEWPORT9	viewportDef;	// カメラのビューポート保存用
+	D3DVIEWPORT9 viewportDef;	// カメラのビューポート保存用
+	HRESULT hr;	// 異常終了の確認用
 
 	//--------------------------------------------------------
 	//	テクスチャ作成用の描画
@@ -197,12 +186,8 @@ void CRenderer::Draw(void)
 	// 塗りつぶしモードの設定
 	GET_MANAGER->GetDebug()->SetFillMode();
 
-	// 描画サーフェイスを作成したものに変更
-	hr = m_pD3DDevice->SetRenderTarget(0, m_pRenderTextureSurface);
-	assert(SUCCEEDED(hr));
-
-	// Zバッファ・ステンシルバッファのサーフェイスを作成したものに変更
-	hr = m_pD3DDevice->SetDepthStencilSurface(m_pDepthStencilSurface);
+	// スクリーン描画サーフェイスを作成したものに変更
+	hr = m_pD3DDevice->SetRenderTarget(0, m_pSurScreen);
 	assert(SUCCEEDED(hr));
 
 	// バックバッファとZバッファのクリア
@@ -236,12 +221,8 @@ void CRenderer::Draw(void)
 	// 塗りつぶしモードを設定
 	GET_DEVICE->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);	// ポリゴンを塗りつぶす
 
-	// 描画サーフェイスを元に戻す
-	hr = m_pD3DDevice->SetRenderTarget(0, m_pDefRenderTextureSurface);
-	assert(SUCCEEDED(hr));
-
-	// Zバッファ・ステンシルバッファのサーフェイスを元に戻す
-	hr = m_pD3DDevice->SetDepthStencilSurface(m_pDefDepthStencilSurface);
+	// スクリーン描画サーフェイスを元に戻す
+	hr = m_pD3DDevice->SetRenderTarget(0, m_pDefSurScreen);
 	assert(SUCCEEDED(hr));
 
 	// バックバッファとZバッファのクリア
@@ -257,20 +238,12 @@ void CRenderer::Draw(void)
 
 		// カメラの設定
 		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
-
-		// サンプラーステートを設定
-		m_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP); // U方向のラッピングを無効化
-		m_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP); // V方向のラッピングを無効化
 		
-		// 画面描画用の2Dポリゴンの描画
+		// スクリーン描画ポリゴンの描画
 		m_pDrawScreen->Draw();
 
 		// デバッグ表示の描画
 		GET_MANAGER->GetDebugProc()->Draw();
-
-		// サンプラーステートを設定
-		m_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);	// U方向のラッピングを有効化
-		m_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);	// V方向のラッピングを有効化
 
 		// ビューポートを元に戻す
 		m_pD3DDevice->SetViewport(&viewportDef);
@@ -298,7 +271,7 @@ HRESULT CRenderer::CreateRenderTexture(void)
 	assert(pTexture != nullptr);
 
 	// 空のテクスチャを生成
-	m_nRenderTextureID = pTexture->Regist(CTexture::SInfo
+	m_nScreenTexID = pTexture->Regist(CTexture::SInfo
 	( // 引数
 		SCREEN_WIDTH,			// テクスチャ横幅
 		SCREEN_HEIGHT,			// テクスチャ縦幅
@@ -308,56 +281,27 @@ HRESULT CRenderer::CreateRenderTexture(void)
 		D3DPOOL_DEFAULT			// 格納メモリ
 	));
 
-	// 画面描画用の2Dポリゴンの生成
+	// スクリーン描画ポリゴンの生成
 	if (m_pDrawScreen == nullptr)
-	{ // 画面描画用の2Dポリゴンが非使用中の場合
+	{ // スクリーン描画ポリゴンが非使用中の場合
 
-		// 画面描画用の2Dポリゴンの生成
-		m_pDrawScreen = CObject2D::Create(SCREEN_CENT, SCREEN_SIZE);
+		// スクリーン描画ポリゴンの生成
+		m_pDrawScreen = CScreen::Create(m_nScreenTexID);
 		if (m_pDrawScreen == nullptr)
-		{ // 画面描画用の2Dポリゴンが非使用中の場合
+		{ // 生成に失敗した場合
 
 			// 失敗を返す
 			assert(false);
 			return E_FAIL;
 		}
-
-		// テクスチャを割当
-		m_pDrawScreen->BindTexture(m_nRenderTextureID);
-
-		// ラベルをスクリーンに設定
-		m_pDrawScreen->SetLabel(CObject::LABEL_SCREEN);
-
-		// 自動描画をOFFにする
-		m_pDrawScreen->SetEnableDraw(false);
 	}
 	else { assert(false); return E_FAIL; }
 
-	// テクスチャ用サーフェイスの生成
-	hr = m_pD3DDevice->CreateDepthStencilSurface
+	// スクリーン描画サーフェイスの取得
+	hr = pTexture->GetTexture(m_nScreenTexID)->GetSurfaceLevel
 	( // 引数
-		SCREEN_WIDTH,				// 深度ステンシルのサーフェス横幅
-		SCREEN_HEIGHT,				// 深度ステンシルのサーフェス縦幅
-		FORMAT_DEPTH_STENCIL,		// 深度ステンシルのサーフェス形式
-		D3DMULTISAMPLE_NONE,		// マルチサンプリングのバッファー型
-		0,							// 品質レベル
-		FALSE,						// Zバッファ破棄の有効/無効
-		&m_pDepthStencilSurface,	// Zバッファ・ステンシルバッファのサーフェイスへのポインタ
-		nullptr						// nullptr
-	);
-	if (FAILED(hr))
-	{ // 描画先の生成に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// 描画サーフェイスの取得
-	hr = pTexture->GetTexture(m_nRenderTextureID)->GetSurfaceLevel
-	( // 引数
-		0,							// ミップマップレベル
-		&m_pRenderTextureSurface	// 描画サーフェイスへのポインタ
+		0,				// ミップマップレベル
+		&m_pSurScreen	// 描画サーフェイスへのポインタ
 	);
 	if (FAILED(hr))
 	{ // サーフェイスの取得に失敗した場合
@@ -367,20 +311,10 @@ HRESULT CRenderer::CreateRenderTexture(void)
 		return E_FAIL;
 	}
 
-	// 元の描画サーフェイスを保存
-	hr = m_pD3DDevice->GetRenderTarget(0, &m_pDefRenderTextureSurface);
+	// 元のスクリーン描画サーフェイスを保存
+	hr = m_pD3DDevice->GetRenderTarget(0, &m_pDefSurScreen);
 	if (FAILED(hr))
 	{ // 描画サーフェイスの取得に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// 元のZバッファ・ステンシルバッファのサーフェイスを保存
-	hr = m_pD3DDevice->GetDepthStencilSurface(&m_pDefDepthStencilSurface);
-	if (FAILED(hr))
-	{ // Zバッファ・ステンシルバッファの取得に失敗した場合
 
 		// 失敗を返す
 		assert(false);

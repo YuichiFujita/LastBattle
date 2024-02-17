@@ -668,9 +668,8 @@ void CObject::ReleaseAll(void)
 				// 次のオブジェクトを代入
 				CObject *pObjectNext = pObject->m_pNext;
 
-				if (pObject->m_label == LABEL_NONE
-				||  pObject->m_label == LABEL_SCREEN)
-				{ // オブジェクトラベルが自動破棄しないラベルの場合
+				if (pObject->m_label == LABEL_NONE)
+				{ // 自動破棄しないラベルの場合
 
 					// 次のオブジェクトへのポインタを代入
 					pObject = pObjectNext;
@@ -721,9 +720,8 @@ void CObject::UpdateAll(void)
 				// 次のオブジェクトを代入
 				CObject *pObjectNext = pObject->m_pNext;
 
-				if (pObject->m_label == LABEL_NONE
-				||  pObject->m_label == LABEL_SCREEN)
-				{ // オブジェクトラベルが自動更新しないラベルの場合
+				if (pObject->m_label == LABEL_NONE)
+				{ // 自動更新しないラベルの場合
 
 					// 次のオブジェクトへのポインタを代入
 					pObject = pObjectNext;

@@ -73,7 +73,6 @@ public:
 	enum ELabel
 	{
 		LABEL_NONE = 0,		// Ç»Çµ
-		LABEL_SCREEN,		// ÉXÉNÉäÅ[Éì
 		LABEL_UI,			// UI
 		LABEL_WAVE,			// îgìÆ
 		LABEL_FIRE,			// âä

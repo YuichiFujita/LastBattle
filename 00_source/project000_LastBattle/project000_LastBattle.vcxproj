@@ -232,6 +232,7 @@
     <ClCompile Include="scenery.cpp" />
     <ClCompile Include="sceneTitle.cpp" />
     <ClCompile Include="sceneTutorial.cpp" />
+    <ClCompile Include="screen.cpp" />
     <ClCompile Include="scroll2D.cpp" />
     <ClCompile Include="scrollMeshField.cpp" />
     <ClCompile Include="scrollMeshRing.cpp" />
@@ -335,6 +336,7 @@
     <ClInclude Include="scenery.h" />
     <ClInclude Include="sceneTitle.h" />
     <ClInclude Include="sceneTutorial.h" />
+    <ClInclude Include="screen.h" />
     <ClInclude Include="scroll2D.h" />
     <ClInclude Include="scrollMeshField.h" />
     <ClInclude Include="scrollMeshRing.h" />
