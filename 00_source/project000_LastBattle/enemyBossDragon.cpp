@@ -61,7 +61,6 @@ namespace
 
 	const CCamera::SSwing LAND_SWING = CCamera::SSwing(10.0f, 1.5f, 0.12f);		// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING = CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
-	const int	PRIORITY		= 6;			// ボスドラゴンの優先順位
 	const int	BLEND_FRAME		= 8;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
@@ -140,9 +139,6 @@ HRESULT CEnemyBossDragon::Init(void)
 		return E_FAIL;
 	}
 
-	// 優先順位を設定
-	SetPriority(PRIORITY);
-
 	// 体力の生成
 	m_pLife = CGauge2D::Create
 	( // 引数
@@ -206,8 +202,30 @@ void CEnemyBossDragon::Update(void)
 //============================================================
 void CEnemyBossDragon::Draw(void)
 {
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// ステンシルテストを有効にする
+	pDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);
+
+	// 比較参照値を設定する
+	pDevice->SetRenderState(D3DRS_STENCILREF, 1);
+
+	// ステンシルマスクを指定する 
+	pDevice->SetRenderState(D3DRS_STENCILMASK, 255);
+
+	// ステンシル比較関数を指定する
+	pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_GREATEREQUAL);
+
+	// ステンシル結果に対しての反映設定
+	pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);	// Zテスト・ステンシルテスト成功
+	pDevice->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);		// Zテスト・ステンシルテスト失敗
+	pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);		// Zテスト失敗・ステンシルテスト成功
+
 	// 敵の描画
 	CEnemy::Draw();
+
+	// ステンシルテストを無効にする
+	pDevice->SetRenderState(D3DRS_STENCILENABLE, FALSE);
 }
 
 //============================================================
