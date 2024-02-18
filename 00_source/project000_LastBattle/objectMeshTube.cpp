@@ -13,6 +13,7 @@
 #include "texture.h"
 #include "objectMeshCircle.h"
 #include "objectMeshCylinder.h"
+#include "renderState.h"
 
 //************************************************************
 //	定数宣言
@@ -467,6 +468,35 @@ POSGRID2 CObjectMeshTube::GetTexPattern(void) const
 {
 	// テクスチャ分割数を返す
 	return m_pCylinder->GetTexPattern();
+}
+
+//============================================================
+//	レンダーステート情報の設定処理
+//============================================================
+void CObjectMeshTube::SetRenderState(CRenderState renderState)
+{
+	CRenderState *pTempRenderState = nullptr;	// レンダーステート情報
+
+	// 引数のレンダーステートを設定
+	pTempRenderState  = m_pCylinder->GetRenderState();
+	*pTempRenderState = renderState;
+
+	for (int i = 0; i < COVER_MAX; i++)
+	{ // 蓋の総数分繰り返す
+
+		// 引数のレンダーステートを設定
+		pTempRenderState  = m_apCover[i]->GetRenderState();
+		*pTempRenderState = renderState;
+	}
+}
+
+//============================================================
+//	レンダーステート情報の取得処理
+//============================================================
+CRenderState CObjectMeshTube::GetRenderState(void)
+{
+	// レンダーステート情報を返す
+	return *m_pCylinder->GetRenderState();
 }
 
 //============================================================

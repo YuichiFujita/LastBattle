@@ -70,7 +70,7 @@ namespace
 	const int	ATK_WAIT_FRAME	= 30;			// 攻撃の余韻フレーム
 	const float	REV_ROTA		= 0.15f;		// 向き変更の補正係数
 	const float	SCALE_MAGIC		= 35.0f;		// 魔法陣の半径変動量
-	const float	MOVE_MAGIC		= 0.1f;		// 魔法陣の上下移動量
+	const float	MOVE_MAGIC		= 30.0f;		// 魔法陣の上下移動量
 	const float	MAGIC_CIRCLE_RADIUS	= 400.0f;	// 魔法陣の半径
 	const float	MAGIC_ALPHA_RADIUS	= 400.0f;	// 魔法陣の透明半径
 	const float	MAGIC_DELPOS_PLUSY	= 250.0f;	// 魔法陣の消失位置の加算量Y
@@ -704,7 +704,7 @@ void CEnemyBossDragon::UpdateAttack(void)
 			// 攻撃の生成
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
-#if 0	// TODO：攻撃を指定
+#if 1	// TODO：攻撃を指定
 				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
 #else
 				CEnemyAttack::ATTACK_04,	// 攻撃インデックス

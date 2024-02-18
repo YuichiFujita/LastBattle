@@ -18,8 +18,9 @@
 //************************************************************
 //	前方宣言
 //************************************************************
-class CObjectMeshCircle;	// オブジェクトメッシュサークル
-class CObjectMeshCylinder;	// オブジェクトメッシュシリンダー
+class CObjectMeshCircle;	// オブジェクトメッシュサークルクラス
+class CObjectMeshCylinder;	// オブジェクトメッシュシリンダークラス
+class CRenderState;			// レンダーステートクラス
 
 //************************************************************
 //	クラス定義
@@ -80,6 +81,8 @@ public:
 	POSGRID2 GetPattern(void) const;				// 分割数取得
 	void SetTexPattern(const POSGRID2& rTexPart);	// テクスチャ分割数設定
 	POSGRID2 GetTexPattern(void) const;				// テクスチャ分割数取得
+	void SetRenderState(CRenderState renderState);	// レンダーステート情報設定
+	CRenderState GetRenderState(void);				// レンダーステート情報取得
 	void SetPositionRelative(void);					// 相対位置設定
 
 private:
