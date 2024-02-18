@@ -219,7 +219,7 @@ void CEnemyAttack04::CreateFire(void)
 	CEnemyBossDragon *pBoss	= GetBoss();	// ボスの情報
 	CMultiModel	*pObjJaw	= pBoss->GetMultiModel(CEnemyBossDragon::MODEL_JAW);	// 顎モデル
 	D3DXMATRIX	mtxJaw		= pObjJaw->GetMtxWorld();				// 顎マトリックス
-	D3DXVECTOR3	posJaw		= useful::GetMtxWorldPosition(mtxJaw);	// 顎ワールド座標
+	D3DXVECTOR3	posJaw		= useful::GetMatrixPosition(mtxJaw);	// 顎ワールド座標
 
 	// TODO：モーション変えたら消す
 	posJaw.y = 100.0f;

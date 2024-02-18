@@ -86,7 +86,7 @@ void CSwordWaveManager::Update(void)
 		// 生成位置を設定
 		D3DXMatrixTranslation(&mtxOffset, spawn.posOffset.x, spawn.posOffset.y, spawn.posOffset.z);	// オフセットマトリックスを作成
 		D3DXMatrixMultiply(&mtxSpawn, &mtxOffset, &mtxPlayer);	// プレイヤーマトリックスと掛け合わせる
-		posSpawn = useful::GetMtxWorldPosition(mtxSpawn);		// 生成ワールド座標を取得
+		posSpawn = useful::GetMatrixPosition(mtxSpawn);			// 生成ワールド座標を取得
 
 		// 生成向きを設定
 		rotSpawn = pPlayer->GetVec3Rotation() + spawn.rotOffset;

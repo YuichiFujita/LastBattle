@@ -21,6 +21,8 @@
 #include "enemy.h"
 #include "sword.h"
 
+#include "objectMeshTube.h"
+
 //************************************************************
 //	定数宣言
 //************************************************************
@@ -112,6 +114,9 @@ HRESULT CSceneGame::Init(void)
 	// シーンの初期化
 	CScene::Init();	// ステージ・プレイヤーの生成
 
+
+	CObjectMeshTube *p = CObjectMeshTube::Create(D3DXVECTOR3(0.0f, 50.0f, 0.0f), VEC3_ZERO, XCOL_WHITE, POSGRID2(16, 2), GRID2_ONE, 300.0f, 500.0f);
+	p->SetLabel(CObject::LABEL_DEBUG);
 
 	//// TODO：敵の生成
 	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);

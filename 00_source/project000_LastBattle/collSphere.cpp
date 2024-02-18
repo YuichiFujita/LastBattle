@@ -74,7 +74,7 @@ void CCollSphere::Update(void)
 		D3DXMatrixMultiply(&mtxOffset, &mtxOffset, &mtxParent);
 
 		// 情報を見た目に反映
-		D3DXVECTOR3 posColl = useful::GetMtxWorldPosition(mtxOffset);
+		D3DXVECTOR3 posColl = useful::GetMatrixPosition(mtxOffset);
 		info.pVisual->SetVec3Position(posColl);	// 位置
 		info.pVisual->SetRadius(info.fRadius);	// 半径
 
@@ -100,7 +100,7 @@ D3DXVECTOR3 CCollSphere::CalcWorldPosition(const int nID) const
 	D3DXMatrixMultiply(&mtxOffset, &mtxOffset, &mtxParent);
 
 	// 判定位置を返す
-	return useful::GetMtxWorldPosition(mtxOffset);
+	return useful::GetMatrixPosition(mtxOffset);
 }
 
 //============================================================
@@ -168,7 +168,7 @@ void CCollSphere::AddColl
 	D3DXMatrixMultiply(&mtxOffset, &mtxOffset, &mtxParent);
 
 	// オフセットワールド座標を見た目に設定
-	D3DXVECTOR3 posColl = useful::GetMtxWorldPosition(mtxOffset);
+	D3DXVECTOR3 posColl = useful::GetMatrixPosition(mtxOffset);
 	tempInfo.pVisual = CDebugCollSphere::Create(posColl, fRadius);
 
 #endif	// _DEBUG

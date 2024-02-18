@@ -240,6 +240,12 @@ void CMagicCircle::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュサークルの描画
 	CObjectMeshCircle::Draw();
+
+	// 魔法陣の先の透明情報の描画
+	m_pAlphaCylinder->Draw();
+
+	// 魔法陣の空白の透明情報の描画
+	m_pAlphaRing->Draw();
 }
 
 //============================================================

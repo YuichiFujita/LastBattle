@@ -228,7 +228,7 @@ void CAttackParabolaFire::UpdateParabolaMove(void)
 		//D3DXMatrixMultiply(&mtxWorld, &mtxRot, &mtxTrans);
 
 		// ˆÊ’u‚ğİ’è
-		pos = useful::GetMtxWorldPosition(mtxWorld);
+		pos = useful::GetMatrixPosition(mtxWorld);
 
 		// ˆÊ’u‚ğ”½‰f
 		SetVec3Position(pos + m_posOrigin);

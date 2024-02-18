@@ -364,7 +364,7 @@ void CSword::CollisionEnemy(void)
 					D3DXMatrixMultiply(&mtxColl, &mtxTrans, &mtxWorld);
 
 					// •Ší‚Ì”»’è’†SˆÊ’u‚ğİ’è
-					posCollSword = useful::GetMtxWorldPosition(mtxColl);
+					posCollSword = useful::GetMatrixPosition(mtxColl);
 
 					// UŒ‚‚Ì“–‚½‚è”»’è
 					bool bHit = collision::Circle3D

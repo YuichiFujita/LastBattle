@@ -465,7 +465,7 @@ void CCamera::SetDestLookBoss(void)
 	if (m_state != STATE_LOOK_BOSS)	{ return; }	// ボス注目状態以外
 
 	CMultiModel *pWaist = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_WAIST);	// 腰モデル情報
-	D3DXVECTOR3 posBoss = useful::GetMtxWorldPosition(pWaist->GetMtxWorld());	// ボスの腰位置
+	D3DXVECTOR3 posBoss = useful::GetMatrixPosition(pWaist->GetMtxWorld());		// ボスの腰位置
 
 	//--------------------------------------------------------
 	//	向きの更新
@@ -896,7 +896,7 @@ void CCamera::LookBoss(void)
 	if (m_state != STATE_LOOK_BOSS)	{ return; }	// ボス注目状態以外
 
 	CMultiModel *pWaist = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_WAIST);	// 腰モデル情報
-	D3DXVECTOR3 posBoss = useful::GetMtxWorldPosition(pWaist->GetMtxWorld());	// ボスの腰位置
+	D3DXVECTOR3 posBoss = useful::GetMatrixPosition(pWaist->GetMtxWorld());		// ボスの腰位置
 
 	//--------------------------------------------------------
 	//	向きの更新

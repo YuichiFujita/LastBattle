@@ -991,7 +991,7 @@ void CTimerManager::SetEnableLogoDraw(const bool bDraw)
 	if (m_pLogo != nullptr)
 	{ // ƒƒS‚ªg—p‚³‚ê‚Ä‚¢‚éê‡
 
-		// ˆø”‚ğƒƒS‚Ì•`‰æó‹µ‚Éİ’è		
+		// ˆø”‚ğƒƒS‚Ì•`‰æó‹µ‚Éİ’è
 		m_pLogo->SetEnableDraw(bDraw);
 	}
 	else { assert(false); }	// ”ñg—p’†

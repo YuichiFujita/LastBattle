@@ -1727,9 +1727,9 @@ void CPlayer::UpdateCollEnemy(D3DXVECTOR3 *pPos)
 		int   nHeadID = enemy->GetHeadModelID();					// 敵の頭モデルインデックス
 		int   nWaistID = enemy->GetWaistModelID();					// 敵の腰モデルインデックス
 		D3DXMATRIX  mtxEnemyHead = enemy->GetMultiModel(nHeadID)->GetMtxWorld();	// 敵の頭のワールドマトリックス
-		D3DXVECTOR3 posEnemyHead = useful::GetMtxWorldPosition(mtxEnemyHead);		// 敵の頭の位置
+		D3DXVECTOR3 posEnemyHead = useful::GetMatrixPosition(mtxEnemyHead);			// 敵の頭の位置
 		D3DXMATRIX  mtxEnemyWaist = enemy->GetMultiModel(nWaistID)->GetMtxWorld();	// 敵の腰のワールドマトリックス
-		D3DXVECTOR3 posEnemyWaist = useful::GetMtxWorldPosition(mtxEnemyWaist);		// 敵の腰の位置
+		D3DXVECTOR3 posEnemyWaist = useful::GetMatrixPosition(mtxEnemyWaist);		// 敵の腰の位置
 		D3DXVECTOR3 posEnemyOrigin = enemy->GetVec3Position();						// 敵の原点位置
 
 		float fHeightEnemy = posEnemyHead.y - posEnemyOrigin.y;	// 敵の縦幅

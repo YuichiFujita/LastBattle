@@ -265,7 +265,7 @@ void CEnemyAttack00::UpdateWave(void)
 		D3DXMATRIX mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();
 
 		// 左手のワールド座標を設定
-		posHand = useful::GetMtxWorldPosition(mtxHandL);
+		posHand = useful::GetMatrixPosition(mtxHandL);
 
 		// Y座標は足元にする
 		posHand.y = pBoss->GetVec3Position().y;
@@ -297,7 +297,7 @@ void CEnemyAttack00::UpdateWave(void)
 		D3DXMATRIX mtxHandR = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_R)->GetMtxWorld();
 
 		// 右手のワールド座標を設定
-		posHand = useful::GetMtxWorldPosition(mtxHandR);
+		posHand = useful::GetMatrixPosition(mtxHandR);
 
 		// Y座標は足元にする
 		posHand.y = pBoss->GetVec3Position().y;
@@ -325,8 +325,8 @@ void CEnemyAttack00::UpdateWave(void)
 	{
 		D3DXMATRIX  mtxHandL = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->GetMtxWorld();	// 左手のマトリックス
 		D3DXMATRIX  mtxHandR = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_R)->GetMtxWorld();	// 右手のマトリックス
-		D3DXVECTOR3 posHandL = useful::GetMtxWorldPosition(mtxHandL);	// 左手のワールド座標
-		D3DXVECTOR3 posHandR = useful::GetMtxWorldPosition(mtxHandR);	// 右手のワールド座標
+		D3DXVECTOR3 posHandL = useful::GetMatrixPosition(mtxHandL);	// 左手のワールド座標
+		D3DXVECTOR3 posHandR = useful::GetMatrixPosition(mtxHandR);	// 右手のワールド座標
 		D3DXVECTOR3 posHand;	// 手のワールド座標
 
 		// 両手の中間ワールド座標を設定

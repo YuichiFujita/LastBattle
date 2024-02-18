@@ -114,10 +114,10 @@ void CMotion::UpdateMove(void)
 	if (m_pChara == nullptr) { return; }	// オブジェクトキャラクター未設定
 
 	// 変数を宣言
-	D3DXMATRIX  mtxChara	= m_pChara->GetMtxWorld();					// キャラマトリックス
-	D3DXVECTOR3 posSetChara	= m_pChara->GetVec3Position();				// キャラ設定位置
-	D3DXVECTOR3 posOldChara	= useful::GetMtxWorldPosition(mtxChara);	// キャラ過去位置
-	D3DXVECTOR3 posCurChara = VEC3_ZERO;								// キャラ現在位置
+	D3DXMATRIX  mtxChara	= m_pChara->GetMtxWorld();				// キャラマトリックス
+	D3DXVECTOR3 posSetChara	= m_pChara->GetVec3Position();			// キャラ設定位置
+	D3DXVECTOR3 posOldChara	= useful::GetMatrixPosition(mtxChara);	// キャラ過去位置
+	D3DXVECTOR3 posCurChara = VEC3_ZERO;							// キャラ現在位置
 
 	// 移動量を求める
 	float fRate = 1.0f / (float)m_info.aMotionInfo[m_info.nType].aKeyInfo[m_info.nKey].nFrame;	// キーフレーム割合
@@ -132,7 +132,7 @@ void CMotion::UpdateMove(void)
 		D3DXMatrixMultiply(&mtxChara, &mtxMove, &mtxChara);
 
 		// 移動量を与えたマトリックスのワールド座標を求める
-		posCurChara = useful::GetMtxWorldPosition(mtxChara);
+		posCurChara = useful::GetMatrixPosition(mtxChara);
 
 		// 過去と現在の位置から移動量を求め、位置に与える
 		posSetChara += posOldChara - posCurChara;

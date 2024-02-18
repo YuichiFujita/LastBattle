@@ -215,12 +215,42 @@ float useful::RandomRot(void)
 }
 
 //============================================================
-//	マトリックスのワールド座標取得
+//	マトリックスの位置取得
 //============================================================
-D3DXVECTOR3 useful::GetMtxWorldPosition(const D3DXMATRIX &rMtx)
+D3DXVECTOR3 useful::GetMatrixPosition(const D3DXMATRIX&rMtx)
 {
-	// マトリックスのワールド座標を返す
+	// マトリックスの位置を返す
 	return D3DXVECTOR3(rMtx._41, rMtx._42, rMtx._43);
+}
+
+//============================================================
+//	マトリックスの向き取得
+//============================================================
+D3DXVECTOR3 useful::GetMatrixRotation(const D3DXMATRIX& rMtx)
+{
+	float fYaw, fPitch, fRoll;	// 計算結果の保存用
+	float fCosPitch;			// 向き計算用
+
+	// マトリックスからPitchを求める
+	fPitch = asinf(-rMtx._32);
+
+	// マトリックスからYaw・Rollを求める
+	fCosPitch = cosf(fPitch);
+	if (fabs(fCosPitch) > 0.0001f)
+	{ // Pitchの角度が計算に問題ない場合
+
+		fYaw  = atan2f(rMtx._31 / fCosPitch, rMtx._33 / fCosPitch);
+		fRoll = atan2f(rMtx._12 / fCosPitch, rMtx._22 / fCosPitch);
+	}
+	else
+	{ // Pitchが90度または-90度の場合
+
+		fYaw  = 0.0f;	// 正確な値が取れないので0.0fとする
+		fRoll = atan2f(rMtx._21, rMtx._11);
+	}
+
+	// マトリックスの向きを返す
+	return D3DXVECTOR3(fPitch, fYaw, fRoll);
 }
 
 //************************************************************

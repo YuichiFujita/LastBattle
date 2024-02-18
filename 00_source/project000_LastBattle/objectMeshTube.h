@@ -1,14 +1,14 @@
 //============================================================
 //
-//	オブジェクトメッシュスフィアヘッダー [objectMeshSphere.h]
+//	オブジェクトメッシュチューブヘッダー [objectMeshTube.h]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	二重インクルード防止
 //************************************************************
-#ifndef _OBJECT_MESHSPHERE_H_
-#define _OBJECT_MESHSPHERE_H_
+#ifndef _OBJECT_MESHTUBE_H_
+#define _OBJECT_MESHTUBE_H_
 
 //************************************************************
 //	インクルードファイル
@@ -18,28 +18,29 @@
 //************************************************************
 //	前方宣言
 //************************************************************
-class CObjectMeshDome;	// オブジェクトメッシュドーム
+class CObjectMeshCircle;	// オブジェクトメッシュサークル
+class CObjectMeshCylinder;	// オブジェクトメッシュシリンダー
 
 //************************************************************
 //	クラス定義
 //************************************************************
-// オブジェクトメッシュスフィアクラス
-class CObjectMeshSphere : public CObject
+// オブジェクトメッシュチューブクラス
+class CObjectMeshTube : public CObject
 {
 public:
-	// 半球列挙
-	enum EDome
+	// 蓋列挙
+	enum ECover
 	{
-		DOME_TOP = 0,	// 上半球
-		DOME_BOTTOM,	// 下半球
-		DOME_MAX		// この列挙型の総数
+		COVER_BOTTOM = 0,	// 下蓋
+		COVER_TOP,			// 上蓋
+		COVER_MAX			// この列挙型の総数
 	};
 
 	// コンストラクタ
-	explicit CObjectMeshSphere(const CObject::ELabel label = LABEL_NONE, const CObject::EDim dimension = DIM_3D, const int nPriority = object::DEFAULT_PRIO);
+	explicit CObjectMeshTube(const CObject::ELabel label = LABEL_NONE, const CObject::EDim dimension = DIM_3D, const int nPriority = object::DEFAULT_PRIO);
 
 	// デストラクタ
-	~CObjectMeshSphere() override;
+	~CObjectMeshTube() override;
 
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
@@ -54,21 +55,24 @@ public:
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
 
-	void SetColor(const D3DXCOLOR& rCol) override;	// 色設定
-	D3DXCOLOR GetColor(void) const override;		// 色取得
-	void SetRadius(const float fRadius) override;	// 半径設定
-	float GetRadius(void) const override;			// 半径取得
-	void SetPriority(const int nPrio) override;		// 優先順位設定
+	void SetColor(const D3DXCOLOR& rCol) override;		// 色設定
+	D3DXCOLOR GetColor(void) const override;			// 色取得
+	void SetRadius(const float fRadius) override;		// 半径設定
+	float GetRadius(void) const override;				// 半径取得
+	void SetHeight(const float fHeight) override;		// 縦幅設定
+	float GetHeight(void) const override;				// 縦幅取得
+	void SetPriority(const int nPrio) override;			// 優先順位設定
 
 	// 静的メンバ関数
-	static CObjectMeshSphere *Create	// 生成
+	static CObjectMeshTube *Create	// 生成
 	( // 引数
 		const D3DXVECTOR3& rPos,	// 位置
 		const D3DXVECTOR3& rRot,	// 向き
 		const D3DXCOLOR& rCol,		// 色
 		const POSGRID2& rPart,		// 分割数
 		const POSGRID2& rTexPart,	// テクスチャ分割数
-		const float fRadius			// 半径
+		const float fRadius,		// 半径
+		const float fHeight			// 縦幅
 	);
 
 	// メンバ関数
@@ -76,15 +80,20 @@ public:
 	POSGRID2 GetPattern(void) const;				// 分割数取得
 	void SetTexPattern(const POSGRID2& rTexPart);	// テクスチャ分割数設定
 	POSGRID2 GetTexPattern(void) const;				// テクスチャ分割数取得
+	void SetPositionRelative(void);					// 相対位置設定
 
 private:
 	// オーバーライド関数
 	void Release(void) override;	// 破棄
 
+	// メンバ関数
+	D3DXMATRIX CalcCylinderMtxWorld(void) const;	// シリンダーマトリックス計算結果取得
+
 	// メンバ変数
-	CObjectMeshDome *m_apDome[DOME_MAX];	// 半球の情報
+	CObjectMeshCircle *m_apCover[COVER_MAX];	// 蓋の情報
+	CObjectMeshCylinder *m_pCylinder;			// 筒の情報
 	POSGRID2 m_part;	// 分割数
 	POSGRID2 m_texPart;	// テクスチャ分割数
 };
 
-#endif	// _OBJECT_MESHSPHERE_H_
+#endif	// _OBJECT_MESHTUBE_H_

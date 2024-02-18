@@ -208,6 +208,7 @@
     <ClCompile Include="objectMeshField.cpp" />
     <ClCompile Include="objectMeshRing.cpp" />
     <ClCompile Include="objectMeshSphere.cpp" />
+    <ClCompile Include="objectMeshTube.cpp" />
     <ClCompile Include="objectMeshWall.cpp" />
     <ClCompile Include="objectModel.cpp" />
     <ClCompile Include="objectTornado.cpp" />
@@ -318,6 +319,7 @@
     <ClInclude Include="objectMeshField.h" />
     <ClInclude Include="objectMeshRing.h" />
     <ClInclude Include="objectMeshSphere.h" />
+    <ClInclude Include="objectMeshTube.h" />
     <ClInclude Include="objectMeshWall.h" />
     <ClInclude Include="objectModel.h" />
     <ClInclude Include="objectTornado.h" />

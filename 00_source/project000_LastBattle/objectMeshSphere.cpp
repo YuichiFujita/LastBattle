@@ -67,6 +67,10 @@ HRESULT CObjectMeshSphere::Init(void)
 			MIN_TEXPART,	// テクスチャ分割数
 			0.0f			// 半径
 		);
+
+		// 自動更新・自動描画をOFFにする
+		m_apDome[i]->SetEnableUpdate(false);
+		m_apDome[i]->SetEnableDraw(false);
 	}
 
 	// 分割数を設定
@@ -272,34 +276,6 @@ void CObjectMeshSphere::SetPriority(const int nPrio)
 	{ // 半球の総数分繰り返す
 
 		m_apDome[i]->SetPriority(nPrio);	// 半球
-	}
-}
-
-//============================================================
-//	更新状況の設定処理
-//============================================================
-void CObjectMeshSphere::SetEnableUpdate(const bool bUpdate)
-{
-	// 引数の更新状況を設定
-	CObject::SetEnableUpdate(bUpdate);	// 自身
-	for (int i = 0; i < DOME_MAX; i++)
-	{ // 半球の総数分繰り返す
-
-		m_apDome[i]->SetEnableUpdate(bUpdate);	// 半球
-	}
-}
-
-//============================================================
-//	描画状況の設定処理
-//============================================================
-void CObjectMeshSphere::SetEnableDraw(const bool bDraw)
-{
-	// 引数の描画状況を設定
-	CObject::SetEnableDraw(bDraw);	// 自身
-	for (int i = 0; i < DOME_MAX; i++)
-	{ // 半球の総数分繰り返す
-
-		m_apDome[i]->SetEnableDraw(bDraw);	// 半球
 	}
 }
 
