@@ -94,7 +94,7 @@ void CObjectModel::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CObjectModel::Draw(void)
+void CObjectModel::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXMATRIX   mtxScale, mtxRot, mtxTrans;	// 計算用マトリックス

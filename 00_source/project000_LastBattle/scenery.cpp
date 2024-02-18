@@ -108,7 +108,7 @@ void CScenery::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CScenery::Draw(void)
+void CScenery::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュシリンダーの描画
 	CObjectMeshCylinder::Draw();

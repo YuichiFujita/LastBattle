@@ -204,7 +204,7 @@ void CMagicCircle::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CMagicCircle::Draw(void)
+void CMagicCircle::Draw(CShader *pShader)
 {
 	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 

@@ -88,7 +88,7 @@ void CWall::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CWall::Draw(void)
+void CWall::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュウォールの描画
 	CObjectMeshWall::Draw();

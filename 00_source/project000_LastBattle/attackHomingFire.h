@@ -32,7 +32,7 @@ public:
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
-	void Draw(void) override;		// 描画
+	void Draw(CShader *pShader = nullptr) override;	// 描画
 
 	// 静的メンバ関数
 	static CAttackHomingFire *Create(const D3DXVECTOR3& rPos);	// 生成

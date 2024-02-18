@@ -128,7 +128,7 @@ void CObjectMeshCylinder::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CObjectMeshCylinder::Draw(void)
+void CObjectMeshCylinder::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス

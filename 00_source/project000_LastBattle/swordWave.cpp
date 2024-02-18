@@ -122,7 +122,7 @@ void CSwordWave::Update(void)
 //============================================================
 //	•`‰æˆ—
 //============================================================
-void CSwordWave::Draw(void)
+void CSwordWave::Draw(CShader *pShader)
 {
 	// ”g“®‚Ì•`‰æ
 	CWave::Draw();

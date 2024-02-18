@@ -113,7 +113,7 @@ void CObjectChara::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CObjectChara::Draw(void)
+void CObjectChara::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
@@ -139,7 +139,7 @@ void CObjectChara::Draw(void)
 	{ // パーツの総数分繰り返す
 
 		// パーツの描画
-		m_apMultiModel[nCntChara]->Draw();
+		m_apMultiModel[nCntChara]->Draw(pShader);
 	}
 }
 

@@ -168,7 +168,7 @@ void CEffect3D::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CEffect3D::Draw(void)
+void CEffect3D::Draw(CShader *pShader)
 {
 	// オブジェクトビルボードの描画
 	CObjectBillboard::Draw();

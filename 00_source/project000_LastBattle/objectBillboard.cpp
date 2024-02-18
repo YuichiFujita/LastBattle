@@ -138,7 +138,7 @@ void CObjectBillboard::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CObjectBillboard::Draw(void)
+void CObjectBillboard::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxTrans;	// 計算用マトリックス

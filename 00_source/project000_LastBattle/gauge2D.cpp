@@ -159,7 +159,7 @@ void CGauge2D::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CGauge2D::Draw(void)
+void CGauge2D::Draw(CShader *pShader)
 {
 	// ポインタを宣言
 	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ

@@ -123,7 +123,8 @@ public:
 	HRESULT Init(void) override;	// ‰Šú‰»
 	void Uninit(void) override;		// I—¹
 	void Update(void) override;		// XV
-	void Draw(void) override;		// •`‰æ
+	void Draw(CShader *pShader = nullptr) override;	// •`‰æ
+
 	void SetState(const int nState) override;	// ó‘Ôİ’è
 	int  GetState(void) const override;			// ó‘Ôæ“¾
 	float GetRadius(void) const override;		// ”¼Œaæ“¾

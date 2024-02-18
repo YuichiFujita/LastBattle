@@ -113,7 +113,7 @@ void CObjectMeshSphere::Update(void)
 //============================================================
 //	•`‰æˆ—
 //============================================================
-void CObjectMeshSphere::Draw(void)
+void CObjectMeshSphere::Draw(CShader *pShader)
 {
 	for (int i = 0; i < DOME_MAX; i++)
 	{ // ”¼‹…‚Ì‘”•ªŒJ‚è•Ô‚·

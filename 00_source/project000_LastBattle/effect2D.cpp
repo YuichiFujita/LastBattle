@@ -151,7 +151,7 @@ void CEffect2D::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CEffect2D::Draw(void)
+void CEffect2D::Draw(CShader *pShader)
 {
 	// オブジェクト2Dの描画
 	CObject2D::Draw();

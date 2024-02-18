@@ -45,7 +45,7 @@ public:
 	HRESULT Init(void) override;	// ‰Šú‰»
 	void Uninit(void) override;		// I—¹
 	void Update(void) override;		// XV
-	void Draw(void) override;		// •`‰æ
+	void Draw(CShader *pShader = nullptr) override;	// •`‰æ
 	void SetVec3Position(const D3DXVECTOR3 &rPos) override;	// ˆÊ’uİ’è
 	void SetVec3Rotation(const D3DXVECTOR3 &rRot) override;	// Œü‚«İ’è
 	void SetRadius(const float fRadius) override;			// ”¼Œaİ’è

@@ -39,9 +39,9 @@ public:
 	HRESULT Init(void) override;	// ‰Šú‰»
 	void Uninit(void) override;		// I—¹
 	void Update(void) override;		// XV
-	void Draw(void) override;		// •`‰æ
-	void SetEnableDraw(const bool bDraw) override;	// •`‰æó‹µİ’è
-	void SetPriority(const int nPriority) override;	// —Dæ‡ˆÊİ’è
+	void Draw(CShader *pShader = nullptr) override;	// •`‰æ
+	void SetEnableDraw(const bool bDraw) override;			// •`‰æó‹µİ’è
+	void SetPriority(const int nPriority) override;			// —Dæ‡ˆÊİ’è
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// ˆÊ’uİ’è
 	D3DXVECTOR3 GetVec3Position(void) const override;		// ˆÊ’uæ“¾
 

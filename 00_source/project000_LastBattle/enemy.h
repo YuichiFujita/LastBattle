@@ -91,7 +91,8 @@ public:
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
-	void Draw(void) override;		// 描画
+	void Draw(CShader *pShader = nullptr) override;	// 描画
+
 	void SetState(const int nState) override;	// 状態設定
 	int GetState(void) const override;			// 状態取得
 	int GetType(void) const override;			// 種類取得
@@ -106,6 +107,7 @@ public:
 
 	// 仮想関数
 	virtual void InitNormal(void);	// 通常状態の初期化
+	virtual void DrawStencil(void);	// ステンシルへの描画
 	virtual void SetEnableDrawUI(const bool bDraw);	// UI描画設定
 
 	// 静的メンバ関数

@@ -119,7 +119,8 @@ public:
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
-	void Draw(void) override;		// 描画
+	void Draw(CShader *pShader = nullptr) override;	// 描画
+
 	int  GetWaistModelID(void) const override;	// 腰モデルのインデックス取得
 	int  GetHeadModelID(void) const override;	// 頭モデルのインデックス取得
 	void Hit(const int nDamage) override;		// ヒット
@@ -127,6 +128,9 @@ public:
 	void SetEnableDrawUI(const bool bDraw) override;	// UI描画設定
 
 	// メンバ関数
+	void InitNormal(void);	// 通常状態の初期化
+	void DrawStencil(void);	// ステンシルへの描画
+
 	void SetTeleport	// テレポート設定
 	( // 引数
 		const D3DXVECTOR3& rPos,			// テレポート目標位置
@@ -137,7 +141,6 @@ public:
 	void SetActPunchGround(void);	// 地面殴りの行動設定
 	void SetActFlyAttack(void);		// 空中攻撃の行動設定
 	EAction GetAction(void);		// 行動取得
-	void InitNormal(void);			// 通常状態の初期化
 
 private:
 	// オーバーライド関数

@@ -77,7 +77,7 @@ void CMultiModel::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CMultiModel::Draw(void)
+void CMultiModel::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	CModel::SModel modelData = GetModelData();	// モデルの情報
@@ -138,6 +138,19 @@ void CMultiModel::Draw(void)
 	// 現在のマテリアルを取得
 	pDevice->GetMaterial(&matDef);
 
+	if (pShader != nullptr)
+	{ // シェーダーが使用されている場合
+
+		// マトリックス情報を設定
+		pShader->SetMatrix(&mtxWorld);
+
+		// 描画開始
+		pShader->Begin();
+		pShader->BeginPass(0);
+
+		//GetRenderState()->SetZUpdate(false);
+	}
+
 	for (int nCntMat = 0; nCntMat < (int)modelData.dwNumMat; nCntMat++)
 	{ // マテリアルの数分繰り返す
 
@@ -159,6 +172,14 @@ void CMultiModel::Draw(void)
 
 		// 頂点法線の自動正規化を無効にする
 		pDevice->SetRenderState(D3DRS_NORMALIZENORMALS, FALSE);
+	}
+
+	if (pShader != nullptr)
+	{ // シェーダーが使用されている場合
+
+		// 描画終了
+		pShader->EndPass();
+		pShader->End();
 	}
 
 	// 保存していたマテリアルを戻す

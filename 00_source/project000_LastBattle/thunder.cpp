@@ -217,7 +217,7 @@ void CThunder::Update(void)
 //============================================================
 //	•`‰æˆ—
 //============================================================
-void CThunder::Draw(void)
+void CThunder::Draw(CShader *pShader)
 {
 
 }

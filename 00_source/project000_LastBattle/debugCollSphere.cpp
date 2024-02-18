@@ -78,7 +78,7 @@ void CDebugCollSphere::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CDebugCollSphere::Draw(void)
+void CDebugCollSphere::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュスフィアの描画
 	CObjectMeshSphere::Draw();

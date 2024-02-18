@@ -80,7 +80,7 @@ void CAttackHomingFire::Update(void)
 //============================================================
 //	•`‰æˆ—
 //============================================================
-void CAttackHomingFire::Draw(void)
+void CAttackHomingFire::Draw(CShader *pShader)
 {
 	// ‰Š‚Ì•`‰æ
 	CFire::Draw();

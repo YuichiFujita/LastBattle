@@ -40,6 +40,7 @@ public:
 	// 静的メンバ関数
 	static CRenderer *Create(HWND hWnd, BOOL bWindow);	// 生成
 	static void Release(CRenderer *&prRenderer);		// 破棄
+	int m_nStencilTexID;	// ステンシルテクスチャのインデックス
 
 private:
 	// メンバ関数
@@ -50,9 +51,11 @@ private:
 	LPDIRECT3DDEVICE9	m_pD3DDevice;	// Direct3Dデバイス
 
 	int m_nScreenTexID;		// スクリーンテクスチャのインデックス
+	//int m_nStencilTexID;	// ステンシルテクスチャのインデックス
 	CScreen *m_pDrawScreen;	// スクリーン描画ポリゴン
-	LPDIRECT3DSURFACE9 m_pSurScreen;	// スクリーン描画サーフェイスへのポインタ
 	LPDIRECT3DSURFACE9 m_pDefSurScreen;	// 元のスクリーン描画サーフェイス保存用
+	LPDIRECT3DSURFACE9 m_pSurScreen;	// スクリーン描画サーフェイスへのポインタ
+	LPDIRECT3DSURFACE9 m_pSurStencil;	// ステンシルサーフェイスへのポインタ
 };
 
 #endif	// _RENDERER_H_

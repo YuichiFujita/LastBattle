@@ -142,7 +142,7 @@ void COrbit::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void COrbit::Draw(void)
+void COrbit::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxIdent;	// 単位マトリックス設定用

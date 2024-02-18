@@ -95,7 +95,7 @@ void CObjectDivChara::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CObjectDivChara::Draw(void)
+void CObjectDivChara::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXVECTOR3 pos = GetVec3Position();	// 下半身の位置
@@ -133,7 +133,7 @@ void CObjectDivChara::Draw(void)
 		{ // パーツの総数分繰り返す
 
 			// パーツの描画
-			GetMultiModel((EBody)nCntChara, nCntParts)->Draw();
+			GetMultiModel((EBody)nCntChara, nCntParts)->Draw(pShader);
 		}
 	}
 }

@@ -91,7 +91,7 @@ void CMultiValue::Update(void)
 //============================================================
 //	ï`âÊèàóù
 //============================================================
-void CMultiValue::Draw(void)
+void CMultiValue::Draw(CShader *pShader)
 {
 
 }

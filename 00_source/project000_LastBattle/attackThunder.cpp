@@ -235,7 +235,7 @@ void CAttackThunder::Update(void)
 //============================================================
 //	•`‰æˆ—
 //============================================================
-void CAttackThunder::Draw(void)
+void CAttackThunder::Draw(CShader * /*pShader*/)
 {
 
 }

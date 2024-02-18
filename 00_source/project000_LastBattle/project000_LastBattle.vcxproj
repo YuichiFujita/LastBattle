@@ -236,6 +236,9 @@
     <ClCompile Include="scroll2D.cpp" />
     <ClCompile Include="scrollMeshField.cpp" />
     <ClCompile Include="scrollMeshRing.cpp" />
+    <ClCompile Include="shader.cpp" />
+    <ClCompile Include="shaderStencil.cpp" />
+    <ClCompile Include="shaderToon.cpp" />
     <ClCompile Include="shadow.cpp" />
     <ClCompile Include="sky.cpp" />
     <ClCompile Include="sound.cpp" />
@@ -340,6 +343,9 @@
     <ClInclude Include="scroll2D.h" />
     <ClInclude Include="scrollMeshField.h" />
     <ClInclude Include="scrollMeshRing.h" />
+    <ClInclude Include="shader.h" />
+    <ClInclude Include="shaderStencil.h" />
+    <ClInclude Include="shaderToon.h" />
     <ClInclude Include="shadow.h" />
     <ClInclude Include="sky.h" />
     <ClInclude Include="sound.h" />
@@ -362,6 +368,16 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="shaderStencil.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
+    <FxCompile Include="shaderToon.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

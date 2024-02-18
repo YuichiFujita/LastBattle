@@ -101,7 +101,7 @@ void CScroll2D::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CScroll2D::Draw(void)
+void CScroll2D::Draw(CShader *pShader)
 {
 	// オブジェクト2Dの描画
 	CObject2D::Draw();

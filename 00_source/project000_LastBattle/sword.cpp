@@ -207,7 +207,7 @@ void CSword::Update(void)
 //============================================================
 //	ï`âÊèàóù
 //============================================================
-void CSword::Draw(void)
+void CSword::Draw(CShader *pShader)
 {
 	if (m_state != STATE_NONE)
 	{ // âΩÇ‡ÇµÇ»Ç¢èÍçá

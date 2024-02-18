@@ -148,7 +148,7 @@ void CWave::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CWave::Draw(void)
+void CWave::Draw(CShader *pShader)
 {
 	// スクロールメッシュリングの描画
 	CScrollMeshRing::Draw();

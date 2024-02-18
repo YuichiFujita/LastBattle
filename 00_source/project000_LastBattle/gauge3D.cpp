@@ -194,7 +194,7 @@ void CGauge3D::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CGauge3D::Draw(void)
+void CGauge3D::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxTrans;	// 計算用マトリックス

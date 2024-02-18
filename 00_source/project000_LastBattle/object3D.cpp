@@ -149,7 +149,7 @@ void CObject3D::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CObject3D::Draw(void)
+void CObject3D::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス

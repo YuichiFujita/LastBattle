@@ -79,7 +79,7 @@ void CModelUI::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CModelUI::Draw(void)
+void CModelUI::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DVIEWPORT9 viewportDef;	// カメラのビューポート保存用

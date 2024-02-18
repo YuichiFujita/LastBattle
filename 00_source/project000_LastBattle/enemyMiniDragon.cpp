@@ -88,7 +88,7 @@ void CEnemyMiniDragon::Update(void)
 //============================================================
 //	•`‰æˆ—
 //============================================================
-void CEnemyMiniDragon::Draw(void)
+void CEnemyMiniDragon::Draw(CShader *pShader)
 {
 	// G‹›“G‚Ì•`‰æ
 	CEnemySmall::Draw();
