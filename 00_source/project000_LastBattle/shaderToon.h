@@ -70,4 +70,4 @@ private:
 	D3DXHANDLE m_pUseTexture;	// テクスチャの使用状況
 };
 
-#endif	// _SHADER_H_
+#endif	// _SHADER_TOON_H_

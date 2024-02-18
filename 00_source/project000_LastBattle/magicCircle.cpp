@@ -370,7 +370,7 @@ void CMagicCircle::DrawCrop(void)
 		// ピクセル描画色を設定
 		pStencilShader->SetColor(XCOL_WHITE);
 
-		if (GET_INPUTKEY->IsPress(DIK_0))
+		//if (GET_INPUTKEY->IsPress(DIK_0))
 		{
 			// ステンシルテストを有効にする
 			pDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);

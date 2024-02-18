@@ -330,6 +330,9 @@
     <ClCompile Include="shaderStencil.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
+    <ClCompile Include="shaderDrawBoss.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="anim2D.h">
@@ -647,6 +650,9 @@
     <ClInclude Include="shaderStencil.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
+    <ClInclude Include="shaderDrawBoss.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc">
@@ -658,6 +664,9 @@
       <Filter>エフェクト ファイル</Filter>
     </FxCompile>
     <FxCompile Include="shaderStencil.fx">
+      <Filter>エフェクト ファイル</Filter>
+    </FxCompile>
+    <FxCompile Include="shaderDrawBoss.fx">
       <Filter>エフェクト ファイル</Filter>
     </FxCompile>
   </ItemGroup>

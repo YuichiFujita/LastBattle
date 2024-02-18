@@ -48,4 +48,4 @@ private:
 	D3DXHANDLE m_pColDraw;	// ピクセル描画色
 };
 
-#endif	// _SHADER_H_
+#endif	// _SHADER_STENCIL_H_

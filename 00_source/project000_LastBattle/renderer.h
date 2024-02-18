@@ -38,6 +38,8 @@ public:
 	LPDIRECT3DDEVICE9 GetDevice(void) const;	// デバイス取得
 	D3DXCOLOR GetClearColor(void) const;		// 画面クリア色取得
 
+	int GetCropTextureID(void) const { return m_nCropTexID; }	// 切り抜きテクスチャ取得
+
 	// 静的メンバ関数
 	static CRenderer *Create(HWND hWnd, BOOL bWindow);	// 生成
 	static void Release(CRenderer *&prRenderer);		// 破棄

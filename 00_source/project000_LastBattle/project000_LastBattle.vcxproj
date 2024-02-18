@@ -237,6 +237,7 @@
     <ClCompile Include="scrollMeshField.cpp" />
     <ClCompile Include="scrollMeshRing.cpp" />
     <ClCompile Include="shader.cpp" />
+    <ClCompile Include="shaderDrawBoss.cpp" />
     <ClCompile Include="shaderStencil.cpp" />
     <ClCompile Include="shaderToon.cpp" />
     <ClCompile Include="shadow.cpp" />
@@ -344,6 +345,7 @@
     <ClInclude Include="scrollMeshField.h" />
     <ClInclude Include="scrollMeshRing.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="shaderDrawBoss.h" />
     <ClInclude Include="shaderStencil.h" />
     <ClInclude Include="shaderToon.h" />
     <ClInclude Include="shadow.h" />
@@ -370,6 +372,10 @@
     <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="shaderDrawBoss.fx">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+    </FxCompile>
     <FxCompile Include="shaderStencil.fx">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

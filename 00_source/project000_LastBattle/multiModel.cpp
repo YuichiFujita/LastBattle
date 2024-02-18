@@ -144,6 +144,9 @@ void CMultiModel::Draw(CShader *pShader)
 		// マトリックス情報を設定
 		pShader->SetMatrix(&mtxWorld);
 
+		// ライト方向を設定
+		pShader->SetLightDirect(&mtxWorld, 0);
+
 		// 描画開始
 		pShader->Begin();
 		pShader->BeginPass(0);
@@ -151,6 +154,18 @@ void CMultiModel::Draw(CShader *pShader)
 
 	for (int nCntMat = 0; nCntMat < (int)modelData.dwNumMat; nCntMat++)
 	{ // マテリアルの数分繰り返す
+
+		if (pShader != nullptr)
+		{ // シェーダーが使用されている場合
+
+			// マテリアルを設定
+			pShader->SetMaterial(GetPtrMaterial(nCntMat)->MatD3D);
+
+			// テクスチャを設定
+			pShader->SetTexture(modelData.pTextureID[nCntMat]);
+
+			pShader->CommitChanges();
+		}
 
 		// マテリアルの設定
 		pDevice->SetMaterial(&GetPtrMaterial(nCntMat)->MatD3D);

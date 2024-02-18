@@ -19,7 +19,7 @@
 //	クラス定義
 //************************************************************
 // スクリーンクラス
-class CScreen : private CObject2D
+class CScreen : public CObject2D
 {
 public:
 	// コンストラクタ

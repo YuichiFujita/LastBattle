@@ -20,6 +20,8 @@
 #include "magicCircle.h"
 #include "retentionManager.h"
 
+#include "screen.h"
+
 //************************************************************
 //	’è”éŒ¾
 //************************************************************
@@ -68,7 +70,7 @@ namespace
 	const int	ATK_WAIT_FRAME	= 30;			// UŒ‚‚Ì—]‰CƒtƒŒ[ƒ€
 	const float	REV_ROTA		= 0.15f;		// Œü‚«•ÏX‚Ì•â³ŒW”
 	const float	SCALE_MAGIC		= 35.0f;		// –‚–@w‚Ì”¼Œa•Ï“®—Ê
-	const float	MOVE_MAGIC		= 30.0f;		// –‚–@w‚Ìã‰ºˆÚ“®—Ê
+	const float	MOVE_MAGIC		= 0.1f;		// –‚–@w‚Ìã‰ºˆÚ“®—Ê
 	const float	MAGIC_CIRCLE_RADIUS	= 250.0f;	// –‚–@w‚Ì”¼Œa
 	const float	MAGIC_ALPHA_RADIUS	= 450.0f;	// –‚–@w‚Ì“§–¾”¼Œa
 	const float	MAGIC_DELPOS_PLUSY	= 250.0f;	// –‚–@w‚ÌÁŽ¸ˆÊ’u‚Ì‰ÁŽZ—ÊY
@@ -202,8 +204,29 @@ void CEnemyBossDragon::Update(void)
 //============================================================
 void CEnemyBossDragon::Draw(CShader *pShader)
 {
-	// “G‚Ì•`‰æ
-	CEnemy::Draw();
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// ƒfƒoƒCƒXî•ñ
+	CTexture		*pTexture = GET_MANAGER->GetTexture();	// ƒeƒNƒXƒ`ƒƒî•ñ
+	CDrawBossShader	*pDrawBossShader = CDrawBossShader::GetInstance();	// ƒ{ƒX•`‰æƒVƒF[ƒ_[î•ñ
+
+	if (pDevice == nullptr || pTexture == nullptr || pDrawBossShader == nullptr)
+	{ // î•ñ‚ª–³‚¢‚à‚Ì‚ª‚ ‚Á‚½ê‡
+
+		// ˆ—‚ð”²‚¯‚é
+		assert(false);
+		return;
+	}
+
+	if (pDrawBossShader->IsEffectOK())
+	{ // ƒGƒtƒFƒNƒg‚ªŽg—p‰Â”\‚Èê‡
+
+		// “G‚Ì•`‰æ
+		CEnemy::Draw(pDrawBossShader);
+	}
+
+	//CScreen *p = CScreen::Create(GET_RENDERER->GetCropTextureID());
+	//p->GetRenderState()->SetAlphaBlend(CRenderState::BLEND_ADD);
+	//p->Draw();
+	//p->Uninit();
 }
 
 //============================================================

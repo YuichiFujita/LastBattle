@@ -25,7 +25,7 @@
 namespace
 {
 	const D3DFORMAT	FORMAT_DEPTH_STENCIL = D3DFMT_D24S8;		// 深度ステンシルのフォーマット (深度バッファ：24bit, ステンシルバッファ：8bit使用)
-	const D3DCOLOR	COL_CLEAR = D3DCOLOR_RGBA(0, 0, 0, 255);	// 画面クリア時の色
+	const D3DCOLOR	COL_CLEAR = D3DCOLOR_RGBA(0, 0, 0, 0);	// 画面クリア時の色
 
 	const DWORD FLAG_CLEAR = (D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);	// クリアするバッファーのビットフラグ
 }
@@ -382,7 +382,7 @@ HRESULT CRenderer::CreateRenderTexture(void)
 	}
 
 	// スクリーン描画ポリゴンの生成
-	m_pDrawScreen = CScreen::Create(m_nCropTexID);
+	m_pDrawScreen = CScreen::Create(m_nScreenTexID);
 	if (m_pDrawScreen == nullptr)
 	{ // 生成に失敗した場合
 

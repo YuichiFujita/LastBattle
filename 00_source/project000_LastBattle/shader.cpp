@@ -10,6 +10,7 @@
 #include "shader.h"
 #include "shaderToon.h"
 #include "shaderStencil.h"
+#include "shaderDrawBoss.h"
 #include "manager.h"
 #include "renderer.h"
 
@@ -184,6 +185,16 @@ HRESULT CShader::Create(void)
 		return E_FAIL;
 	}
 
+	// ボス描画シェーダーの生成
+	CDrawBossShader *pDrawBossShader = CDrawBossShader::Create();
+	if (pDrawBossShader == nullptr)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
 	// 成功を返す
 	return S_OK;
 }
@@ -198,6 +209,9 @@ void CShader::Release(void)
 
 	// ステンシルシェーダーの破棄
 	CStencilShader::Release();
+
+	// ボス描画シェーダーの破棄
+	CDrawBossShader::Release();
 }
 
 //============================================================
