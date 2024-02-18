@@ -296,9 +296,9 @@ void CEnemy::InitNormal(void)
 }
 
 //============================================================
-//	ステンシルへの描画処理
+//	切り抜き用の描画処理
 //============================================================
-void CEnemy::DrawStencil(void)
+void CEnemy::DrawCrop(void)
 {
 	assert(false);
 }

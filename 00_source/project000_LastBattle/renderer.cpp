@@ -17,7 +17,7 @@
 #include "debug.h"
 
 #include "enemy.h"
-#include "player.h"
+#include "magicCircle.h"
 
 //************************************************************
 //	定数宣言
@@ -40,11 +40,11 @@ CRenderer::CRenderer() :
 	m_pD3D			(nullptr),	// Direct3Dオブジェクト
 	m_pD3DDevice	(nullptr),	// Direct3Dデバイス
 	m_nScreenTexID	(0),		// スクリーンテクスチャのインデックス
-	m_nStencilTexID	(0),		// ステンシルテクスチャのインデックス
+	m_nCropTexID	(0),		// 切り抜きテクスチャのインデックス
 	m_pDrawScreen	(nullptr),	// スクリーン描画ポリゴン
 	m_pDefSurScreen	(nullptr),	// 元のスクリーン描画サーフェイス保存用
 	m_pSurScreen	(nullptr),	// スクリーン描画サーフェイスへのポインタ
-	m_pSurStencil	(nullptr)	// ステンシルサーフェイスへのポインタ
+	m_pSurCrop		(nullptr)	// 切り抜きサーフェイスへのポインタ
 {
 
 }
@@ -70,11 +70,11 @@ HRESULT CRenderer::Init(HWND hWnd, BOOL bWindow)
 	m_pD3D			= nullptr;	// Direct3Dオブジェクト
 	m_pD3DDevice	= nullptr;	// Direct3Dデバイス
 	m_nScreenTexID	= NONE_IDX;	// スクリーンテクスチャのインデックス
-	m_nStencilTexID	= NONE_IDX;	// ステンシルテクスチャのインデックス
+	m_nCropTexID	= NONE_IDX;	// 切り抜きテクスチャのインデックス
 	m_pDrawScreen	= nullptr;	// スクリーン描画ポリゴン
 	m_pDefSurScreen	= nullptr;	// 元のスクリーン描画サーフェイス保存用
 	m_pSurScreen	= nullptr;	// スクリーン描画サーフェイスへのポインタ
-	m_pSurStencil	= nullptr;	// ステンシルサーフェイスへのポインタ
+	m_pSurCrop		= nullptr;	// 切り抜きサーフェイスへのポインタ
 
 	// Direct3Dオブジェクトの生成
 	m_pD3D = Direct3DCreate9(D3D_SDK_VERSION);
@@ -162,8 +162,8 @@ void CRenderer::Uninit(void)
 	// スクリーン描画サーフェイスの破棄
 	SAFE_RELEASE(m_pSurScreen);
 
-	// ステンシルサーフェイスの破棄
-	SAFE_RELEASE(m_pSurStencil);
+	// 切り抜きサーフェイスの破棄
+	SAFE_RELEASE(m_pSurCrop);
 
 	// Direct3Dデバイスの破棄
 	SAFE_RELEASE(m_pD3DDevice);
@@ -191,13 +191,13 @@ void CRenderer::Draw(void)
 	HRESULT hr;	// 異常終了の確認用
 
 	//--------------------------------------------------------
-	//	ボス透明化用の描画
+	//	ボス切り抜き用の描画
 	//--------------------------------------------------------
 	// 塗りつぶしモードを設定
 	GET_DEVICE->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);	// ポリゴンを塗りつぶす
 
-	// スクリーン描画サーフェイスをステンシルサーフェイスに変更
-	hr = m_pD3DDevice->SetRenderTarget(0, m_pSurStencil);
+	// 描画サーフェイスを切り抜きサーフェイスに変更
+	hr = m_pD3DDevice->SetRenderTarget(0, m_pSurCrop);
 	assert(SUCCEEDED(hr));
 
 	// バックバッファとZバッファのクリア
@@ -215,51 +215,13 @@ void CRenderer::Draw(void)
 		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
 
 		// TODO：ここにボスと魔法陣の透明部分描画
-		CScene::GetBoss()->DrawStencil();
+		CScene::GetBoss()->DrawCrop();
 
-		// ビューポートを元に戻す
-		m_pD3DDevice->SetViewport(&viewportDef);
-
-		// 描画終了
-		hr = m_pD3DDevice->EndScene();
-		assert(SUCCEEDED(hr));
-	}
-
-	// テクスチャ作成用の描画
-	if (SUCCEEDED(m_pD3DDevice->BeginScene()))
-	{ // 描画開始が成功した場合
-
-		// 現在のビューポートを取得
-		m_pD3DDevice->GetViewport(&viewportDef);
-
-		// カメラの設定
-		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
-
-		// TODO：ここにボスと魔法陣の透明部分描画
-		CScene::GetPlayer()->Draw();
-
-		// ビューポートを元に戻す
-		m_pD3DDevice->SetViewport(&viewportDef);
-
-		// 描画終了
-		hr = m_pD3DDevice->EndScene();
-		assert(SUCCEEDED(hr));
-	}
-
-	// テクスチャ作成用の描画
-	if (SUCCEEDED(m_pD3DDevice->BeginScene()))
-	{ // 描画開始が成功した場合
-
-		// 現在のビューポートを取得
-		m_pD3DDevice->GetViewport(&viewportDef);
-
-		// カメラの設定
-		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
-
-		// TODO：ここにボスと魔法陣の透明部分描画
-		//CScene::GetBoss()->DrawStencil();
-
-		CScene::GetPlayer()->Draw();
+		std::list<CMagicCircle*> list = CMagicCircle::GetList()->GetList();
+		for (auto pMagicCircle : list)
+		{
+			pMagicCircle->DrawCrop();
+		}
 
 		// ビューポートを元に戻す
 		m_pD3DDevice->SetViewport(&viewportDef);
@@ -275,7 +237,7 @@ void CRenderer::Draw(void)
 	// 塗りつぶしモードの設定
 	GET_MANAGER->GetDebug()->SetFillMode();
 
-	// スクリーン描画サーフェイスを作成したものに変更
+	// 描画サーフェイスをスクリーン描画サーフェイスに変更
 	hr = m_pD3DDevice->SetRenderTarget(0, m_pSurScreen);
 	assert(SUCCEEDED(hr));
 
@@ -370,8 +332,8 @@ HRESULT CRenderer::CreateRenderTexture(void)
 		D3DPOOL_DEFAULT			// 格納メモリ
 	));
 
-	// 空のステンシルテクスチャを生成
-	m_nStencilTexID = pTexture->Regist(CTexture::SInfo
+	// 空の切り抜きテクスチャを生成
+	m_nCropTexID = pTexture->Regist(CTexture::SInfo
 	( // 引数
 		SCREEN_WIDTH,			// テクスチャ横幅
 		SCREEN_HEIGHT,			// テクスチャ縦幅
@@ -405,11 +367,11 @@ HRESULT CRenderer::CreateRenderTexture(void)
 		return E_FAIL;
 	}
 
-	// ステンシルサーフェイスの取得
-	hr = pTexture->GetTexture(m_nStencilTexID)->GetSurfaceLevel
+	// 切り抜きサーフェイスの取得
+	hr = pTexture->GetTexture(m_nCropTexID)->GetSurfaceLevel
 	( // 引数
-		0,				// ミップマップレベル
-		&m_pSurStencil	// ステンシルサーフェイスへのポインタ
+		0,			// ミップマップレベル
+		&m_pSurCrop	// 切り抜きサーフェイスへのポインタ
 	);
 	if (FAILED(hr))
 	{ // サーフェイス取得に失敗した場合
@@ -420,7 +382,7 @@ HRESULT CRenderer::CreateRenderTexture(void)
 	}
 
 	// スクリーン描画ポリゴンの生成
-	m_pDrawScreen = CScreen::Create(m_nStencilTexID);
+	m_pDrawScreen = CScreen::Create(m_nCropTexID);
 	if (m_pDrawScreen == nullptr)
 	{ // 生成に失敗した場合
 
@@ -440,6 +402,15 @@ LPDIRECT3DDEVICE9 CRenderer::GetDevice(void) const
 {
 	// デバイスのポインタを返す
 	return m_pD3DDevice;
+}
+
+//============================================================
+//	画面クリア色取得処理
+//============================================================
+D3DXCOLOR CRenderer::GetClearColor(void) const
+{
+	// 画面クリア色を返す
+	return COL_CLEAR;
 }
 
 //============================================================

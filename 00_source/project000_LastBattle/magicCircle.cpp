@@ -36,6 +36,11 @@ namespace
 static_assert(NUM_ARRAY(TEXTURE_FILE) == CMagicCircle::TEXTURE_MAX, "ERROR : Texture Count Mismatch");
 
 //************************************************************
+//	静的メンバ変数宣言
+//************************************************************
+CListManager<CMagicCircle> *CMagicCircle::m_pList = nullptr;	// オブジェクトリスト
+
+//************************************************************
 //	子クラス [CMagicCircle] のメンバ関数
 //************************************************************
 //============================================================
@@ -173,6 +178,23 @@ HRESULT CMagicCircle::Init(void)
 		m_pAlphaRing->GetRenderState()->SetLighting(false);
 	}
 
+	if (m_pList == nullptr)
+	{ // リストマネージャーが存在しない場合
+
+		// リストマネージャーの生成
+		m_pList = CListManager<CMagicCircle>::Create();
+		if (m_pList == nullptr)
+		{ // 生成に失敗した場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+	}
+
+	// リストに自身のオブジェクトを追加・イテレーターを取得
+	m_iterator = m_pList->AddList(this);
+
 	// 成功を返す
 	return S_OK;
 }
@@ -187,6 +209,16 @@ void CMagicCircle::Uninit(void)
 
 	// 魔法陣の空白の透明情報の終了
 	SAFE_UNINIT(m_pAlphaRing);
+
+	// リストから自身のオブジェクトを削除
+	m_pList->DeleteList(m_iterator);
+
+	if (m_pList->GetNumAll() == 0)
+	{ // オブジェクトが一つもない場合
+
+		// リストマネージャーの破棄
+		m_pList->Release(m_pList);
+	}
 
 	// オブジェクトメッシュサークルの終了
 	CObjectMeshCircle::Uninit();
@@ -206,39 +238,8 @@ void CMagicCircle::Update(void)
 //============================================================
 void CMagicCircle::Draw(CShader *pShader)
 {
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	if (GET_INPUTKEY->IsPress(DIK_0))
-	{
-		// ステンシルテストを有効にする
-		pDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);
-	}
-
-	// 比較参照値を設定する
-	pDevice->SetRenderState(D3DRS_STENCILREF, 1);
-
-	// ステンシルマスクを指定する 
-	pDevice->SetRenderState(D3DRS_STENCILMASK, 255);
-
-	// ステンシル比較関数を指定する
-	pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
-
-	// ステンシル結果に対しての反映設定
-	pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_INCRSAT);	// Zテスト・ステンシルテスト成功
-	pDevice->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);		// Zテスト・ステンシルテスト失敗
-	pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);		// Zテスト失敗・ステンシルテスト成功
-
 	// オブジェクトメッシュサークルの描画
 	CObjectMeshCircle::Draw();
-
-	// 魔法陣の先の透明情報の描画
-	m_pAlphaCylinder->Draw();
-
-	// 魔法陣の空白の透明情報の描画
-	m_pAlphaRing->Draw();
-
-	// ステンシルテストを無効にする
-	pDevice->SetRenderState(D3DRS_STENCILENABLE, FALSE);
 }
 
 //============================================================
@@ -285,17 +286,6 @@ void CMagicCircle::SetRadius(const float fRadius)
 }
 
 //============================================================
-//	描画状況の設定処理
-//============================================================
-void CMagicCircle::SetEnableDraw(const bool bDraw)
-{
-	// 引数の描画状況を設定
-	CObject::SetEnableDraw(bDraw);			// 自身
-	//m_pAlphaCylinder->SetEnableDraw(bDraw);	// 魔法陣の先の透明情報
-	//m_pAlphaRing->SetEnableDraw(bDraw);		// 魔法陣の空白の透明情報
-}
-
-//============================================================
 //	生成処理
 //============================================================
 CMagicCircle *CMagicCircle::Create
@@ -326,7 +316,7 @@ CMagicCircle *CMagicCircle::Create
 		}
 
 		// テクスチャを登録・割当
-		//pMagicCircle->BindTexture(GET_MANAGER->GetTexture()->Regist(TEXTURE_FILE[TEXTURE_NORMAL]));
+		pMagicCircle->BindTexture(GET_MANAGER->GetTexture()->Regist(TEXTURE_FILE[TEXTURE_NORMAL]));
 
 		// 位置を設定
 		pMagicCircle->SetVec3Position(rPos);
@@ -342,6 +332,72 @@ CMagicCircle *CMagicCircle::Create
 
 		// 確保したアドレスを返す
 		return pMagicCircle;
+	}
+}
+
+//============================================================
+//	リスト取得処理
+//============================================================
+CListManager<CMagicCircle>* CMagicCircle::GetList(void)
+{
+	// オブジェクトリストを返す
+	return m_pList;
+}
+
+//============================================================
+//	切り抜き用の描画処理
+//============================================================
+void CMagicCircle::DrawCrop(void)
+{
+	// 自動描画がOFFの場合抜ける
+	if (!IsDraw()) { return; }
+
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイス情報
+	CTexture		*pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
+	CStencilShader	*pStencilShader = CStencilShader::GetInstance();	// ステンシルシェーダー情報
+
+	if (pDevice == nullptr || pTexture == nullptr || pStencilShader == nullptr)
+	{ // 情報が無いものがあった場合
+
+		// 処理を抜ける
+		assert(false);
+		return;
+	}
+
+	if (pStencilShader->IsEffectOK())
+	{ // エフェクトが使用可能な場合
+
+		// ピクセル描画色を設定
+		pStencilShader->SetColor(XCOL_WHITE);
+
+		if (GET_INPUTKEY->IsPress(DIK_0))
+		{
+			// ステンシルテストを有効にする
+			pDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);
+		}
+
+		// 比較参照値を設定する
+		pDevice->SetRenderState(D3DRS_STENCILREF, 1);
+
+		// ステンシルマスクを指定する 
+		pDevice->SetRenderState(D3DRS_STENCILMASK, 255);
+
+		// ステンシル比較関数を指定する
+		pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_EQUAL);
+
+		// ステンシル結果に対しての反映設定
+		pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_INCRSAT);	// Zテスト・ステンシルテスト成功
+		pDevice->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);		// Zテスト・ステンシルテスト失敗
+		pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);		// Zテスト失敗・ステンシルテスト成功
+
+		// 魔法陣の先の透明情報の描画
+		m_pAlphaCylinder->Draw(pStencilShader);
+
+		// 魔法陣の空白の透明情報の描画
+		m_pAlphaRing->Draw(pStencilShader);
+
+		// ステンシルテストを無効にする
+		pDevice->SetRenderState(D3DRS_STENCILENABLE, FALSE);
 	}
 }
 

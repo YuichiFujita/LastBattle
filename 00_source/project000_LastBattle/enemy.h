@@ -107,7 +107,7 @@ public:
 
 	// 仮想関数
 	virtual void InitNormal(void);	// 通常状態の初期化
-	virtual void DrawStencil(void);	// ステンシルへの描画
+	virtual void DrawCrop(void);	// 切り抜き用の描画
 	virtual void SetEnableDrawUI(const bool bDraw);	// UI描画設定
 
 	// 静的メンバ関数

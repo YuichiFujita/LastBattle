@@ -154,6 +154,17 @@ void CObjectMeshCircle::Draw(CShader *pShader)
 	// テクスチャの設定
 	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
 
+	if (pShader != nullptr)
+	{ // シェーダーが使用されている場合
+
+		// マトリックス情報を設定
+		pShader->SetMatrix(&m_meshCircle.mtxWorld);
+
+		// 描画開始
+		pShader->Begin();
+		pShader->BeginPass(0);
+	}
+
 	// 外周ポリゴンの描画
 	pDevice->DrawIndexedPrimitive
 	( // 引数
@@ -175,6 +186,14 @@ void CObjectMeshCircle::Draw(CShader *pShader)
 		m_nNumIdx - (m_part.x + 2),	// インデックスバッファの開始地点
 		m_part.x					// プリミティブ (ポリゴン) 数
 	);
+
+	if (pShader != nullptr)
+	{ // シェーダーが使用されている場合
+
+		// 描画終了
+		pShader->EndPass();
+		pShader->End();
+	}
 
 	// レンダーステートを再設定
 	m_pRenderState->Reset();

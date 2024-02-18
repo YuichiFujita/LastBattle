@@ -350,20 +350,19 @@ void CEnemyBossDragon::InitNormal(void)
 }
 
 //============================================================
-//	ステンシルへの描画処理
+//	切り抜き用の描画処理
 //============================================================
-void CEnemyBossDragon::DrawStencil(void)
+void CEnemyBossDragon::DrawCrop(void)
 {
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイス情報
-	CTexture		*pTexture = CManager::GetInstance()->GetTexture();	// テクスチャ情報
+	// 自動描画がOFFの場合抜ける
+	if (!IsDraw()) { return; }
+
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイス情報
+	CTexture		*pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
 	CStencilShader	*pStencilShader = CStencilShader::GetInstance();	// ステンシルシェーダー情報
 
 	if (pDevice == nullptr || pTexture == nullptr || pStencilShader == nullptr)
 	{ // 情報が無いものがあった場合
-
-		// 敵の描画
-		CEnemy::Draw();
 
 		// 処理を抜ける
 		assert(false);
@@ -373,17 +372,31 @@ void CEnemyBossDragon::DrawStencil(void)
 	if (pStencilShader->IsEffectOK())
 	{ // エフェクトが使用可能な場合
 
-		// 参照値を設定
-		pStencilShader->SetRefValue(2);
+		// ピクセル描画色を設定
+		pStencilShader->SetColor(GET_RENDERER->GetClearColor());
 
-		// 比較演算子を設定
-		pStencilShader->SetComparison(CStencilShader::COMPARISON_GREATEREQUAL);
+		// ステンシルテストを有効にする
+		pDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);
 
-		// 数値操作を設定
-		pStencilShader->SetOperation(CStencilShader::OPERATION_REPLACE);
+		// 比較参照値を設定する
+		pDevice->SetRenderState(D3DRS_STENCILREF, 1);
+
+		// ステンシルマスクを指定する 
+		pDevice->SetRenderState(D3DRS_STENCILMASK, 255);
+
+		// ステンシル比較関数を指定する
+		pDevice->SetRenderState(D3DRS_STENCILFUNC, D3DCMP_GREATEREQUAL);
+
+		// ステンシル結果に対しての反映設定
+		pDevice->SetRenderState(D3DRS_STENCILPASS, D3DSTENCILOP_REPLACE);	// Zテスト・ステンシルテスト成功
+		pDevice->SetRenderState(D3DRS_STENCILFAIL, D3DSTENCILOP_KEEP);		// Zテスト・ステンシルテスト失敗
+		pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);		// Zテスト失敗・ステンシルテスト成功
 
 		// 敵の描画
 		CEnemy::Draw(pStencilShader);
+
+		// ステンシルテストを無効にする
+		pDevice->SetRenderState(D3DRS_STENCILENABLE, FALSE);
 	}
 }
 

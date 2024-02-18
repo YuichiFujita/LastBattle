@@ -397,37 +397,8 @@ void CPlayer::Update(void)
 //============================================================
 void CPlayer::Draw(CShader *pShader)
 {
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイス情報
-	CTexture		*pTexture = CManager::GetInstance()->GetTexture();	// テクスチャ情報
-	CStencilShader	*pStencilShader = CStencilShader::GetInstance();	// ステンシルシェーダー情報
-
-	if (pDevice == nullptr || pTexture == nullptr || pStencilShader == nullptr)
-	{ // 情報が無いものがあった場合
-
-		// オブジェクト分割キャラクターの描画
-		CObjectDivChara::Draw();
-
-		// 処理を抜ける
-		assert(false);
-		return;
-	}
-
-	if (pStencilShader->IsEffectOK())
-	{ // エフェクトが使用可能な場合
-
-		// 参照値を設定
-		pStencilShader->SetRefValue(5);
-
-		// 比較演算子を設定
-		pStencilShader->SetComparison(CStencilShader::COMPARISON_GREATEREQUAL);
-
-		// 数値操作を設定
-		pStencilShader->SetOperation(CStencilShader::OPERATION_INCRSAT);
-
-		// オブジェクト分割キャラクターの描画
-		CObjectDivChara::Draw(pStencilShader);
-	}
+	// オブジェクト分割キャラクターの描画
+	CObjectDivChara::Draw();
 
 	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
 	{ // 剣の数分繰り返す

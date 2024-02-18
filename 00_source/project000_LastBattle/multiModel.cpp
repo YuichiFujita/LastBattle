@@ -147,8 +147,6 @@ void CMultiModel::Draw(CShader *pShader)
 		// •`‰æŠJŽn
 		pShader->Begin();
 		pShader->BeginPass(0);
-
-		//GetRenderState()->SetZUpdate(false);
 	}
 
 	for (int nCntMat = 0; nCntMat < (int)modelData.dwNumMat; nCntMat++)

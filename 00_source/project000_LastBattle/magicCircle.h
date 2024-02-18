@@ -49,7 +49,6 @@ public:
 	void SetVec3Position(const D3DXVECTOR3 &rPos) override;	// 位置設定
 	void SetVec3Rotation(const D3DXVECTOR3 &rRot) override;	// 向き設定
 	void SetRadius(const float fRadius) override;			// 半径設定
-	void SetEnableDraw(const bool bDraw) override;			// 描画状況設定
 
 	// 静的メンバ関数
 	static CMagicCircle *Create		// 生成
@@ -59,12 +58,18 @@ public:
 		const float fRadius,		// 半径
 		const float fAlphaRadius	// 透明半径
 	);
+	static CListManager<CMagicCircle> *GetList(void);	// リスト取得
 
 	// メンバ関数
+	void DrawCrop(void);	// 切り抜き用の描画
 	void SetAlphaRadius(const float fRadius);	// 透明半径設定
 
 private:
+	// 静的メンバ変数
+	static CListManager<CMagicCircle> *m_pList;	// オブジェクトリスト
+
 	// メンバ変数
+	CListManager<CMagicCircle>::AIterator m_iterator;	// イテレーター
 	CObjectMeshCylinder *m_pAlphaCylinder;	// 魔法陣の先の透明情報
 	CObjectMeshRing *m_pAlphaRing;			// 魔法陣の空白の透明情報
 };

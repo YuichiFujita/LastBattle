@@ -32,9 +32,8 @@ CStencilShader *CStencilShader::m_pShader = nullptr;	// シェーダー情報
 //	コンストラクタ
 //============================================================
 CStencilShader::CStencilShader() :
-	m_pRefValue		(nullptr),	// 参照値
-	m_pComparison	(nullptr),	// 比較演算子
-	m_pOperation	(nullptr)	// 数値操作
+	m_pColDraw	(nullptr)	// ピクセル描画色
+
 {
 
 }
@@ -62,9 +61,7 @@ HRESULT CStencilShader::Init(void)
 	LPD3DXEFFECT pEffect = nullptr;	// エフェクト設定用
 
 	// メンバ変数を初期化
-	m_pRefValue		= nullptr;	// 参照値
-	m_pComparison	= nullptr;	// 比較演算子
-	m_pOperation	= nullptr;	// 数値操作
+	m_pColDraw = nullptr;	// ピクセル描画色
 
 	// シェーダーの初期化
 	if (FAILED(CShader::Init()))
@@ -109,13 +106,7 @@ HRESULT CStencilShader::Init(void)
 			SetMatrixProjection(pEffect->GetParameterByName(nullptr, "g_mtxProj"));	// プロジェクションマトリックス
 
 			// グローバル変数を取得
-			m_pTextureStencil	= pEffect->GetParameterByName(nullptr, "g_textureStencil");	// ステンシルテクスチャ
-			m_pRefValue			= pEffect->GetParameterByName(nullptr, "g_nRefValue");		// 参照値
-			m_pComparison		= pEffect->GetParameterByName(nullptr, "g_nComparison");	// 比較演算子
-			m_pOperation		= pEffect->GetParameterByName(nullptr, "g_nOperation");		// 数値操作
-
-			// ステンシルテクスチャを設定
-			SetTexture(GET_RENDERER->m_nStencilTexID);
+			m_pColDraw = pEffect->GetParameterByName(nullptr, "g_colDraw");	// ピクセル描画色
 		}
 		else
 		{ // 読込に失敗した場合
@@ -147,36 +138,17 @@ void CStencilShader::Uninit(void)
 }
 
 //============================================================
-//	参照値の設定処理
+//	ピクセル描画色の設定処理
 //============================================================
-void CStencilShader::SetRefValue(const int nRefValue)
+void CStencilShader::SetColor(const D3DXCOLOR& rCol)
 {
 	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
 
-	// エフェクトに参照値を設定
-	GetEffect()->SetInt(m_pRefValue, nRefValue);
-}
+	// 変数を宣言
+	D3DXVECTOR4 col = D3DXVECTOR4(rCol.r, rCol.g, rCol.b, rCol.a);	// ピクセル描画色
 
-//============================================================
-//	比較演算子の設定処理
-//============================================================
-void CStencilShader::SetComparison(const EComparison comparison)
-{
-	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
-
-	// エフェクトに比較演算子を設定
-	GetEffect()->SetInt(m_pComparison, comparison);
-}
-
-//============================================================
-//	数値操作の設定処理
-//============================================================
-void CStencilShader::SetOperation(const EOperation operation)
-{
-	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
-
-	// エフェクトに数値操作を設定
-	GetEffect()->SetInt(m_pOperation, operation);
+	// エフェクトにピクセル描画色を設定
+	GetEffect()->SetVector(m_pColDraw, &col);
 }
 
 //============================================================
@@ -235,43 +207,4 @@ void CStencilShader::Release(void)
 
 	// メモリ開放
 	SAFE_DELETE(m_pShader);
-}
-
-//============================================================
-//	テクスチャの設定処理 (ポインタ)
-//============================================================
-void CStencilShader::SetTexture(const LPDIRECT3DTEXTURE9 pTexture)
-{
-	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
-
-	// エフェクトにテクスチャを設定
-	if (pTexture != nullptr)
-	{ // テクスチャが使用されている場合
-
-		if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
-
-		// エフェクトにステンシルテクスチャを設定
-		GetEffect()->SetTexture(m_pTextureStencil, pTexture);
-	}
-	else { assert(false); }	// 指定なし
-}
-
-//============================================================
-//	テクスチャの設定処理 (インデックス)
-//============================================================
-void CStencilShader::SetTexture(const int nTextureID)
-{
-	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
-
-	// エフェクトにテクスチャを設定
-	if (nTextureID != NONE_IDX)
-	{ // テクスチャが使用されている場合
-
-		if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
-		CTexture *pTexture = CManager::GetInstance()->GetTexture();	// テクスチャ情報
-
-		// エフェクトにステンシルテクスチャを設定
-		GetEffect()->SetTexture(m_pTextureStencil, pTexture->GetTexture(nTextureID));
-	}
-	else { assert(false); }	// 指定なし
 }

@@ -165,6 +165,17 @@ void CObjectMeshCylinder::Draw(CShader *pShader)
 	// テクスチャの設定
 	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
 
+	if (pShader != nullptr)
+	{ // シェーダーが使用されている場合
+
+		// マトリックス情報を設定
+		pShader->SetMatrix(&m_meshCylinder.mtxWorld);
+
+		// 描画開始
+		pShader->Begin();
+		pShader->BeginPass(0);
+	}
+
 	// ポリゴンの描画
 	pDevice->DrawIndexedPrimitive
 	( // 引数
@@ -175,6 +186,14 @@ void CObjectMeshCylinder::Draw(CShader *pShader)
 		0,				// インデックスバッファの開始地点
 		m_nNumIdx - 2	// プリミティブ (ポリゴン) 数
 	);
+
+	if (pShader != nullptr)
+	{ // シェーダーが使用されている場合
+
+		// 描画終了
+		pShader->EndPass();
+		pShader->End();
+	}
 
 	// レンダーステートを再設定
 	m_pRenderState->Reset();
