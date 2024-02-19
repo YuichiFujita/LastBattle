@@ -23,7 +23,7 @@ namespace
 		"data\\TEXTURE\\magicCircle000.png",	// 通常
 	};
 
-	const int	PRIORITY		= 5;		// 魔法陣の優先順位
+	const int	PRIORITY		= 2;		// 魔法陣の優先順位
 	const float	CROP_LENGTH		= -1000.0f;	// 透明の長さ
 	const POSGRID2 PART_CIRCLE	= POSGRID2(32, 2);	// 魔法陣の分割数
 	const POSGRID2 PART_CROP	= POSGRID2(32, 2);	// 魔法陣の分割数
@@ -91,6 +91,9 @@ HRESULT CMagicCircle::Init(void)
 
 		// レンダーステートの情報を取得
 		CRenderState *pRenderState = GetRenderState();
+
+		// Zテストを絶対成功にする
+		pRenderState->SetZFunc(D3DCMP_ALWAYS);
 
 		// ポリゴンの両面を表示状態にする
 		pRenderState->SetCulling(D3DCULL_NONE);
@@ -290,11 +293,11 @@ void CMagicCircle::DrawCrop(void)
 	// 自動描画がOFFの場合抜ける
 	if (!IsDraw()) { return; }
 
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイス情報
-	CTexture		*pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
-	CStencilShader	*pStencilShader = CStencilShader::GetInstance();	// ステンシルシェーダー情報
+	LPDIRECT3DDEVICE9 pDevice	= GET_DEVICE;	// デバイス情報
+	CTexture	*pTexture		= GET_MANAGER->GetTexture();	// テクスチャ情報
+	CMonoShader	*pMonoShader	= CMonoShader::GetInstance();	// 単色描画シェーダー情報
 
-	if (pDevice == nullptr || pTexture == nullptr || pStencilShader == nullptr)
+	if (pDevice == nullptr || pTexture == nullptr || pMonoShader == nullptr)
 	{ // 情報が無いものがあった場合
 
 		// 処理を抜ける
@@ -302,11 +305,11 @@ void CMagicCircle::DrawCrop(void)
 		return;
 	}
 
-	if (pStencilShader->IsEffectOK())
+	if (pMonoShader->IsEffectOK())
 	{ // エフェクトが使用可能な場合
 
-		// ピクセル描画色を設定
-		pStencilShader->SetColor(XCOL_WHITE);
+		// ピクセル描画色を白に設定
+		pMonoShader->SetColor(XCOL_WHITE);
 
 		// ステンシルテストを有効にする
 		pDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);
@@ -326,7 +329,7 @@ void CMagicCircle::DrawCrop(void)
 		pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);		// Zテスト失敗・ステンシルテスト成功
 
 		// 切り抜き用チューブの描画
-		m_pCropTube->Draw();
+		m_pCropTube->Draw(pMonoShader);
 
 		// ステンシルテストを無効にする
 		pDevice->SetRenderState(D3DRS_STENCILENABLE, FALSE);

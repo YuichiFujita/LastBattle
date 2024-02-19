@@ -1,6 +1,6 @@
 //============================================================
 //
-//	ステンシルシェーダーヘッダー [shaderStencil.h]
+//	単色描画シェーダーヘッダー [shaderMono.h]
 //	Author：藤田勇一
 //
 //============================================================
@@ -18,15 +18,15 @@
 //************************************************************
 //	クラス定義
 //************************************************************
-// ステンシルシェーダークラス
-class CStencilShader : public CShader
+// 単色描画シェーダークラス
+class CMonoShader : public CShader
 {
 public:
 	// コンストラクタ
-	CStencilShader();
+	CMonoShader();
 
 	// デストラクタ
-	~CStencilShader() override;
+	~CMonoShader() override;
 
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
@@ -36,13 +36,13 @@ public:
 	void SetColor(const D3DXCOLOR& rCol);	// ピクセル描画色の設定
 
 	// 静的メンバ関数
-	static CStencilShader *Create(void);		// 生成
-	static CStencilShader *GetInstance(void);	// 取得
+	static CMonoShader *Create(void);		// 生成
+	static CMonoShader *GetInstance(void);	// 取得
 	static void Release(void);					// 破棄
 
 private:
 	// 静的メンバ変数
-	static CStencilShader *m_pShader;	// シェーダー情報
+	static CMonoShader *m_pShader;	// シェーダー情報
 
 	// メンバ変数
 	D3DXHANDLE m_pColDraw;	// ピクセル描画色

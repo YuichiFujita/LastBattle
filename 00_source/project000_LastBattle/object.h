@@ -15,7 +15,7 @@
 //************************************************************
 #include "shader.h"
 #include "shaderToon.h"
-#include "shaderStencil.h"
+#include "shaderMono.h"
 #include "shaderDrawBoss.h"
 
 //************************************************************

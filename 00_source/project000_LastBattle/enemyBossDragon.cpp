@@ -222,11 +222,6 @@ void CEnemyBossDragon::Draw(CShader *pShader)
 		// 敵の描画
 		CEnemy::Draw(pDrawBossShader);
 	}
-
-	//CScreen *p = CScreen::Create(GET_RENDERER->GetCropTextureID());
-	//p->GetRenderState()->SetAlphaBlend(CRenderState::BLEND_ADD);
-	//p->Draw();
-	//p->Uninit();
 }
 
 //============================================================
@@ -380,11 +375,11 @@ void CEnemyBossDragon::DrawCrop(void)
 	// 自動描画がOFFの場合抜ける
 	if (!IsDraw()) { return; }
 
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイス情報
-	CTexture		*pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
-	CStencilShader	*pStencilShader = CStencilShader::GetInstance();	// ステンシルシェーダー情報
+	LPDIRECT3DDEVICE9 pDevice	= GET_DEVICE;	// デバイス情報
+	CTexture	*pTexture		= GET_MANAGER->GetTexture();	// テクスチャ情報
+	CMonoShader	*pMonoShader	= CMonoShader::GetInstance();	// 単色描画シェーダー情報
 
-	if (pDevice == nullptr || pTexture == nullptr || pStencilShader == nullptr)
+	if (pDevice == nullptr || pTexture == nullptr || pMonoShader == nullptr)
 	{ // 情報が無いものがあった場合
 
 		// 処理を抜ける
@@ -392,11 +387,11 @@ void CEnemyBossDragon::DrawCrop(void)
 		return;
 	}
 
-	if (pStencilShader->IsEffectOK())
+	if (pMonoShader->IsEffectOK())
 	{ // エフェクトが使用可能な場合
 
-		// ピクセル描画色を設定
-		pStencilShader->SetColor(GET_RENDERER->GetClearColor());
+		// ピクセル描画色を画面クリア色に設定
+		pMonoShader->SetColor(GET_RENDERER->GetClearColor());
 
 		// ステンシルテストを有効にする
 		pDevice->SetRenderState(D3DRS_STENCILENABLE, TRUE);
@@ -416,7 +411,7 @@ void CEnemyBossDragon::DrawCrop(void)
 		pDevice->SetRenderState(D3DRS_STENCILZFAIL, D3DSTENCILOP_KEEP);		// Zテスト失敗・ステンシルテスト成功
 
 		// 敵の描画
-		CEnemy::Draw(pStencilShader);
+		CEnemy::Draw(pMonoShader);
 
 		// ステンシルテストを無効にする
 		pDevice->SetRenderState(D3DRS_STENCILENABLE, FALSE);
@@ -666,6 +661,14 @@ void CEnemyBossDragon::UpdateNormal(void)
 
 	// 行動の更新
 	UpdateAction();
+}
+
+//============================================================
+//	死亡状態時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateDeath(void)
+{
+
 }
 
 //============================================================

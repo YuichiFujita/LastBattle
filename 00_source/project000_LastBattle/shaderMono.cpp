@@ -1,13 +1,13 @@
 //============================================================
 //
-//	ステンシルシェーダーヘッダー [shaderStencil.cpp]
+//	単色描画シェーダーヘッダー [shaderMono.cpp]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "shaderStencil.h"
+#include "shaderMono.h"
 #include "manager.h"
 #include "renderer.h"
 #include "texture.h"
@@ -17,21 +17,21 @@
 //************************************************************
 namespace
 {
-	const char* EFFECT_FX = "shaderStencil.fx";	// ステンシルシェーダーのエフェクトファイル
+	const char* EFFECT_FX = "shaderMono.fx";	// 単色描画シェーダーのエフェクトファイル
 }
 
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
-CStencilShader *CStencilShader::m_pShader = nullptr;	// シェーダー情報
+CMonoShader *CMonoShader::m_pShader = nullptr;	// シェーダー情報
 
 //************************************************************
-//	親クラス [CStencilShader] のメンバ関数
+//	親クラス [CMonoShader] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
 //============================================================
-CStencilShader::CStencilShader() :
+CMonoShader::CMonoShader() :
 	m_pColDraw	(nullptr)	// ピクセル描画色
 
 {
@@ -41,7 +41,7 @@ CStencilShader::CStencilShader() :
 //============================================================
 //	デストラクタ
 //============================================================
-CStencilShader::~CStencilShader()
+CMonoShader::~CMonoShader()
 {
 
 }
@@ -49,7 +49,7 @@ CStencilShader::~CStencilShader()
 //============================================================
 //	初期化処理
 //============================================================
-HRESULT CStencilShader::Init(void)
+HRESULT CMonoShader::Init(void)
 {
 	// 変数を宣言
 	D3DCAPS9 caps;	// ハードウェア機能
@@ -131,7 +131,7 @@ HRESULT CStencilShader::Init(void)
 //============================================================
 //	終了処理
 //============================================================
-void CStencilShader::Uninit(void)
+void CMonoShader::Uninit(void)
 {
 	// シェーダーの終了
 	CShader::Uninit();
@@ -140,7 +140,7 @@ void CStencilShader::Uninit(void)
 //============================================================
 //	ピクセル描画色の設定処理
 //============================================================
-void CStencilShader::SetColor(const D3DXCOLOR& rCol)
+void CMonoShader::SetColor(const D3DXCOLOR& rCol)
 {
 	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
 
@@ -154,13 +154,13 @@ void CStencilShader::SetColor(const D3DXCOLOR& rCol)
 //============================================================
 //	生成処理
 //============================================================
-CStencilShader *CStencilShader::Create(void)
+CMonoShader *CMonoShader::Create(void)
 {
 	// インスタンス使用中
 	assert(m_pShader == nullptr);
 
-	// ステンシルシェーダーの生成
-	m_pShader = new CStencilShader;
+	// 単色描画シェーダーの生成
+	m_pShader = new CMonoShader;
 	if (m_pShader == nullptr)
 	{ // 生成に失敗した場合
 
@@ -170,11 +170,11 @@ CStencilShader *CStencilShader::Create(void)
 	else
 	{ // 生成に成功した場合
 
-		// ステンシルシェーダーの初期化
+		// 単色描画シェーダーの初期化
 		if (FAILED(m_pShader->Init()))
 		{ // 初期化に失敗した場合
 
-			// ステンシルシェーダーの破棄
+			// 単色描画シェーダーの破棄
 			SAFE_DELETE(m_pShader);
 			return nullptr;
 		}
@@ -187,21 +187,21 @@ CStencilShader *CStencilShader::Create(void)
 //============================================================
 //	取得処理
 //============================================================
-CStencilShader *CStencilShader::GetInstance(void)
+CMonoShader *CMonoShader::GetInstance(void)
 {
 	// インスタンス未使用
 	assert(m_pShader != nullptr);
 
-	// ステンシルシェーダーのポインタを返す
+	// 単色描画シェーダーのポインタを返す
 	return m_pShader;
 }
 
 //============================================================
 //	破棄処理
 //============================================================
-void CStencilShader::Release(void)
+void CMonoShader::Release(void)
 {
-	// ステンシルシェーダーの終了
+	// 単色描画シェーダーの終了
 	assert(m_pShader != nullptr);
 	m_pShader->Uninit();
 

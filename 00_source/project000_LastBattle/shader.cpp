@@ -9,7 +9,7 @@
 //************************************************************
 #include "shader.h"
 #include "shaderToon.h"
-#include "shaderStencil.h"
+#include "shaderMono.h"
 #include "shaderDrawBoss.h"
 #include "manager.h"
 #include "renderer.h"
@@ -175,9 +175,9 @@ HRESULT CShader::Create(void)
 		return E_FAIL;
 	}
 
-	// ステンシルシェーダーの生成
-	CStencilShader *pStencilShader = CStencilShader::Create();
-	if (pStencilShader == nullptr)
+	// 単色描画シェーダーの生成
+	CMonoShader *pMonoShader = CMonoShader::Create();
+	if (pMonoShader == nullptr)
 	{ // 生成に失敗した場合
 
 		// 失敗を返す
@@ -207,8 +207,8 @@ void CShader::Release(void)
 	// トゥーンシェーダーの破棄
 	CToonShader::Release();
 
-	// ステンシルシェーダーの破棄
-	CStencilShader::Release();
+	// 単色描画シェーダーの破棄
+	CMonoShader::Release();
 
 	// ボス描画シェーダーの破棄
 	CDrawBossShader::Release();

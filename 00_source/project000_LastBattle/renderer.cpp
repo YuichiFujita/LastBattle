@@ -214,12 +214,20 @@ void CRenderer::Draw(void)
 		// カメラの設定
 		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
 
-		// TODO：ここにボスと魔法陣の透明部分描画
-		CScene::GetBoss()->DrawCrop();
+		CEnemy *pBoss = CScene::GetBoss();	// ボスの情報
+		if (pBoss != nullptr)
+		{ // ボスが使用中の場合
 
-		std::list<CMagicCircle*> list = CMagicCircle::GetList()->GetList();
+			// ボスの切り抜き描画
+			pBoss->DrawCrop();
+		}
+
+		CListManager<CMagicCircle>* pListManager = CMagicCircle::GetList();	// 魔法陣リストマネージャー
+		std::list<CMagicCircle*> list = pListManager->GetList();			// 魔法陣リストの情報
 		for (auto pMagicCircle : list)
-		{
+		{ // 要素数分繰り返す
+
+			// 魔法陣の切り抜き描画
 			pMagicCircle->DrawCrop();
 		}
 

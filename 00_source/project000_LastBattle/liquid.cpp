@@ -95,6 +95,10 @@ HRESULT CLiquid::Init(void)
 
 		// ÉeÉNÉXÉ`ÉÉÇìoò^ÅEäÑìñ
 		m_apLiquid[nCntLiquid]->BindTexture(TEXTURE_FILE[m_type][nCntLiquid]);
+
+		// é©ìÆçXêVÅEé©ìÆï`âÊÇOFFÇ…Ç∑ÇÈ
+		m_apLiquid[nCntLiquid]->SetEnableUpdate(false);
+		m_apLiquid[nCntLiquid]->SetEnableDraw(false);
 	}
 
 	// ê¨å˜Çï‘Ç∑
@@ -169,7 +173,12 @@ void CLiquid::Update(void)
 //============================================================
 void CLiquid::Draw(CShader *pShader)
 {
+	for (int nCntLiquid = 0; nCntLiquid < LIQUID_MAX; nCntLiquid++)
+	{ // âtëÃÇÃç≈ëÂêîï™åJÇËï‘Ç∑
 
+		// âtëÃÇÃï`âÊ
+		m_apLiquid[nCntLiquid]->Draw();
+	}
 }
 
 //============================================================
