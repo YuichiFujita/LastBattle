@@ -121,8 +121,9 @@ void PS
 )
 {
 	// 変数を宣言
-	float  fLight  = 0.0f;	// ライティング光量
-	float4 toonCol = float4(0.0f, 0.0f, 0.0f, 0.0f);	// トゥーンマップテクセル色
+	float4 toonCol	 = float4(0.0f, 0.0f, 0.0f, 0.0f);	// トゥーンマップテクセル色
+	float2 screenPos = float2(0.0f, 0.0f);	// スクリーン座標
+	float  fLight	 = 0.0f;				// ライティング光量
 
 	// 通常ライティングの光量を求める
 	fLight = dot(normalize(inVertex.nor), normalize(-g_dirLight));
@@ -145,11 +146,14 @@ void PS
 		outCol *= tex2D(texObject, inVertex.tex);
 	}
 
-	float2 screenCoord = float2(inVertex.screen.x / inVertex.screen.w, -inVertex.screen.y / inVertex.screen.w);
-	screenCoord = 0.5f * (screenCoord + 1.0f);
+	// スクリーン座標を求める
+	screenPos = float2(inVertex.screen.x / inVertex.screen.w, -inVertex.screen.y / inVertex.screen.w);
 
-	if (tex2D(texCrop, screenCoord).r > 0.0f)
-	{ // 切り抜きテクスチャの色が白の場合
+	// スクリーン座標の範囲を0.0f～1.0fにする
+	screenPos = 0.5f * (screenPos + 1.0f);
+
+	if (tex2D(texCrop, screenPos).r > 0.0f)
+	{ // 描画するピクセルの切り抜きテクスチャ色が白の場合
 
 		// 描画を中止する
 		discard;

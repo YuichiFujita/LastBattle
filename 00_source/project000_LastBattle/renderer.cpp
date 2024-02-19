@@ -24,7 +24,7 @@
 //************************************************************
 namespace
 {
-	const D3DFORMAT	FORMAT_DEPTH_STENCIL = D3DFMT_D24S8;		// 深度ステンシルのフォーマット (深度バッファ：24bit, ステンシルバッファ：8bit使用)
+	const D3DFORMAT	FORMAT_DEPTH_STENCIL = D3DFMT_D24S8;	// 深度ステンシルのフォーマット (深度バッファ：24bit, ステンシルバッファ：8bit使用)
 	const D3DCOLOR	COL_CLEAR = D3DCOLOR_RGBA(0, 0, 0, 0);	// 画面クリア時の色
 
 	const DWORD FLAG_CLEAR = (D3DCLEAR_STENCIL | D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER);	// クリアするバッファーのビットフラグ
@@ -214,22 +214,8 @@ void CRenderer::Draw(void)
 		// カメラの設定
 		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
 
-		CEnemy *pBoss = CScene::GetBoss();	// ボスの情報
-		if (pBoss != nullptr)
-		{ // ボスが使用中の場合
-
-			// ボスの切り抜き描画
-			pBoss->DrawCrop();
-		}
-
-		CListManager<CMagicCircle>* pListManager = CMagicCircle::GetList();	// 魔法陣リストマネージャー
-		std::list<CMagicCircle*> list = pListManager->GetList();			// 魔法陣リストの情報
-		for (auto pMagicCircle : list)
-		{ // 要素数分繰り返す
-
-			// 魔法陣の切り抜き描画
-			pMagicCircle->DrawCrop();
-		}
+		// 切り抜きの描画
+		DrawCrop();
 
 		// ビューポートを元に戻す
 		m_pD3DDevice->SetViewport(&viewportDef);
@@ -524,4 +510,33 @@ HRESULT CRenderer::CreateDevice(HWND hWnd, D3DPRESENT_PARAMETERS d3dpp)
 	// CPUとハードウェアの性能が使い物にならなかった場合
 	// デバイス生成の失敗を返す
 	return E_FAIL;
+}
+
+//============================================================
+//	切り抜き描画処理
+//============================================================
+void CRenderer::DrawCrop(void)
+{
+	// ボスの描画
+	CEnemy *pBoss = CScene::GetBoss();	// ボスの情報
+	if (pBoss != nullptr)
+	{ // ボスが使用中の場合
+
+		// ボスの切り抜き描画
+		pBoss->DrawCrop();
+	}
+
+	// 魔法陣の描画
+	CListManager<CMagicCircle>* pListManager = CMagicCircle::GetList();	// 魔法陣リストマネージャー
+	if (pListManager != nullptr)
+	{ // 魔法陣リストマネージャーが使用中の場合
+
+		std::list<CMagicCircle*> list = pListManager->GetList();	// 魔法陣リストの情報
+		for (auto pMagicCircle : list)
+		{ // 要素数分繰り返す
+
+			// 魔法陣の切り抜き描画
+			pMagicCircle->DrawCrop();
+		}
+	}
 }

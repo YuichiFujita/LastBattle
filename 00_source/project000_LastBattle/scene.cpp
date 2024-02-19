@@ -38,9 +38,7 @@ namespace
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
-CStage	*CScene::m_pStage	= nullptr;	// ステージの情報
-CPlayer	*CScene::m_pPlayer	= nullptr;	// プレイヤーの情報
-CEnemy	*CScene::m_pBoss	= nullptr;	// ボスの情報
+CStage *CScene::m_pStage = nullptr;	// ステージの情報
 
 //************************************************************
 //	親クラス [CScene] のメンバ関数
@@ -77,25 +75,18 @@ HRESULT CScene::Init(void)
 	}
 
 	// プレイヤーの生成
-	m_pPlayer = CPlayer::Create(m_mode);
+	CPlayer::Create(m_mode);
 
 	if (m_mode == MODE_GAME)
 	{ // ゲーム画面の場合
 
 		// ボスの生成
-		m_pBoss = CEnemy::Create
+		CEnemy::Create
 		( // 引数
 			CEnemy::TYPE_BOSS_DRAGON,	// 種類
 			boss::SPAWN_POS,			// 位置
 			boss::SPAWN_ROT				// 向き
 		);
-		if (m_pBoss == nullptr)
-		{ // 非使用中の場合
-
-			// 失敗を返す
-			assert(false);
-			return E_FAIL;
-		}
 	}
 
 	// 成功を返す
@@ -227,8 +218,13 @@ CStage *CScene::GetStage(void)
 //============================================================
 CPlayer *CScene::GetPlayer(void)
 {
+	CListManager<CPlayer> *pListManager = CPlayer::GetList();	// プレイヤーリストマネージャー
+	if (pListManager == nullptr)		 { return nullptr; }	// リスト未使用の場合抜ける
+	if (pListManager->GetNumAll() != 1)	 { return nullptr; }	// プレイヤーが1人ではない場合抜ける
+	CPlayer *pPlayer = pListManager->GetList().front();			// プレイヤーの情報
+
 	// プレイヤーのポインタを返す
-	return m_pPlayer;
+	return pPlayer;
 }
 
 //============================================================
@@ -236,8 +232,22 @@ CPlayer *CScene::GetPlayer(void)
 //============================================================
 CEnemy *CScene::GetBoss(void)
 {
-	// ボスのポインタを返す
-	return m_pBoss;
+	CListManager<CEnemy> *pListManager = CEnemy::GetList();	// 敵リストマネージャー
+	if (pListManager == nullptr) { return nullptr; }		// リスト未使用
+
+	std::list<CEnemy*> listEnemy = pListManager->GetList();	// 敵リスト
+	for (CEnemy *pEnemy : listEnemy)
+	{ // 要素数分繰り返す
+
+		if (pEnemy->GetType() == CEnemy::TYPE_BOSS_DRAGON)
+		{ // 敵がボスの場合
+
+			// 敵のポインタを返す
+			return pEnemy;
+		}
+	}
+
+	return nullptr;
 }
 
 //============================================================

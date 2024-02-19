@@ -20,8 +20,6 @@
 #include "magicCircle.h"
 #include "retentionManager.h"
 
-#include "screen.h"
-
 //************************************************************
 //	’è”éŒ¾
 //************************************************************
@@ -210,6 +208,9 @@ void CEnemyBossDragon::Draw(CShader *pShader)
 
 	if (pDevice == nullptr || pTexture == nullptr || pDrawBossShader == nullptr)
 	{ // î•ñ‚ª–³‚¢‚à‚Ì‚ª‚ ‚Á‚½ê‡
+
+		// “G‚Ì•`‰æ
+		CEnemy::Draw(pDrawBossShader);
 
 		// ˆ—‚ğ”²‚¯‚é
 		assert(false);

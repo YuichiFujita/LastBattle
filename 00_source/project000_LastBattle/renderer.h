@@ -47,6 +47,7 @@ public:
 private:
 	// メンバ関数
 	HRESULT CreateDevice(HWND hWnd, D3DPRESENT_PARAMETERS d3dpp);	// デバイス生成
+	void DrawCrop(void);	// 切り抜き描画
 
 	// メンバ変数
 	LPDIRECT3D9			m_pD3D;			// Direct3Dオブジェクト
