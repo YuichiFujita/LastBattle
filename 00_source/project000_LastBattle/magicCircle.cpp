@@ -293,18 +293,8 @@ void CMagicCircle::DrawCrop(void)
 	// 自動描画がOFFの場合抜ける
 	if (!IsDraw()) { return; }
 
-	LPDIRECT3DDEVICE9 pDevice	= GET_DEVICE;	// デバイス情報
-	CTexture	*pTexture		= GET_MANAGER->GetTexture();	// テクスチャ情報
-	CMonoShader	*pMonoShader	= CMonoShader::GetInstance();	// 単色描画シェーダー情報
-
-	if (pDevice == nullptr || pTexture == nullptr || pMonoShader == nullptr)
-	{ // 情報が無いものがあった場合
-
-		// 処理を抜ける
-		assert(false);
-		return;
-	}
-
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイス情報
+	CMonoShader	*pMonoShader  = CMonoShader::GetInstance();	// 単色描画シェーダー情報
 	if (pMonoShader->IsEffectOK())
 	{ // エフェクトが使用可能な場合
 
@@ -334,6 +324,7 @@ void CMagicCircle::DrawCrop(void)
 		// ステンシルテストを無効にする
 		pDevice->SetRenderState(D3DRS_STENCILENABLE, FALSE);
 	}
+	else { assert(false); }
 }
 
 //============================================================

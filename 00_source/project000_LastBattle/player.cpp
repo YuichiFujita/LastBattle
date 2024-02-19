@@ -395,30 +395,9 @@ void CPlayer::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CPlayer::Draw(CShader * /*pShader*/)
+void CPlayer::Draw(CShader *pShader)
 {
-	LPDIRECT3DDEVICE9 pDevice	= GET_DEVICE;	// デバイス情報
-	CTexture	*pTexture		= GET_MANAGER->GetTexture();	// テクスチャ情報
-	CToonShader	*pToonShader	= CToonShader::GetInstance();	// トゥーンシェーダー情報
-
-	if (pDevice == nullptr || pTexture == nullptr || pToonShader == nullptr)
-	{ // 情報が無いものがあった場合
-
-		// オブジェクト分割キャラクターの描画
-		CObjectDivChara::Draw(pToonShader);
-
-		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
-		{ // 剣の数分繰り返す
-
-			// 剣の描画
-			m_apSowrd[nCntSword]->Draw(pToonShader);
-		}
-
-		// 処理を抜ける
-		assert(false);
-		return;
-	}
-
+	CToonShader	*pToonShader = CToonShader::GetInstance();	// トゥーンシェーダー情報
 	if (pToonShader->IsEffectOK())
 	{ // エフェクトが使用可能な場合
 
@@ -430,6 +409,22 @@ void CPlayer::Draw(CShader * /*pShader*/)
 
 			// 剣の描画
 			m_apSowrd[nCntSword]->Draw(pToonShader);
+		}
+	}
+	else
+	{ // エフェクトが使用不可能な場合
+
+		// エフェクトエラー
+		assert(false);
+
+		// オブジェクト分割キャラクターの描画
+		CObjectDivChara::Draw(pShader);
+
+		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
+		{ // 剣の数分繰り返す
+
+			// 剣の描画
+			m_apSowrd[nCntSword]->Draw(pShader);
 		}
 	}
 }
