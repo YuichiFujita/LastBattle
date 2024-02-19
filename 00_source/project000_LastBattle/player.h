@@ -123,12 +123,11 @@ public:
 	HRESULT Init(void) override;	// ‰Šú‰»
 	void Uninit(void) override;		// I—¹
 	void Update(void) override;		// XV
-	void Draw(CShader *pShader = nullptr) override;	// •`‰æ
-
-	void SetState(const int nState) override;	// ó‘Ôİ’è
-	int  GetState(void) const override;			// ó‘Ôæ“¾
-	float GetRadius(void) const override;		// ”¼Œaæ“¾
-	float GetHeight(void) const override;		// c•æ“¾
+	void Draw(CShader *pShader = nullptr) override;		// •`‰æ
+	void SetState(const int nState) override;			// ó‘Ôİ’è
+	int  GetState(void) const override;					// ó‘Ôæ“¾
+	float GetRadius(void) const override;				// ”¼Œaæ“¾
+	float GetHeight(void) const override;				// c•æ“¾
 	void SetEnableUpdate(const bool bUpdate) override;	// XVó‹µİ’è
 	void SetEnableDraw(const bool bDraw) override;		// •`‰æó‹µİ’è
 	D3DXMATRIX CalcMtxWorld(void) const override;		// ƒ}ƒgƒŠƒbƒNƒXŒvZŒ‹‰Êæ“¾

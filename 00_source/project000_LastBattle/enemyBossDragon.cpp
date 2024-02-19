@@ -244,6 +244,18 @@ int CEnemyBossDragon::GetHeadModelID(void) const
 }
 
 //============================================================
+//	UI•`‰æ‚ÌÝ’èˆ—
+//============================================================
+void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
+{
+	// UI•`‰æ‚ÌÝ’è
+	CEnemy::SetEnableDrawUI(bDraw);
+
+	// UIƒIƒuƒWƒFƒNƒg‚É•`‰æó‹µ‚ð”½‰f
+	m_pLife->SetEnableDraw(bDraw);	// ‘Ì—Í
+}
+
+//============================================================
 //	ƒqƒbƒgˆ—
 //============================================================
 void CEnemyBossDragon::Hit(const int nDamage)
@@ -318,18 +330,6 @@ void CEnemyBossDragon::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /
 	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ƒqƒbƒg‰¹
 
 #endif
-}
-
-//============================================================
-//	UI•`‰æ‚ÌÝ’èˆ—
-//============================================================
-void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
-{
-	// UI•`‰æ‚ÌÝ’è
-	CEnemy::SetEnableDrawUI(bDraw);
-
-	// UIƒIƒuƒWƒFƒNƒg‚É•`‰æó‹µ‚ð”½‰f
-	m_pLife->SetEnableDraw(bDraw);	// ‘Ì—Í
 }
 
 //============================================================

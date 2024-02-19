@@ -106,22 +106,6 @@ void CMultiValue::Draw(CShader *pShader)
 }
 
 //============================================================
-//	—Dæ‡ˆÊ‚Ìİ’èˆ—
-//============================================================
-void CMultiValue::SetPriority(const int nPriority)
-{
-	// ˆø”‚Ì—Dæ‡ˆÊ‚ğİ’è
-	CObject::SetPriority(nPriority);	// ©g
-
-	for (int nCntValue = 0; nCntValue < m_nDigit; nCntValue++)
-	{ // Œ…”•ªŒJ‚è•Ô‚·
-
-		// ˆø”‚Ì—Dæ‡ˆÊ‚ğİ’è
-		m_apValue[nCntValue]->SetPriority(nPriority);	// ”š
-	}
-}
-
-//============================================================
 //	ˆÊ’u‚Ìİ’èˆ—
 //============================================================
 void CMultiValue::SetVec3Position(const D3DXVECTOR3& rPos)
@@ -215,6 +199,22 @@ D3DXCOLOR CMultiValue::GetColor(void) const
 
 	// æ“ª”š‚ÌF‚ğ•Ô‚·
 	return m_apValue[0]->GetColor();
+}
+
+//============================================================
+//	—Dæ‡ˆÊ‚Ìİ’èˆ—
+//============================================================
+void CMultiValue::SetPriority(const int nPriority)
+{
+	// ˆø”‚Ì—Dæ‡ˆÊ‚ğİ’è
+	CObject::SetPriority(nPriority);	// ©g
+
+	for (int nCntValue = 0; nCntValue < m_nDigit; nCntValue++)
+	{ // Œ…”•ªŒJ‚è•Ô‚·
+
+		// ˆø”‚Ì—Dæ‡ˆÊ‚ğİ’è
+		m_apValue[nCntValue]->SetPriority(nPriority);	// ”š
+	}
 }
 
 //============================================================

@@ -47,7 +47,6 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(CShader *pShader = nullptr) override;			// 描画
-	void SetPriority(const int nPriority) override;			// 優先順位設定
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
@@ -56,6 +55,7 @@ public:
 	D3DXVECTOR3 GetVec3Sizing(void) const override;			// 大きさ取得
 	void SetColor(const D3DXCOLOR& rCol) override;			// 色設定
 	D3DXCOLOR GetColor(void) const override;				// 色取得
+	void SetPriority(const int nPriority) override;			// 優先順位設定
 
 	// 静的メンバ関数
 	static CMultiValue *Create	// 生成

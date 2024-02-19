@@ -92,12 +92,11 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(CShader *pShader = nullptr) override;	// 描画
-
-	void SetState(const int nState) override;	// 状態設定
-	int GetState(void) const override;			// 状態取得
-	int GetType(void) const override;			// 種類取得
-	float GetRadius(void) const override;		// 半径取得
-	float GetHeight(void) const override;		// 縦幅取得
+	void SetState(const int nState) override;		// 状態設定
+	int GetState(void) const override;				// 状態取得
+	int GetType(void) const override;				// 種類取得
+	float GetRadius(void) const override;			// 半径取得
+	float GetHeight(void) const override;			// 縦幅取得
 
 	// 純粋仮想関数
 	virtual int GetWaistModelID(void) const = 0;	// 腰モデルのインデックス取得

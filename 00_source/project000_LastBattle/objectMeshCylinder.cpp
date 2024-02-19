@@ -162,37 +162,17 @@ void CObjectMeshCylinder::Draw(CShader *pShader)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
+	if (pShader == nullptr)
+	{ // シェーダーが使用されていない場合
 
-	if (pShader != nullptr)
-	{ // シェーダーが使用されている場合
-
-		// マトリックス情報を設定
-		pShader->SetMatrix(&m_meshCylinder.mtxWorld);
-
-		// 描画開始
-		pShader->Begin();
-		pShader->BeginPass(0);
+		// 通常描画
+		DrawNormal();
 	}
-
-	// ポリゴンの描画
-	pDevice->DrawIndexedPrimitive
-	( // 引数
-		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
-		0,
-		0,
-		m_nNumVtx,		// 使用する頂点数
-		0,				// インデックスバッファの開始地点
-		m_nNumIdx - 2	// プリミティブ (ポリゴン) 数
-	);
-
-	if (pShader != nullptr)
+	else
 	{ // シェーダーが使用されている場合
 
-		// 描画終了
-		pShader->EndPass();
-		pShader->End();
+		// シェーダー描画
+		DrawShader(pShader);
 	}
 
 	// レンダーステートを再設定
@@ -697,4 +677,73 @@ void CObjectMeshCylinder::Release(void)
 {
 	// オブジェクトの破棄
 	CObject::Release();
+}
+
+//============================================================
+//	通常描画処理
+//============================================================
+void CObjectMeshCylinder::DrawNormal(void)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
+
+	// ポリゴンの描画
+	pDevice->DrawIndexedPrimitive
+	( // 引数
+		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
+		0,
+		0,
+		m_nNumVtx,		// 使用する頂点数
+		0,				// インデックスバッファの開始地点
+		m_nNumIdx - 2	// プリミティブ (ポリゴン) 数
+	);
+}
+
+//============================================================
+//	シェーダー描画処理
+//============================================================
+void CObjectMeshCylinder::DrawShader(CShader *pShader)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// 描画開始
+	pShader->Begin();
+	pShader->BeginPass(0);
+
+	// マトリックス情報を設定
+	pShader->SetMatrix(&m_meshCylinder.mtxWorld);
+
+	// ライト方向を設定
+	pShader->SetLightDirect(&m_meshCylinder.mtxWorld, 0);
+
+	// 拡散光を設定
+	pShader->SetOnlyDiffuse(m_meshCylinder.col);
+
+	// テクスチャを設定
+	pShader->SetTexture(m_nTextureID);
+
+	// 状態変更の伝達
+	pShader->CommitChanges();
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
+
+	// ポリゴンの描画
+	pDevice->DrawIndexedPrimitive
+	( // 引数
+		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
+		0,
+		0,
+		m_nNumVtx,		// 使用する頂点数
+		0,				// インデックスバッファの開始地点
+		m_nNumIdx - 2	// プリミティブ (ポリゴン) 数
+	);
+
+	// 描画終了
+	pShader->EndPass();
+	pShader->End();
 }

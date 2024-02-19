@@ -119,6 +119,27 @@ void CValueUI::Draw(CShader * /*pShader*/)
 }
 
 //============================================================
+//	位置の設定処理
+//============================================================
+void CValueUI::SetVec3Position(const D3DXVECTOR3& rPos)
+{
+	// 引数の位置を設定
+	m_pos = rPos;
+
+	// 相対位置の設定
+	SetPositionRelative();
+}
+
+//============================================================
+//	位置取得処理
+//============================================================
+D3DXVECTOR3 CValueUI::GetVec3Position(void) const
+{
+	// 位置を返す
+	return m_pos;
+}
+
+//============================================================
 //	描画状況の設定処理
 //============================================================
 void CValueUI::SetEnableDraw(const bool bDraw)
@@ -138,27 +159,6 @@ void CValueUI::SetPriority(const int nPriority)
 	CObject::SetPriority(nPriority);	// 自身
 	m_pTitle->SetPriority(nPriority);	// タイトル情報
 	m_pValue->SetPriority(nPriority);	// 数字情報
-}
-
-//============================================================
-//	位置の設定処理
-//============================================================
-void CValueUI::SetVec3Position(const D3DXVECTOR3& rPos)
-{
-	// 引数の位置を設定
-	m_pos = rPos;
-
-	// 相対位置の設定
-	SetPositionRelative();
-}
-
-//============================================================
-//	位置取得処理
-//============================================================
-D3DXVECTOR3 CValueUI::GetVec3Position(void) const
-{
-	// 位置を返す
-	return m_pos;
 }
 
 //============================================================

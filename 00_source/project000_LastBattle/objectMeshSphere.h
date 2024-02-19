@@ -45,15 +45,13 @@ public:
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;	// 描画
-
+	void Draw(CShader *pShader = nullptr) override;			// 描画
 	void BindTexture(const int nTextureID) override;		// テクスチャ割当 (インデックス)
 	void BindTexture(const char *pTexturePass) override;	// テクスチャ割当 (パス)
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
-
 	void SetColor(const D3DXCOLOR& rCol) override;	// 色設定
 	D3DXCOLOR GetColor(void) const override;		// 色取得
 	void SetRadius(const float fRadius) override;	// 半径設定

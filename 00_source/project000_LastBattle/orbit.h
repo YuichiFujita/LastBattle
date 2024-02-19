@@ -89,10 +89,10 @@ public:
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;	// 描画
+	void Draw(CShader *pShader = nullptr) override;			// 描画
 	void BindTexture(const int nTextureID) override;		// テクスチャ割当 (インデックス)
 	void BindTexture(const char *pTexturePass) override;	// テクスチャ割当 (パス)
-	int GetState(void) const override;	// 状態取得
+	int GetState(void) const override;						// 状態取得
 
 	// 静的メンバ関数
 	static COrbit *Create	// 生成

@@ -48,6 +48,10 @@ public:
 	void DeleteParentObject(void);				// 親オブジェクト削除
 
 private:
+	// メンバ関数
+	void DrawNormal(void);	// 通常描画
+	void DrawShader(CShader *pShader);	// シェーダー描画
+
 	// メンバ変数
 	CObject *m_pParent;	// 親オブジェクトへのポインタ
 };

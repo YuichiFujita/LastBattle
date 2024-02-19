@@ -69,8 +69,7 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(CShader *pShader = nullptr) override;	// 描画
-
-	int GetState(void) const override;	// 状態取得
+	int GetState(void) const override;				// 状態取得
 
 	// 静的メンバ関数
 	static void LoadSetup(void);	// セットアップ

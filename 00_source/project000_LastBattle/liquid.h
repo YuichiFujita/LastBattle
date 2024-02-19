@@ -68,8 +68,7 @@ public:
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;	// 描画
-
+	void Draw(CShader *pShader = nullptr) override;			// 描画
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
@@ -78,9 +77,8 @@ public:
 	D3DXVECTOR2 GetVec2Sizing(void) const override;			// 大きさ取得
 	void SetColor(const D3DXCOLOR& rCol) override;			// 色設定
 	D3DXCOLOR GetColor(void) const override;				// 色取得
-
-	void SetType(const int nType) override;	// 種類設定
-	int GetType(void) const override;		// 種類取得
+	void SetType(const int nType) override;					// 種類設定
+	int GetType(void) const override;						// 種類取得
 
 	// 静的メンバ関数
 	static CLiquid *Create	// 生成
