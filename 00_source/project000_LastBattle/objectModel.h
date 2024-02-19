@@ -77,6 +77,8 @@ private:
 	void Release(void) override;	// 破棄
 
 	// メンバ関数
+	void DrawNormal(void);	// 通常描画
+	void DrawShader(CShader *pShader);	// シェーダー描画
 	HRESULT SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat);	// 元マテリアル設定
 
 	// メンバ変数
