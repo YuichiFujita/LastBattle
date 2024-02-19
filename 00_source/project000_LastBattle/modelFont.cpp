@@ -89,7 +89,7 @@ void CModelFont::Update(void)
 void CModelFont::Draw(CShader *pShader)
 {
 	// オブジェクトモデルの描画
-	CObjectModel::Draw();
+	CObjectModel::Draw(pShader);
 }
 
 //============================================================

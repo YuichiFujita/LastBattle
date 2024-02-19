@@ -154,7 +154,7 @@ void CEffect2D::Update(void)
 void CEffect2D::Draw(CShader *pShader)
 {
 	// オブジェクト2Dの描画
-	CObject2D::Draw();
+	CObject2D::Draw(pShader);
 }
 
 //============================================================

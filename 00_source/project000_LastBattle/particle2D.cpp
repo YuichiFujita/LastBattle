@@ -167,7 +167,7 @@ void CParticle2D::Update(void)
 //============================================================
 //	ï`âÊèàóù
 //============================================================
-void CParticle2D::Draw(CShader *pShader)
+void CParticle2D::Draw(CShader * /*pShader*/)
 {
 
 }

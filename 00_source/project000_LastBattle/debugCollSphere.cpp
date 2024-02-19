@@ -81,7 +81,7 @@ void CDebugCollSphere::Update(void)
 void CDebugCollSphere::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュスフィアの描画
-	CObjectMeshSphere::Draw();
+	CObjectMeshSphere::Draw(pShader);
 }
 
 //============================================================

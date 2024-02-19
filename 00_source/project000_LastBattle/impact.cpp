@@ -148,7 +148,7 @@ void CImpact::Update(void)
 void CImpact::Draw(CShader *pShader)
 {
 	// ”g“®‚Ì•`‰æ
-	CWave::Draw();
+	CWave::Draw(pShader);
 }
 
 //============================================================

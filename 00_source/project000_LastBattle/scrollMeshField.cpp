@@ -104,7 +104,7 @@ void CScrollMeshField::Update(void)
 void CScrollMeshField::Draw(CShader *pShader)
 {
 	// メッシュフィールドの描画
-	CObjectMeshField::Draw();
+	CObjectMeshField::Draw(pShader);
 }
 
 //============================================================

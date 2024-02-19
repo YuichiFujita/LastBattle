@@ -111,7 +111,7 @@ void CScenery::Update(void)
 void CScenery::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュシリンダーの描画
-	CObjectMeshCylinder::Draw();
+	CObjectMeshCylinder::Draw(pShader);
 }
 
 //============================================================

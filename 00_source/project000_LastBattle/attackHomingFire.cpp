@@ -83,7 +83,7 @@ void CAttackHomingFire::Update(void)
 void CAttackHomingFire::Draw(CShader *pShader)
 {
 	// ‰Š‚Ì•`‰æ
-	CFire::Draw();
+	CFire::Draw(pShader);
 }
 
 //============================================================

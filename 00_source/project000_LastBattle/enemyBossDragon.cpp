@@ -200,7 +200,7 @@ void CEnemyBossDragon::Update(void)
 //============================================================
 //	描画処理
 //============================================================
-void CEnemyBossDragon::Draw(CShader *pShader)
+void CEnemyBossDragon::Draw(CShader * /*pShader*/)
 {
 	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイス情報
 	CTexture		*pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報

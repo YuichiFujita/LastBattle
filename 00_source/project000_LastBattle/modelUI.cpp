@@ -94,7 +94,7 @@ void CModelUI::Draw(CShader *pShader)
 	GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MODELUI);
 
 	// オブジェクトモデルの描画
-	CObjectModel::Draw();
+	CObjectModel::Draw(pShader);
 
 	// カメラの設定を元に戻す
 	GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);

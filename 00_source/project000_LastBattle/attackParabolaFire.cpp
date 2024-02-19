@@ -100,7 +100,7 @@ void CAttackParabolaFire::Update(void)
 void CAttackParabolaFire::Draw(CShader *pShader)
 {
 	// ‰Š‚Ì•`‰æ
-	CFire::Draw();
+	CFire::Draw(pShader);
 }
 
 //============================================================

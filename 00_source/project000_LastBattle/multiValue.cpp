@@ -93,22 +93,15 @@ void CMultiValue::Update(void)
 //============================================================
 void CMultiValue::Draw(CShader *pShader)
 {
+	for (int nCntValue = 0; nCntValue < multivalue::MAX_DIGIT; nCntValue++)
+	{ // Œ…”‚ÌÅ‘å”•ªŒJ‚è•Ô‚·
 
-}
+		if (m_apValue[nCntValue] != nullptr)
+		{ // Žg—p‚³‚ê‚Ä‚¢‚éê‡
 
-//============================================================
-//	•`‰æó‹µ‚ÌÝ’èˆ—
-//============================================================
-void CMultiValue::SetEnableDraw(const bool bDraw)
-{
-	// ˆø”‚Ì•`‰æó‹µ‚ðÝ’è
-	CObject::SetEnableDraw(bDraw);	// Ž©g
-
-	for (int nCntValue = 0; nCntValue < m_nDigit; nCntValue++)
-	{ // Œ…”•ªŒJ‚è•Ô‚·
-
-		// ˆø”‚Ì•`‰æó‹µ‚ðÝ’è
-		m_apValue[nCntValue]->SetEnableDraw(bDraw);	// ”Žš
+			// ”Žš‚Ì•`‰æ
+			m_apValue[nCntValue]->Draw(pShader);
+		}
 	}
 }
 
@@ -338,9 +331,9 @@ HRESULT CMultiValue::SetDigit(const int nDigit)
 	{ // æ“ª‚ªŽg—p‚³‚ê‚Ä‚¢‚éê‡
 
 		// Œ»Ý‚ÌÝ’è‚ðŽæ“¾
-		rot = GetVec3Rotation();	// Œü‚«
+		rot  = GetVec3Rotation();	// Œü‚«
 		size = GetVec3Sizing();		// ‘å‚«‚³
-		col = GetColor();			// F
+		col  = GetColor();			// F
 	}
 
 	//--------------------------------------------------------
@@ -367,6 +360,10 @@ HRESULT CMultiValue::SetDigit(const int nDigit)
 			assert(false);
 			return E_FAIL;
 		}
+
+		// Ž©“®XVEŽ©“®•`‰æ‚ðOFF‚É‚·‚é
+		m_apValue[nCntValue]->SetEnableUpdate(false);
+		m_apValue[nCntValue]->SetEnableDraw(false);
 	}
 
 	//--------------------------------------------------------

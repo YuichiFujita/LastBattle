@@ -30,7 +30,7 @@ namespace
 	const int DIV_DIRRAND[] = { 6, 36 };	// •ûŒü‚Ìè—]Z‚Ì’l
 	const int ADD_DIRRAND[] = { 10, 80 };	// •ûŒü‚ÌŒ¸Z‚Ì’l
 
-	const int	PRIORITY		= 5;		// —‹‚Ì—Dæ‡ˆÊ
+	const int	PRIORITY		= 4;		// —‹‚Ì—Dæ‡ˆÊ
 	const int	PART			= 20;		// ‹OÕ‚Ì•ªŠ„”
 	const int	MAX_SHIFT_POSY	= 120;		// ‹OÕ‚ÌYÀ•W‚¸‚ç‚µ—Ê‚ÌÅ‘å’l
 	const float	DOWN_MOVE		= 200.0f;	// —‹‚Ì‰ºˆÚ“®—Ê
@@ -217,7 +217,7 @@ void CThunder::Update(void)
 //============================================================
 //	•`‰æˆ—
 //============================================================
-void CThunder::Draw(CShader *pShader)
+void CThunder::Draw(CShader * /*pShader*/)
 {
 
 }

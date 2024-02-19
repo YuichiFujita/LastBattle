@@ -199,7 +199,7 @@ void CMagicCircle::Update(void)
 void CMagicCircle::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュサークルの描画
-	CObjectMeshCircle::Draw();
+	CObjectMeshCircle::Draw(pShader);
 }
 
 //============================================================

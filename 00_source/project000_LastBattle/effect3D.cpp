@@ -171,7 +171,7 @@ void CEffect3D::Update(void)
 void CEffect3D::Draw(CShader *pShader)
 {
 	// オブジェクトビルボードの描画
-	CObjectBillboard::Draw();
+	CObjectBillboard::Draw(pShader);
 }
 
 //============================================================

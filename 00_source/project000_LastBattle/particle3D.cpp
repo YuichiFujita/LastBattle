@@ -280,7 +280,7 @@ void CParticle3D::Update(void)
 //============================================================
 //	ï`âÊèàóù
 //============================================================
-void CParticle3D::Draw(CShader *pShader)
+void CParticle3D::Draw(CShader * /*pShader*/)
 {
 
 }

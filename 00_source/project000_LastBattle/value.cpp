@@ -105,7 +105,7 @@ void CValue::Update(void)
 void CValue::Draw(CShader *pShader)
 {
 	// アニメーション2Dの描画
-	CAnim2D::Draw();
+	CAnim2D::Draw(pShader);
 }
 
 //============================================================

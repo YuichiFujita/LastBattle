@@ -115,7 +115,7 @@ void CEnemySmall::Update(void)
 void CEnemySmall::Draw(CShader *pShader)
 {
 	// “G‚Ì•`‰æ
-	CEnemy::Draw();
+	CEnemy::Draw(pShader);
 }
 
 //============================================================

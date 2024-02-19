@@ -108,7 +108,7 @@ void CField::Update(void)
 void CField::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュフィールドの描画
-	CObjectMeshField::Draw();
+	CObjectMeshField::Draw(pShader);
 }
 
 //============================================================

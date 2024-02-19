@@ -124,7 +124,7 @@ void CShadow::Update(void)
 void CShadow::Draw(CShader *pShader)
 {
 	// オブジェクト3Dの描画
-	CObject3D::Draw();
+	CObject3D::Draw(pShader);
 }
 
 //============================================================

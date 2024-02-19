@@ -113,7 +113,7 @@ void CSky::Update(void)
 void CSky::Draw(CShader *pShader)
 {
 	// オブジェクトメッシュドームの描画
-	CObjectMeshDome::Draw();
+	CObjectMeshDome::Draw(pShader);
 }
 
 //============================================================

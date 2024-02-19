@@ -213,7 +213,7 @@ void CSword::Draw(CShader *pShader)
 	{ // ‰½‚à‚µ‚È‚¢ê‡
 
 		// ƒ}ƒ‹ƒ`ƒ‚ƒfƒ‹‚Ì•`‰æ
-		CMultiModel::Draw();
+		CMultiModel::Draw(pShader);
 	}
 }
 

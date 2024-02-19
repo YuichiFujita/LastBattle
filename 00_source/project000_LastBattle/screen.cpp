@@ -88,7 +88,7 @@ void CScreen::Draw(CShader *pShader)
 	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP); // V方向のラッピングを無効化
 
 	// オブジェクト2Dの描画
-	CObject2D::Draw();
+	CObject2D::Draw(pShader);
 
 	// サンプラーステートを設定
 	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);	// U方向のラッピングを有効化

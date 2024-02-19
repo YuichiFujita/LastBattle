@@ -134,7 +134,7 @@ void CAnim2D::Update(void)
 void CAnim2D::Draw(CShader *pShader)
 {
 	// オブジェクト2Dの描画
-	CObject2D::Draw();
+	CObject2D::Draw(pShader);
 }
 
 //============================================================

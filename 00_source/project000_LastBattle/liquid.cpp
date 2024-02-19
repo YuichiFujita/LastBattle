@@ -177,7 +177,7 @@ void CLiquid::Draw(CShader *pShader)
 	{ // ‰t‘Ì‚ÌÅ‘å”•ªŒJ‚è•Ô‚·
 
 		// ‰t‘Ì‚Ì•`‰æ
-		m_apLiquid[nCntLiquid]->Draw();
+		m_apLiquid[nCntLiquid]->Draw(pShader);
 	}
 }
 

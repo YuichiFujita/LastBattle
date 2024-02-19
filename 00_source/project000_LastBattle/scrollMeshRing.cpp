@@ -104,7 +104,7 @@ void CScrollMeshRing::Update(void)
 void CScrollMeshRing::Draw(CShader *pShader)
 {
 	// ƒƒbƒVƒ…ƒŠƒ“ƒO‚Ì•`‰æ
-	CObjectMeshRing::Draw();
+	CObjectMeshRing::Draw(pShader);
 }
 
 //============================================================

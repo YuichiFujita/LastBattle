@@ -136,7 +136,7 @@ void CWaveLand::Update(void)
 void CWaveLand::Draw(CShader *pShader)
 {
 	// ”g“®‚Ì•`‰æ
-	CWave::Draw();
+	CWave::Draw(pShader);
 }
 
 //============================================================

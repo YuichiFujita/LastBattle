@@ -89,7 +89,7 @@ void CAttackMoveFire::Update(void)
 void CAttackMoveFire::Draw(CShader *pShader)
 {
 	// ‰Š‚Ì•`‰æ
-	CFire::Draw();
+	CFire::Draw(pShader);
 }
 
 //============================================================
