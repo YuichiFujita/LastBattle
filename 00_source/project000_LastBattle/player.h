@@ -198,6 +198,14 @@ private:
 		int   nWaitCounter;	// クールタイム管理カウンター
 	};
 
+	// ジャンプ構造体
+	struct SJump
+	{
+		bool bJump;			// ジャンプ状況
+		bool bInputPress;	// プレス入力状況
+		int  nPressCounter;	// プレス入力管理カウンター
+	};
+
 	// モーション更新の関数ポインタ型エイリアス定義
 	typedef void (CPlayer::*AFuncUpdateMotion)(const int);
 
@@ -264,7 +272,7 @@ private:
 	EState		m_state;			// 状態
 	int			m_nCounterState;	// 状態管理カウンター
 	float		m_fSinAlpha;		// 透明向き
-	bool		m_bJump;			// ジャンプ状況
+	SJump		m_jump;				// ジャンプの情報
 	SDodge		m_dodge;			// 回避の情報
 	SAttack		m_attack;			// 攻撃の情報
 };

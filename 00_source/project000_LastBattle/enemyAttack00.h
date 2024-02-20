@@ -38,7 +38,7 @@ public:
 	};
 
 	// コンストラクタ
-	CEnemyAttack00();
+	explicit CEnemyAttack00(CEnemyBossDragon *pBoss);
 
 	// デストラクタ
 	~CEnemyAttack00() override;

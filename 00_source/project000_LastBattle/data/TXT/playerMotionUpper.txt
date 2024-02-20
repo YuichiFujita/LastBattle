@@ -288,7 +288,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 8
+		FRAME = 22
 		
 		KEY	# ----- [ 1 ] -----
 			POS = 0.00 0.00 0.00
@@ -2392,7 +2392,7 @@ MOTIONSET
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 5	# キー数
 	COMBO = 20	# コンボフレーム
-	CANCEL = 28	# キャンセルフレーム
+	CANCEL = 25	# キャンセルフレーム
 	
 	LEFT_COLL = 0 15	# 左攻撃の判定時間[MIN, MAX]
 
@@ -2645,7 +2645,7 @@ MOTIONSET
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 5	# キー数
 	COMBO = 20	# コンボフレーム
-	CANCEL = 28	# キャンセルフレーム
+	CANCEL = 25	# キャンセルフレーム
 
 	RIGHT_COLL = 0 15	# 右攻撃の判定時間[MIN, MAX]
 	

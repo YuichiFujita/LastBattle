@@ -172,6 +172,8 @@
     <ClCompile Include="enemyAttack02.cpp" />
     <ClCompile Include="enemyAttack03.cpp" />
     <ClCompile Include="enemyAttack04.cpp" />
+    <ClCompile Include="enemyAttack05.cpp" />
+    <ClCompile Include="enemyAttack06.cpp" />
     <ClCompile Include="enemyBossDragon.cpp" />
     <ClCompile Include="enemyMiniDragon.cpp" />
     <ClCompile Include="enemySmall.cpp" />
@@ -283,6 +285,8 @@
     <ClInclude Include="enemyAttack02.h" />
     <ClInclude Include="enemyAttack03.h" />
     <ClInclude Include="enemyAttack04.h" />
+    <ClInclude Include="enemyAttack05.h" />
+    <ClInclude Include="enemyAttack06.h" />
     <ClInclude Include="enemyBossDragon.h" />
     <ClInclude Include="enemyMiniDragon.h" />
     <ClInclude Include="enemySmall.h" />

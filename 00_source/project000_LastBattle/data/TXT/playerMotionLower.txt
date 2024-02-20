@@ -258,7 +258,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 8
+		FRAME = 22
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 -3.70 0.00
@@ -1304,7 +1304,7 @@ MOTIONSET
 
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 5	# キー数
-	CANCEL = 23	# キャンセルフレーム
+	COMBO = 23	# キャンセルフレーム
 	CANCEL = 28	# キャンセルフレーム
 
 	KEYSET
@@ -1744,7 +1744,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 12
+		FRAME = 8
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 -6.14 0.38

@@ -182,6 +182,7 @@ namespace useful
 	void RotToVec(const float fPhi, const float fTheta, D3DXVECTOR3 *pVec);	// 向きのベクトル変換
 	D3DXVECTOR3 GetMatrixPosition(const D3DXMATRIX& rMtx);	// マトリックス位置取得
 	D3DXVECTOR3 GetMatrixRotation(const D3DXMATRIX& rMtx);	// マトリックス向き取得
+	D3DXVECTOR3 GetMatrixScaling(const D3DXMATRIX& rMtx);	// マトリックス拡大率取得
 
 	// テンプレート関数
 	template<class T> bool LimitNum	// 値の範囲内制限
@@ -242,6 +243,14 @@ namespace easeing
 	inline float OutCubic(const float x)	{ return 1.0f - powf(1.0f - x, 3.0f); }
 	inline float InOutCubic(const float x)	{ return (x < 0.5f) ? (4.0f * x * x * x) : (1.0f - powf(-2.0f * x + 2.0f, 3.0f) * 0.5f); }
 
+	inline float InQuart(const float x)		{ return x * x * x * x; }
+	inline float OutQuart(const float x)	{ return 1.0f - powf(1.0f - x, 4.0f); }
+	inline float InOutQuart(const float x)	{ return (x < 0.5f) ? (8.0f * x * x * x * x) : (1.0f - powf(-2.0f * x + 2.0f, 4.0f) * 0.5f); }
+
+	inline float InQuint(const float x)		{ return x * x * x * x * x; }
+	inline float OutQuint(const float x)	{ return 1.0f - powf(1.0f - x, 5.0f); }
+	inline float InOutQuint(const float x)	{ return (x < 0.5f) ? (16.0f * x * x * x * x * x) : (1.0f - powf(-2.0f * x + 2.0f, 5.0f) * 0.5f); }
+
 	// テンプレート関数
 	template<class T> inline float Liner(T num, const T min, const T max)		{ return Liner(useful::ValueToRate(num, min, max)); }
 
@@ -256,6 +265,14 @@ namespace easeing
 	template<class T> inline float InCubic(T num, const T min, const T max)		{ return InCubic(useful::ValueToRate(num, min, max)); }
 	template<class T> inline float OutCubic(T num, const T min, const T max)	{ return OutCubic(useful::ValueToRate(num, min, max)); }
 	template<class T> inline float InOutCubic(T num, const T min, const T max)	{ return InOutCubic(useful::ValueToRate(num, min, max)); }
+
+	template<class T> inline float InQuart(T num, const T min, const T max)		{ return InQuart(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float OutQuart(T num, const T min, const T max)	{ return OutQuart(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float InOutQuart(T num, const T min, const T max)	{ return InOutQuart(useful::ValueToRate(num, min, max)); }
+
+	template<class T> inline float InQuint(T num, const T min, const T max)		{ return InQuint(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float OutQuint(T num, const T min, const T max)	{ return OutQuint(useful::ValueToRate(num, min, max)); }
+	template<class T> inline float InOutQuint(T num, const T min, const T max)	{ return InOutQuint(useful::ValueToRate(num, min, max)); }
 }
 
 // マテリアル関数空間

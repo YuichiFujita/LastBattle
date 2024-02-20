@@ -253,6 +253,22 @@ D3DXVECTOR3 useful::GetMatrixRotation(const D3DXMATRIX& rMtx)
 	return D3DXVECTOR3(fPitch, fYaw, fRoll);
 }
 
+//============================================================
+//	マトリックスの拡大率取得取得
+//============================================================
+D3DXVECTOR3 useful::GetMatrixScaling(const D3DXMATRIX& rMtx)
+{
+	D3DXVECTOR3 scale;	// 計算結果の保存用
+
+	// マトリックスから拡大率を求める
+	scale.x = sqrtf(rMtx._11 * rMtx._11 + rMtx._12 * rMtx._12 + rMtx._13 * rMtx._13);
+	scale.y = sqrtf(rMtx._21 * rMtx._21 + rMtx._22 * rMtx._22 + rMtx._23 * rMtx._23);
+	scale.z = sqrtf(rMtx._31 * rMtx._31 + rMtx._32 * rMtx._32 + rMtx._33 * rMtx._33);
+
+	// マトリックスの拡大率を返す
+	return scale;
+}
+
 //************************************************************
 //	マテリアル空間
 //************************************************************

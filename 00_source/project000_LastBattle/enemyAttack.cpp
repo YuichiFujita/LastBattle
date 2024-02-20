@@ -13,6 +13,8 @@
 #include "enemyAttack02.h"
 #include "enemyAttack03.h"
 #include "enemyAttack04.h"
+#include "enemyAttack05.h"
+#include "enemyAttack06.h"
 #include "enemyBossDragon.h"
 #include "manager.h"
 
@@ -22,7 +24,7 @@
 //============================================================
 //	コンストラクタ
 //============================================================
-CEnemyAttack::CEnemyAttack() : m_pBoss(nullptr)
+CEnemyAttack::CEnemyAttack(CEnemyBossDragon *pBoss) : m_pBoss(pBoss)
 {
 
 }
@@ -40,9 +42,6 @@ CEnemyAttack::~CEnemyAttack()
 //============================================================
 HRESULT CEnemyAttack::Init(void)
 {
-	// メンバ変数を初期化
-	m_pBoss = nullptr;	// ボスへのポインタ
-
 	// 成功を返す
 	return S_OK;
 }
@@ -67,23 +66,31 @@ CEnemyAttack *CEnemyAttack::Create(const EAttack attackID, CEnemyBossDragon *pBo
 	switch (attackID)
 	{ // 種類ごとの処理
 	case ATTACK_00:
-		pEnemyAttack = new CEnemyAttack00;
+		pEnemyAttack = new CEnemyAttack00(pBoss);
 		break;
 
 	case ATTACK_01:
-		pEnemyAttack = new CEnemyAttack01;
+		pEnemyAttack = new CEnemyAttack01(pBoss);
 		break;
 
 	case ATTACK_02:
-		pEnemyAttack = new CEnemyAttack02;
+		pEnemyAttack = new CEnemyAttack02(pBoss);
 		break;
 
 	case ATTACK_03:
-		pEnemyAttack = new CEnemyAttack03;
+		pEnemyAttack = new CEnemyAttack03(pBoss);
 		break;
 
 	case ATTACK_04:
-		pEnemyAttack = new CEnemyAttack04;
+		pEnemyAttack = new CEnemyAttack04(pBoss);
+		break;
+
+	case ATTACK_05:
+		pEnemyAttack = new CEnemyAttack05(pBoss);
+		break;
+
+	case ATTACK_06:
+		pEnemyAttack = new CEnemyAttack06(pBoss);
 		break;
 
 	default:	// 例外処理
@@ -107,9 +114,6 @@ CEnemyAttack *CEnemyAttack::Create(const EAttack attackID, CEnemyBossDragon *pBo
 			SAFE_DELETE(pEnemyAttack);
 			return nullptr;
 		}
-
-		// ボスへのポインタを設定
-		pEnemyAttack->m_pBoss = pBoss;
 
 		// 確保したアドレスを返す
 		return pEnemyAttack;

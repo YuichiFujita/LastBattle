@@ -78,7 +78,8 @@ namespace
 	const D3DXVECTOR3 SPAWN_ROT = D3DXVECTOR3(0.0f, D3DX_PI, 0.0f);	// スポーン向き
 
 	const int	PRIORITY	= 3;		// プレイヤーの優先順位
-	const float	JUMP		= 18.0f;	// ジャンプ上昇量
+	const float	INIT_JUMP	= 4.0f;		// ジャンプ量の初期値
+	const float	PULS_JUMP	= 4.15f;	// ジャンプ高度上昇量
 	const float	GRAVITY		= 0.85f;	// 重力
 	const float	RADIUS		= 20.0f;	// 半径
 	const float	HEIGHT		= 80.0f;	// 縦幅
@@ -103,7 +104,8 @@ namespace
 	const float	DODGE_SIDE_MOVE	= 3.2f;		// 回避の横移動量
 	const float	DODGE_JUMP_MOVE	= 9.0f;		// 回避の上移動量
 	const int	DODGE_WAIT_FRAME	= 100;	// 回避のフールタイムフレーム
-	const int	ATTACK_BUFFER_FRAME = 20;	// 攻撃の先行入力可能フレーム
+	const int	PRESS_JUMP_FRAME	= 10;	// ジャンプ高度上昇の受付入力時間
+	const int	ATTACK_BUFFER_FRAME = 8;	// 攻撃の先行入力可能フレーム
 
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);		// 影の大きさ
 	const char *TEXTURE_LIFEFRAME	= "data\\TEXTURE\\lifeframe002.png";	// 体力フレーム表示のテクスチャファイル
@@ -152,11 +154,11 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_destRot		(VEC3_ZERO),	// 目標向き
 	m_state			(STATE_NONE),	// 状態
 	m_fSinAlpha		(0.0f),			// 透明向き
-	m_bJump			(false),		// ジャンプ状況
 	m_nCounterState	(0)				// 状態管理カウンター
 {
 	// メンバ変数をクリア
 	memset(&m_apSowrd,	0, sizeof(m_apSowrd));	// 剣の情報
+	memset(&m_jump,		0, sizeof(m_jump));		// ジャンプの情報
 	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
 	memset(&m_attack,	0, sizeof(m_attack));	// 攻撃の情報
 }
@@ -176,6 +178,7 @@ HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_apSowrd,	0, sizeof(m_apSowrd));	// 剣の情報
+	memset(&m_jump,		0, sizeof(m_jump));		// ジャンプの情報
 	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
 	memset(&m_attack,	0, sizeof(m_attack));	// 攻撃の情報
 	m_pLife			= nullptr;		// 体力の情報
@@ -185,7 +188,6 @@ HRESULT CPlayer::Init(void)
 	m_destRot		= VEC3_ZERO;	// 目標向き
 	m_state			= STATE_NONE;	// 状態
 	m_fSinAlpha		= 0.0f;			// 透明向き
-	m_bJump			= true;			// ジャンプ状況
 	m_nCounterState	= 0;			// 状態管理カウンター
 
 	// オブジェクト分割キャラクターの初期化
@@ -1037,16 +1039,16 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 			break;
 
 		// TODO：攻撃モーション追加したらここにも記述
-		case L_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
-		case L_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
-		case L_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
-		case L_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
-		case L_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
+		case U_MOTION_ATTACK_00:		// 攻撃モーション一段階目：ループOFF
+		case U_MOTION_ATTACK_01:		// 攻撃モーション二段階目：ループOFF
+		case U_MOTION_ATTACK_02:		// 攻撃モーション三段階目：ループOFF
+		case U_MOTION_JUMP_ATTACK_00:	// 空中攻撃モーション一段階目：ループOFF
+		case U_MOTION_JUMP_ATTACK_01:	// 空中攻撃モーション二段階目：ループOFF
 
 			if (IsMotionCancel(BODY_UPPER))
 			{ // キャンセルできる場合
 
-				if (nMotion != L_MOTION_IDOL)
+				if (nMotion != U_MOTION_IDOL)
 				{ // 待機モーション以外の場合
 
 					// 現在のモーションの設定
@@ -1452,7 +1454,7 @@ void CPlayer::UpdateAttack
 
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
 	{
-		if (!m_bJump)
+		if (!m_jump.bJump)
 		{ // ジャンプしていない場合
 
 			// 地上攻撃操作の更新
@@ -1494,7 +1496,7 @@ void CPlayer::UpdateLandAttack(void)
 		{ // 最終攻撃モーションではない場合
 
 			// コンボ可能までの残りフレームを計算
-			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionComboFrame(BODY_UPPER);
+			int nWholeFrame = GetMotionComboFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
 			if (nWholeFrame < ATTACK_BUFFER_FRAME)
 			{ // 先行入力が可能な場合
 
@@ -1537,7 +1539,7 @@ void CPlayer::UpdateSkyAttack(void)
 		{ // 最終攻撃モーションではない場合
 
 			// コンボ可能までの残りフレームを計算
-			int nWholeFrame = GetMotionWholeFrame(BODY_UPPER) - GetMotionComboFrame(BODY_UPPER);
+			int nWholeFrame = GetMotionComboFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
 			if (nWholeFrame < ATTACK_BUFFER_FRAME)
 			{ // 先行入力が可能な場合
 
@@ -1576,7 +1578,7 @@ void CPlayer::UpdateDodge(void)
 	{ // 回避中ではない場合
 
 		if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
-		if (m_bJump) { return; }	// ジャンプ中の場合抜ける
+		if (m_jump.bJump) { return; }	// ジャンプ中の場合抜ける
 
 		if (m_dodge.nWaitCounter > 0)
 		{ // クールタイムが残っている場合
@@ -1610,7 +1612,7 @@ void CPlayer::UpdateDodge(void)
 					m_destRot.y = atan2f(-m_move.x, -m_move.z);
 
 					// ジャンプ中にする
-					m_bJump = true;
+					m_jump.bJump = true;
 
 					// 回避中にする
 					m_dodge.bDodge = true;
@@ -1660,20 +1662,56 @@ void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 {
 	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
-	if (m_bJump)		{ return; }	// ジャンプ中の場合抜ける
 	if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
 
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_A))
 	{
-		// 上移動量を与える
-		m_move.y += JUMP;
+		if (!m_jump.bJump)
+		{ // ジャンプしていない場合
 
-		// ジャンプ中にする
-		m_bJump = true;
+			// 上移動量を与える
+			m_move.y += INIT_JUMP;
 
-		// 上下にジャンプモーションを設定
-		*pLowMotion = L_MOTION_JUMP;
-		*pUpMotion  = U_MOTION_JUMP;
+			// ジャンプ中にする
+			m_jump.bJump = true;
+
+			// プレス入力中にする
+			m_jump.bInputPress = true;
+
+			// 上下にジャンプモーションを設定
+			*pLowMotion = L_MOTION_JUMP;
+			*pUpMotion  = U_MOTION_JUMP;
+		}
+	}
+
+	if (m_jump.bJump && m_jump.bInputPress)
+	{ // プレス入力が解除されていない場合
+
+		if (GET_INPUTPAD->IsPress(CInputPad::KEY_A))
+		{ // プレス中の場合
+
+			if (m_jump.nPressCounter < PRESS_JUMP_FRAME)
+			{ // 入力可能時間内の場合
+
+				// ジャンプ高度上昇量の補正係数
+				float fRate = easeing::InQuint((PRESS_JUMP_FRAME - m_jump.nPressCounter), 0, PRESS_JUMP_FRAME);
+
+				// 上移動量を与える
+				m_move.y += GRAVITY + PULS_JUMP * fRate;
+
+				// 入力時間カウンターを加算
+				m_jump.nPressCounter++;
+			}
+		}
+		else
+		{ // 入力がなくなった場合
+
+			// 入力時間カウンターを初期化
+			m_jump.nPressCounter = 0;
+
+			// プレス入力を解除
+			m_jump.bInputPress = false;
+		}
 	}
 }
 
@@ -1701,7 +1739,7 @@ void CPlayer::UpdateGravity(void)
 void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 {
 	// ジャンプしている状態にする
-	m_bJump = true;
+	m_jump.bJump = true;
 
 	// 地面・制限位置の着地判定
 	if (CScene::GetStage()->LandFieldPosition(*pPos, m_move)
@@ -1709,13 +1747,13 @@ void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 	{ // プレイヤーが着地していた場合
 
 		// ジャンプフラグをOFFにする
-		m_bJump = false;
+		m_jump.bJump = false;
 
 		// 回避フラグをOFFにする
 		m_dodge.bDodge = false;
 	}
 
-	if (!m_bJump)
+	if (!m_jump.bJump)
 	{ // 空中にいない場合
 
 		if (GetMotionType(BODY_LOWER) == L_MOTION_JUMP
@@ -1794,7 +1832,7 @@ void CPlayer::UpdatePosition(D3DXVECTOR3 *pPos)
 	else
 	{ // 回避中ではない場合
 
-		if (m_bJump)
+		if (m_jump.bJump)
 		{ // 空中の場合
 
 			m_move.x += (0.0f - m_move.x) * JUMP_REV;

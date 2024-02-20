@@ -36,7 +36,7 @@ namespace
 //============================================================
 //	コンストラクタ
 //============================================================
-CEnemyAttack01::CEnemyAttack01() :
+CEnemyAttack01::CEnemyAttack01(CEnemyBossDragon *pBoss) : CEnemyAttack(pBoss),
 	m_state				(STATE_INIT_TELEPORT),	// 状態
 	m_nCounterState		(0),					// 状態管理カウンター
 	m_nCounterNumAtk	(0)						// 攻撃回数カウンター

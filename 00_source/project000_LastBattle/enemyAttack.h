@@ -30,11 +30,13 @@ public:
 		ATTACK_02,		// 攻撃02(雷外周向かい生成)
 		ATTACK_03,		// 攻撃03(雷プレイヤー位置生成)
 		ATTACK_04,		// 攻撃04(炎外周吐き出し)
+		ATTACK_05,		// 攻撃05(ひっかき攻撃)
+		ATTACK_06,		// 攻撃06(しっぽ攻撃)
 		ATTACK_MAX		// この列挙型の総数
 	};
 
 	// コンストラクタ
-	CEnemyAttack();
+	explicit CEnemyAttack(CEnemyBossDragon *pBoss);
 
 	// デストラクタ
 	virtual ~CEnemyAttack();

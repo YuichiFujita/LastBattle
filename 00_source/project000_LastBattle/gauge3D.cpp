@@ -668,7 +668,7 @@ void CGauge3D::DrawShader(CShader *pShader)
 	{
 		m_colBack,	// ”wŒi
 		m_colFront,	// ƒQ[ƒW
-		NONE_IDX	// ˜g
+		XCOL_WHITE	// ˜g
 	};
 
 	// ƒ|ƒCƒ“ƒ^‚ğéŒ¾

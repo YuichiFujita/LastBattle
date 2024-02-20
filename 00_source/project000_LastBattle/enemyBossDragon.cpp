@@ -61,7 +61,7 @@ namespace
 
 	const CCamera::SSwing LAND_SWING = CCamera::SSwing(10.0f, 1.5f, 0.12f);		// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING = CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
-	const int	BLEND_FRAME		= 8;			// モーションのブレンドフレーム
+	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
 	const int	HOWL_WAIT_FRAME	= 40;			// 咆哮の余韻フレーム
@@ -86,6 +86,15 @@ namespace
 		const int			CHANGE_FRAME	= 10;	// 表示値変動フレーム
 	}
 }
+
+//************************************************************
+//	マクロ定義
+//************************************************************
+// ランダム攻撃のON/OFF
+#if 1
+#define RANDOM_ATTACK_ON	// ランダム攻撃
+#define ATTACK (CEnemyAttack::ATTACK_06)
+#endif
 
 //************************************************************
 //	スタティックアサート
@@ -463,6 +472,30 @@ void CEnemyBossDragon::SetActPunchGround(void)
 }
 
 //============================================================
+//	ひっかき攻撃の行動設定処理
+//============================================================
+void CEnemyBossDragon::SetActClawAttack(void)
+{
+	// ひっかき攻撃モーションを設定
+	SetMotion(MOTION_CLAW_ATTACK, BLEND_FRAME);
+
+	// ひっかき攻撃の行動をとらせる
+	m_action = ACT_CLAW_ATTACK;
+}
+
+//============================================================
+//	しっぽ攻撃の行動設定処理
+//============================================================
+void CEnemyBossDragon::SetActTailAttack(void)
+{
+	// しっぽ攻撃モーションを設定
+	SetMotion(MOTION_TAIL_ATTACK, BLEND_FRAME);
+
+	// しっぽ攻撃の行動をとらせる
+	m_action = ACT_TAIL_ATTACK;
+}
+
+//============================================================
 //	空中攻撃の行動設定処理
 //============================================================
 void CEnemyBossDragon::SetActFlyAttack(void)
@@ -512,6 +545,28 @@ void CEnemyBossDragon::UpdateMotion(void)
 		break;
 
 	case MOTION_PUNCH_GROUND:	// 地面殴りモーション
+
+		if (IsMotionFinish())
+		{ // モーションが終了していた場合
+
+			// 待機モーションに移行
+			SetMotion(MOTION_IDOL, BLEND_FRAME);
+		}
+
+		break;
+
+	case MOTION_CLAW_ATTACK:	// ひっかき攻撃モーション
+
+		if (IsMotionFinish())
+		{ // モーションが終了していた場合
+
+			// 待機モーションに移行
+			SetMotion(MOTION_IDOL, BLEND_FRAME);
+		}
+
+		break;
+
+	case MOTION_TAIL_ATTACK:	// しっぽ攻撃モーション
 
 		if (IsMotionFinish())
 		{ // モーションが終了していた場合
@@ -694,12 +749,11 @@ void CEnemyBossDragon::UpdateAttack(void)
 			// 攻撃の生成
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
-#if 1	// TODO：攻撃を指定
-				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX),	// 攻撃インデックス
+#ifndef RANDOM_ATTACK_ON
+				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX), this
 #else
-				CEnemyAttack::ATTACK_04,	// 攻撃インデックス
+				ATTACK, this
 #endif
-				this	// 自身のポインタ
 			);
 			if (m_pAttack == nullptr)
 			{ // 生成に失敗した場合
@@ -768,6 +822,20 @@ void CEnemyBossDragon::UpdateAction(void)
 
 		// 地面殴りの行動時の更新
 		UpdatePunchGround();
+
+		break;
+
+	case ACT_CLAW_ATTACK:	// ひっかき攻撃
+
+		// ひっかき攻撃の行動時の更新
+		UpdateClawAttack();
+
+		break;
+
+	case ACT_TAIL_ATTACK:	// しっぽ攻撃
+
+		// しっぽ攻撃の行動時の更新
+		UpdateTailAttack();
 
 		break;
 
@@ -1038,6 +1106,22 @@ void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 //	地面殴り行動時の更新処理
 //============================================================
 void CEnemyBossDragon::UpdatePunchGround(void)
+{
+
+}
+
+//============================================================
+//	ひっかき攻撃の行動時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateClawAttack(void)
+{
+
+}
+
+//============================================================
+//	しっぽ攻撃の行動時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateTailAttack(void)
 {
 
 }
