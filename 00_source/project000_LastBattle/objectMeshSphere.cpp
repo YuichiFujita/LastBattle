@@ -123,7 +123,7 @@ void CObjectMeshSphere::Draw(CShader *pShader)
 	{ // ”¼‹…‚Ì‘”•ªŒJ‚è•Ô‚·
 
 		// ƒƒbƒVƒ…ƒh[ƒ€‚Ì•`‰æ
-		m_apDome[i]->Draw();
+		m_apDome[i]->Draw(pShader);
 	}
 }
 

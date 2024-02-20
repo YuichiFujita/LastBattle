@@ -161,39 +161,18 @@ void CObjectMeshDome::Draw(CShader *pShader)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-	//--------------------------------------------------------
-	//	半球ポリゴンの描画
-	//--------------------------------------------------------
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
+	if (pShader == nullptr)
+	{ // シェーダーが使用されていない場合
 
-	// 半球ポリゴンの描画
-	pDevice->DrawIndexedPrimitive
-	( // 引数
-		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
-		0,
-		0,
-		m_nNumVtx - 1,						// 使用する頂点数
-		0,									// インデックスバッファの開始地点
-		(m_nNumIdx - (m_part.x + 1)) - 3	// プリミティブ (ポリゴン) 数
-	);
+		// 通常描画
+		DrawNormal();
+	}
+	else
+	{ // シェーダーが使用されている場合
 
-	//--------------------------------------------------------
-	//	上蓋ポリゴンの描画
-	//--------------------------------------------------------
-	// テクスチャの設定
-	pDevice->SetTexture(0, nullptr);
-
-	// 上蓋ポリゴンの描画
-	pDevice->DrawIndexedPrimitive
-	( // 引数
-		D3DPT_TRIANGLEFAN,	// プリミティブの種類
-		0,
-		0,
-		m_part.x + 1,				// 使用する頂点数
-		m_nNumIdx - (m_part.x + 2),	// インデックスバッファの開始地点
-		m_part.x					// プリミティブ (ポリゴン) 数
-	);
+		// シェーダー描画
+		DrawShader(pShader);
+	}
 
 	// レンダーステートを再設定
 	m_pRenderState->Reset();
@@ -698,4 +677,136 @@ void CObjectMeshDome::Release(void)
 {
 	// オブジェクトの破棄
 	CObject::Release();
+}
+
+//============================================================
+//	通常描画処理
+//============================================================
+void CObjectMeshDome::DrawNormal(void)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	//--------------------------------------------------------
+	//	半球ポリゴンの描画
+	//--------------------------------------------------------
+	// テクスチャの設定
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
+
+	// 半球ポリゴンの描画
+	pDevice->DrawIndexedPrimitive
+	( // 引数
+		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
+		0,
+		0,
+		m_nNumVtx - 1,						// 使用する頂点数
+		0,									// インデックスバッファの開始地点
+		(m_nNumIdx - (m_part.x + 1)) - 3	// プリミティブ (ポリゴン) 数
+	);
+
+	//--------------------------------------------------------
+	//	上蓋ポリゴンの描画
+	//--------------------------------------------------------
+	// テクスチャの設定
+	pDevice->SetTexture(0, nullptr);
+
+	// 上蓋ポリゴンの描画
+	pDevice->DrawIndexedPrimitive
+	( // 引数
+		D3DPT_TRIANGLEFAN,	// プリミティブの種類
+		0,
+		0,
+		m_part.x + 1,				// 使用する頂点数
+		m_nNumIdx - (m_part.x + 2),	// インデックスバッファの開始地点
+		m_part.x					// プリミティブ (ポリゴン) 数
+	);
+}
+
+//============================================================
+//	シェーダー描画処理
+//============================================================
+void CObjectMeshDome::DrawShader(CShader *pShader)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	//--------------------------------------------------------
+	//	半球ポリゴンの描画
+	//--------------------------------------------------------
+	// 描画開始
+	pShader->Begin();
+	pShader->BeginPass(0);
+
+	// マトリックス情報を設定
+	pShader->SetMatrix(&m_meshDome.mtxWorld);
+
+	// ライト方向を設定
+	pShader->SetLightDirect(&m_meshDome.mtxWorld, 0);
+
+	// 拡散光を設定
+	pShader->SetOnlyDiffuse(m_meshDome.col);
+
+	// テクスチャを設定
+	pShader->SetTexture(m_nTextureID);
+
+	// 状態変更の伝達
+	pShader->CommitChanges();
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
+
+	// 半球ポリゴンの描画
+	pDevice->DrawIndexedPrimitive
+	( // 引数
+		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
+		0,
+		0,
+		m_nNumVtx - 1,						// 使用する頂点数
+		0,									// インデックスバッファの開始地点
+		(m_nNumIdx - (m_part.x + 1)) - 3	// プリミティブ (ポリゴン) 数
+	);
+
+	// 描画終了
+	pShader->EndPass();
+	pShader->End();
+
+	//--------------------------------------------------------
+	//	上蓋ポリゴンの描画
+	//--------------------------------------------------------
+	// 描画開始
+	pShader->Begin();
+	pShader->BeginPass(0);
+
+	// マトリックス情報を設定
+	pShader->SetMatrix(&m_meshDome.mtxWorld);
+
+	// ライト方向を設定
+	pShader->SetLightDirect(&m_meshDome.mtxWorld, 0);
+
+	// 拡散光を設定
+	pShader->SetOnlyDiffuse(m_meshDome.col);
+
+	// テクスチャを設定
+	pShader->SetTexture(NONE_IDX);
+
+	// 状態変更の伝達
+	pShader->CommitChanges();
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, nullptr);
+
+	// 上蓋ポリゴンの描画
+	pDevice->DrawIndexedPrimitive
+	( // 引数
+		D3DPT_TRIANGLEFAN,	// プリミティブの種類
+		0,
+		0,
+		m_part.x + 1,				// 使用する頂点数
+		m_nNumIdx - (m_part.x + 2),	// インデックスバッファの開始地点
+		m_part.x					// プリミティブ (ポリゴン) 数
+	);
+
+	// 描画終了
+	pShader->EndPass();
+	pShader->End();
 }

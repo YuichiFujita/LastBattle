@@ -98,6 +98,10 @@ private:
 	// オーバーライド関数
 	void Release(void) override;	// 破棄
 
+	// メンバ関数
+	void DrawNormal(void);	// 通常描画
+	void DrawShader(CShader *pShader);	// シェーダー描画
+
 	// メンバ変数
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;	// 頂点バッファへのポインタ
 	LPDIRECT3DINDEXBUFFER9 m_pIdxBuff;	// インデックスバッファへのポインタ

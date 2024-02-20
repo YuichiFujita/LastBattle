@@ -148,11 +148,11 @@ void CObjectMeshTube::Draw(CShader *pShader)
 	{ // 蓋の総数分繰り返す
 
 		// メッシュサークルの描画
-		m_apCover[i]->Draw();
+		m_apCover[i]->Draw(pShader);
 	}
 
 	// メッシュシリンダーの描画
-	m_pCylinder->Draw();
+	m_pCylinder->Draw(pShader);
 }
 
 //============================================================

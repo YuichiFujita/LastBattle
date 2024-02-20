@@ -204,11 +204,11 @@ void CGauge3D::Draw(CShader *pShader)
 	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// ライティングを無効にする
-	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pDevice->SetRenderState(D3DRS_LIGHTING, false);
 
 	// Zテストを無効にする
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);	// Zテストの設定
-	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);		// Zバッファ更新の有効 / 無効の設定
+	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, false);		// Zバッファ更新の有効 / 無効の設定
 
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_mtxWorld);
@@ -237,39 +237,25 @@ void CGauge3D::Draw(CShader *pShader)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-	for (int nCntGauge = 0; nCntGauge < POLYGON_MAX; nCntGauge++)
-	{ // 使用する四角形ポリゴン数分繰り返す
+	if (pShader == nullptr)
+	{ // シェーダーが使用されていない場合
 
-		if (nCntGauge == POLYGON_FRAME)
-		{ // 描画する四角形ポリゴンが枠の場合
+		// 通常描画
+		DrawNormal();
+	}
+	else
+	{ // シェーダーが使用されている場合
 
-			if (m_bDrawFrame)
-			{ // 枠を表示する場合
-
-				// テクスチャの設定
-				pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_aTextureID[nCntGauge]));
-
-				// ポリゴンの描画
-				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntGauge * 4, 2);
-			}
-		}
-		else
-		{ // 描画する四角形ポリゴンが枠以外の場合
-
-			// テクスチャの設定
-			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_aTextureID[nCntGauge]));
-
-			// ポリゴンの描画
-			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntGauge * 4, 2);
-		}
+		// シェーダー描画
+		DrawShader(pShader);
 	}
 
 	// ライティングを有効にする
-	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+	pDevice->SetRenderState(D3DRS_LIGHTING, true);
 
 	// Zテストを有効にする
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);	// Zテストの設定
-	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);		// Zバッファ更新の有効 / 無効の設定
+	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, true);		// Zバッファ更新の有効 / 無効の設定
 }
 
 //============================================================
@@ -634,6 +620,109 @@ void CGauge3D::Release(void)
 {
 	// オブジェクトの破棄
 	CObject::Release();
+}
+
+//============================================================
+//	通常描画処理
+//============================================================
+void CGauge3D::DrawNormal(void)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	for (int nCntGauge = 0; nCntGauge < POLYGON_MAX; nCntGauge++)
+	{ // 使用する四角形ポリゴン数分繰り返す
+
+		if (nCntGauge == POLYGON_FRAME)
+		{ // 描画する四角形ポリゴンが枠の場合
+
+			if (m_bDrawFrame)
+			{ // 枠を表示する場合
+
+				// テクスチャの設定
+				pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_aTextureID[nCntGauge]));
+
+				// ポリゴンの描画
+				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntGauge * 4, 2);
+			}
+		}
+		else
+		{ // 描画する四角形ポリゴンが枠以外の場合
+
+			// テクスチャの設定
+			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_aTextureID[nCntGauge]));
+
+			// ポリゴンの描画
+			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntGauge * 4, 2);
+		}
+	}
+}
+
+//============================================================
+//	シェーダー描画処理
+//============================================================
+void CGauge3D::DrawShader(CShader *pShader)
+{
+	// 変数配列を宣言
+	D3DXCOLOR aCol[POLYGON_MAX] =	// 色情報
+	{
+		m_colBack,	// 背景
+		m_colFront,	// ゲージ
+		NONE_IDX	// 枠
+	};
+
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// 描画開始
+	pShader->Begin();
+	pShader->BeginPass(0);
+
+	// マトリックス情報を設定
+	pShader->SetMatrix(&m_mtxWorld);
+
+	// ライト方向を設定
+	pShader->SetLightDirect(&m_mtxWorld, 0);
+
+	for (int nCntGauge = 0; nCntGauge < POLYGON_MAX; nCntGauge++)
+	{ // 使用する四角形ポリゴン数分繰り返す
+
+		// 拡散光を設定
+		pShader->SetOnlyDiffuse(aCol[nCntGauge]);
+
+		// テクスチャを設定
+		pShader->SetTexture(m_aTextureID[nCntGauge]);
+
+		// 状態変更の伝達
+		pShader->CommitChanges();
+
+		if (nCntGauge == POLYGON_FRAME)
+		{ // 描画する四角形ポリゴンが枠の場合
+
+			if (m_bDrawFrame)
+			{ // 枠を表示する場合
+
+				// テクスチャの設定
+				pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_aTextureID[nCntGauge]));
+
+				// ポリゴンの描画
+				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntGauge * 4, 2);
+			}
+		}
+		else
+		{ // 描画する四角形ポリゴンが枠以外の場合
+
+			// テクスチャの設定
+			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_aTextureID[nCntGauge]));
+
+			// ポリゴンの描画
+			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntGauge * 4, 2);
+		}
+	}
+
+	// 描画終了
+	pShader->EndPass();
+	pShader->End();
 }
 
 //============================================================
