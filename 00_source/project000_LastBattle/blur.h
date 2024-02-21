@@ -29,6 +29,15 @@ class CObjectModel;	// オブジェクトモデルクラス
 class CBlur : public CObject
 {
 public:
+	// 状態列挙
+	enum EState
+	{
+		STATE_NONE = 0,	// 何もしない状態
+		STATE_NORMAL,	// 通常状態
+		STATE_VANISH,	// 消失状態
+		STATE_MAX		// この列挙型の総数
+	};
+
 	// コンストラクタ
 	CBlur();
 
@@ -47,6 +56,7 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(CShader *pShader = nullptr) override;	// 描画
+	int GetState(void) const override;				// 状態取得
 
 	// 静的メンバ関数
 	static CBlur *Create	// 生成
@@ -58,6 +68,7 @@ public:
 	);
 
 	// メンバ関数
+	void SetState(const EState state);	// 状態設定
 	void SetMaterial(const D3DXMATERIAL& rMat)	{ m_mat = rMat; }	// ブラーマテリアル設定
 	D3DXMATERIAL GetMaterial(void) const		{ return m_mat; }	// ブラーマテリアル取得
 	void SetStartAlpha(const float fStartAlpha)	{ m_fStartAlpha = fStartAlpha; }	// ブラーの開始透明度設定
@@ -75,6 +86,9 @@ private:
 	D3DXMATERIAL m_mat;			// ブラー反映マテリアル
 	float	m_fStartAlpha;		// ブラーの開始透明度
 	int		m_nMaxLength;		// 保持する親オブジェクトの最大数
+	EState	m_state;			// 状態
+	int		m_nCounterState;	// 状態管理カウンター
+
 };
 
 #endif	// _BLUR_H_

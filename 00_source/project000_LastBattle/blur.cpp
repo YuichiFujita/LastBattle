@@ -27,9 +27,11 @@ namespace
 //	コンストラクタ
 //============================================================
 CBlur::CBlur() : CObject(LABEL_EFFECT, DIM_3D, PRIORITY),
-	m_pParent		(nullptr),	// 親オブジェクト
-	m_fStartAlpha	(0.0f),		// ブラーの開始透明度
-	m_nMaxLength	(0)			// 保持する親オブジェクトの最大数
+	m_pParent		(nullptr),		// 親オブジェクト
+	m_fStartAlpha	(0.0f),			// ブラーの開始透明度
+	m_nMaxLength	(0),			// 保持する親オブジェクトの最大数
+	m_state			(STATE_NONE),	// 状態
+	m_nCounterState	(0)				// 状態管理カウンター
 {
 	// メンバ変数をクリア
 	m_oldObject.clear();		// 過去オブジェクト情報
@@ -50,11 +52,13 @@ CBlur::~CBlur()
 HRESULT CBlur::Init(void)
 {
 	// メンバ変数を初期化
-	m_oldObject.clear();		// 過去オブジェクト情報
-	m_mat = material::White();	// ブラー反映マテリアル
-	m_pParent		= nullptr;	// 親オブジェクト
-	m_fStartAlpha	= 0.0f;		// ブラーの開始透明度
-	m_nMaxLength	= 0;		// 保持する親オブジェクトの最大数
+	m_oldObject.clear();			// 過去オブジェクト情報
+	m_mat = material::White();		// ブラー反映マテリアル
+	m_pParent		= nullptr;		// 親オブジェクト
+	m_fStartAlpha	= 0.0f;			// ブラーの開始透明度
+	m_nMaxLength	= 0;			// 保持する親オブジェクトの最大数
+	m_state			= STATE_NORMAL;	// 状態
+	m_nCounterState	= 0;			// 状態管理カウンター
 
 	// 成功を返す
 	return S_OK;
@@ -92,7 +96,9 @@ void CBlur::Uninit(void)
 void CBlur::Update(void)
 {
 	// 残像の生成
-	{
+	if (m_state == STATE_NORMAL)
+	{ // 通常状態の場合
+
 		SInfo *pTempBlur = new SInfo;	// ブラー情報
 		assert(pTempBlur != nullptr);	// 生成失敗エラー
 
@@ -154,8 +160,41 @@ void CBlur::Update(void)
 
 	// 残像の削除
 	{
-		if ((int)m_oldObject.size() > m_nMaxLength)
-		{ // 残像が最大数を超えた場合
+		bool bDelete = false;	// 削除状況
+		switch (m_state)
+		{ // 状態ごとの処理
+		case STATE_NONE:
+			break;
+
+		case STATE_NORMAL:
+
+			// 削除条件を指定 (残像が最大数を超えた場合削除)
+			bDelete = (int)m_oldObject.size() > m_nMaxLength;
+			break;
+
+		case STATE_VANISH:
+
+			// 削除条件を指定 (確定削除)
+			bDelete = true;
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+
+		if (bDelete)
+		{ // 削除を行う場合
+
+			if (m_oldObject.size() <= 0)
+			{ // 配列要素がない場合
+			
+				// 何もしない状態にする
+				m_state = STATE_NONE;
+
+				// 処理を抜ける
+				return;
+			}
 
 			SInfo *pDelete = m_oldObject.front();	// 残像配列の先頭
 			for (int nCntParts = 0; nCntParts < pDelete->nNumParts; nCntParts++)
@@ -179,16 +218,29 @@ void CBlur::Update(void)
 //============================================================
 void CBlur::Draw(CShader *pShader)
 {
-	for (SInfo *pBlur : m_oldObject)
-	{ // 要素数分繰り返す
+	if (m_state != STATE_NONE)
+	{ // 何もしない状態以外の場合
 
-		for (int nCntParts = 0; nCntParts < pBlur->nNumParts; nCntParts++)
-		{ // パーツ数分繰り返す
+		for (SInfo *pBlur : m_oldObject)
+		{ // 要素数分繰り返す
 
-			// パーツの描画
-			pBlur->apCharaParts[nCntParts]->Draw(pShader);
+			for (int nCntParts = 0; nCntParts < pBlur->nNumParts; nCntParts++)
+			{ // パーツ数分繰り返す
+
+				// パーツの描画
+				pBlur->apCharaParts[nCntParts]->Draw(pShader);
+			}
 		}
 	}
+}
+
+//============================================================
+//	状態取得処理
+//============================================================
+int CBlur::GetState(void) const
+{
+	// 状態を返す
+	return m_state;
 }
 
 //============================================================
@@ -235,6 +287,41 @@ CBlur *CBlur::Create
 
 		// 確保したアドレスを返す
 		return pBlur;
+	}
+}
+
+//============================================================
+//	状態の設定処理
+//============================================================
+void CBlur::SetState(const EState state)
+{
+	if (state == m_state && state != STATE_NORMAL)
+	{ // 設定する状態が現在の状態且つ、設定する状態が通常状態の場合
+
+		// 処理を抜ける
+		return;
+	}
+
+	if (m_state == STATE_NONE && state == STATE_VANISH)
+	{ // すでに消えているのに消失させようとしている場合
+
+		// 処理を抜ける
+		return;
+	}
+
+	// 引数の状態を設定
+	m_state = state;
+
+	switch (m_state)
+	{ // 状態ごとの処理
+	case STATE_NONE:	// 何もしない状態
+	case STATE_VANISH:	// 消失状態
+	case STATE_NORMAL:	// 通常状態
+		break;
+
+	default:	// 例外状態
+		assert(false);
+		break;
 	}
 }
 

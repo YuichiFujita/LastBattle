@@ -210,7 +210,7 @@ void CSword::Update(void)
 void CSword::Draw(CShader *pShader)
 {
 	if (m_state != STATE_NONE)
-	{ // 何もしない場合
+	{ // 何もしない状態以外の場合
 
 		// マルチモデルの描画
 		CMultiModel::Draw(pShader);
