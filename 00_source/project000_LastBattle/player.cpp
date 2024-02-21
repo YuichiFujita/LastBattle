@@ -100,20 +100,20 @@ namespace
 	const float	INVULN_ALPHA	= 0.7f;		// 無敵状態の基礎透明度
 	const float	ADD_SINROT		= 0.2f;		// 透明度をふわふわさせる際のサインカーブ向き加算量
 	const float	MAX_ADD_ALPHA	= 0.25f;	// 透明度の最大加算量
-	const float	DODGE_REV_MOVE	= 0.065f;	// 回避移動量の減算係数
+	const float	DODGE_REV_MOVE	= 0.07f;	// 回避移動量の減算係数
 	const float	DODGE_MIN_MOVE	= 0.35f;	// 回避移動量の最小値
-	const float	DODGE_SIDE_MOVE	= 3.2f;		// 回避の横移動量
-	const float	DODGE_JUMP_MOVE	= 9.0f;		// 回避の上移動量
+	const float	DODGE_SIDE_MOVE	= 4.0f;		// 回避の横移動量
 	const int	DODGE_WAIT_FRAME	= 100;	// 回避のフールタイムフレーム
 	const int	PRESS_JUMP_FRAME	= 10;	// ジャンプ高度上昇の受付入力時間
-	const int	ATTACK_BUFFER_FRAME = 8;	// 攻撃の先行入力可能フレーム
+	const int	ATTACK_BUFFER_FRAME	= 8;	// 攻撃の先行入力可能フレーム
 
 	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);		// 影の大きさ
-	const char *TEXTURE_LIFEFRAME	= "data\\TEXTURE\\lifeframe002.png";	// 体力フレーム表示のテクスチャファイル
 
 	// 体力の情報
 	namespace lifeInfo
 	{
+		const char *TEXTURE_FRAME = "data\\TEXTURE\\lifeframe002.png";	// 体力フレーム表示のテクスチャファイル
+
 		const D3DXVECTOR3	POS			= D3DXVECTOR3(260.0f, 170.0f, 0.0f);		// 位置
 		const D3DXVECTOR3	SIZE_GAUGE	= D3DXVECTOR3(200.0f, 20.0f, 0.0f);			// ゲージ大きさ
 		const D3DXCOLOR		COL_FRONT	= D3DXCOLOR(0.93f, 0.92f, 0.25f, 1.0f);		// 表ゲージ色
@@ -126,7 +126,7 @@ namespace
 	namespace blurInfo
 	{
 		const float	START_ALPHA	= 0.4f;	// ブラー開始透明度
-		const int	MAX_LENGTH	= 12;	// 保持オブジェクト最大数
+		const int	MAX_LENGTH	= 15;	// 保持オブジェクト最大数
 	}
 }
 
@@ -259,6 +259,9 @@ HRESULT CPlayer::Init(void)
 			assert(false);
 			return E_FAIL;
 		}
+
+		// ブラーを非表示にする
+		m_apBlur[nCntBlur]->SetState(CBlur::STATE_NONE);
 	}
 
 	// 体力の生成
@@ -271,7 +274,7 @@ HRESULT CPlayer::Init(void)
 		lifeInfo::COL_FRONT,	// 表ゲージ色
 		lifeInfo::COL_BACK,		// 裏ゲージ色
 		true,
-		TEXTURE_LIFEFRAME,
+		lifeInfo::TEXTURE_FRAME,
 		lifeInfo::SIZE_GAUGE + D3DXVECTOR3(16.5f, 16.5f, 0.0f)
 	);
 
@@ -625,6 +628,7 @@ void CPlayer::Hit(const int nDamage)
 {
 	if (IsDeath())				 { return; }	// 死亡済み
 	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
+	if (m_dodge.bDodge)			 { return; }	// 回避中
 	if (m_pLife->GetNum() <= 0)	 { return; }	// 体力なし
 
 	// 変数を宣言
@@ -1378,7 +1382,7 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	UpdateAttack(posPlayer, rotPlayer);
 
 	// 回避操作
-	UpdateDodge();
+	UpdateDodge(rotPlayer, pLowMotion, pUpMotion);
 
 	// 移動操作・目標向き設定
 	UpdateMove(pLowMotion, pUpMotion);
@@ -1584,10 +1588,17 @@ void CPlayer::UpdateSkyAttack(void)
 //============================================================
 //	回避操作の更新処理
 //============================================================
-void CPlayer::UpdateDodge(void)
+void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot, int *pLowMotion, int *pUpMotion)
 {
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド
 	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ
+
+	for (int nCntBlur = 0; nCntBlur < BODY_MAX; nCntBlur++)
+	{ // ブラーの数分繰り返す
+
+		// ブラーの状態を設定
+		m_apBlur[nCntBlur]->SetState((m_dodge.bDodge) ? CBlur::STATE_NORMAL : CBlur::STATE_VANISH);
+	}
 
 	if (m_dodge.bDodge)
 	{ // 回避中の場合
@@ -1609,7 +1620,6 @@ void CPlayer::UpdateDodge(void)
 	{ // 回避中ではない場合
 
 		if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
-		if (m_jump.bJump) { return; }	// ジャンプ中の場合抜ける
 
 		if (m_dodge.nWaitCounter > 0)
 		{ // クールタイムが残っている場合
@@ -1623,34 +1633,40 @@ void CPlayer::UpdateDodge(void)
 			if (m_dodge.nWaitCounter <= 0)
 			{ // クールタイムがない場合
 
+				// 上移動量を初期化
+				m_move.y = 0.0f;
+
+				// 回避移動量を設定
+				m_dodge.fMove = DODGE_SIDE_MOVE;
+
+				// 回避方向を設定
 				if (pad::DEAD_ZONE < pPad->GetPressLStickTilt())
 				{ // スティックの傾き量がデッドゾーン以上の場合
 
-					// 回避移動量を設定
-					m_dodge.fMove = DODGE_SIDE_MOVE;
-
-					// 回避方向を設定
+					// スティック入力方向を設定
 					m_dodge.fRot = pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI;
-
-					// スティック入力方向に移動量を与える
-					m_move.x += sinf(m_dodge.fRot) * m_dodge.fMove;
-					m_move.z += cosf(m_dodge.fRot) * m_dodge.fMove;
-
-					// 上移動量を与える
-					m_move.y += DODGE_JUMP_MOVE;
-
-					// 目標向きを設定
-					m_destRot.y = atan2f(-m_move.x, -m_move.z);
-
-					// ジャンプ中にする
-					m_jump.bJump = true;
-
-					// 回避中にする
-					m_dodge.bDodge = true;
-
-					// クールタイムを設定
-					m_dodge.nWaitCounter = DODGE_WAIT_FRAME;
+					useful::NormalizeRot(m_dodge.fRot);	// 向き正規化
 				}
+				else
+				{ // スティック入力がない場合
+
+					// 現在のプレイヤー方向を設定
+					m_dodge.fRot = rRot.y + D3DX_PI;
+					useful::NormalizeRot(m_dodge.fRot);	// 向き正規化
+				}
+
+				// スティック入力方向に移動量を与える
+				m_move.x += sinf(m_dodge.fRot) * m_dodge.fMove;
+				m_move.z += cosf(m_dodge.fRot) * m_dodge.fMove;
+
+				// 目標向きを設定
+				m_destRot.y = atan2f(-m_move.x, -m_move.z);
+
+				// 回避中にする
+				m_dodge.bDodge = true;
+
+				// クールタイムを設定
+				m_dodge.nWaitCounter = DODGE_WAIT_FRAME;
 			}
 		}
 	}
@@ -1760,8 +1776,12 @@ void CPlayer::UpdateOldPosition(void)
 //============================================================
 void CPlayer::UpdateGravity(void)
 {
-	// 重力を加算
-	m_move.y -= GRAVITY;
+	if (!m_dodge.bDodge)
+	{ // 回避中ではない場合
+
+		// 重力を加算
+		m_move.y -= GRAVITY;
+	}
 }
 
 //============================================================
@@ -1779,9 +1799,6 @@ void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 
 		// ジャンプフラグをOFFにする
 		m_jump.bJump = false;
-
-		// 回避フラグをOFFにする
-		m_dodge.bDodge = false;
 	}
 
 	if (!m_jump.bJump)

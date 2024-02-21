@@ -245,7 +245,7 @@ private:
 	);
 	void UpdateLandAttack(void);	// 地上攻撃操作の更新
 	void UpdateSkyAttack(void);		// 空中攻撃操作の更新
-	void UpdateDodge(void);			// 回避操作の更新
+	void UpdateDodge(const D3DXVECTOR3& rRot, int *pLowMotion, int *pUpMotion);	// 回避操作の更新
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
 
