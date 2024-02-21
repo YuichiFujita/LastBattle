@@ -30,8 +30,7 @@ public:
 	{
 		STATE_INIT_TELEPORT = 0,	// テレポートの初期化
 		STATE_TELEPORT,				// テレポート
-		STATE_INIT_WAIT,			// 攻撃待機の初期化
-		STATE_WAIT,					// 攻撃待機
+		STATE_INIT_FIRE,			// 炎発射の初期化
 		STATE_FIRE,					// 炎発射
 		STATE_END,					// 終了
 		STATE_MAX					// この列挙型の総数

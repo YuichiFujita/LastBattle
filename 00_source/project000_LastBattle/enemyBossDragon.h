@@ -73,6 +73,7 @@ public:
 		MOTION_IDOL,			// 待機モーション
 		MOTION_FLY_IDOL,		// 空中待機モーション
 		MOTION_PUNCH_GROUND,	// 地面殴りモーション
+		MOTION_FIRE_ATTACK,		// 炎攻撃モーション
 		MOTION_CLAW_ATTACK,		// ひっかき攻撃モーション
 		MOTION_TAIL_ATTACK,		// しっぽ攻撃モーション
 		MOTION_FLY_ATTACK,		// 空中攻撃モーション
@@ -87,6 +88,7 @@ public:
 		ACT_MAGIC_FADEIN,	// 魔法陣フェードイン
 		ACT_MAGIC_FADEOUT,	// 魔法陣フェードアウト
 		ACT_PUNCH_GROUND,	// 地面殴り
+		ACT_FIRE_ATTACK,	// 炎攻撃
 		ACT_CLAW_ATTACK,	// ひっかき攻撃
 		ACT_TAIL_ATTACK,	// しっぽ攻撃
 		ACT_FLY_ATTACK,		// 空中攻撃
@@ -142,6 +144,7 @@ public:
 		const bool bLook = true				// テレポート先にカメラを向かせるか
 	);
 	void SetActPunchGround(void);	// 地面殴りの行動設定
+	void SetActFireAttack(void);	// 炎攻撃の行動設定
 	void SetActClawAttack(void);	// ひっかき攻撃の行動設定
 	void SetActTailAttack(void);	// しっぽ攻撃の行動設定
 	void SetActFlyAttack(void);		// 空中攻撃の行動設定
@@ -165,6 +168,7 @@ private:
 	void UpdateMagicFadeIn(const D3DXVECTOR3& rPos);				// 魔法陣フェードイン行動時の更新
 	void UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot);	// 魔法陣フェードアウト行動時の更新
 	void UpdatePunchGround(void);	// 地面殴りの行動時の更新
+	void UpdateFireAttack(void);	// 炎攻撃の行動時の更新
 	void UpdateClawAttack(void);	// ひっかき攻撃の行動時の更新
 	void UpdateTailAttack(void);	// しっぽ攻撃の行動時の更新
 	void UpdateFlyAttack(void);		// 空中攻撃の行動時の更新

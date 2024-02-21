@@ -22,7 +22,7 @@ namespace
 	const float SHADOW_MAX_ALPHA  = 0.35f;	// 影の最大透明度
 
 	const int	DMG_FIRE	= 15;		// 炎のダメージ量
-	const float COLL_RADIUS	= 34.0f;	// 判定の半径
+	const float COLL_RADIUS	= 44.0f;	// 判定の半径
 }
 
 //************************************************************

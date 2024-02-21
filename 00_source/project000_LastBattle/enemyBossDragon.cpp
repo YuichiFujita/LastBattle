@@ -93,7 +93,7 @@ namespace
 // ランダム攻撃のON/OFF
 #if 1
 #define RANDOM_ATTACK_ON	// ランダム攻撃
-#define ATTACK (CEnemyAttack::ATTACK_06)
+#define ATTACK (CEnemyAttack::ATTACK_04)
 #endif
 
 //************************************************************
@@ -472,6 +472,18 @@ void CEnemyBossDragon::SetActPunchGround(void)
 }
 
 //============================================================
+//	炎攻撃の行動設定処理
+//============================================================
+void CEnemyBossDragon::SetActFireAttack(void)
+{
+	// 炎攻撃モーションを設定
+	SetMotion(MOTION_FIRE_ATTACK, BLEND_FRAME);
+
+	// 炎を吐く行動をとらせる
+	m_action = ACT_FIRE_ATTACK;
+}
+
+//============================================================
 //	ひっかき攻撃の行動設定処理
 //============================================================
 void CEnemyBossDragon::SetActClawAttack(void)
@@ -556,6 +568,17 @@ void CEnemyBossDragon::UpdateMotion(void)
 		break;
 
 	case MOTION_CLAW_ATTACK:	// ひっかき攻撃モーション
+
+		if (IsMotionFinish())
+		{ // モーションが終了していた場合
+
+			// 待機モーションに移行
+			SetMotion(MOTION_IDOL, BLEND_FRAME);
+		}
+
+		break;
+
+	case MOTION_FIRE_ATTACK:	// 炎攻撃モーション
 
 		if (IsMotionFinish())
 		{ // モーションが終了していた場合
@@ -822,6 +845,13 @@ void CEnemyBossDragon::UpdateAction(void)
 
 		// 地面殴りの行動時の更新
 		UpdatePunchGround();
+
+		break;
+
+	case ACT_FIRE_ATTACK:	// 炎攻撃
+
+		// 炎攻撃の行動時の更新
+		UpdateFireAttack();
 
 		break;
 
@@ -1106,6 +1136,14 @@ void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 //	地面殴り行動時の更新処理
 //============================================================
 void CEnemyBossDragon::UpdatePunchGround(void)
+{
+
+}
+
+//============================================================
+//	炎攻撃の行動時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateFireAttack(void)
 {
 
 }

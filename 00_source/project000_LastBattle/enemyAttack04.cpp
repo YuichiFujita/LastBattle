@@ -19,10 +19,16 @@
 //************************************************************
 namespace
 {
-	const int	ATK_MOTION_KEY	= 2;	// 攻撃生成キー
-	const int	WAIT_FRAME		= 150;	// 攻撃待機フレーム
+	const int	ATK_MOTION_KEY	= 3;	// 攻撃生成キー
 	const int	NUM_FIRE		= 8;	// 炎の生成数
 	const int	NUM_ATTACK		= 3;	// 攻撃の生成数
+
+	namespace fire
+	{
+		const float	MOVE	= 16.5f;	// 移動量
+		const float	ADDMOVE	= 0.09f;	// 加速量
+		const int	LIFE	= 100;		// 寿命
+	}
 }
 
 //************************************************************
@@ -84,7 +90,6 @@ void CEnemyAttack04::Uninit(void)
 //============================================================
 bool CEnemyAttack04::Update(void)
 {
-	// ポインタを宣言
 	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
 
 	switch (m_state)
@@ -101,33 +106,21 @@ bool CEnemyAttack04::Update(void)
 		if (pBoss->GetAction() == CEnemyBossDragon::ACT_NONE)
 		{ // 何も行動していない場合
 
-			// 攻撃待機の初期化状態にする
-			m_state = STATE_INIT_WAIT;
+			// 炎発射の初期化状態にする
+			m_state = STATE_INIT_FIRE;
 		}
 
 		break;
 	}
-	case STATE_INIT_WAIT:	// 攻撃待機の初期化
+	case STATE_INIT_FIRE:	// 炎発射の初期化
 	{
 		// 炎攻撃の行動を設定
-		//pBoss->SetActFire();
+		pBoss->SetActFireAttack();
 
-		// 攻撃待機状態にする
-		m_state = STATE_WAIT;
+		// 炎発射状態にする
+		m_state = STATE_FIRE;
 
-		// 処理は抜けず攻撃待機の状態更新に移行
-	}
-	case STATE_WAIT:	// 攻撃待機
-	{
-		if (pBoss->GetMotionKey() == 2
-		&&  pBoss->GetMotionKeyCounter() == 1)
-		{ // 手を振り上げたタイミングの場合
-
-			// 炎発射状態にする
-			m_state = STATE_FIRE;
-		}
-
-		break;
+		// 処理は抜けず炎発射の状態更新に移行
 	}
 	case STATE_FIRE:	// 炎発射
 	{
@@ -189,13 +182,10 @@ void CEnemyAttack04::InitTeleport(void)
 //============================================================
 void CEnemyAttack04::UpdateFire(void)
 {
-	// カウンターを加算
-	m_nCounterWait++;
-	if (m_nCounterWait > WAIT_FRAME)
-	{ // 余韻フレームが終了した場合
-
-		// カウンターを初期化
-		m_nCounterWait = 0;
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+	if (pBoss->GetMotionKey() == ATK_MOTION_KEY
+	&&  pBoss->GetMotionKeyCounter() == 1)
+	{ // 口を開けたタイミングの場合
 
 		// 炎の生成
 		CreateFire();
@@ -203,10 +193,16 @@ void CEnemyAttack04::UpdateFire(void)
 		// 攻撃回数を加算
 		m_nCounterNumAtk++;
 		if (m_nCounterNumAtk >= NUM_ATTACK)
-		{ // 攻撃がステージ端に到達した場合
+		{ // 攻撃が生成総数に到達した場合
 
 			// 終了状態にする
 			m_state = STATE_END;
+		}
+		else
+		{ // 攻撃がまだ続く場合
+
+			// 炎発射の初期化状態にする
+			m_state = STATE_INIT_FIRE;
 		}
 	}
 }
@@ -216,20 +212,15 @@ void CEnemyAttack04::UpdateFire(void)
 //============================================================
 void CEnemyAttack04::CreateFire(void)
 {
-	CEnemyBossDragon *pBoss	= GetBoss();	// ボスの情報
-	CMultiModel	*pObjJaw	= pBoss->GetMultiModel(CEnemyBossDragon::MODEL_JAW);	// 顎モデル
-	D3DXMATRIX	mtxJaw		= pObjJaw->GetMtxWorld();				// 顎マトリックス
-	D3DXVECTOR3	posJaw		= useful::GetMatrixPosition(mtxJaw);	// 顎ワールド座標
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+	CMultiModel	*pObjJaw = pBoss->GetMultiModel(CEnemyBossDragon::MODEL_JAW);	// 顎モデル
+	D3DXMATRIX	mtxJaw	 = pObjJaw->GetMtxWorld();				// 顎マトリックス
+	D3DXVECTOR3	posJaw	 = useful::GetMatrixPosition(mtxJaw);	// 顎ワールド座標
 
-	// TODO：モーション変えたら消す
-	posJaw.y = 100.0f;
-
-	int nNumFire = NUM_FIRE + m_nCounterNumAtk * 3;	// 攻撃生成数
-
-	float fFf = D3DX_PI * 0.25f;
-	float fRotRate = (D3DX_PI - fFf * 2.0f) / (nNumFire - 1);	// 攻撃方向の割合
-
-	float fStartRot	= pBoss->GetVec3Rotation().y + (D3DX_PI * 0.5f) + fFf;	// 攻撃生成開始向き
+	int   nNumFire	= NUM_FIRE + m_nCounterNumAtk * 3;	// 攻撃生成数
+	float fSubRad	= D3DX_PI * 0.25f;					// 攻撃方向を狭める半径
+	float fRotRate	= (D3DX_PI - fSubRad * 2.0f) / (nNumFire - 1);				// 攻撃方向の割合
+	float fStartRot	= pBoss->GetVec3Rotation().y + (D3DX_PI * 0.5f) + fSubRad;	// 攻撃生成開始向き
 
 	for (int nCntAttack = 0; nCntAttack < nNumFire; nCntAttack++)
 	{ // 攻撃の生成数分繰り返す
@@ -240,11 +231,11 @@ void CEnemyAttack04::CreateFire(void)
 		// 炎攻撃の生成
 		CAttackMoveFire::Create
 		( // 引数
-			posJaw,		// 生成位置
-			vecMove,	// 移動方向
-			16.5f,		// 移動量
-			0.09f,		// 加速量
-			100			// 寿命
+			posJaw,			// 生成位置
+			vecMove,		// 移動方向
+			fire::MOVE,		// 移動量
+			fire::ADDMOVE,	// 加速量
+			fire::LIFE		// 寿命
 		);
 	}
 }
