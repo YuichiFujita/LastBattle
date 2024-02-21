@@ -29,6 +29,7 @@ namespace player
 //************************************************************
 class CObjectChara;	// オブジェクトキャラクタークラス
 class CMultiModel;	// マルチモデルクラス
+class CBlur;		// ブラークラス
 class CSword;		// 剣クラス
 class CGauge2D;		// ゲージ2Dクラス
 class CShadow;		// 影クラス
@@ -264,6 +265,7 @@ private:
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
 	CSword		*m_apSowrd[player::NUM_SWORD];		// 剣の情報
+	CBlur		*m_apBlur[BODY_MAX];				// ブラーの情報
 	CGauge2D	*m_pLife;			// 体力の情報
 	CShadow		*m_pShadow;			// 影の情報
 	D3DXVECTOR3	m_oldPos;			// 過去位置

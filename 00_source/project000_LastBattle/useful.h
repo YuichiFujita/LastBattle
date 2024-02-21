@@ -279,13 +279,15 @@ namespace easeing
 namespace material
 {
 	// 通常関数
-	D3DXMATERIAL White(void);		// 白マテリアル取得
-	D3DXMATERIAL Red(void);			// 赤マテリアル取得
-	D3DXMATERIAL Green(void);		// 緑マテリアル取得
-	D3DXMATERIAL Blue(void);		// 青マテリアル取得
-	D3DXMATERIAL Yellow(void);		// 黄マテリアル取得
-	D3DXMATERIAL DamageRed(void);	// ダメージ赤マテリアル取得
-	D3DXMATERIAL GlowGreen(void);	// 発光緑マテリアル取得
+	D3DXMATERIAL White(void);		// 白色マテリアル取得
+	D3DXMATERIAL Red(void);			// 赤色マテリアル取得
+	D3DXMATERIAL Green(void);		// 緑色マテリアル取得
+	D3DXMATERIAL Blue(void);		// 青色マテリアル取得
+	D3DXMATERIAL Yellow(void);		// 黄色マテリアル取得
+	D3DXMATERIAL Cyan(void);		// 水色マテリアル取得
+	D3DXMATERIAL DamageRed(void);	// ダメージ赤色マテリアル取得
+	D3DXMATERIAL GlowGreen(void);	// 発光緑色マテリアル取得
+	D3DXMATERIAL GlowCyan(void);	// 発光水色マテリアル取得
 }
 
 //************************************************************

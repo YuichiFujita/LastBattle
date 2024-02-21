@@ -96,6 +96,7 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>precompile.h</PrecompiledHeaderFile>
       <ForcedIncludeFiles>precompile.h</ForcedIncludeFiles>
+      <LanguageStandard>Default</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -156,6 +157,7 @@
     <ClCompile Include="attackMoveFire.cpp" />
     <ClCompile Include="attackParabolaFire.cpp" />
     <ClCompile Include="attackThunder.cpp" />
+    <ClCompile Include="blur.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="cinemaScope.cpp" />
     <ClCompile Include="collision.cpp" />
@@ -269,6 +271,7 @@
     <ClInclude Include="attackMoveFire.h" />
     <ClInclude Include="attackParabolaFire.h" />
     <ClInclude Include="attackThunder.h" />
+    <ClInclude Include="blur.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="cinemaScope.h" />
     <ClInclude Include="collision.h" />

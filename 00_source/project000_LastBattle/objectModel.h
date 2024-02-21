@@ -66,6 +66,7 @@ public:
 	void SetModelData(const CModel::SModel& rModel);	// モデル情報設定
 	CModel::SModel GetModelData(void) const;			// モデル情報取得
 	void SetMtxWorld(const D3DXMATRIX& rMtxWorld);		// マトリックス設定
+	int GetModelID(void) const;							// モデルインデックス取得
 	CRenderState *GetRenderState(void);					// レンダーステート情報取得
 
 protected:

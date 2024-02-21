@@ -21,6 +21,7 @@
 
 #include "objectChara.h"
 #include "multiModel.h"
+#include "blur.h"
 #include "sword.h"
 #include "swordWaveManager.h"
 #include "gauge2D.h"
@@ -120,6 +121,13 @@ namespace
 		const int	MAX_LIFE		= 100;	// 最大表示値
 		const int	CHANGE_FRAME	= 40;	// 表示値変動フレーム
 	}
+
+	// ブラーの情報
+	namespace blurInfo
+	{
+		const float	START_ALPHA	= 0.4f;	// ブラー開始透明度
+		const int	MAX_LENGTH	= 12;	// 保持オブジェクト最大数
+	}
 }
 
 //************************************************************
@@ -158,6 +166,7 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 {
 	// メンバ変数をクリア
 	memset(&m_apSowrd,	0, sizeof(m_apSowrd));	// 剣の情報
+	memset(&m_apBlur,	0, sizeof(m_apBlur));	// ブラーの情報
 	memset(&m_jump,		0, sizeof(m_jump));		// ジャンプの情報
 	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
 	memset(&m_attack,	0, sizeof(m_attack));	// 攻撃の情報
@@ -178,6 +187,7 @@ HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_apSowrd,	0, sizeof(m_apSowrd));	// 剣の情報
+	memset(&m_apBlur,	0, sizeof(m_apBlur));	// ブラーの情報
 	memset(&m_jump,		0, sizeof(m_jump));		// ジャンプの情報
 	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
 	memset(&m_attack,	0, sizeof(m_attack));	// 攻撃の情報
@@ -228,6 +238,27 @@ HRESULT CPlayer::Init(void)
 
 		// 親オブジェクト (持ち手) の設定
 		m_apSowrd[nCntSword]->SetParentObject(GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntSword));
+	}
+
+	for (int nCntBlur = 0; nCntBlur < BODY_MAX; nCntBlur++)
+	{ // ブラーの数分繰り返す
+
+		// ブラーの情報
+		D3DXMATERIAL mat = material::GlowCyan();	// ブラーマテリアル
+		m_apBlur[nCntBlur] = CBlur::Create
+		( // 引数
+			GetObjectChara((CObjectDivChara::EBody)nCntBlur),	// 親オブジェクト
+			mat,					// ブラーマテリアル
+			blurInfo::START_ALPHA,	// ブラー開始透明度
+			blurInfo::MAX_LENGTH	// 保持オブジェクト最大数
+		);
+		if (m_apBlur[nCntBlur] == nullptr)
+		{ // 非使用中の場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
 	}
 
 	// 体力の生成

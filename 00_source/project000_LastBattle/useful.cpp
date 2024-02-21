@@ -273,7 +273,7 @@ D3DXVECTOR3 useful::GetMatrixScaling(const D3DXMATRIX& rMtx)
 //	マテリアル空間
 //************************************************************
 //============================================================
-//	白マテリアル取得
+//	白色マテリアル取得
 //============================================================
 D3DXMATERIAL material::White(void)
 {
@@ -283,7 +283,7 @@ D3DXMATERIAL material::White(void)
 	// マテリアルのメモリクリア
 	ZeroMemory(&mat, sizeof(mat));
 
-	// マテリアルの拡散光を白にする
+	// マテリアルの拡散光を白色にする
 	mat.MatD3D.Diffuse = XCOL_WHITE;
 
 	// マテリアルを返す
@@ -291,7 +291,7 @@ D3DXMATERIAL material::White(void)
 }
 
 //============================================================
-//	赤マテリアル取得
+//	赤色マテリアル取得
 //============================================================
 D3DXMATERIAL material::Red(void)
 {
@@ -301,7 +301,7 @@ D3DXMATERIAL material::Red(void)
 	// マテリアルのメモリクリア
 	ZeroMemory(&mat, sizeof(mat));
 
-	// マテリアルの拡散光を赤にする
+	// マテリアルの拡散光を赤色にする
 	mat.MatD3D.Diffuse = XCOL_RED;
 
 	// マテリアルを返す
@@ -309,7 +309,7 @@ D3DXMATERIAL material::Red(void)
 }
 
 //============================================================
-//	緑マテリアル取得
+//	緑色マテリアル取得
 //============================================================
 D3DXMATERIAL material::Green(void)
 {
@@ -319,7 +319,7 @@ D3DXMATERIAL material::Green(void)
 	// マテリアルのメモリクリア
 	ZeroMemory(&mat, sizeof(mat));
 
-	// マテリアルの拡散光を緑にする
+	// マテリアルの拡散光を緑色にする
 	mat.MatD3D.Diffuse = XCOL_GREEN;
 
 	// マテリアルを返す
@@ -327,7 +327,7 @@ D3DXMATERIAL material::Green(void)
 }
 
 //============================================================
-//	青マテリアル取得
+//	青色マテリアル取得
 //============================================================
 D3DXMATERIAL material::Blue(void)
 {
@@ -337,7 +337,7 @@ D3DXMATERIAL material::Blue(void)
 	// マテリアルのメモリクリア
 	ZeroMemory(&mat, sizeof(mat));
 
-	// マテリアルの拡散光を青にする
+	// マテリアルの拡散光を青色にする
 	mat.MatD3D.Diffuse = XCOL_BLUE;
 
 	// マテリアルを返す
@@ -345,7 +345,7 @@ D3DXMATERIAL material::Blue(void)
 }
 
 //============================================================
-//	黄マテリアル取得
+//	黄色マテリアル取得
 //============================================================
 D3DXMATERIAL material::Yellow(void)
 {
@@ -355,7 +355,7 @@ D3DXMATERIAL material::Yellow(void)
 	// マテリアルのメモリクリア
 	ZeroMemory(&mat, sizeof(mat));
 
-	// マテリアルの拡散光を黄にする
+	// マテリアルの拡散光を黄色にする
 	mat.MatD3D.Diffuse = XCOL_YELLOW;
 
 	// マテリアルを返す
@@ -363,7 +363,25 @@ D3DXMATERIAL material::Yellow(void)
 }
 
 //============================================================
-//	ダメージ赤マテリアル取得
+//	水色マテリアル取得
+//============================================================
+D3DXMATERIAL material::Cyan(void)
+{
+	// 変数を宣言
+	D3DXMATERIAL mat;	// 設定用マテリアル
+
+	// マテリアルのメモリクリア
+	ZeroMemory(&mat, sizeof(mat));
+
+	// マテリアルの拡散光を水色にする
+	mat.MatD3D.Diffuse = XCOL_CYAN;
+
+	// マテリアルを返す
+	return mat;
+}
+
+//============================================================
+//	ダメージ赤色マテリアル取得
 //============================================================
 D3DXMATERIAL material::DamageRed(void)
 {
@@ -384,7 +402,7 @@ D3DXMATERIAL material::DamageRed(void)
 }
 
 //============================================================
-//	発光緑マテリアル取得
+//	発光緑色マテリアル取得
 //============================================================
 D3DXMATERIAL material::GlowGreen(void)
 {
@@ -394,11 +412,32 @@ D3DXMATERIAL material::GlowGreen(void)
 	// マテリアルのメモリクリア
 	ZeroMemory(&mat, sizeof(mat));
 
-	// マテリアルの拡散光を緑にする
+	// マテリアルの拡散光を緑色にする
 	mat.MatD3D.Diffuse = XCOL_GREEN;
 
-	// マテリアルの放射光を緑にする
+	// マテリアルの放射光を緑色にする
 	mat.MatD3D.Emissive = XCOL_GREEN;
+
+	// マテリアルを返す
+	return mat;
+}
+
+//============================================================
+//	発光水色マテリアル取得
+//============================================================
+D3DXMATERIAL material::GlowCyan(void)
+{
+	// 変数を宣言
+	D3DXMATERIAL mat;	// 設定用マテリアル
+
+	// マテリアルのメモリクリア
+	ZeroMemory(&mat, sizeof(mat));
+
+	// マテリアルの拡散光を水色にする
+	mat.MatD3D.Diffuse = XCOL_CYAN;
+
+	// マテリアルの放射光を水色にする
+	mat.MatD3D.Emissive = XCOL_CYAN;
 
 	// マテリアルを返す
 	return mat;
