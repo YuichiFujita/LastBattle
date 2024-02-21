@@ -77,7 +77,9 @@ public:
 		L_MOTION_ATTACK_00,			// 攻撃モーション一段階目
 		L_MOTION_ATTACK_01,			// 攻撃モーション二段階目
 		L_MOTION_ATTACK_02,			// 攻撃モーション三段階目
+		L_MOTION_DODGE,				// 回避モーション
 		L_MOTION_JUMP,				// ジャンプモーション
+		L_MOTION_FALL,				// 落下モーション
 		L_MOTION_LAND,				// 着地モーション
 		L_MOTION_JUMP_ATTACK_00,	// 空中攻撃モーション一段階目
 		L_MOTION_JUMP_ATTACK_01,	// 空中攻撃モーション二段階目
@@ -94,7 +96,9 @@ public:
 		U_MOTION_ATTACK_00,			// 攻撃モーション一段階目
 		U_MOTION_ATTACK_01,			// 攻撃モーション二段階目
 		U_MOTION_ATTACK_02,			// 攻撃モーション三段階目
+		U_MOTION_DODGE,				// 回避モーション
 		U_MOTION_JUMP,				// ジャンプモーション
+		U_MOTION_FALL,				// 落下モーション
 		U_MOTION_LAND,				// 着地モーション
 		U_MOTION_JUMP_ATTACK_00,	// 空中攻撃モーション一段階目
 		U_MOTION_JUMP_ATTACK_01,	// 空中攻撃モーション二段階目
@@ -245,7 +249,7 @@ private:
 	);
 	void UpdateLandAttack(void);	// 地上攻撃操作の更新
 	void UpdateSkyAttack(void);		// 空中攻撃操作の更新
-	void UpdateDodge(const D3DXVECTOR3& rRot, int *pLowMotion, int *pUpMotion);	// 回避操作の更新
+	void UpdateDodge(const D3DXVECTOR3& rRot);			// 回避操作の更新
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
 

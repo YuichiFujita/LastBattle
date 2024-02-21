@@ -974,11 +974,43 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		}
 
 		break;
+
+	case L_MOTION_DODGE:	// 回避モーション：ループOFF
+
+		if (!m_dodge.bDodge)
+		{ // 回避が終了していた場合
+
+			if (nMotion == L_MOTION_IDOL)
+			{ // 待機モーションが設定予定の場合
+
+				if (m_jump.bJump)
+				{ // 空中の場合
+
+					// 落下モーションの設定
+					SetMotion(BODY_LOWER, L_MOTION_FALL);
+				}
+				else
+				{ // 地上の場合
+
+					// 待機モーションの設定
+					SetMotion(BODY_LOWER, L_MOTION_IDOL);
+				}
+			}
+			else
+			{ // 待機モーション以外が設定予定の場合
+
+				// 現在のモーションの設定
+				SetMotion(BODY_LOWER, nMotion);
+			}
+		}
+
+		break;
 	
 	case L_MOTION_JUMP:	// ジャンプモーション：ループOFF
+	case L_MOTION_FALL:	// 落下モーション：ループOFF
 		break;
 
-	case L_MOTION_LAND:	// ジャンプモーション：ループOFF
+	case L_MOTION_LAND:	// 着地モーション：ループOFF
 
 		if (IsMotionFinish(BODY_LOWER))
 		{ // モーションが終了していた場合
@@ -1146,11 +1178,43 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 		}
 
 		break;
+
+	case U_MOTION_DODGE:	// 回避モーション：ループOFF
+
+		if (!m_dodge.bDodge)
+		{ // 回避が終了していた場合
+
+			if (nMotion == U_MOTION_IDOL)
+			{ // 待機モーションが設定予定の場合
+
+				if (m_jump.bJump)
+				{ // 空中の場合
+
+					// 落下モーションの設定
+					SetMotion(BODY_UPPER, U_MOTION_FALL);
+				}
+				else
+				{ // 地上の場合
+
+					// 待機モーションの設定
+					SetMotion(BODY_UPPER, U_MOTION_IDOL);
+				}
+			}
+			else
+			{ // 待機モーション以外が設定予定の場合
+
+				// 現在のモーションの設定
+				SetMotion(BODY_UPPER, nMotion);
+			}
+		}
+
+		break;
 	
 	case U_MOTION_JUMP:	// ジャンプモーション：ループOFF
+	case U_MOTION_FALL:	// 落下モーション：ループOFF
 		break;
 
-	case U_MOTION_LAND:	// ジャンプモーション：ループOFF
+	case U_MOTION_LAND:	// 着地モーション：ループOFF
 
 		if (IsMotionFinish(BODY_UPPER))
 		{ // モーションが終了していた場合
@@ -1382,7 +1446,7 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	UpdateAttack(posPlayer, rotPlayer);
 
 	// 回避操作
-	UpdateDodge(rotPlayer, pLowMotion, pUpMotion);
+	UpdateDodge(rotPlayer);
 
 	// 移動操作・目標向き設定
 	UpdateMove(pLowMotion, pUpMotion);
@@ -1588,7 +1652,7 @@ void CPlayer::UpdateSkyAttack(void)
 //============================================================
 //	回避操作の更新処理
 //============================================================
-void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot, int *pLowMotion, int *pUpMotion)
+void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
 {
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド
 	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ
@@ -1667,6 +1731,10 @@ void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot, int *pLowMotion, int *pUpMoti
 
 				// クールタイムを設定
 				m_dodge.nWaitCounter = DODGE_WAIT_FRAME;
+
+				// 回避モーションを指定
+				SetMotion(BODY_LOWER, L_MOTION_DODGE);
+				SetMotion(BODY_UPPER, U_MOTION_DODGE);
 			}
 		}
 	}
@@ -1804,9 +1872,16 @@ void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 	if (!m_jump.bJump)
 	{ // 空中にいない場合
 
-		if (GetMotionType(BODY_LOWER) == L_MOTION_JUMP
-		&&  GetMotionType(BODY_UPPER) == U_MOTION_JUMP)
-		{ // 上下モーションがジャンプ中の場合
+		// ジャンプモーションのフラグを設定
+		bool bJump = GetMotionType(BODY_LOWER) == L_MOTION_JUMP
+				  && GetMotionType(BODY_UPPER) == U_MOTION_JUMP;
+
+		// 落下モーションのフラグを設定
+		bool bFall = GetMotionType(BODY_LOWER) == L_MOTION_FALL
+				  && GetMotionType(BODY_UPPER) == U_MOTION_FALL;
+
+		if (bJump || bFall)
+		{ // 上下モーションがジャンプ中、または落下中の場合
 
 			// 着地モーションを指定
 			SetMotion(BODY_LOWER, L_MOTION_LAND);
