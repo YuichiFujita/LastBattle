@@ -33,7 +33,11 @@ namespace
 	const float FIND_RADIUS		 = 250.0f;	// プレイヤー検知半径
 	const float TELEPORT_POS_DIS = 125.0f;	// テレポート時のプレイヤー位置から遠ざける距離
 	const float	SCALE_TAIL		 = 1.65f;	// 尻尾の拡大率
-	const int	SCALE_MOTION_KEY = 1;		// 尻尾拡大キー
+	const float	SCALE_COLL_PLUS	 = 2.25f;	// 尻尾の判定の拡大率
+	const int	UP_MOTION_KEY	 = 0;		// 尻尾拡大キー
+	const int	UP_MOTION_CNT	 = 0;		// 尻尾拡大カウンター
+	const int	DOWN_MOTION_KEY	 = 5;		// 尻尾縮小キー
+	const int	DOWN_MOTION_CNT	 = 1;		// 尻尾縮小カウンター
 	const int	DMG_TAIL		 = 15;		// 尻尾のダメージ量
 }
 
@@ -234,12 +238,18 @@ void CEnemyAttack06::UpdateAttack(void)
 		return;
 	}
 
-	// しっぽの巨大化判定
-	if (pBoss->GetMotionKey() == SCALE_MOTION_KEY && pBoss->GetMotionKeyCounter() == 0)
+	// しっぽのサイズ変更判定
+	if (pBoss->GetMotionKey() == UP_MOTION_KEY && pBoss->GetMotionKeyCounter() == UP_MOTION_CNT)
 	{ // しっぽを振り降ろし始めたタイミングの場合
 
 		// しっぽのサイズを拡大
 		pBoss->GetMultiModel(CEnemyBossDragon::MODEL_TAIL_00)->SetVec3Scaling(VEC3_ALL(SCALE_TAIL));
+	}
+	else if (pBoss->GetMotionKey() == DOWN_MOTION_KEY && pBoss->GetMotionKeyCounter() == DOWN_MOTION_CNT)
+	{ // しっぽを振り降ろし始めたタイミングの場合
+
+		// しっぽのサイズを元に戻す
+		pBoss->GetMultiModel(CEnemyBossDragon::MODEL_TAIL_00)->SetVec3Scaling(VEC3_ALL(1.0f));
 	}
 
 	// 攻撃判定
@@ -276,10 +286,10 @@ void CEnemyAttack06::UpdateAttack(void)
 				// 攻撃の当たり判定
 				bool bHit = collision::Circle3D
 				( // 引数
-					posCollEnemy,						// 判定位置
-					posCentPlayer,						// 判定目標位置
-					coll.fRadius * scaleParts.x * 1.5f,	// 判定半径
-					pPlayer->GetRadius()				// 判定目標半径
+					posCollEnemy,	// 判定位置
+					posCentPlayer,	// 判定目標位置
+					coll.fRadius * scaleParts.x * SCALE_COLL_PLUS,	// 判定半径
+					pPlayer->GetRadius()							// 判定目標半径
 				);
 				if (bHit)
 				{ // 攻撃が当たった場合

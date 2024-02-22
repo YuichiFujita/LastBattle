@@ -1304,7 +1304,7 @@ MOTIONSET
 
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
 	NUM_KEY = 5	# キー数
-	COMBO = 23	# キャンセルフレーム
+	COMBO = 23	# コンボフレーム
 	CANCEL = 28	# キャンセルフレーム
 
 	KEYSET

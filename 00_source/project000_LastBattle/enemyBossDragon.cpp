@@ -92,9 +92,9 @@ namespace
 //	マクロ定義
 //************************************************************
 // ランダム攻撃のON/OFF
-#if 1
+#if 0
 #define RANDOM_ATTACK_ON	// ランダム攻撃
-#define ATTACK (CEnemyAttack::ATTACK_04)
+#define ATTACK (CEnemyAttack::ATTACK_06)
 #endif
 
 //************************************************************
