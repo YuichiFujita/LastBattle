@@ -10,6 +10,7 @@
 #include "sword.h"
 #include "manager.h"
 #include "renderer.h"
+#include "sound.h"
 #include "collision.h"
 #include "swordWaveManager.h"
 #include "orbit.h"
@@ -378,7 +379,15 @@ void CSword::CollisionEnemy(void)
 					{ // 攻撃が当たった場合
 
 						// 敵のヒット処理
-						enemy->Hit(DMG_HIT);
+						if (enemy->Hit(DMG_HIT))
+						{ // 敵に攻撃できた場合
+
+							// 剣ヒット音の再生
+							PLAY_SOUND(CSound::LABEL_SE_SWORD_HIT);
+						}
+
+						// 関数を抜ける
+						return;
 					}
 				}
 			}

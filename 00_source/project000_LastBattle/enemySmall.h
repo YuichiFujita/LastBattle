@@ -39,8 +39,8 @@ public:
 	void Update(void) override;		// 更新
 	void Draw(CShader *pShader = nullptr) override;	// 描画
 
-	void Hit(const int nDamage) override;	// ヒット
-	void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
+	bool Hit(const int nDamage) override;	// ヒット
+	bool HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
 
 private:
 	// メンバ変数

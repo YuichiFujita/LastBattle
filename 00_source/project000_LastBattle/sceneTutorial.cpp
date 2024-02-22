@@ -79,7 +79,7 @@ HRESULT CSceneTutorial::Init(void)
 	player->SetSpawn();
 
 	// BGM‚ÌÄ¶
-	GET_MANAGER->GetSound()->Play(CSound::LABEL_BGM_TUTORIAL);
+	PLAY_SOUND(CSound::LABEL_BGM_TUTORIAL);
 
 	// ¬Œ÷‚ğ•Ô‚·
 	return S_OK;

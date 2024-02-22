@@ -67,7 +67,7 @@ HRESULT CSceneRanking::Init(void)
 	GET_MANAGER->GetCamera()->SetDestRotate();	// –Ú•WˆÊ’u‚ğİ’è
 
 	// BGM‚ÌÄ¶
-	GET_MANAGER->GetSound()->Play(CSound::LABEL_BGM_GENERAL);
+	PLAY_SOUND(CSound::LABEL_BGM_GENERAL);
 
 	// ¬Œ÷‚ğ•Ô‚·
 	return S_OK;

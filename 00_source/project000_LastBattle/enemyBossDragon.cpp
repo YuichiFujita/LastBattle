@@ -11,6 +11,7 @@
 #include "enemyAttack.h"
 #include "manager.h"
 #include "renderer.h"
+#include "sound.h"
 #include "stage.h"
 #include "camera.h"
 #include "multiModel.h"
@@ -262,13 +263,13 @@ void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
 //============================================================
 //	ヒット処理
 //============================================================
-void CEnemyBossDragon::Hit(const int nDamage)
+bool CEnemyBossDragon::Hit(const int nDamage)
 {
-	if (IsDeath())						{ return; }	// 死亡済み
-	if (GetState() != STATE_NORMAL)		{ return; }	// 通常状態以外
-	if (m_action == ACT_MAGIC_FADEIN)	{ return; }	// 魔法陣フェードイン中
-	if (m_action == ACT_MAGIC_FADEOUT)	{ return; }	// 魔法陣フェードアウト中
-	if (m_pLife->GetNum() <= 0)			{ return; }	// 体力なし
+	if (IsDeath())						{ return false; }	// 死亡済み
+	if (GetState() != STATE_NORMAL)		{ return false; }	// 通常状態以外
+	if (m_action == ACT_MAGIC_FADEIN)	{ return false; }	// 魔法陣フェードイン中
+	if (m_action == ACT_MAGIC_FADEOUT)	{ return false; }	// 魔法陣フェードアウト中
+	if (m_pLife->GetNum() <= 0)			{ return false; }	// 体力なし
 
 	// 変数を宣言
 	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
@@ -296,12 +297,14 @@ void CEnemyBossDragon::Hit(const int nDamage)
 			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
 		}
 	}
+
+	return true;
 }
 
 //============================================================
 //	ノックバックヒット処理
 //============================================================
-void CEnemyBossDragon::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
+bool CEnemyBossDragon::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
 {
 #if 0
 
@@ -331,9 +334,11 @@ void CEnemyBossDragon::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /
 	SetState(STATE_KNOCK);
 
 	// サウンドの再生
-	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
+	PLAY_SOUND->Play(CSound::LABEL_SE_HIT);	// ヒット音
 
 #endif
+
+	return false;
 }
 
 //============================================================
@@ -683,6 +688,9 @@ void CEnemyBossDragon::UpdateSpawn(void)
 
 		// 咆哮のカメラ揺れ設定
 		GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, HOWL_SWING);
+
+		// ドラゴン咆哮の再生
+		PLAY_SOUND(CSound::LABEL_SE_DRAGON_ROAR);
 	}
 	else if (IsMotionFinish())
 	{ // モーションが終了していた場合

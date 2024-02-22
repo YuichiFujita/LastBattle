@@ -71,7 +71,7 @@ HRESULT CToonShader::Init(void)
 	HRESULT hr;		// 異常終了の確認用
 
 	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイス情報
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイス情報
 	LPD3DXBUFFER pError  = nullptr;	// コンパイルエラー情報
 	LPD3DXEFFECT pEffect = nullptr;	// エフェクト設定用
 
@@ -376,7 +376,7 @@ void CToonShader::SetToonMapTexture(const ETexture texture)
 	{ // インデックスが範囲内の場合
 
 		if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
-		CTexture *pTexture = CManager::GetInstance()->GetTexture();	// テクスチャ情報
+		CTexture *pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
 
 		// エフェクトにトゥーンマップ用テクスチャを設定
 		GetEffect()->SetTexture(m_pTextureToon, pTexture->GetTexture(pTexture->Regist(TEXTURE_FILE[texture])));

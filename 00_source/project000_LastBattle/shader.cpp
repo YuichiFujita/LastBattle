@@ -183,7 +183,7 @@ void CShader::SetMatrix(D3DXMATRIX* pMtxWorld)
 	D3DXMATRIX mtxProjection;	// プロジェクションマトリックス
 
 	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = CManager::GetInstance()->GetRenderer()->GetDevice();	// デバイス情報
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイス情報
 
 	// ビューマトリックス・プロジェクションマトリックスを取得
 	pDevice->GetTransform(D3DTS_VIEW, &mtxView);

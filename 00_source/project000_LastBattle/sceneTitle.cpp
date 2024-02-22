@@ -68,7 +68,7 @@ HRESULT CSceneTitle::Init(void)
 	GET_MANAGER->GetCamera()->SetEnableUpdate(false);			// XV‚ğ’â~
 
 	// BGM‚ÌÄ¶
-	GET_MANAGER->GetSound()->Play(CSound::LABEL_BGM_GENERAL);
+	PLAY_SOUND(CSound::LABEL_BGM_GENERAL);
 
 	// ¬Œ÷‚ğ•Ô‚·
 	return S_OK;

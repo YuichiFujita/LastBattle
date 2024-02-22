@@ -95,6 +95,7 @@ namespace
 	const float	LOOK_REV	= 0.5f;		// 敵の方向を向かせる際の補正係数
 	const int	WALK_SOUND	= 4;		// 歩行の効果音のキータイミング
 
+	const int	MAX_SE_SWING	= 3;		// 風切り効果音の総数
 	const int	DAMAGE_FRAME	= 14;		// ダメージ状態の維持フレーム
 	const int	INVULN_FRAME	= 120;		// 無敵状態の維持フレーム
 	const float	INVULN_ALPHA	= 0.7f;		// 無敵状態の基礎透明度
@@ -624,12 +625,12 @@ void CPlayer::SetEnableDrawUI(const bool bDraw)
 //============================================================
 //	ヒット処理
 //============================================================
-void CPlayer::Hit(const int nDamage)
+bool CPlayer::Hit(const int nDamage)
 {
-	if (IsDeath())				 { return; }	// 死亡済み
-	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
-	if (m_dodge.bDodge)			 { return; }	// 回避中
-	if (m_pLife->GetNum() <= 0)	 { return; }	// 体力なし
+	if (IsDeath())				 { return false; }	// 死亡済み
+	if (m_state != STATE_NORMAL) { return false; }	// 通常状態以外
+	if (m_dodge.bDodge)			 { return false; }	// 回避中
+	if (m_pLife->GetNum() <= 0)	 { return false; }	// 体力なし
 
 	// 変数を宣言
 	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
@@ -657,12 +658,14 @@ void CPlayer::Hit(const int nDamage)
 			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_FAILED);
 		}
 	}
+
+	return true;
 }
 
 //============================================================
 //	ノックバックヒット処理
 //============================================================
-void CPlayer::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
+bool CPlayer::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
 {
 #if 0
 
@@ -692,9 +695,11 @@ void CPlayer::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock
 	SetState(STATE_KNOCK);
 
 	// サウンドの再生
-	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ヒット音
+	PLAY_SOUND->Play(CSound::LABEL_SE_HIT);	// ヒット音
 
 #endif
+
+	return false;
 }
 
 //============================================================
@@ -832,11 +837,23 @@ void CPlayer::SetMotion
 		// 引数インデックスのモーションを設定
 		CObjectDivChara::SetMotion(bodyID, nType, nBlendFrame);
 
-		for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
-		{ // 剣の数分繰り返す
+		if (bodyID == BODY_UPPER)
+		{ // 上半身の場合
 
-			// 剣の状態を設定
-			m_apSowrd[nCntSword]->SetState((IsWeaponDisp(BODY_UPPER)) ? CSword::STATE_NORMAL : CSword::STATE_VANISH);
+			if (IsAttack())
+			{ // 攻撃中の場合
+
+				// 剣風切り音の再生
+				int nRand = rand() % MAX_SE_SWING;	// 風切り音の種類の中からランダムで出す
+				PLAY_SOUND(CSound::LABEL_SE_SWORD_SWING_000 + nRand);
+			}
+
+			for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
+			{ // 剣の数分繰り返す
+
+				// 剣の状態を設定
+				m_apSowrd[nCntSword]->SetState((IsWeaponDisp(BODY_UPPER)) ? CSword::STATE_NORMAL : CSword::STATE_VANISH);
+			}
 		}
 	}
 	else { assert(false); }	// インデックスエラー
@@ -925,7 +942,7 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		{ // 足がついたタイミングの場合
 
 			// 歩行音の再生
-			PLAY_SOUND(CSound::LABEL_SE_WALK_BUILD);
+			PLAY_SOUND(CSound::LABEL_SE_WALK);
 		}
 
 		break;

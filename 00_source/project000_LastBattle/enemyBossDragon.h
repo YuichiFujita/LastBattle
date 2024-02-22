@@ -129,8 +129,8 @@ public:
 	int  GetWaistModelID(void) const override;			// 腰モデルのインデックス取得
 	int  GetHeadModelID(void) const override;			// 頭モデルのインデックス取得
 	void SetEnableDrawUI(const bool bDraw) override;	// UI描画設定
-	void Hit(const int nDamage) override;				// ヒット
-	void HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
+	bool Hit(const int nDamage) override;				// ヒット
+	bool HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
 
 	// メンバ関数
 	void InitNormal(void);	// 通常状態の初期化

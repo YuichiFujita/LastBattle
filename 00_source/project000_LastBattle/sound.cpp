@@ -20,22 +20,17 @@ namespace
 		{ "data\\BGM\\bgm_tutorial.wav", -1 },	// BGM (チュートリアル)
 		{ "data\\BGM\\bgm_game.wav", -1 },		// BGM (ゲーム)
 
-		{ "data\\SE\\select000.wav",  0 },		// 選択操作音00
-		{ "data\\SE\\select001.wav",  0 },		// 選択操作音01
-		{ "data\\SE\\decision000.wav",  0 },	// 決定音00
-		{ "data\\SE\\decision001.wav",  0 },	// 決定音01
-		{ "data\\SE\\decision002.wav",  0 },	// 決定音02
-		{ "data\\SE\\vibration000.wav",  0 },	// スマホバイブ音
-		{ "data\\SE\\message000.wav",  0 },		// メッセージ音
-		{ "data\\SE\\spawn000.wav",  0 },		// 生成音
-		{ "data\\SE\\save000.wav",  0 },		// セーブ音
-		{ "data\\SE\\walk000.wav",  0 },		// 歩行音（ビル）
-		{ "data\\SE\\walk001.wav",  0 },		// 歩行音（障害物）
-		{ "data\\SE\\jump000.wav",  0 },		// ジャンプ
-		{ "data\\SE\\slideing000.wav",  0 },	// スライディング
-		{ "data\\SE\\jumppad000.wav",  0 },		// ジャンプパッド
-		{ "data\\SE\\stick000.wav",  0 },		// くっつき音
-		{ "data\\SE\\hit000.wav",  0 },			// ぶつかり音
+		{ "data\\SE\\select000.wav", 0 },		// 選択操作音00
+		{ "data\\SE\\select001.wav", 0 },		// 選択操作音01
+		{ "data\\SE\\decision000.wav", 0 },		// 決定音00
+		{ "data\\SE\\decision001.wav", 0 },		// 決定音01
+		{ "data\\SE\\decision002.wav", 0 },		// 決定音02
+		{ "data\\SE\\sword_swing000.wav", 0 },	// 剣の風切り音00
+		{ "data\\SE\\sword_swing001.wav", 0 },	// 剣の風切り音01
+		{ "data\\SE\\sword_swing002.wav", 0 },	// 剣の風切り音02
+		{ "data\\SE\\sword_hit000.wav", 0 },	// 剣のヒット音
+		{ "data\\SE\\walk000.wav", 0 },			// 足音
+		{ "data\\SE\\dragon_roar000.wav", 0 },	// ドラゴン咆哮
 	};
 }
 

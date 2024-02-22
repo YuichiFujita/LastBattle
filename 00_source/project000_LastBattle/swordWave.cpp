@@ -8,6 +8,8 @@
 //	インクルードファイル
 //************************************************************
 #include "swordWave.h"
+#include "manager.h"
+#include "sound.h"
 #include "player.h"
 #include "collision.h"
 #include "enemy.h"
@@ -224,7 +226,15 @@ void CSwordWave::CollisionEnemy(void)
 				{ // 攻撃が当たった場合
 
 					// 敵のヒット処理
-					enemy->Hit(DMG_WAVE);
+					if (enemy->Hit(DMG_WAVE))
+					{ // 敵に攻撃できた場合
+
+						// 剣ヒット音の再生
+						PLAY_SOUND(CSound::LABEL_SE_SWORD_HIT);
+					}
+
+					// 関数を抜ける
+					return;
 				}
 			}
 		}

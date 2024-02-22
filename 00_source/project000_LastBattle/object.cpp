@@ -110,28 +110,31 @@ void CObject::Release(void)
 //============================================================
 //	ヒット処理
 //============================================================
-void CObject::Hit(void)
+bool CObject::Hit(void)
 {
 	// 例外処理
 	assert(false);
+	return false;
 }
 
 //============================================================
 //	ダメージヒット処理
 //============================================================
-void CObject::Hit(const int /*nDmg*/)
+bool CObject::Hit(const int /*nDmg*/)
 {
 	// 例外処理
 	assert(false);
+	return false;
 }
 
 //============================================================
 //	ノックバックヒット処理
 //============================================================
-void CObject::HitKnockBack(const int /*nDmg*/, const D3DXVECTOR3& /*vecKnock*/)
+bool CObject::HitKnockBack(const int /*nDmg*/, const D3DXVECTOR3& /*vecKnock*/)
 {
 	// 例外処理
 	assert(false);
+	return false;
 }
 
 //============================================================

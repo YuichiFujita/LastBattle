@@ -176,7 +176,7 @@ void CPause::Update(void)
 			SetEnableDraw(m_bPause);
 
 			// サウンドの再生
-			GET_MANAGER->GetSound()->Play(CSound::LABEL_SE_DECISION_000);	// 決定音00
+			PLAY_SOUND(CSound::LABEL_SE_DECISION_000);	// 決定音00
 		}
 	}
 
@@ -336,7 +336,7 @@ void CPause::Select(void)
 			m_nSelect = (m_nSelect + (SELECT_MAX - 1)) % SELECT_MAX;
 
 			// サウンドの再生
-			GET_MANAGER->GetSound()->Play(CSound::LABEL_SE_SELECT_000);	// 選択操作音00
+			PLAY_SOUND(CSound::LABEL_SE_SELECT_000);	// 選択操作音00
 		}
 		if (pKeyboard->IsTrigger(DIK_S)
 		||  pKeyboard->IsTrigger(DIK_DOWN)
@@ -347,7 +347,7 @@ void CPause::Select(void)
 			m_nSelect = (m_nSelect + 1) % SELECT_MAX;
 
 			// サウンドの再生
-			GET_MANAGER->GetSound()->Play(CSound::LABEL_SE_SELECT_000);	// 選択操作音00
+			PLAY_SOUND(CSound::LABEL_SE_SELECT_000);	// 選択操作音00
 		}
 
 		if (pKeyboard->IsTrigger(DIK_RETURN)  || pKeyboard->IsTrigger(DIK_SPACE)
@@ -356,7 +356,7 @@ void CPause::Select(void)
 		{ // 決定の操作が行われた場合
 
 			// サウンドの再生
-			GET_MANAGER->GetSound()->Play(CSound::LABEL_SE_DECISION_000);	// 決定音00
+			PLAY_SOUND(CSound::LABEL_SE_DECISION_000);	// 決定音00
 
 			switch (m_nSelect)
 			{ // 選択ごとの処理

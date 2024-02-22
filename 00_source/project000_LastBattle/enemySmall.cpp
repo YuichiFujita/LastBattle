@@ -121,11 +121,11 @@ void CEnemySmall::Draw(CShader *pShader)
 //============================================================
 //	ƒqƒbƒgˆ—
 //============================================================
-void CEnemySmall::Hit(const int nDamage)
+bool CEnemySmall::Hit(const int nDamage)
 {
-	if (IsDeath())					{ return; }	// Ž€–SÏ‚Ý
-	if (GetState() != STATE_NORMAL)	{ return; }	// ’Êíó‘ÔˆÈŠO
-	if (m_pLife->GetNum() <= 0)		{ return; }	// ‘Ì—Í‚È‚µ
+	if (IsDeath())					{ return false; }	// Ž€–SÏ‚Ý
+	if (GetState() != STATE_NORMAL)	{ return false; }	// ’Êíó‘ÔˆÈŠO
+	if (m_pLife->GetNum() <= 0)		{ return false; }	// ‘Ì—Í‚È‚µ
 
 	// •Ï”‚ðéŒ¾
 	D3DXVECTOR3 posEnemy = GetVec3Position();	// “GˆÊ’u
@@ -146,12 +146,14 @@ void CEnemySmall::Hit(const int nDamage)
 		// Ž€–Só‘Ô‚É‚·‚é
 		SetState(STATE_DEATH);
 	}
+
+	return true;
 }
 
 //============================================================
 //	ƒmƒbƒNƒoƒbƒNƒqƒbƒgˆ—
 //============================================================
-void CEnemySmall::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
+bool CEnemySmall::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
 {
 #if 0
 
@@ -181,7 +183,9 @@ void CEnemySmall::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecK
 	SetState(STATE_KNOCK);
 
 	// ƒTƒEƒ“ƒh‚ÌÄ¶
-	CManager::GetInstance()->GetSound()->Play(CSound::LABEL_SE_HIT);	// ƒqƒbƒg‰¹
+	PLAY_SOUND->Play(CSound::LABEL_SE_HIT);	// ƒqƒbƒg‰¹
 
 #endif
+
+	return false;
 }
