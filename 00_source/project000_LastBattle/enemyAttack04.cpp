@@ -24,6 +24,9 @@ namespace
 	const int	NUM_FIRE		= 8;		// 炎の生成数
 	const int	NUM_ATTACK		= 3;		// 攻撃の生成数
 	const float FIND_RADIUS		= 250.0f;	// プレイヤー検知半径
+	const int	BACK_ATTACK_END	= 2;		// 攻撃を辞められる攻撃数
+	const float BACK_RADIUS		= 250.0f;	// 視界範囲
+	const float BACK_ANGLE		= HALF_PI;	// 視野角
 
 	namespace fire
 	{
@@ -246,8 +249,19 @@ void CEnemyAttack04::UpdateFire(void)
 		else
 		{ // 攻撃がまだ続く場合
 
-			// 炎発射の初期化状態にする
-			m_state = STATE_INIT_FIRE;
+			if (m_nCounterNumAtk >= BACK_ATTACK_END
+			&&  IsBackPlayer())
+			{ // プレイヤーがボスの背後にいる場合
+
+				// 終了状態にする
+				m_state = STATE_END;
+			}
+			else
+			{ // プレイヤーがボスの背後にいない場合
+
+				// 炎発射の初期化状態にする
+				m_state = STATE_INIT_FIRE;
+			}
 		}
 	}
 }
@@ -283,4 +297,31 @@ void CEnemyAttack04::CreateFire(void)
 			fire::LIFE		// 寿命
 		);
 	}
+}
+
+//============================================================
+//	プレイヤーがボスの背後にいるかの取得処理
+//============================================================
+bool CEnemyAttack04::IsBackPlayer(void)
+{
+	// ポインタを宣言
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();	// プレイヤーの位置
+	D3DXVECTOR3 posBoss = pBoss->GetVec3Position();		// ボスの位置
+	D3DXVECTOR3 rotBoss = pBoss->GetVec3Rotation();		// ボスの向き
+
+	// XZ平面の扇形の当たり判定
+	bool bHit = collision::Sector
+	( // 引数
+		posBoss,		// 判定位置
+		posPlayer,		// 判定目標位置
+		rotBoss.y,		// 判定向き
+		BACK_RADIUS,	// 視界範囲
+		BACK_ANGLE		// 視野角
+	);
+
+	// 判定情報を返す
+	return bHit;
 }

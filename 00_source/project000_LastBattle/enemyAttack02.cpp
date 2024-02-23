@@ -27,7 +27,8 @@ namespace
 	const int	ADD_WAIT_FRAME	= 4;		// 一攻撃ごとの攻撃待機フレーム加算量
 	const int	MUL_NUM_CREATE	= 9;		// 一攻撃ごとの攻撃生成数の乗算量
 	const float	CREATE_LENGTH	= 240.0f;	// 一攻撃ごとの距離の乗算量
-	const float FIND_RADIUS		= 250.0f;	// プレイヤー検知半径
+	const float	FIND_RADIUS		= 250.0f;	// プレイヤー検知半径
+	const float	TELEPORT_POSY	= 170.0f;	// テレポート後のY座標
 }
 
 //************************************************************
@@ -215,6 +216,7 @@ void CEnemyAttack02::InitTeleport(void)
 
 	// 敵の位置を中央に設定
 	posEnemy.x += stageLimit.center.x;
+	posEnemy.y  = TELEPORT_POSY;
 	posEnemy.z += stageLimit.center.z;
 
 	// プレイヤー方向を向かせる
@@ -222,7 +224,7 @@ void CEnemyAttack02::InitTeleport(void)
 	rotEnemy.y = atan2f(vecPlayer.x, vecPlayer.z);
 
 	// ボスをテレポートさせる
-	pBoss->SetTeleport(posEnemy, rotEnemy);
+	pBoss->SetTeleport(posEnemy, rotEnemy, CEnemyBossDragon::MOTION_FLY_IDOL);
 
 	// テレポート状態にする
 	m_state = STATE_TELEPORT;
@@ -233,6 +235,22 @@ void CEnemyAttack02::InitTeleport(void)
 //============================================================
 void CEnemyAttack02::UpdateThunder(void)
 {
+	// ポインタを宣言
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	// プレイヤーからボスへのベクトルを求める
+	D3DXVECTOR3 vecPlayer = pBoss->GetVec3Position() - pPlayer->GetVec3Position();
+
+	// 目標向きを取得
+	D3DXVECTOR3 rotDestEnemy = pBoss->GetDestRotation();
+
+	// 目標向きをプレイヤー方向にする
+	rotDestEnemy.y = atan2f(vecPlayer.x, vecPlayer.z);
+
+	// 目標向きを設定
+	pBoss->SetDestRotation(rotDestEnemy);
+
 	// カウンターを加算
 	m_nCounterWait++;
 	if (m_nCounterWait > m_nWaitFrame)

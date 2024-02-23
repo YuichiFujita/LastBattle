@@ -39,20 +39,20 @@ namespace
 			const D3DXCOLOR COL = XCOL_YELLOW;	// 色
 			const float	HOLE_RADIUS	= 0.0f;		// 穴の半径
 			const float	THICKNESS	= 0.0f;		// 太さ
-			const float	OUTER_PLUSY	= 40.0f;	// 外周のY座標加算量
+			const float	OUTER_PLUSY	= 80.0f;	// 外周のY座標加算量
 			const float	MAX_RADIUS	= 1400.0f;	// 半径の最大成長量
 		}
 
 		namespace big
 		{
-			const CCamera::SSwing	PUNCH_SWING	= CCamera::SSwing(32.0f, 1.5f, 1.5f);	// 地面殴り時のカメラ揺れ (大)
+			const CCamera::SSwing	PUNCH_SWING	= CCamera::SSwing(34.0f, 1.5f, 1.5f);	// 地面殴り時のカメラ揺れ (大)
 			const CWave::SGrow		GROW		= CWave::SGrow(6.5f, 0.0f, 0.0f);		// 成長量
 			const CWave::SGrow		ADDGROW		= CWave::SGrow(0.05f, 0.0f, 0.0f);		// 成長加速量
 
 			const D3DXCOLOR COL = XCOL_YELLOW;	// 色
 			const float	HOLE_RADIUS	= 0.0f;		// 穴の半径
 			const float	THICKNESS	= 0.0f;		// 太さ
-			const float	OUTER_PLUSY	= 80.0f;	// 外周のY座標加算量
+			const float	OUTER_PLUSY	= 140.0f;	// 外周のY座標加算量
 			const float	MAX_RADIUS	= 1600.0f;	// 半径の最大成長量
 		}
 	}

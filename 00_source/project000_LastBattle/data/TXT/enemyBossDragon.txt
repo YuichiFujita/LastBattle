@@ -4402,7 +4402,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 46
+		FRAME = 44
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -0.40 -101.00 58.80
@@ -4558,7 +4558,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 10
+		FRAME = 9
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -0.40 -101.00 58.80
@@ -4714,7 +4714,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 7
+		FRAME = 4
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -14.81 -97.94 44.23
@@ -4870,7 +4870,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 30
+		FRAME = 14
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -28.00 -118.80 0.00
@@ -5026,7 +5026,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 30
+		FRAME = 20
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -28.00 -118.80 0.00
@@ -5182,7 +5182,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 18
+		FRAME = 15
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -22.50 -118.80 0.00
@@ -5338,7 +5338,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 7
+		FRAME = 5
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -31.70 -127.00 -13.00
@@ -5494,7 +5494,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 30
+		FRAME = 24
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -46.80 -127.00 -17.10
@@ -5650,7 +5650,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 30
+		FRAME = 16
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -46.80 -127.00 -17.10
@@ -5806,7 +5806,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 30
+		FRAME = 14
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -39.80 -123.80 -3.90
@@ -5962,7 +5962,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 26
+		FRAME = 28
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -9.30 -96.20 36.20
@@ -6118,7 +6118,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 15
+		FRAME = 13
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -9.30 -96.20 36.20
@@ -6274,7 +6274,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 6
+		FRAME = 4
 		
 		KEY	# ----- [ 0 ] -----
 			POS = -2.30 -104.00 15.90
@@ -6430,7 +6430,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 76
+		FRAME = 85
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 11.90 -145.00 6.60
@@ -6586,7 +6586,7 @@ MOTIONSET
 
 	KEYSET
 	
-		FRAME = 76
+		FRAME = 85
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 11.90 -145.00 6.60

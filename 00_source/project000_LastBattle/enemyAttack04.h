@@ -58,6 +58,7 @@ private:
 	void InitTeleport(void);	// テレポートの初期化
 	void UpdateFire(void);		// 炎発射の更新
 	void CreateFire(void);		// 炎の生成
+	bool IsBackPlayer(void);	// プレイヤーがボスの背後にいるか
 
 	// メンバ変数
 	EState m_state;			// 状態

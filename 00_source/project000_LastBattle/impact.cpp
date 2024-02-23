@@ -18,7 +18,7 @@ namespace
 {
 	const POSGRID2	PART			= POSGRID2(64, 1);	// 分割数
 	const POSGRID2	TEX_PART		= POSGRID2(32, 1);	// テクスチャ分割数
-	const float		SUB_HEIGHT		= 1.0f;				// 衝撃波の外周高さ減算量
+	const float		SUB_HEIGHT		= 2.0f;				// 衝撃波の外周高さ減算量
 	const float		MOVE_TEXU		= 0.05f;			// テクスチャ横移動量
 	const int		DMG_IMPACT		= 15;				// 衝撃波のダメージ量
 	const int		ALPHA_NUMREF	= 10;				// αテストの参照値
@@ -243,8 +243,8 @@ void CImpact::CollisionPlayer(void)
 		float fPlayerHead = posPlayer.y + player->GetHeight();	// プレイヤー頭位置
 		float fImpactDown = posImpact.y;						// 衝撃波下位置
 		float fImpactUp   = posImpact.y + GetOuterPlusY();		// 衝撃波上位置
-		if (fPlayerFoot <= fImpactDown
-		&&  fPlayerHead >= fImpactUp)
+		if (fPlayerFoot <= fImpactUp
+		&&  fPlayerHead >= fImpactDown)
 		{ // 上下の範囲内の場合
 
 			// プレイヤーのヒット処理

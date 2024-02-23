@@ -1538,11 +1538,14 @@ END_MOTIONSET
 # 	地面連続殴りモーション
 #------------------------------------------------------------------------------
 MOTIONSET
+
 	LOOP = 0		# ループするかどうか[0:ループしない / 1:ループする]
-	NUM_KEY = 15		# キー数
+	NUM_KEY = 15	# キー数
 
-	KEYSET			# --- << KEY : 0 / 15 >> ---
-		FRAME = 46
+	KEYSET
+	
+		FRAME = 44
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -0.40 -101.00 58.80
 			ROT = -0.60 -0.31 0.00
@@ -1692,10 +1695,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.06 0.06 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 1 / 15 >> ---
-		FRAME = 10
+	KEYSET
+	
+		FRAME = 9
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -0.40 -101.00 58.80
 			ROT = -0.60 -0.31 0.00
@@ -1845,10 +1851,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.06 0.06 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 2 / 15 >> ---
-		FRAME = 7
+	KEYSET
+	
+		FRAME = 4
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -14.81 -97.94 44.23
 			ROT = -0.84 -0.71 0.47
@@ -1998,10 +2007,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.03 -0.06 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 3 / 15 >> ---
-		FRAME = 30
+	KEYSET
+	
+		FRAME = 14
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -28.00 -118.80 0.00
 			ROT = -0.97 -1.38 1.19
@@ -2151,10 +2163,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.06 0.16 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 4 / 15 >> ---
-		FRAME = 30
+	KEYSET
+	
+		FRAME = 20
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -28.00 -118.80 0.00
 			ROT = -0.97 -1.38 1.19
@@ -2304,10 +2319,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.06 0.16 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 5 / 15 >> ---
-		FRAME = 18
+	KEYSET
+	
+		FRAME = 15
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -22.50 -118.80 0.00
 			ROT = -0.97 -1.10 0.91
@@ -2457,10 +2475,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = -0.07 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 6 / 15 >> ---
-		FRAME = 7
+	KEYSET
+	
+		FRAME = 5
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -31.70 -127.00 -13.00
 			ROT = -0.97 -1.10 1.13
@@ -2610,10 +2631,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = -0.16 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 7 / 15 >> ---
-		FRAME = 30
+	KEYSET
+	
+		FRAME = 20
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -46.80 -127.00 -17.10
 			ROT = -0.97 -0.88 1.13
@@ -2763,10 +2787,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = -0.16 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 8 / 15 >> ---
-		FRAME = 30
+	KEYSET
+	
+		FRAME = 16
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -46.80 -127.00 -17.10
 			ROT = -0.97 -0.88 1.13
@@ -2916,10 +2943,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = -0.16 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 9 / 15 >> ---
-		FRAME = 30
+	KEYSET
+	
+		FRAME = 14
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -39.80 -123.80 -3.90
 			ROT = -0.93 -0.87 0.99
@@ -3069,10 +3099,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = -0.25 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 10 / 15 >> ---
-		FRAME = 26
+	KEYSET
+	
+		FRAME = 24
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -9.30 -96.20 36.20
 			ROT = -0.75 -0.59 0.34
@@ -3222,10 +3255,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = -0.22 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 11 / 15 >> ---
-		FRAME = 15
+	KEYSET
+	
+		FRAME = 13
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -9.30 -96.20 36.20
 			ROT = -0.75 -0.59 0.34
@@ -3375,10 +3411,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = -0.22 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 12 / 15 >> ---
-		FRAME = 6
+	KEYSET
+	
+		FRAME = 4
+		
 		KEY	# ----- [ 0 ] -----
 			POS = -2.30 -104.00 15.90
 			ROT = -1.06 -0.59 0.34
@@ -3528,10 +3567,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.06 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 13 / 15 >> ---
-		FRAME = 47
+	KEYSET
+	
+		FRAME = 56
+		
 		KEY	# ----- [ 0 ] -----
 			POS = 11.90 -145.00 6.60
 			ROT = -1.41 -0.56 0.37
@@ -3681,10 +3723,13 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.06 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 14 / 15 >> ---
-		FRAME = 46
+	KEYSET
+	
+		FRAME = 56
+		
 		KEY	# ----- [ 0 ] -----
 			POS = 11.90 -145.00 6.60
 			ROT = -1.41 -0.56 0.37
@@ -3834,7 +3879,9 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.06 -0.25 0.00
 		END_KEY
+		
 	END_KEYSET
+	
 END_MOTIONSET
 
 #------------------------------------------------------------------------------

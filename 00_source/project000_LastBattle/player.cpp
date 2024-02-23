@@ -1816,34 +1816,31 @@ void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 		}
 	}
 
-	if (m_jump.bJump && m_jump.bInputPress)
-	{ // プレス入力が解除されていない場合
+	if (m_jump.bJump && m_jump.bInputPress
+	&&  GET_INPUTPAD->IsPress(CInputPad::KEY_A))
+	{ // ジャンプ中且つ、プレス入力が解除されていない場合
 
-		if (GET_INPUTPAD->IsPress(CInputPad::KEY_A))
-		{ // プレス中の場合
+		if (m_jump.nPressCounter < PRESS_JUMP_FRAME)
+		{ // 入力可能時間内の場合
 
-			if (m_jump.nPressCounter < PRESS_JUMP_FRAME)
-			{ // 入力可能時間内の場合
+			// ジャンプ高度上昇量の補正係数
+			float fRate = easeing::InQuint((PRESS_JUMP_FRAME - m_jump.nPressCounter), 0, PRESS_JUMP_FRAME);
 
-				// ジャンプ高度上昇量の補正係数
-				float fRate = easeing::InQuint((PRESS_JUMP_FRAME - m_jump.nPressCounter), 0, PRESS_JUMP_FRAME);
+			// 上移動量を与える
+			m_move.y += GRAVITY + PULS_JUMP * fRate;
 
-				// 上移動量を与える
-				m_move.y += GRAVITY + PULS_JUMP * fRate;
-
-				// 入力時間カウンターを加算
-				m_jump.nPressCounter++;
-			}
+			// 入力時間カウンターを加算
+			m_jump.nPressCounter++;
 		}
-		else
-		{ // 入力がなくなった場合
+	}
+	else
+	{ // 入力がなくなった場合
 
-			// 入力時間カウンターを初期化
-			m_jump.nPressCounter = 0;
+		// 入力時間カウンターを初期化
+		m_jump.nPressCounter = 0;
 
-			// プレス入力を解除
-			m_jump.bInputPress = false;
-		}
+		// プレス入力を解除
+		m_jump.bInputPress = false;
 	}
 }
 

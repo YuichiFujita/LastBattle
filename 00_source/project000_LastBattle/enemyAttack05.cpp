@@ -283,15 +283,21 @@ void CEnemyAttack05::UpdateAttack(void)
 		return;
 	}
 
-	// プレイヤーの視認
+	// プレイヤー方向を向かせる
 	if (pBoss->GetMotionKey() < SCALE_MOTION_KEY)
 	{ // 手を振り降ろす前のタイミングの場合
 
-		// プレイヤー方向を向かせる
+		// プレイヤーからボスへのベクトルを求める
 		D3DXVECTOR3 vecPlayer = pBoss->GetVec3Position() - pPlayer->GetVec3Position();
-		D3DXVECTOR3 rotEnemy = pBoss->GetDestRotation();
-		rotEnemy.y = atan2f(vecPlayer.x, vecPlayer.z);
-		pBoss->SetDestRotation(rotEnemy);
+
+		// 目標向きを取得
+		D3DXVECTOR3 rotDestEnemy = pBoss->GetDestRotation();
+
+		// 目標向きをプレイヤー方向にする
+		rotDestEnemy.y = atan2f(vecPlayer.x, vecPlayer.z);
+
+		// 目標向きを設定
+		pBoss->SetDestRotation(rotDestEnemy);
 	}
 
 	// 手の巨大化判定

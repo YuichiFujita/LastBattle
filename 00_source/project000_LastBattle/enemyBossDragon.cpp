@@ -92,9 +92,9 @@ namespace
 //	マクロ定義
 //************************************************************
 // ランダム攻撃のON/OFF
-#if 0
+#if 1
 #define RANDOM_ATTACK_ON	// ランダム攻撃
-#define ATTACK (CEnemyAttack::ATTACK_00)
+#define ATTACK (CEnemyAttack::ATTACK_03)
 #endif
 
 //************************************************************
@@ -966,7 +966,10 @@ bool CEnemyBossDragon::IsFly(void) const
 	// 飛行状況を設定
 	bool bFly = (curMotion == MOTION_FLY_IDOL
 			  || curMotion == MOTION_FLY_ATTACK
-			  || curMotion == MOTION_FLY_RUSH);
+			  || curMotion == MOTION_FLY_RUSH
+			  || m_teleport.motion == MOTION_FLY_IDOL
+			  || m_teleport.motion == MOTION_FLY_ATTACK
+			  || m_teleport.motion == MOTION_FLY_RUSH);
 
 	// 飛行状況を返す
 	return bFly;
