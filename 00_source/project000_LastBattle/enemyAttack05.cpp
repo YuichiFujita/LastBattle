@@ -31,6 +31,7 @@ namespace
 	const float TELEPORT_POS_DIS = 125.0f;	// テレポート時のプレイヤー位置から遠ざける距離
 	const float	SCALE_LEFT_ARM	 = 1.25f;	// 左腕の拡大率
 	const float	SCALE_LEFT_HAND	 = 1.4f;	// 左手の拡大率
+	const float	SCALE_COLL_PLUS	 = 2.25f;	// 判定の拡大率
 	const int	SCALE_MOTION_KEY = 1;		// 左腕拡大キー
 	const int	DMG_CLAW		 = 15;		// 爪のダメージ量
 }
@@ -282,6 +283,17 @@ void CEnemyAttack05::UpdateAttack(void)
 		return;
 	}
 
+	// プレイヤーの視認
+	if (pBoss->GetMotionKey() < SCALE_MOTION_KEY)
+	{ // 手を振り降ろす前のタイミングの場合
+
+		// プレイヤー方向を向かせる
+		D3DXVECTOR3 vecPlayer = pBoss->GetVec3Position() - pPlayer->GetVec3Position();
+		D3DXVECTOR3 rotEnemy = pBoss->GetDestRotation();
+		rotEnemy.y = atan2f(vecPlayer.x, vecPlayer.z);
+		pBoss->SetDestRotation(rotEnemy);
+	}
+
 	// 手の巨大化判定
 	if (pBoss->GetMotionKey() == SCALE_MOTION_KEY && pBoss->GetMotionKeyCounter() == 0)
 	{ // 手を振り降ろし始めたタイミングの場合
@@ -325,10 +337,10 @@ void CEnemyAttack05::UpdateAttack(void)
 				// 攻撃の当たり判定
 				bool bHit = collision::Circle3D
 				( // 引数
-					posCollEnemy,					// 判定位置
-					posCentPlayer,					// 判定目標位置
-					coll.fRadius * scaleParts.x,	// 判定半径
-					pPlayer->GetRadius()			// 判定目標半径
+					posCollEnemy,	// 判定位置
+					posCentPlayer,	// 判定目標位置
+					coll.fRadius * scaleParts.x * SCALE_COLL_PLUS,	// 判定半径
+					pPlayer->GetRadius()							// 判定目標半径
 				);
 				if (bHit)
 				{ // 攻撃が当たった場合

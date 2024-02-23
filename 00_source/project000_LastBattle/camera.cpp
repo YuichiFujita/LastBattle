@@ -63,13 +63,14 @@ namespace
 		const float	STICK_REV	= 0.00000225f;	// カメラ操作スティックの傾き量の補正係数
 
 		const float	ROTX_REV	= 0.5f;		// カメラピッチ回転の補正係数
-		const float REV_ROT		= 1.0f;		// カメラ向きの補正係数
-		const float INIT_DIS	= 400.0f;	// 追従カメラの距離
-		const float INIT_ROTX	= 1.8f;		// 追従カメラの向きX初期値
+		const float	REV_ROT		= 1.0f;		// カメラ向きの補正係数
+		const float	INIT_DIS	= 550.0f;	// 追従カメラの距離
+		const float	INIT_ROTX	= 1.8f;		// 追従カメラの向きX初期値
 
-		const int	LOOK_BOSS_FRAME	= 25;				// 追従カメラのボス視認速度
-		const float LIMIT_ROT_HIGH	= D3DX_PI - 1.0f;	// X上回転の制限値
-		const float LIMIT_ROT_LOW	= 1.0f;				// X下回転の制限値
+		const int	LOOK_BOSS_FRAME	= 18;				// 追従カメラのボス視認速度
+		const float	LIMIT_ROT_HIGH	= D3DX_PI - 0.5f;	// X上回転の制限値
+		const float	LIMIT_ROT_LOW	= 1.1f;				// X下回転の制限値
+		const float	MAX_SUB_DIS		= 1500.0f;			// 下方向カメラの距離減算量
 	}
 
 	// プレイヤー注目情報
@@ -403,6 +404,12 @@ void CCamera::SetDestFollow(void)
 	//----------------------------------------------------
 	// 目標距離を設定
 	m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = follow::INIT_DIS;
+	if (m_aCamera[TYPE_MAIN].rot.x < HALF_PI)
+	{ // 下から向き始めた場合
+
+		// 地面を貫通しないよう補正
+		m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis -= (follow::MAX_SUB_DIS / HALF_PI) * (HALF_PI - m_aCamera[TYPE_MAIN].rot.x);
+	}
 
 	//----------------------------------------------------
 	//	位置の更新
@@ -777,6 +784,12 @@ void CCamera::Follow(void)
 	//----------------------------------------------------
 	// 目標距離を設定
 	m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = follow::INIT_DIS;
+	if (m_aCamera[TYPE_MAIN].rot.x < HALF_PI)
+	{ // 下から向き始めた場合
+
+		// 地面を貫通しないよう補正
+		m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis -= (follow::MAX_SUB_DIS / HALF_PI) * (HALF_PI - m_aCamera[TYPE_MAIN].rot.x);
+	}
 
 	//----------------------------------------------------
 	//	位置の更新

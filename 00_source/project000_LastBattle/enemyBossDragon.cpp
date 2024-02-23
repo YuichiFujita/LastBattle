@@ -94,7 +94,7 @@ namespace
 // ランダム攻撃のON/OFF
 #if 0
 #define RANDOM_ATTACK_ON	// ランダム攻撃
-#define ATTACK (CEnemyAttack::ATTACK_06)
+#define ATTACK (CEnemyAttack::ATTACK_00)
 #endif
 
 //************************************************************
@@ -667,6 +667,7 @@ void CEnemyBossDragon::SetSpawn(void)
 
 	// 向きを反映
 	SetVec3Rotation(rotEnemy);
+	SetDestRotation(rotEnemy);
 
 	// カメラをボス注目状態に設定
 	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_LOOK_BOSS);
@@ -680,7 +681,6 @@ void CEnemyBossDragon::UpdateSpawn(void)
 {
 	// 変数を宣言
 	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
-	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
 	assert(GetMotionType() == MOTION_HOWL);		// モーションが咆哮中じゃない
 
 	if (GetMotionKey() == LAND_MOTION_KEY && GetMotionKeyCounter() == 0)
@@ -725,9 +725,6 @@ void CEnemyBossDragon::UpdateSpawn(void)
 
 	// 位置を反映
 	SetVec3Position(posEnemy);
-
-	// 向きを反映
-	SetVec3Rotation(rotEnemy);
 }
 
 //============================================================
@@ -861,8 +858,9 @@ void CEnemyBossDragon::UpdateAttack(void)
 void CEnemyBossDragon::UpdateAction(void)
 {
 	// 変数を宣言
-	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
-	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
+	D3DXVECTOR3 posEnemy = GetVec3Position();		// 敵位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();		// 敵向き
+	D3DXVECTOR3 rotDestEnemy = GetDestRotation();	// 敵目標向き
 
 	// 過去位置の更新
 	UpdateOldPosition();
@@ -889,7 +887,7 @@ void CEnemyBossDragon::UpdateAction(void)
 	case ACT_MAGIC_FADEOUT:	// 魔法陣フェードアウト
 
 		// 魔法陣フェードアウト行動時の更新
-		UpdateMagicFadeOut(&posEnemy, &rotEnemy);
+		UpdateMagicFadeOut(&posEnemy, &rotEnemy, &rotDestEnemy);
 
 		break;
 
@@ -939,6 +937,9 @@ void CEnemyBossDragon::UpdateAction(void)
 	// 着地判定
 	UpdateLanding(&posEnemy);
 
+	// 向き更新
+	UpdateRotation(&rotEnemy, &rotDestEnemy);
+
 	// 位置範囲外の補正
 	LimitPosition(&posEnemy);
 
@@ -947,6 +948,9 @@ void CEnemyBossDragon::UpdateAction(void)
 
 	// 向きを反映
 	SetVec3Rotation(rotEnemy);
+
+	// 目標向きを反映
+	SetDestRotation(rotDestEnemy);
 }
 
 //============================================================
@@ -1069,7 +1073,7 @@ void CEnemyBossDragon::UpdateMagicFadeIn(const D3DXVECTOR3& rPos)
 //============================================================
 //	魔法陣フェードアウト行動時の更新処理
 //============================================================
-void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
+void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, D3DXVECTOR3 *pDestRot)
 {
 	// 変数を宣言
 	float fMagicPosY = m_pMagicCircle->GetVec3Position().y;	// 魔法陣の位置
@@ -1086,9 +1090,10 @@ void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot)
 			SetMotion(m_teleport.motion, BLEND_FRAME);
 		}
 
-		// ボスの位置・向きをテレポート先に変更
+		// ボスの位置・向き・目標向きをテレポート先に変更
 		*pPos = m_teleport.pos;
 		*pRot = m_teleport.rot;
+		*pDestRot = m_teleport.rot;
 
 		// 位置範囲外の補正
 		LimitPosition(pPos);

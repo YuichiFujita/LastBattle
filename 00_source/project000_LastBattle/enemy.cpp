@@ -31,6 +31,8 @@ namespace
 
 	const int	PRIORITY	= 3;		// 敵の優先順位
 	const float	GRAVITY		= 1.0f;		// 重力
+	const float	REV_ROTA	= 0.15f;	// 向き回転の補正係数
+	const float	MAX_ROTA	= 0.1f;		// 向き回転の最高速度
 	const float	JUMP_REV	= 0.16f;	// 空中の移動量の減衰係数
 	const float	LAND_REV	= 0.16f;	// 地上の移動量の減衰係数
 	const float	ADD_ALPHA	= 0.03f;	// 透明度の加算量
@@ -73,6 +75,7 @@ CEnemy::CEnemy(const EType type) : CObjectChara(CObject::LABEL_ENEMY, CObject::D
 	m_parts			(m_aPartsInfo[type]),	// パーツ定数
 	m_motion		(m_aMotionInfo[type]),	// モーション定数
 	m_oldPos		(VEC3_ZERO),			// 過去位置
+	m_destRot		(VEC3_ZERO),			// 目標向き
 	m_move			(VEC3_ZERO),			// 移動量
 	m_state			(STATE_NONE),			// 状態
 	m_fSinAlpha		(0.0f),					// 透明向き
@@ -97,6 +100,7 @@ HRESULT CEnemy::Init(void)
 {
 	// メンバ変数を初期化
 	m_oldPos	= VEC3_ZERO;	// 過去位置
+	m_destRot	= VEC3_ZERO;	// 目標向き
 	m_move		= VEC3_ZERO;	// 移動量
 	m_state		= STATE_NONE;	// 状態
 	m_fSinAlpha = 0.0f;			// 透明向き
@@ -414,12 +418,58 @@ void CEnemy::UpdateOldPosition(void)
 }
 
 //============================================================
+//	向きの更新処理
+//============================================================
+void CEnemy::UpdateRotation(D3DXVECTOR3 *pRot, D3DXVECTOR3 *pDestRot)
+{
+	// 変数を宣言
+	float fDiffRot = 0.0f;	// 差分向き
+
+	// 目標向きの正規化
+	useful::NormalizeRot(pDestRot->y);
+
+	// 目標向きまでの差分を計算
+	fDiffRot = pDestRot->y - pRot->y;
+
+	// 差分向きの正規化
+	useful::NormalizeRot(fDiffRot);
+
+	// 向き回転量を求める
+	float fMoveRot = fDiffRot * REV_ROTA;
+	useful::LimitNum(fMoveRot, -MAX_ROTA, MAX_ROTA);	// 回転量を補正
+
+	// 向きの更新
+	pRot->y += fMoveRot;
+
+	// 向きの正規化
+	useful::NormalizeRot(pRot->y);
+}
+
+//============================================================
 //	過去位置取得処理
 //============================================================
 D3DXVECTOR3 CEnemy::GetOldPosition(void) const
 {
 	// 過去位置を返す
 	return m_oldPos;
+}
+
+//============================================================
+//	目標向きの設定処理
+//============================================================
+void CEnemy::SetDestRotation(const D3DXVECTOR3& rRot)
+{
+	// 目標向きを設定
+	m_destRot = rRot;
+}
+
+//============================================================
+//	目標向き取得処理
+//============================================================
+D3DXVECTOR3 CEnemy::GetDestRotation(void) const
+{
+	// 目標向きを返す
+	return m_destRot;
 }
 
 //============================================================

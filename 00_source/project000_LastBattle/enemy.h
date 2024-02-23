@@ -125,6 +125,8 @@ public:
 	// メンバ関数
 	void UpdateOldPosition(void);					// 過去位置更新
 	D3DXVECTOR3 GetOldPosition(void) const;			// 過去位置取得
+	void SetDestRotation(const D3DXVECTOR3& rRot);	// 目標向き設定
+	D3DXVECTOR3 GetDestRotation(void) const;		// 目標向き取得
 	void SetMovePosition(const D3DXVECTOR3& rMove);	// 位置移動量設定
 	D3DXVECTOR3 GetMovePosition(void) const;		// 位置移動量取得
 	SStatusInfo GetStatusInfo(void) const;			// ステータス情報取得
@@ -157,6 +159,11 @@ protected:
 	void UpdateGravity(void);				// 重力の更新
 	bool UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
 	void UpdatePosition(D3DXVECTOR3 *pPos);	// 位置の更新
+	void UpdateRotation	// 向きの更新
+	( // 引数
+		D3DXVECTOR3 *pRot,		// 向き
+		D3DXVECTOR3 *pDestRot	// 目標向き
+	);
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
 
@@ -175,6 +182,7 @@ private:
 	// メンバ変数
 	CListManager<CEnemy>::AIterator m_iterator;	// イテレーター
 	D3DXVECTOR3	m_oldPos;			// 過去位置
+	D3DXVECTOR3	m_destRot;			// 目標向き
 	D3DXVECTOR3	m_move;				// 移動量
 	EState	m_state;				// 状態
 	int		m_nCounterState;		// 状態管理カウンター

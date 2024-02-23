@@ -167,8 +167,13 @@ private:
 	void UpdateAction(void);	// 行動更新
 	bool IsFly(void) const;		// 飛行フラグの取得
 
-	void UpdateMagicFadeIn(const D3DXVECTOR3& rPos);				// 魔法陣フェードイン行動時の更新
-	void UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot);	// 魔法陣フェードアウト行動時の更新
+	void UpdateMagicFadeIn(const D3DXVECTOR3& rPos);	// 魔法陣フェードイン行動時の更新
+	void UpdateMagicFadeOut	// 魔法陣フェードアウト行動時の更新
+	( // 引数
+		D3DXVECTOR3 *pPos,		// 位置
+		D3DXVECTOR3 *pRot,		// 向き
+		D3DXVECTOR3 *pDestRot	// 目標向き
+	);
 	void UpdatePunchGround(void);	// 地面殴りの行動時の更新
 	void UpdateFireAttack(void);	// 炎攻撃の行動時の更新
 	void UpdateClawAttack(void);	// ひっかき攻撃の行動時の更新
