@@ -141,6 +141,7 @@ protected:
 	// 仮想関数
 	virtual void SetSpawn(void);		// スポーン状態の設定
 	virtual void SetInvuln(void);		// 無敵状態の設定
+	virtual void SetDeath(void);		// 死亡状態の設定
 	virtual void UpdateNone(void);		// なにもしない状態時の更新
 	virtual void UpdateSpawn(void);		// スポーン状態時の更新
 	virtual void UpdateNormal(void);	// 通常状態時の更新

@@ -79,6 +79,7 @@ public:
 		MOTION_TAIL_ATTACK,		// しっぽ攻撃モーション
 		MOTION_FLY_ATTACK,		// 空中攻撃モーション
 		MOTION_FLY_RUSH,		// 空中突進攻撃モーション
+		MOTION_DEATH,			// 死亡モーション
 		MOTION_MAX				// この列挙型の総数
 	};
 
@@ -156,6 +157,7 @@ private:
 	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
 	void UpdateMotion(void) override;	// モーションの更新
 	void SetSpawn(void) override;		// スポーン状態の設定
+	void SetDeath(void) override;		// 死亡状態の設定
 	void UpdateSpawn(void) override;	// スポーン状態時の更新
 	void UpdateNormal(void) override;	// 通常状態時の更新
 	void UpdateDeath(void) override;	// 死亡状態時の更新

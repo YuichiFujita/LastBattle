@@ -20,6 +20,9 @@
 #include "magicCircle.h"
 #include "retentionManager.h"
 #include "random.h"
+#include "hitStop.h"
+#include "flash.h"
+#include "timerManager.h"
 
 //************************************************************
 //	定数宣言
@@ -60,8 +63,9 @@ namespace
 		"data\\MODEL\\ENEMY\\BOSS_DRAGON\\29_tail_05.x",	// 尻尾05
 	};
 
-	const CCamera::SSwing LAND_SWING = CCamera::SSwing(10.0f, 1.5f, 0.12f);		// 着地のカメラ揺れ
-	const CCamera::SSwing HOWL_SWING = CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
+	const CCamera::SSwing LAND_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 着地のカメラ揺れ
+	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
+	const CCamera::SSwing DEATH_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 死亡のカメラ揺れ
 	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
@@ -295,13 +299,6 @@ bool CEnemyBossDragon::Hit(const int nDamage)
 
 		// 死亡状態にする
 		SetState(STATE_DEATH);
-
-		if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
-		{ // ゲーム画面の場合
-
-			// リザルト画面に遷移させる
-			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
-		}
 	}
 
 	return true;
@@ -565,6 +562,7 @@ void CEnemyBossDragon::UpdateMotion(void)
 	case MOTION_HOWL:			// 咆哮モーション
 	case MOTION_IDOL:			// 待機モーション
 	case MOTION_FLY_IDOL:		// 空中待機モーション
+	case MOTION_DEATH:			// 死亡モーション
 		break;
 
 	case MOTION_PUNCH_GROUND:	// 地面殴りモーション
@@ -675,6 +673,41 @@ void CEnemyBossDragon::SetSpawn(void)
 }
 
 //============================================================
+//	死亡状態の設定処理
+//============================================================
+void CEnemyBossDragon::SetDeath(void)
+{
+	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
+	CHitStop *pHitStop	= CSceneGame::GetHitStop();	// ヒットストップ情報
+	CFlash	*pFlash		= CSceneGame::GetFlash();	// フラッシュ情報
+	CCamera	*pCamera	= GET_MANAGER->GetCamera();	// カメラ情報
+
+	// 死亡状態の設定
+	CEnemy::SetDeath();
+
+	// 透明度を不透明に再設定
+	SetAlpha(1.0f);
+
+	// 自動描画をONにする
+	SetEnableDraw(true);
+
+	// 死亡モーションを設定
+	SetMotion(MOTION_DEATH);
+
+	// ヒットストップさせる
+	pHitStop->SetStop(true);
+
+	// フラッシュを設定
+	pFlash->Set(0.35f, 0.025f);
+
+	// カメラ揺れを設定
+	pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_SWING);
+
+	// タイマーの計測終了
+	pTimer->End();
+}
+
+//============================================================
 //	スポーン状態時の更新処理
 //============================================================
 void CEnemyBossDragon::UpdateSpawn(void)
@@ -744,7 +777,12 @@ void CEnemyBossDragon::UpdateNormal(void)
 //============================================================
 void CEnemyBossDragon::UpdateDeath(void)
 {
+	if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
+	{ // ゲーム画面の場合
 
+		// リザルト画面に遷移させる
+		//CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
+	}
 }
 
 //============================================================

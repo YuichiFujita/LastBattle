@@ -93,7 +93,6 @@ bool CEnemyAttack03::Update(void)
 {
 	// ポインタを宣言
 	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
-	CStage *pStage = CScene::GetStage();	// ステージの情報
 
 	switch (m_state)
 	{ // 状態ごとの処理

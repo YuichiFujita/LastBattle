@@ -228,21 +228,24 @@ void CEnemy::SetState(const int nState)
 	case STATE_NONE:	// なにもしない状態
 	case STATE_NORMAL:	// 通常状態
 	case STATE_DAMAGE:	// ダメージ状態
-	case STATE_DEATH:	// 死亡状態
 		break;
 
 	case STATE_SPAWN:	// スポーン状態
 
 		// スポーン状態の設定
 		SetSpawn();
-
 		break;
 
 	case STATE_INVULN:	// 無敵状態
 
 		// 無敵状態の設定
 		SetInvuln();
+		break;
 
+	case STATE_DEATH:	// 死亡状態
+
+		// 死亡状態の設定
+		SetDeath();
 		break;
 
 	default:	// 例外処理
@@ -557,6 +560,14 @@ void CEnemy::SetInvuln(void)
 
 	// 無敵の基礎透明度を設定
 	SetAlpha(INVULN_ALPHA);
+}
+
+//============================================================
+//	死亡状態の設定処理
+//============================================================
+void CEnemy::SetDeath(void)
+{
+
 }
 
 //============================================================

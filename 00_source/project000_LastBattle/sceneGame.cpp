@@ -227,7 +227,7 @@ void CSceneGame::Update(void)
 	assert(m_pFlash != nullptr);
 	m_pFlash->Update();
 
-	if (m_pGameManager->GetState() == CGameManager::STATE_NORMAL)
+	if (m_pGameManager->GetState() == CGameManager::STATE_NORMAL && !m_pHitStop->IsStop())
 	{ // ゲームが通常状態の場合
 
 		// ポーズの更新
