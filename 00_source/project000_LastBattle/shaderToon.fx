@@ -127,6 +127,9 @@ void PS
 		outCol *= tex2D(texObject, inVertex.tex);
 	}
 
+	// ピクセル透明度を拡散光のものにする
+	outCol.a = g_diffuse.a;
+
 	// ピクセルの縁取り参照値を設定
 	outRef = float4(g_fRefEdge, g_fRefEdge, g_fRefEdge, 1.0f);
 }

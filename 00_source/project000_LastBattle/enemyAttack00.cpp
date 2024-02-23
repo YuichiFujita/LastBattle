@@ -22,10 +22,11 @@
 //************************************************************
 namespace
 {
-	const int ATK_1ST_MOTION_KEY	= 3;	// 攻撃生成キー:一段階目
-	const int ATK_2ND_MOTION_KEY	= 7;	// 攻撃生成キー:二段階目
-	const int ATK_3RD_MOTION_KEY	= 13;	// 攻撃生成キー:三段階目
-	const int ATTACK_WAIT_FRAME		= 0;	// 攻撃後の硬直フレーム
+	const int	ATK_1ST_MOTION_KEY	= 3;		// 攻撃生成キー:一段階目
+	const int	ATK_2ND_MOTION_KEY	= 7;		// 攻撃生成キー:二段階目
+	const int	ATK_3RD_MOTION_KEY	= 13;		// 攻撃生成キー:三段階目
+	const int	ATTACK_WAIT_FRAME	= 0;		// 攻撃後の硬直フレーム
+	const float	FIND_RADIUS			= 500.0f;	// プレイヤー検知半径
 
 	namespace impact
 	{
@@ -182,6 +183,49 @@ bool CEnemyAttack00::Update(void)
 
 	// 攻撃非終了を返す
 	return false;
+}
+
+//============================================================
+//	攻撃選択肢の要素設定処理
+//============================================================
+void CEnemyAttack00::SetRandomArray
+(
+	CRandom<EAttack> *pRandom,	// ランダム攻撃クラス
+	EAttack /*oldAtk*/,			// 前回の攻撃
+	int /*nSameAct*/			// 同じ行動の連続数
+)
+{
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	// XZ平面の円の当たり判定
+	bool bHit = collision::Circle2D
+	( // 引数
+		pPlayer->GetVec3Position(),	// 判定位置
+		pBoss->GetVec3Position(),	// 判定目標位置
+		pPlayer->GetRadius(),		// 判定半径
+		FIND_RADIUS					// 判定目標半径
+	);
+	if (bHit)
+	{ // プレイヤーとの距離が近い場合
+
+		// 近距離攻撃を追加
+		pRandom->AddList(ATTACK_05, 5);	// 攻撃05(ひっかき攻撃)
+		pRandom->AddList(ATTACK_06, 2);	// 攻撃06(しっぽ攻撃)
+
+		// 遠距離攻撃を追加
+		pRandom->AddList(ATTACK_02, 1);	// 攻撃02(雷外周向かい生成)
+		pRandom->AddList(ATTACK_03, 1);	// 攻撃03(雷プレイヤー位置生成)
+		pRandom->AddList(ATTACK_04, 1);	// 攻撃04(炎外周吐き出し)
+	}
+	else
+	{ // プレイヤーとの距離が遠い場合
+
+		// 遠距離攻撃を追加
+		pRandom->AddList(ATTACK_02, 1);	// 攻撃02(雷外周向かい生成)
+		pRandom->AddList(ATTACK_03, 1);	// 攻撃03(雷プレイヤー位置生成)
+		pRandom->AddList(ATTACK_04, 1);	// 攻撃04(炎外周吐き出し)
+	}
 }
 
 //============================================================

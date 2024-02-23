@@ -148,6 +148,55 @@ bool CEnemyAttack05::Update(void)
 }
 
 //============================================================
+//	攻撃選択肢の要素設定処理
+//============================================================
+void CEnemyAttack05::SetRandomArray
+(
+	CRandom<EAttack> *pRandom,	// ランダム攻撃クラス
+	EAttack oldAtk,				// 前回の攻撃
+	int nSameAct				// 同じ行動の連続数
+)
+{
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	// XZ平面の円の当たり判定
+	bool bHit = collision::Circle2D
+	( // 引数
+		pPlayer->GetVec3Position(),	// 判定位置
+		pBoss->GetVec3Position(),	// 判定目標位置
+		pPlayer->GetRadius(),		// 判定半径
+		FIND_RADIUS					// 判定目標半径
+	);
+	if (bHit)
+	{ // プレイヤーとの距離が近い場合
+
+		// 同一攻撃を追加
+		if (oldAtk == ATTACK_05)
+		{ // 前回攻撃が自分と同一の場合
+
+			pRandom->AddList(ATTACK_05, 5 - nSameAct);	// 攻撃05(ひっかき攻撃)
+		}
+
+		// 近距離攻撃を追加
+		pRandom->AddList(ATTACK_06, 2);	// 攻撃06(しっぽ攻撃)
+
+		// 遠距離攻撃を追加
+		pRandom->AddList(ATTACK_02, 1);	// 攻撃02(雷外周向かい生成)
+		pRandom->AddList(ATTACK_03, 1);	// 攻撃03(雷プレイヤー位置生成)
+		pRandom->AddList(ATTACK_04, 1);	// 攻撃04(炎外周吐き出し)
+	}
+	else
+	{ // プレイヤーとの距離が遠い場合
+
+		// 遠距離攻撃を追加
+		pRandom->AddList(ATTACK_02, 1);	// 攻撃02(雷外周向かい生成)
+		pRandom->AddList(ATTACK_03, 1);	// 攻撃03(雷プレイヤー位置生成)
+		pRandom->AddList(ATTACK_04, 1);	// 攻撃04(炎外周吐き出し)
+	}
+}
+
+//============================================================
 //	テレポートするかの設定処理
 //============================================================
 void CEnemyAttack05::SetEnableTeleport(void)

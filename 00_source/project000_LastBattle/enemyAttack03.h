@@ -48,6 +48,12 @@ public:
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	bool Update(void) override;		// 更新
+	void SetRandomArray				// 攻撃選択肢の要素設定
+	( // 引数
+		CRandom<EAttack> *pRandom,	// ランダム攻撃クラス
+		EAttack oldAtk,				// 前回の攻撃
+		int nSameAct				// 同じ行動の連続数
+	) override;
 
 private:
 	// メンバ変数

@@ -8,7 +8,6 @@
 //	インクルードファイル
 //************************************************************
 #include "enemyBossDragon.h"
-#include "enemyAttack.h"
 #include "manager.h"
 #include "renderer.h"
 #include "sound.h"
@@ -20,6 +19,7 @@
 #include "gauge2D.h"
 #include "magicCircle.h"
 #include "retentionManager.h"
+#include "random.h"
 
 //************************************************************
 //	定数宣言
@@ -109,11 +109,14 @@ static_assert(NUM_ARRAY(MODEL_FILE) == CEnemyBossDragon::MODEL_MAX, "ERROR : Mod
 //	コンストラクタ
 //============================================================
 CEnemyBossDragon::CEnemyBossDragon(const EType type) : CEnemy(type),
-	m_pLife				(nullptr),	// 体力の情報
-	m_pAttack			(nullptr),	// 攻撃の情報
-	m_pMagicCircle		(nullptr),	// 魔法陣の情報
-	m_action			(ACT_NONE),	// 行動
-	m_nCounterAttack	(0)			// 攻撃管理カウンター
+	m_pLife				(nullptr),			// 体力の情報
+	m_pAttack			(nullptr),			// 攻撃の情報
+	m_pMagicCircle		(nullptr),			// 魔法陣の情報
+	m_action			(ACT_NONE),			// 行動
+	m_nCounterSameAct	(0),				// 同じ行動の連続数
+	m_nCounterAttack	(0),				// 攻撃管理カウンター
+	m_oldAtk	(CEnemyAttack::ATTACK_00),	// 前回の攻撃
+	m_curAtk	(CEnemyAttack::ATTACK_00)	// 今回の攻撃
 {
 	// メンバ変数をクリア
 	memset(&m_teleport, 0, sizeof(m_teleport));	// テレポートの情報
@@ -133,11 +136,14 @@ CEnemyBossDragon::~CEnemyBossDragon()
 HRESULT CEnemyBossDragon::Init(void)
 {
 	// メンバ変数を初期化
-	memset(&m_teleport, 0, sizeof(m_teleport));	// テレポートの情報
+	memset(&m_teleport, 0, sizeof(m_teleport));		// テレポートの情報
+	m_oldAtk			= CEnemyAttack::ATTACK_00;	// 前回の攻撃
+	m_curAtk			= CEnemyAttack::ATTACK_00;	// 今回の攻撃
 	m_pLife				= nullptr;	// 体力の情報
 	m_pAttack			= nullptr;	// 攻撃の情報
 	m_pMagicCircle		= nullptr;	// 魔法陣の情報
 	m_action			= ACT_NONE;	// 行動
+	m_nCounterSameAct	= 0;		// 同じ行動の連続数
 	m_nCounterAttack	= 0;		// 攻撃管理カウンター
 
 	// 敵の初期化
@@ -762,6 +768,41 @@ void CEnemyBossDragon::LimitPosition(D3DXVECTOR3 *pPos)
 }
 
 //============================================================
+//	攻撃の選択処理
+//============================================================
+void CEnemyBossDragon::SelectAttack(void)
+{
+	// 前回の攻撃を保存
+	m_oldAtk = m_curAtk;
+
+	// ランダム生成情報を生成
+	CRandom<CEnemyAttack::EAttack> *pRandom = CRandom<CEnemyAttack::EAttack>::Create();
+	if (pRandom == nullptr) { return; }		// 生成ミス
+
+	// 生成可能な攻撃を設定
+	if (m_pAttack == nullptr) { return; }	// 攻撃クラス無し
+	m_pAttack->SetRandomArray(pRandom, m_oldAtk, m_nCounterSameAct);
+
+	// 攻撃を取得
+	m_curAtk = pRandom->GetRandomNum();
+
+	// 連続攻撃回数を設定
+	if (m_oldAtk == m_curAtk)
+	{ // 前回の攻撃と同一の場合
+
+		m_nCounterSameAct++;
+	}
+	else
+	{ // 前回の攻撃と別の場合
+
+		m_nCounterSameAct = 0;
+	}
+
+	// ランダム生成情報を破棄
+	CRandom<CEnemyAttack::EAttack>::Release(pRandom);
+}
+
+//============================================================
 //	攻撃の更新処理
 //============================================================
 void CEnemyBossDragon::UpdateAttack(void)
@@ -781,7 +822,7 @@ void CEnemyBossDragon::UpdateAttack(void)
 			m_pAttack = CEnemyAttack::Create
 			( // 引数
 #ifndef RANDOM_ATTACK_ON
-				(CEnemyAttack::EAttack)(rand() % CEnemyAttack::ATTACK_MAX), this
+				m_curAtk, this
 #else
 				ATTACK, this
 #endif
@@ -801,6 +842,9 @@ void CEnemyBossDragon::UpdateAttack(void)
 		// 攻撃の更新
 		if (m_pAttack->Update())
 		{ // 攻撃が終了している場合
+
+			// 次攻撃の選択
+			SelectAttack();
 
 			// 攻撃の破棄
 			SAFE_REF_RELEASE(m_pAttack);

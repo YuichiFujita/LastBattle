@@ -14,6 +14,7 @@
 //	インクルードファイル
 //************************************************************
 #include "enemy.h"
+#include "enemyAttack.h"
 
 //************************************************************
 //	前方宣言
@@ -160,7 +161,8 @@ private:
 	void UpdateDeath(void) override;	// 死亡状態時の更新
 
 	// メンバ関数
-	void LimitPosition(D3DXVECTOR3 *pPos);	// 位置範囲外の補正
+	void LimitPosition(D3DXVECTOR3 *pPos);		// 位置範囲外の補正
+	void SelectAttack(void);	// 攻撃選択
 	void UpdateAttack(void);	// 攻撃更新
 	void UpdateAction(void);	// 行動更新
 	bool IsFly(void) const;		// 飛行フラグの取得
@@ -177,8 +179,11 @@ private:
 	CGauge2D *m_pLife;				// 体力の情報
 	CEnemyAttack *m_pAttack;		// 攻撃の情報
 	CMagicCircle *m_pMagicCircle;	// 魔法陣の情報
+	CEnemyAttack::EAttack m_oldAtk;	// 前回の攻撃
+	CEnemyAttack::EAttack m_curAtk;	// 今回の攻撃
 	STeleport m_teleport;	// テレポートの情報
 	EAction m_action;		// 行動
+	int m_nCounterSameAct;	// 同じ行動の連続数
 	int m_nCounterAttack;	// 攻撃管理カウンター
 };
 

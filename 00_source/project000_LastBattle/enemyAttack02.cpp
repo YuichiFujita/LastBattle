@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "player.h"
 #include "stage.h"
+#include "collision.h"
 #include "attackThunder.h"
 
 //************************************************************
@@ -26,6 +27,7 @@ namespace
 	const int	ADD_WAIT_FRAME	= 4;		// 一攻撃ごとの攻撃待機フレーム加算量
 	const int	MUL_NUM_CREATE	= 9;		// 一攻撃ごとの攻撃生成数の乗算量
 	const float	CREATE_LENGTH	= 240.0f;	// 一攻撃ごとの距離の乗算量
+	const float FIND_RADIUS		= 250.0f;	// プレイヤー検知半径
 }
 
 //************************************************************
@@ -153,6 +155,47 @@ bool CEnemyAttack02::Update(void)
 
 	// 攻撃非終了を返す
 	return false;
+}
+
+//============================================================
+//	攻撃選択肢の要素設定処理
+//============================================================
+void CEnemyAttack02::SetRandomArray
+(
+	CRandom<EAttack> *pRandom,	// ランダム攻撃クラス
+	EAttack /*oldAtk*/,			// 前回の攻撃
+	int /*nSameAct*/			// 同じ行動の連続数
+)
+{
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	// XZ平面の円の当たり判定
+	bool bHit = collision::Circle2D
+	( // 引数
+		pPlayer->GetVec3Position(),	// 判定位置
+		pBoss->GetVec3Position(),	// 判定目標位置
+		pPlayer->GetRadius(),		// 判定半径
+		FIND_RADIUS					// 判定目標半径
+	);
+	if (bHit)
+	{ // プレイヤーとの距離が近い場合
+
+		// 近距離攻撃を追加
+		pRandom->AddList(ATTACK_05, 5);	// 攻撃05(ひっかき攻撃)
+		pRandom->AddList(ATTACK_06, 2);	// 攻撃06(しっぽ攻撃)
+
+		// 遠距離攻撃を追加
+		pRandom->AddList(ATTACK_00, 1);	// 攻撃00(地面殴り波動)
+		pRandom->AddList(ATTACK_04, 1);	// 攻撃04(炎外周吐き出し)
+	}
+	else
+	{ // プレイヤーとの距離が遠い場合
+
+		// 遠距離攻撃を追加
+		pRandom->AddList(ATTACK_00, 1);	// 攻撃00(地面殴り波動)
+		pRandom->AddList(ATTACK_04, 1);	// 攻撃04(炎外周吐き出し)
+	}
 }
 
 //============================================================
