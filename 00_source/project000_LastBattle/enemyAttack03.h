@@ -32,8 +32,6 @@ public:
 		STATE_TELEPORT,				// テレポート
 		STATE_INIT_THUNDER,			// 雷発射の初期化
 		STATE_THUNDER,				// 雷発射
-		STATE_CENTER_TELEPORT_INIT,	// 中央テレポートの初期化
-		STATE_CENTER_TELEPORT,		// 中央テレポート
 		STATE_END,					// 終了
 		STATE_MAX					// この列挙型の総数
 	};
@@ -56,6 +54,10 @@ public:
 	) override;
 
 private:
+	// メンバ関数
+	void InitTeleport(void);	// テレポートの初期化
+	void UpdateThunder(void);	// 雷発射の更新
+
 	// メンバ変数
 	EState m_state;			// 状態
 	int m_nCounterWait;		// 余韻管理カウンター

@@ -14,6 +14,7 @@
 #include "scene.h"
 #include "sceneGame.h"
 #include "pause.h"
+#include "hitStop.h"
 
 //************************************************************
 //	定数宣言
@@ -158,8 +159,9 @@ void COrbit::Draw(CShader *pShader)
 	if (GET_MANAGER->GetScene()->GetMode() == CScene::MODE_GAME)
 	{ // モードがゲームの場合
 
-		if (CSceneGame::GetPause()->IsPause())
-		{ // ポーズ中の場合
+		if (CSceneGame::GetPause()->IsPause()
+		||  CSceneGame::GetHitStop()->IsStop())
+		{ // ポーズ中・ヒットストップ中の場合
 
 			// 更新しない状況にする
 			bUpdate = false;

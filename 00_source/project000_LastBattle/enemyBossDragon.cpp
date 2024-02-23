@@ -92,7 +92,7 @@ namespace
 //	マクロ定義
 //************************************************************
 // ランダム攻撃のON/OFF
-#if 1
+#if 0
 #define RANDOM_ATTACK_ON	// ランダム攻撃
 #define ATTACK (CEnemyAttack::ATTACK_03)
 #endif
@@ -1091,6 +1091,9 @@ void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, 
 
 			// モーションを設定
 			SetMotion(m_teleport.motion, BLEND_FRAME);
+
+			// テレポート後モーションを初期化
+			m_teleport.motion = MOTION_NONE;
 		}
 
 		// ボスの位置・向き・目標向きをテレポート先に変更

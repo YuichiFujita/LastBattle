@@ -21,14 +21,13 @@
 //************************************************************
 namespace
 {
-	const float	TELEPORT_POS_DIS	= 3600.0f;	// テレポート時のステージ中心位置から遠ざける距離
-	const float	TELEPORT_POSY		= 800.0f;	// テレポート時のY座標
-	const float FIND_RADIUS			= 250.0f;	// プレイヤー検知半径
+	const float	TELEPORT_POSY	= 170.0f;	// テレポート時のY座標
+	const float FIND_RADIUS		= 250.0f;	// プレイヤー検知半径
 
-	const int	MAX_SUB_WARN_WAIT	= 65;		// 警告表示フレームの最大減算量
-	const int	INIT_WAIT_FRAME		= 22;		// 初期攻撃待機フレーム
-	const int	NUM_ATTACK			= 20;		// 攻撃の生成数
-	const int	SUB_WAIT_FRAME		= 1;		// 一攻撃ごとの攻撃待機フレーム加算量
+	const int	MAX_SUB_WARN_WAIT	= 65;	// 警告表示フレームの最大減算量
+	const int	INIT_WAIT_FRAME		= 22;	// 初期攻撃待機フレーム
+	const int	NUM_ATTACK			= 20;	// 攻撃の生成数
+	const int	SUB_WAIT_FRAME		= 1;	// 一攻撃ごとの攻撃待機フレーム加算量
 }
 
 //************************************************************
@@ -100,24 +99,8 @@ bool CEnemyAttack03::Update(void)
 	{ // 状態ごとの処理
 	case STATE_INIT_TELEPORT:	// テレポートの初期化
 	{
-		D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
-		D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き
-
-		// ランダム方向上空に敵の位置を設定
-		float fRandRot = useful::RandomRot();
-		posEnemy.x = sinf(fRandRot) * TELEPORT_POS_DIS;
-		posEnemy.y = TELEPORT_POSY;
-		posEnemy.z = cosf(fRandRot) * TELEPORT_POS_DIS;
-
-		// ステージ中心方向に敵の向きを設定
-		D3DXVECTOR3 vec = posEnemy - pStage->GetStageLimit().center;
-		rotEnemy.y = atan2f(vec.x, vec.z);
-
-		// ボスをテレポートさせる
-		pBoss->SetTeleport(posEnemy, rotEnemy, CEnemyBossDragon::MOTION_FLY_IDOL);
-
-		// テレポート状態にする
-		m_state = STATE_TELEPORT;
+		// テレポートの初期化
+		InitTeleport();
 
 		// 処理は抜けずテレポートの状態更新に移行
 	}
@@ -144,71 +127,8 @@ bool CEnemyAttack03::Update(void)
 	}
 	case STATE_THUNDER:	// 雷発射
 	{
-		// カウンターを加算
-		m_nCounterWait++;
-		if (m_nCounterWait > m_nWaitFrame)
-		{ // 余韻フレームが終了した場合
-
-			// カウンターを初期化
-			m_nCounterWait = 0;
-
-			// 余韻の長さを短縮
-			m_nWaitFrame -= SUB_WAIT_FRAME;
-
-			CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
-			if (pList == nullptr)		 { assert(false); return false; }	// リスト未使用
-			if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
-			auto player = pList->GetList().front();							// プレイヤー情報
-
-			// 雷攻撃をプレイヤー位置に生成
-			int nWarnFrame = attackThunder::WARN_FRAME - (MAX_SUB_WARN_WAIT / NUM_ATTACK) * m_nCounterNumAtk;	// 警告表示フレーム
-			CAttackThunder::Create(player->GetVec3Position(), nWarnFrame);
-
-			// 攻撃回数を加算
-			m_nCounterNumAtk++;
-			if (m_nCounterNumAtk >= NUM_ATTACK)
-			{ // ステージ端に到達した場合
-
-				// 中央テレポートの初期化状態にする
-				m_state = STATE_CENTER_TELEPORT_INIT;
-			}
-		}
-
-		break;
-	}
-	case STATE_CENTER_TELEPORT_INIT:	// 中央テレポートの初期化
-	{
-		CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
-		if (pList == nullptr)		 { assert(false); return false; }	// リスト未使用
-		if (pList->GetNumAll() != 1) { assert(false); return false; }	// プレイヤーが1人じゃない
-		auto player = pList->GetList().front();							// プレイヤー情報
-
-		D3DXVECTOR3 posPlayer = player->GetVec3Position();		// プレイヤーの位置
-		D3DXVECTOR3 posEnemy  = pStage->GetStageLimit().center;	// 敵の位置
-		D3DXVECTOR3 rotEnemy  = VEC3_ZERO;	// 敵の設定向き
-
-		// プレイヤー方向を設定
-		D3DXVECTOR3 vec = posEnemy - posPlayer;
-		rotEnemy.y = atan2f(vec.x, vec.z);
-
-		// ボスをテレポートさせる
-		pBoss->SetTeleport(posEnemy, rotEnemy, CEnemyBossDragon::MOTION_IDOL);
-
-		// 中央テレポート状態にする
-		m_state = STATE_CENTER_TELEPORT;
-
-		// 処理は抜けず中央テレポートの状態更新に移行
-
-		break;
-	}
-	case STATE_CENTER_TELEPORT:	// 中央テレポート
-	{
-		if (pBoss->GetAction() == CEnemyBossDragon::ACT_NONE)
-		{ // 何も行動していない場合
-
-			// 終了状態にする
-			m_state = STATE_END;
-		}
+		// 雷発射の更新
+		UpdateThunder();
 
 		break;
 	}
@@ -264,5 +184,88 @@ void CEnemyAttack03::SetRandomArray
 		// 遠距離攻撃を追加
 		pRandom->AddList(ATTACK_00, 1);	// 攻撃00(地面殴り波動)
 		pRandom->AddList(ATTACK_04, 1);	// 攻撃04(炎外周吐き出し)
+	}
+}
+
+//============================================================
+//	テレポートの初期化処理
+//============================================================
+void CEnemyAttack03::InitTeleport(void)
+{
+	// ポインタを宣言
+	CStage  *pStage = CScene::GetStage();	// ステージの情報
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	CStage::SStageLimit stageLimit = pStage->GetStageLimit();	// ステージ範囲情報
+	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();			// プレイヤーの位置
+	D3DXVECTOR3 posEnemy = VEC3_ZERO;	// 敵の設定位置
+	D3DXVECTOR3 rotEnemy = VEC3_ZERO;	// 敵の設定向き
+
+	// 敵の位置を中央に設定
+	posEnemy.x += stageLimit.center.x;
+	posEnemy.y = TELEPORT_POSY;
+	posEnemy.z += stageLimit.center.z;
+
+	// プレイヤー方向を向かせる
+	D3DXVECTOR3 vecPlayer = posEnemy - posPlayer;
+	rotEnemy.y = atan2f(vecPlayer.x, vecPlayer.z);
+
+	// ボスをテレポートさせる
+	pBoss->SetTeleport(posEnemy, rotEnemy, CEnemyBossDragon::MOTION_FLY_IDOL);
+
+	// テレポート状態にする
+	m_state = STATE_TELEPORT;
+}
+
+//============================================================
+//	雷発射の更新処理
+//============================================================
+void CEnemyAttack03::UpdateThunder(void)
+{
+	// ポインタを宣言
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemyBossDragon *pBoss = GetBoss();	// ボスの情報
+
+	// プレイヤーからボスへのベクトルを求める
+	D3DXVECTOR3 vecPlayer = pBoss->GetVec3Position() - pPlayer->GetVec3Position();
+
+	// 目標向きを取得
+	D3DXVECTOR3 rotDestEnemy = pBoss->GetDestRotation();
+
+	// 目標向きをプレイヤー方向にする
+	rotDestEnemy.y = atan2f(vecPlayer.x, vecPlayer.z);
+
+	// 目標向きを設定
+	pBoss->SetDestRotation(rotDestEnemy);
+
+	// カウンターを加算
+	m_nCounterWait++;
+	if (m_nCounterWait > m_nWaitFrame)
+	{ // 余韻フレームが終了した場合
+
+		// カウンターを初期化
+		m_nCounterWait = 0;
+
+		// 余韻の長さを短縮
+		m_nWaitFrame -= SUB_WAIT_FRAME;
+
+		CListManager<CPlayer> *pList = CPlayer::GetList();		// プレイヤーリスト
+		if (pList == nullptr)		 { assert(false); return; }	// リスト未使用
+		if (pList->GetNumAll() != 1) { assert(false); return; }	// プレイヤーが1人じゃない
+		auto player = pList->GetList().front();					// プレイヤー情報
+
+		// 雷攻撃をプレイヤー位置に生成
+		int nWarnFrame = attackThunder::WARN_FRAME - (MAX_SUB_WARN_WAIT / NUM_ATTACK) * m_nCounterNumAtk;	// 警告表示フレーム
+		CAttackThunder::Create(player->GetVec3Position(), nWarnFrame);
+
+		// 攻撃回数を加算
+		m_nCounterNumAtk++;
+		if (m_nCounterNumAtk >= NUM_ATTACK)
+		{ // ステージ端に到達した場合
+
+			// 終了状態にする
+			m_state = STATE_END;
+		}
 	}
 }

@@ -182,9 +182,11 @@
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="field.cpp" />
     <ClCompile Include="fire.cpp" />
+    <ClCompile Include="flash.cpp" />
     <ClCompile Include="gameManager.cpp" />
     <ClCompile Include="gauge2D.cpp" />
     <ClCompile Include="gauge3D.cpp" />
+    <ClCompile Include="hitStop.cpp" />
     <ClCompile Include="impact.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
@@ -297,9 +299,11 @@
     <ClInclude Include="fade.h" />
     <ClInclude Include="field.h" />
     <ClInclude Include="fire.h" />
+    <ClInclude Include="flash.h" />
     <ClInclude Include="gameManager.h" />
     <ClInclude Include="gauge2D.h" />
     <ClInclude Include="gauge3D.h" />
+    <ClInclude Include="hitStop.h" />
     <ClInclude Include="impact.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />

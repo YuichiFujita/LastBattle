@@ -16,6 +16,8 @@
 #include "timerManager.h"
 #include "cinemaScope.h"
 #include "pause.h"
+#include "hitStop.h"
+#include "flash.h"
 #include "stage.h"
 #include "player.h"
 #include "enemy.h"
@@ -30,7 +32,7 @@ namespace
 	{
 #ifdef _DEBUG
 
-		const int TIME_LIMIT = 120;	// 制限時間
+		const int TIME_LIMIT = 240;	// 制限時間
 
 #else	// NDEBUG
 
@@ -53,6 +55,8 @@ CGameManager	*CSceneGame::m_pGameManager		= nullptr;	// ゲームマネージャー
 CTimerManager	*CSceneGame::m_pTimerManager	= nullptr;	// タイマーマネージャー
 CCinemaScope	*CSceneGame::m_pCinemaScope		= nullptr;	// シネマスコープ
 CPause			*CSceneGame::m_pPause			= nullptr;	// ポーズ
+CHitStop		*CSceneGame::m_pHitStop			= nullptr;	// ヒットストップ
+CFlash			*CSceneGame::m_pFlash			= nullptr;	// フラッシュ
 
 //************************************************************
 //	子クラス [CSceneGame] のメンバ関数
@@ -112,13 +116,6 @@ HRESULT CSceneGame::Init(void)
 	// シーンの初期化
 	CScene::Init();	// ステージ・プレイヤーの生成
 
-
-	//// TODO：敵の生成
-	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO + D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO - D3DXVECTOR3(100.0f, 0.0f, 0.0f), VEC3_ZERO);
-	//CEnemy::Create(CEnemy::TYPE_MINI_DRAGON, VEC3_ZERO, VEC3_ZERO);
-
-
 	// シネマスコープの生成
 	m_pCinemaScope = CCinemaScope::Create();
 	if (m_pCinemaScope == nullptr)
@@ -132,6 +129,26 @@ HRESULT CSceneGame::Init(void)
 	// ポーズの生成
 	m_pPause = CPause::Create();
 	if (m_pPause == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// ヒットストップの生成
+	m_pHitStop = CHitStop::Create();
+	if (m_pHitStop == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// フラッシュの生成
+	m_pFlash = CFlash::Create();
+	if (m_pFlash == nullptr)
 	{ // 非使用中の場合
 
 		// 失敗を返す
@@ -179,6 +196,12 @@ void CSceneGame::Uninit(void)
 	// ポーズの破棄
 	SAFE_REF_RELEASE(m_pPause);
 
+	// ヒットストップの破棄
+	SAFE_REF_RELEASE(m_pHitStop);
+
+	// フラッシュの破棄
+	SAFE_REF_RELEASE(m_pFlash);
+
 	// シーンの終了
 	CScene::Uninit();
 }
@@ -196,6 +219,14 @@ void CSceneGame::Update(void)
 	assert(m_pTimerManager != nullptr);
 	m_pTimerManager->Update();
 
+	// ヒットストップの更新
+	assert(m_pHitStop != nullptr);
+	m_pHitStop->Update();
+
+	// フラッシュの更新
+	assert(m_pFlash != nullptr);
+	m_pFlash->Update();
+
 	if (m_pGameManager->GetState() == CGameManager::STATE_NORMAL)
 	{ // ゲームが通常状態の場合
 
@@ -204,8 +235,9 @@ void CSceneGame::Update(void)
 		m_pPause->Update();
 	}
 
-	if (!m_pPause->IsPause())
-	{ // ポーズ中ではない場合
+	if (!m_pPause->IsPause()
+	&&  !m_pHitStop->IsStop())
+	{ // ポーズ中・ヒットストップ中ではない場合
 
 		// シネマスコープの更新
 		assert(m_pCinemaScope != nullptr);
@@ -213,6 +245,12 @@ void CSceneGame::Update(void)
 
 		// シーンの更新
 		CScene::Update();
+	}
+	else if (m_pHitStop->IsStop())
+	{ // ヒットストップ中の場合
+
+		// カメラの更新
+		GET_MANAGER->GetCamera()->Update();
 	}
 
 #ifdef _DEBUG
@@ -285,4 +323,28 @@ CPause *CSceneGame::GetPause(void)
 
 	// ポーズのポインタを返す
 	return m_pPause;
+}
+
+//============================================================
+//	ヒットストップ取得処理
+//============================================================
+CHitStop *CSceneGame::GetHitStop(void)
+{
+	// インスタンス未使用
+	assert(m_pHitStop != nullptr);
+
+	// ヒットストップのポインタを返す
+	return m_pHitStop;
+}
+
+//============================================================
+//	フラッシュ取得処理
+//============================================================
+CFlash *CSceneGame::GetFlash(void)
+{
+	// インスタンス未使用
+	assert(m_pFlash != nullptr);
+
+	// フラッシュのポインタを返す
+	return m_pFlash;
 }
