@@ -163,7 +163,7 @@ private:
 	void UpdateDeath(void) override;	// 死亡状態時の更新
 
 	// メンバ関数
-	void LimitPosition(D3DXVECTOR3 *pPos);		// 位置範囲外の補正
+	void LimitPosition(D3DXVECTOR3 *pPos);	// 位置範囲外の補正
 	void SelectAttack(void);	// 攻撃選択
 	void UpdateAttack(void);	// 攻撃更新
 	void UpdateAction(void);	// 行動更新

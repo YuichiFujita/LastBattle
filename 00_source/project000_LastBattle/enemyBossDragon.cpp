@@ -694,8 +694,10 @@ void CEnemyBossDragon::SetDeath(void)
 	// 死亡モーションを設定
 	SetMotion(MOTION_DEATH);
 
+	// TODO：定数化して
+
 	// ヒットストップさせる
-	pHitStop->SetStop(true);
+	pHitStop->SetStop(80);
 
 	// フラッシュを設定
 	pFlash->Set(0.35f, 0.025f);
@@ -777,6 +779,9 @@ void CEnemyBossDragon::UpdateNormal(void)
 //============================================================
 void CEnemyBossDragon::UpdateDeath(void)
 {
+	CHitStop *pHitStop = CSceneGame::GetHitStop();	// ヒットストップ情報
+	CFlash *pFlash = CSceneGame::GetFlash();		// フラッシュ情報
+
 	if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
 	{ // ゲーム画面の場合
 

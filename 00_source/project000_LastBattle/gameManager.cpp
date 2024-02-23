@@ -19,6 +19,7 @@
 #include "camera.h"
 #include "player.h"
 #include "enemy.h"
+#include "enemyBossDragon.h"
 
 //************************************************************
 //	定数宣言
@@ -133,8 +134,13 @@ void CGameManager::Update(void)
 		if (CSceneGame::GetTimerManager()->GetState() == CTimerManager::STATE_END)
 		{ // 計測が終了していた場合
 
-			// リザルト画面に遷移させる
-			TransitionResult(CRetentionManager::WIN_FAILED);
+			if (CScene::GetPlayer()->GetState() != CPlayer::STATE_DEATH
+			&&  CScene::GetBoss()->GetState()   != CEnemyBossDragon::STATE_DEATH)
+			{ // どちらも死亡していない場合
+
+				// リザルト画面に遷移させる
+				TransitionResult(CRetentionManager::WIN_FAILED);
+			}
 		}
 
 		break;

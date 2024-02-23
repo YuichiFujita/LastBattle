@@ -28,8 +28,8 @@ public:
 	void Uninit(void);	// I—¹
 	void Update(void);	// XV
 	void Draw(void);	// •`‰æ
-	void SetStop(const bool bStop)	{ m_bStop = bStop; }	// ’â~ó‹µİ’è
-	bool IsStop(void) const			{ return m_bStop; }		// ’â~ó‹µæ“¾
+	void SetStop(const int nCounter);			// ’â~ó‹µİ’è
+	bool IsStop(void) const	{ return m_bStop; }	// ’â~ó‹µæ“¾
 
 	// Ã“Iƒƒ“ƒoŠÖ”
 	static CHitStop *Create(void);				// ¶¬
@@ -38,6 +38,7 @@ public:
 private:
 	// ƒƒ“ƒo•Ï”
 	bool m_bStop;	// ’â~ó‹µ
+	int m_nCounter;	// ’â~ŠÔ
 };
 
 #endif	// _HITSTOP_H_
