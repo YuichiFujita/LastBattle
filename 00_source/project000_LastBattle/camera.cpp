@@ -501,6 +501,100 @@ void CCamera::SetDestLookBoss(void)
 }
 
 //============================================================
+//	視点の設定処理
+//============================================================
+void CCamera::SetPositionV(const D3DXVECTOR3& rPosV)
+{
+	SCamera *pCamera = &m_aCamera[TYPE_MAIN];	// メインカメラ情報
+
+	// 視点・目標視点を設定
+	pCamera->posV = pCamera->destPosV = rPosV;
+
+	// 注視点・目標注視点の更新
+	pCamera->posR.x = pCamera->destPosR.x = pCamera->posV.x + ((pCamera->fDis * sinf(pCamera->rot.x)) * sinf(pCamera->rot.y));
+	pCamera->posR.y = pCamera->destPosR.y = pCamera->posV.y + ((pCamera->fDis * cosf(pCamera->rot.x)));
+	pCamera->posR.z = pCamera->destPosR.z = pCamera->posV.z + ((pCamera->fDis * sinf(pCamera->rot.x)) * cosf(pCamera->rot.y));
+}
+
+//============================================================
+//	注視点の設定処理
+//============================================================
+void CCamera::SetPositionR(const D3DXVECTOR3& rPosR)
+{
+	SCamera *pCamera = &m_aCamera[TYPE_MAIN];	// メインカメラ情報
+
+	// 注視点・目標注視点を設定
+	pCamera->posR = pCamera->destPosR = rPosR;
+
+	// 視点・目標視点の更新
+	pCamera->posV.x = pCamera->destPosV.x = pCamera->posR.x + ((-pCamera->fDis * sinf(pCamera->rot.x)) * sinf(pCamera->rot.y));
+	pCamera->posV.y = pCamera->destPosV.y = pCamera->posR.y + ((-pCamera->fDis * cosf(pCamera->rot.x)));
+	pCamera->posV.z = pCamera->destPosV.z = pCamera->posR.z + ((-pCamera->fDis * sinf(pCamera->rot.x)) * cosf(pCamera->rot.y));
+}
+
+//============================================================
+//	向きの設定処理
+//============================================================
+void CCamera::SetRotation(const D3DXVECTOR3& rRot)
+{
+	SCamera *pCamera = &m_aCamera[TYPE_MAIN];	// メインカメラ情報
+
+	// 向き・目標向きを設定
+	pCamera->rot = pCamera->destRot = rRot;
+
+	// 視点・目標視点の更新
+	pCamera->posV.x = pCamera->destPosV.x = pCamera->posR.x + ((-pCamera->fDis * sinf(pCamera->rot.x)) * sinf(pCamera->rot.y));
+	pCamera->posV.y = pCamera->destPosV.y = pCamera->posR.y + ((-pCamera->fDis * cosf(pCamera->rot.x)));
+	pCamera->posV.z = pCamera->destPosV.z = pCamera->posR.z + ((-pCamera->fDis * sinf(pCamera->rot.x)) * cosf(pCamera->rot.y));
+}
+
+//============================================================
+//	距離の設定処理
+//============================================================
+void CCamera::SetDistance(const float fDis)
+{
+	SCamera *pCamera = &m_aCamera[TYPE_MAIN];	// メインカメラ情報
+
+	// 距離・目標距離を設定
+	pCamera->fDis = pCamera->fDestDis = fDis;
+
+	// 視点・目標視点の更新
+	pCamera->posV.x = pCamera->destPosV.x = pCamera->posR.x + ((-pCamera->fDis * sinf(pCamera->rot.x)) * sinf(pCamera->rot.y));
+	pCamera->posV.y = pCamera->destPosV.y = pCamera->posR.y + ((-pCamera->fDis * cosf(pCamera->rot.x)));
+	pCamera->posV.z = pCamera->destPosV.z = pCamera->posR.z + ((-pCamera->fDis * sinf(pCamera->rot.x)) * cosf(pCamera->rot.y));
+}
+
+//============================================================
+//	カメラ取得処理
+//============================================================
+CCamera::SCamera CCamera::GetCamera(const EType type)
+{
+	// カメラの情報を返す
+	return m_aCamera[type];
+}
+
+//============================================================
+//	カメラ状態の設定処理
+//============================================================
+void CCamera::SetState(const EState state)
+{
+	// 状態を設定
+	m_state = state;
+
+	// 再設定
+	Reset();
+}
+
+//============================================================
+//	カメラ状態取得処理
+//============================================================
+CCamera::EState CCamera::GetState(void) const
+{
+	// 状態を返す
+	return m_state;
+}
+
+//============================================================
 //	追従カメラの位置視認処理
 //============================================================
 void CCamera::SetFollowLook(const D3DXVECTOR3& rLookPos)
@@ -552,68 +646,6 @@ void CCamera::SetEnableUpdate(const bool bUpdate)
 {
 	// 引数の更新状況を設定
 	m_bUpdate = bUpdate;
-}
-
-//============================================================
-//	視点の設定処理
-//============================================================
-void CCamera::SetPositionV(const D3DXVECTOR3& rPosV)
-{
-
-}
-
-//============================================================
-//	注視点の設定処理
-//============================================================
-void CCamera::SetPositionR(const D3DXVECTOR3& rPosR)
-{
-
-}
-
-//============================================================
-//	向きの設定処理
-//============================================================
-void CCamera::SetRotation(const D3DXVECTOR3& rRot)
-{
-
-}
-
-//============================================================
-//	距離の設定処理
-//============================================================
-void CCamera::SetDistance(const float fDis)
-{
-
-}
-
-//============================================================
-//	カメラ取得処理
-//============================================================
-CCamera::SCamera CCamera::GetCamera(const EType type)
-{
-	// カメラの情報を返す
-	return m_aCamera[type];
-}
-
-//============================================================
-//	カメラ状態の設定処理
-//============================================================
-void CCamera::SetState(const EState state)
-{
-	// 状態を設定
-	m_state = state;
-
-	// 再設定
-	Reset();
-}
-
-//============================================================
-//	カメラ状態取得処理
-//============================================================
-CCamera::EState CCamera::GetState(void) const
-{
-	// 状態を返す
-	return m_state;
 }
 
 //============================================================

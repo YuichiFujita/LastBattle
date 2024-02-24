@@ -111,13 +111,14 @@ public:
 	SCamera GetCamera(const EType type);	// カメラ取得
 	void SetState(const EState state);		// カメラ状態設定
 	EState GetState(void) const;			// カメラ状態取得
-	void SetDestRotate(void);				// カメラ目標位置設定 (回転)
-	void SetDestFollow(void);				// カメラ目標位置設定 (追従)
-	void SetDestLookPlayer(void);			// カメラ目標位置設定 (プレイヤー注目)
-	void SetDestLookBoss(void);				// カメラ目標位置設定 (ボス注目)
 	void SetFollowLook(const D3DXVECTOR3 &rLookPos);		// 追従カメラの位置視認
 	void SetSwing(const EType type, const SSwing swing);	// カメラ揺れ設定
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
+
+	void SetDestRotate(void);		// カメラ目標位置設定 (回転)
+	void SetDestFollow(void);		// カメラ目標位置設定 (追従)
+	void SetDestLookPlayer(void);	// カメラ目標位置設定 (プレイヤー注目)
+	void SetDestLookBoss(void);		// カメラ目標位置設定 (ボス注目)
 
 	void SetPositionV(const D3DXVECTOR3& rPos);	// 視点設定
 	void SetPositionR(const D3DXVECTOR3& rPos);	// 注視点設定
