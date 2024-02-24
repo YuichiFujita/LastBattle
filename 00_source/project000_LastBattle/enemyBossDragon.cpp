@@ -65,6 +65,13 @@ namespace
 		"data\\MODEL\\ENEMY\\BOSS_DRAGON\\29_tail_05.x",	// 尻尾05
 	};
 
+	const D3DXVECTOR3 DEATH_CAMERA_ROT[] =	// 死亡時カメラ向き
+	{
+		VEC3_ZERO,	// 初回は向き設定なし
+		D3DXVECTOR3(2.11f, -0.76f, 0.0f),
+		D3DXVECTOR3(1.61f, 0.49f, 0.0f),
+	};
+
 	const CCamera::SSwing LAND_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
 	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
@@ -82,10 +89,13 @@ namespace
 	const int	NUM_MULTI_FLASH		= 2;	// 死亡後連続するフラッシュの回数
 	const int	HITSTOP_DEATH_START	= 90;	// 死亡初めのヒットストップの長さ
 	const int	HITSTOP_DEATH_MULTI	= 55;	// 死亡後連続するヒットストップの長さ
-	const float	FLASH_INITALPHA_DEATH_START	= 0.35f;	// 死亡初めのフラッシュ開始透明度
-	const float	FLASH_INITALPHA_DEATH_MULTI	= 0.025f;	// 死亡後連続するフラッシュ透明度減算量
-	const float	FLASH_SUBALPHA_DEATH_START	= 0.25f;	// 死亡初めのフラッシュ開始透明度
+	const float	FLASH_INITALPHA_DEATH_START	= 0.55f;	// 死亡初めのフラッシュ開始透明度
+	const float	FLASH_SUBALPHA_DEATH_START	= 0.02f;	// 死亡後連続するフラッシュ透明度減算量
+	const float	FLASH_INITALPHA_DEATH_MULTI	= 0.35f;	// 死亡初めのフラッシュ開始透明度
 	const float	FLASH_SUBALPHA_DEATH_MULTI	= 0.02f;	// 死亡後連続するフラッシュ透明度減算量
+
+	const float	DEATH_CANERA_DIS = 800.0f;	// 死亡カメラの距離
+	const D3DXVECTOR3 DEATH_CAMERA_OFFSET	= D3DXVECTOR3(35.0f, 106.0f, 0.0f);		// 死亡カメラの位置オフセット
 	const CCamera::SSwing DEATH_START_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 死亡初めのカメラ揺れ
 	const CCamera::SSwing DEATH_MULTI_SWING	= CCamera::SSwing(8.6f, 1.5f, 0.24f);	// 死亡後連続するカメラ揺れ
 
@@ -115,7 +125,8 @@ namespace
 //************************************************************
 //	スタティックアサート
 //************************************************************
-static_assert(NUM_ARRAY(MODEL_FILE) == CEnemyBossDragon::MODEL_MAX, "ERROR : Model Count Mismatch");
+static_assert(NUM_ARRAY(MODEL_FILE) == CEnemyBossDragon::MODEL_MAX,	"ERROR : Model Count Mismatch");
+static_assert(NUM_ARRAY(DEATH_CAMERA_ROT) == NUM_MULTI_FLASH + 1,	"ERROR : Array Count Mismatch");
 
 //************************************************************
 //	子クラス [CEnemyBossDragon] のメンバ関数
@@ -725,7 +736,7 @@ void CEnemyBossDragon::SetDeath(void)
 	pFlash->Set
 	( // 引数
 		FLASH_INITALPHA_DEATH_START,	// 開始透明度
-		FLASH_INITALPHA_DEATH_MULTI		// 透明度減算量
+		FLASH_SUBALPHA_DEATH_START		// 透明度減算量
 	);
 
 	// カメラ揺れを設定
@@ -821,15 +832,15 @@ void CEnemyBossDragon::UpdateDeath(void)
 	if (pFlash->GetState() == CFlash::FLASH_NONE)
 	{ // フラッシュが終了した場合
 
-		if (m_nCounterFlash == 0)
-		{ // 初回のフラッシュが終了した場合
-
-			// 死亡演出の設定
-			SetDeathStaging();
-		}
-
 		if (m_nCounterFlash < NUM_MULTI_FLASH)
 		{ // 設定したフラッシュ回数に達していない場合
+
+			if (m_nCounterFlash == 0)
+			{ // 初回のフラッシュが終了した場合
+
+				// 死亡演出の設定
+				SetDeathStaging();
+			}
 
 			// フラッシュ数を加算
 			m_nCounterFlash++;
@@ -844,13 +855,23 @@ void CEnemyBossDragon::UpdateDeath(void)
 				FLASH_SUBALPHA_DEATH_MULTI		// 透明度減算量
 			);
 
+			// カメラの向きを設定
+			pCamera->SetRotation(DEATH_CAMERA_ROT[m_nCounterFlash]);
+
 			// カメラ揺れを設定
 			pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_MULTI_SWING);
 		}
-	}
+		else
+		{ // 設定したフラッシュ回数に達した場合
 
-	// リザルト画面に遷移させる
-	//CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
+			if (IsMotionFinish())
+			{ // モーションが終了した場合
+
+				// リザルト画面に遷移させる
+				CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
+			}
+		}
+	}
 }
 
 //============================================================
@@ -1106,7 +1127,11 @@ void CEnemyBossDragon::SetDeathStaging(void)
 	{
 		CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
 
-		//pCamera->SetPosition();
+		// カメラの注視点をボスの中心に設定
+		pCamera->SetPositionR(GetVec3Position() + DEATH_CAMERA_OFFSET);
+
+		// カメラの距離を設定
+		pCamera->SetDistance(DEATH_CANERA_DIS);
 	}
 }
 

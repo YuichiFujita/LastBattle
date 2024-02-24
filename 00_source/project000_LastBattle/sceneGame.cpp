@@ -271,6 +271,12 @@ void CSceneGame::Update(void)
 	}
 
 #endif	// _DEBUG
+
+	// TODOFƒ{ƒXŽEŠQ
+	if (GET_INPUTKEY->IsTrigger(DIK_0))
+	{
+		CScene::GetBoss()->Hit(99999999);
+	}
 }
 
 //============================================================
