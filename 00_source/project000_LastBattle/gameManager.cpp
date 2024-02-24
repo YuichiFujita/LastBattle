@@ -59,10 +59,8 @@ CGameManager::~CGameManager()
 HRESULT CGameManager::Init(void)
 {
 	// ポインタを宣言
-	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
 	CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
-	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
 
 	// メンバ変数を初期化
 	m_pBossName	 = nullptr;			// ボスの名前モデル情報
@@ -92,11 +90,8 @@ HRESULT CGameManager::Init(void)
 	// プレイヤーを出現させる
 	pPlayer->SetSpawn();
 
-	// UIの自動描画をOFFにする
-	pTimer->SetEnableLogoDraw(false);	// タイマーロゴ
-	pTimer->SetEnableDraw(false);		// タイマー
-	pPlayer->SetEnableDrawUI(false);	// プレイヤー関連UI
-	pBoss->SetEnableDrawUI(false);		// ボス関連UI
+	// ゲームUIの自動描画をOFFにする
+	SetDrawGameUI(false);
 
 	// 成功を返す
 	return S_OK;
@@ -134,13 +129,8 @@ void CGameManager::Update(void)
 		if (CSceneGame::GetTimerManager()->GetState() == CTimerManager::STATE_END)
 		{ // 計測が終了していた場合
 
-			if (CScene::GetPlayer()->GetState() != CPlayer::STATE_DEATH
-			&&  CScene::GetBoss()->GetState()   != CEnemyBossDragon::STATE_DEATH)
-			{ // どちらも死亡していない場合
-
-				// リザルト画面に遷移させる
-				TransitionResult(CRetentionManager::WIN_FAILED);
-			}
+			// リザルト画面に遷移させる
+			TransitionResult(CRetentionManager::WIN_FAILED);
 		}
 
 		break;
@@ -152,12 +142,58 @@ void CGameManager::Update(void)
 }
 
 //============================================================
+//	ゲーム終了処理
+//============================================================
+void CGameManager::GameEnd(void)
+{
+	// 終了状態にする
+	m_state = STATE_END;
+}
+
+//============================================================
 //	状態取得処理
 //============================================================
 CGameManager::EState CGameManager::GetState(void) const
 {
 	// 状態を返す
 	return m_state;
+}
+
+//============================================================
+//	ゲーム画面のUI描画設定処理
+//============================================================
+void CGameManager::SetDrawGameUI(const bool bDraw)
+{
+	// ポインタを宣言
+	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
+
+	// 自動描画を設定
+	pTimer->SetEnableLogoDraw(bDraw);	// タイマーロゴ
+	pTimer->SetEnableDraw(bDraw);		// タイマー
+	pPlayer->SetEnableDrawUI(bDraw);	// プレイヤー関連UI
+	pBoss->SetEnableDrawUI(bDraw);		// ボス関連UI
+}
+
+//============================================================
+//	ゲームキャラの色情報リセット処理
+//============================================================
+void CGameManager::ResetColorGameChara(void)
+{
+	// ポインタを宣言
+	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
+	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
+
+	// プレイヤーの色情報を初期化
+	pPlayer->ResetMaterial();		// マテリアル再設定
+	pPlayer->SetAlpha(1.0f);		// 透明度初期化
+	pPlayer->SetEnableDraw(true);	// 自動描画ON
+
+	// ボスの色情報を初期化
+	pBoss->ResetMaterial();			// マテリアル再設定
+	pBoss->SetAlpha(1.0f);			// 透明度初期化
+	pBoss->SetEnableDraw(true);		// 自動描画ON
 }
 
 //============================================================
@@ -296,11 +332,8 @@ void CGameManager::EndStart(void)
 	// ボスの名前モデルの自動描画をOFFにする
 	m_pBossName->SetEnableDraw(false);
 
-	// UIの自動描画をONにする
-	pTimer->SetEnableLogoDraw(true);	// タイマーロゴ
-	pTimer->SetEnableDraw(true);		// タイマー
-	pPlayer->SetEnableDrawUI(true);		// プレイヤー関連UI
-	pBoss->SetEnableDrawUI(true);		// ボス関連UI
+	// ゲームUIの自動描画をONにする
+	SetDrawGameUI(true);
 
 	// スコープアウトさせる
 	pScope->SetScopeOut();

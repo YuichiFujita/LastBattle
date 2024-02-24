@@ -652,6 +652,58 @@ void CObject::SetEnableDraw(const bool bDraw)
 }
 
 //============================================================
+//	全破棄処理 (ラベル指定)
+//============================================================
+void CObject::ReleaseAll(const std::vector<ELabel> label)
+{
+	// ラベル指定がない場合抜ける
+	if (label.size() <= 0) { return; }
+
+	for (int nCntDim = 0; nCntDim < DIM_MAX; nCntDim++)
+	{ // 次元の総数分繰り返す
+
+		for (int nCntPri = 0; nCntPri < object::MAX_PRIO; nCntPri++)
+		{ // 優先順位の総数分繰り返す
+
+			// オブジェクトの先頭を代入
+			CObject *pObject = m_apTop[nCntDim][nCntPri];
+
+			while (pObject != nullptr)
+			{ // オブジェクトが使用されている場合繰り返す
+
+				// 次のオブジェクトを代入
+				CObject *pObjectNext = pObject->m_pNext;
+
+				if (pObject->m_bDeath)
+				{ // 死亡している場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObject = pObjectNext;
+					continue;
+				}
+
+				for (ELabel release : label)
+				{ // 要素数分繰り返す
+
+					if (pObject->m_label == release)
+					{ // 破棄するラベルと一致した場合
+
+						// オブジェクトの終了
+						pObject->Uninit();
+					}
+				}
+
+				// 次のオブジェクトへのポインタを代入
+				pObject = pObjectNext;
+			}
+		}
+	}
+
+	// 全死亡処理
+	DeathAll();
+}
+
+//============================================================
 //	全破棄処理
 //============================================================
 void CObject::ReleaseAll(void)

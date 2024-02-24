@@ -13,6 +13,7 @@
 //************************************************************
 //	インクルードファイル
 //************************************************************
+#include <vector>
 #include "shader.h"
 #include "shaderToon.h"
 #include "shaderMono.h"
@@ -163,6 +164,7 @@ public:
 	virtual void SetEnableDraw(const bool bDraw);		// 描画状況設定
 
 	// 静的メンバ関数
+	static void	ReleaseAll(const std::vector<ELabel> label);	// 全破棄 (ラベル指定)
 	static void	ReleaseAll(void);	// 全破棄
 	static void	UpdateAll(void);	// 全更新
 	static void	DrawAll(void);		// 全描画

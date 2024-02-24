@@ -623,6 +623,19 @@ void CPlayer::SetEnableDrawUI(const bool bDraw)
 }
 
 //============================================================
+//	Œ•‚Ìó‘Ô‚Ì‰Šú‰»ˆ—
+//============================================================
+void CPlayer::SetNoneTwinSword(void)
+{
+	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
+	{ // Œ•‚Ì”•ªŒJ‚è•Ô‚·
+
+		// Œ•‚Ì•`‰æ‚ğ’â~‚³‚¹‚é
+		m_apSowrd[nCntSword]->SetState(CSword::STATE_NONE);
+	}
+}
+
+//============================================================
 //	ƒqƒbƒgˆ—
 //============================================================
 bool CPlayer::Hit(const int nDamage)

@@ -23,6 +23,8 @@
 #include "hitStop.h"
 #include "flash.h"
 #include "timerManager.h"
+#include "cinemaScope.h"
+#include "player.h"
 
 //************************************************************
 //	定数宣言
@@ -65,7 +67,6 @@ namespace
 
 	const CCamera::SSwing LAND_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
-	const CCamera::SSwing DEATH_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 死亡のカメラ揺れ
 	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
@@ -77,6 +78,16 @@ namespace
 	const float	MAGIC_CIRCLE_RADIUS	= 400.0f;	// 魔法陣の半径
 	const float	MAGIC_ALPHA_RADIUS	= 400.0f;	// 魔法陣の透明半径
 	const float	MAGIC_DELPOS_PLUSY	= 250.0f;	// 魔法陣の消失位置の加算量Y
+
+	const int	NUM_MULTI_FLASH		= 2;	// 死亡後連続するフラッシュの回数
+	const int	HITSTOP_DEATH_START	= 90;	// 死亡初めのヒットストップの長さ
+	const int	HITSTOP_DEATH_MULTI	= 55;	// 死亡後連続するヒットストップの長さ
+	const float	FLASH_INITALPHA_DEATH_START	= 0.35f;	// 死亡初めのフラッシュ開始透明度
+	const float	FLASH_INITALPHA_DEATH_MULTI	= 0.025f;	// 死亡後連続するフラッシュ透明度減算量
+	const float	FLASH_SUBALPHA_DEATH_START	= 0.25f;	// 死亡初めのフラッシュ開始透明度
+	const float	FLASH_SUBALPHA_DEATH_MULTI	= 0.02f;	// 死亡後連続するフラッシュ透明度減算量
+	const CCamera::SSwing DEATH_START_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 死亡初めのカメラ揺れ
+	const CCamera::SSwing DEATH_MULTI_SWING	= CCamera::SSwing(8.6f, 1.5f, 0.24f);	// 死亡後連続するカメラ揺れ
 
 	// 体力の情報
 	namespace lifeInfo
@@ -119,6 +130,7 @@ CEnemyBossDragon::CEnemyBossDragon(const EType type) : CEnemy(type),
 	m_action			(ACT_NONE),			// 行動
 	m_nCounterSameAct	(0),				// 同じ行動の連続数
 	m_nCounterAttack	(0),				// 攻撃管理カウンター
+	m_nCounterFlash		(0),				// フラッシュ管理カウンター
 	m_oldAtk	(CEnemyAttack::ATTACK_00),	// 前回の攻撃
 	m_curAtk	(CEnemyAttack::ATTACK_00)	// 今回の攻撃
 {
@@ -149,6 +161,7 @@ HRESULT CEnemyBossDragon::Init(void)
 	m_action			= ACT_NONE;	// 行動
 	m_nCounterSameAct	= 0;		// 同じ行動の連続数
 	m_nCounterAttack	= 0;		// 攻撃管理カウンター
+	m_nCounterFlash		= 0;		// フラッシュ管理カウンター
 
 	// 敵の初期化
 	if (FAILED(CEnemy::Init()))
@@ -677,33 +690,49 @@ void CEnemyBossDragon::SetSpawn(void)
 //============================================================
 void CEnemyBossDragon::SetDeath(void)
 {
-	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
+	// 死亡状態の設定
+	CEnemy::SetDeath();
+
+	// ゲーム画面ではない場合抜ける
+	if (GET_MANAGER->GetMode() != CScene::MODE_GAME) { return; }
+
+	CGameManager *pGameManager = CSceneGame::GetGameManager();	// ゲームマネージャーの情報
+	CTimerManager *pTimer = CSceneGame::GetTimerManager();		// タイマーマネージャーの情報
+	CCinemaScope *pScope = CSceneGame::GetCinemaScope();		// シネマスコープの情報
 	CHitStop *pHitStop	= CSceneGame::GetHitStop();	// ヒットストップ情報
 	CFlash	*pFlash		= CSceneGame::GetFlash();	// フラッシュ情報
 	CCamera	*pCamera	= GET_MANAGER->GetCamera();	// カメラ情報
 
-	// 死亡状態の設定
-	CEnemy::SetDeath();
+	// フラッシュ管理カウンターを初期化
+	m_nCounterFlash = 0;
 
-	// 透明度を不透明に再設定
-	SetAlpha(1.0f);
+	// ゲームキャラの色情報リセット
+	pGameManager->ResetColorGameChara();
 
-	// 自動描画をONにする
-	SetEnableDraw(true);
+	// ゲームUIの自動描画をOFFにする
+	pGameManager->SetDrawGameUI(false);
+
+	// スコープインさせる
+	pScope->SetScopeIn();
 
 	// 死亡モーションを設定
 	SetMotion(MOTION_DEATH);
 
-	// TODO：定数化して
-
 	// ヒットストップさせる
-	pHitStop->SetStop(80);
+	pHitStop->SetStop(HITSTOP_DEATH_START);
 
 	// フラッシュを設定
-	pFlash->Set(0.35f, 0.025f);
+	pFlash->Set
+	( // 引数
+		FLASH_INITALPHA_DEATH_START,	// 開始透明度
+		FLASH_INITALPHA_DEATH_MULTI		// 透明度減算量
+	);
 
 	// カメラ揺れを設定
-	pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_SWING);
+	pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_START_SWING);
+
+	// ゲームを終了状態にする
+	CSceneGame::GetGameManager()->GameEnd();
 
 	// タイマーの計測終了
 	pTimer->End();
@@ -779,15 +808,46 @@ void CEnemyBossDragon::UpdateNormal(void)
 //============================================================
 void CEnemyBossDragon::UpdateDeath(void)
 {
-	CHitStop *pHitStop = CSceneGame::GetHitStop();	// ヒットストップ情報
-	CFlash *pFlash = CSceneGame::GetFlash();		// フラッシュ情報
+	// ゲーム画面ではない場合抜ける
+	if (GET_MANAGER->GetMode() != CScene::MODE_GAME) { return; }
 
-	if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
-	{ // ゲーム画面の場合
+	CHitStop *pHitStop	= CSceneGame::GetHitStop();	// ヒットストップ情報
+	CFlash	*pFlash		= CSceneGame::GetFlash();	// フラッシュ情報
+	CCamera	*pCamera	= GET_MANAGER->GetCamera();	// カメラ情報
 
-		// リザルト画面に遷移させる
-		//CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
+	if (pFlash->GetState() == CFlash::FLASH_NONE)
+	{ // フラッシュが終了した場合
+
+		if (m_nCounterFlash == 0)
+		{ // 初回のフラッシュが終了した場合
+
+			// 死亡演出の設定
+			SetDeathStaging();
+		}
+
+		if (m_nCounterFlash < NUM_MULTI_FLASH)
+		{ // 設定したフラッシュ回数に達していない場合
+
+			// フラッシュ数を加算
+			m_nCounterFlash++;
+
+			// ヒットストップさせる
+			pHitStop->SetStop(HITSTOP_DEATH_MULTI);
+
+			// フラッシュを設定
+			pFlash->Set
+			( // 引数
+				FLASH_INITALPHA_DEATH_MULTI,	// 開始透明度
+				FLASH_SUBALPHA_DEATH_MULTI		// 透明度減算量
+			);
+
+			// カメラ揺れを設定
+			pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_MULTI_SWING);
+		}
 	}
+
+	// リザルト画面に遷移させる
+	//CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);
 }
 
 //============================================================
@@ -994,6 +1054,50 @@ void CEnemyBossDragon::UpdateAction(void)
 
 	// 目標向きを反映
 	SetDestRotation(rotDestEnemy);
+}
+
+//============================================================
+//	死亡演出の設定処理
+//============================================================
+void CEnemyBossDragon::SetDeathStaging(void)
+{
+	// ステージに残る演出の邪魔になるオブジェクトを破棄
+	{
+		// 破棄するラベルを要素に追加
+		std::vector<ELabel> releaseLabel;	// 破棄ラベル配列
+		releaseLabel.push_back(CObject::LABEL_EFFECT);		// エフェクト
+		releaseLabel.push_back(CObject::LABEL_PARTICLE);	// パーティクル
+		releaseLabel.push_back(CObject::LABEL_FIRE);		// 炎
+		releaseLabel.push_back(CObject::LABEL_THUNDER);		// 雷
+		releaseLabel.push_back(CObject::LABEL_WAVE);		// 波動
+
+		// 指定したラベルのオブジェクト全破棄
+		CObject::ReleaseAll(releaseLabel);
+
+		// 破棄ラベル配列をクリア
+		releaseLabel.clear();
+	}
+
+	// プレイヤー・敵の演出設定
+	{
+		// プレイヤーの自動描画をOFFにする
+		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+		pPlayer->SetEnableDraw(false);
+
+		// 剣・軌跡の表示をOFFにする
+		pPlayer->SetNoneTwinSword();
+
+		// 自身の位置をステージ中央にする
+		CStage *pStage = CScene::GetStage();	// ステージ情報
+		D3DXVECTOR3 posEnemy = pStage->GetStageLimit().center;	// ボス設定位置
+		UpdateLanding(&posEnemy);	// 着地判定
+		LimitPosition(&posEnemy);	// 位置範囲外の補正
+		SetVec3Position(posEnemy);	// 位置を反映
+
+		// 自身の向きを初期化
+		SetVec3Rotation(VEC3_ZERO);	// 向き
+		SetDestRotation(VEC3_ZERO);	// 目標向き
+	}
 }
 
 //============================================================

@@ -56,7 +56,10 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
-	EState GetState(void) const;	// 状態取得
+	void GameEnd(void);	// ゲーム終了
+	EState GetState(void) const;			// 状態取得
+	void SetDrawGameUI(const bool bDraw);	// ゲーム画面のUI描画設定
+	void ResetColorGameChara(void);			// ゲームキャラの色情報再設定
 	void TransitionResult(const CRetentionManager::EWin win);	// リザルト画面遷移
 
 	// 静的メンバ関数

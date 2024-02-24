@@ -167,6 +167,7 @@ private:
 	void SelectAttack(void);	// 攻撃選択
 	void UpdateAttack(void);	// 攻撃更新
 	void UpdateAction(void);	// 行動更新
+	void SetDeathStaging(void);	// 死亡演出の設定
 	bool IsFly(void) const;		// 飛行フラグの取得
 
 	void UpdateMagicFadeIn(const D3DXVECTOR3& rPos);	// 魔法陣フェードイン行動時の更新
@@ -192,6 +193,7 @@ private:
 	EAction m_action;		// 行動
 	int m_nCounterSameAct;	// 同じ行動の連続数
 	int m_nCounterAttack;	// 攻撃管理カウンター
+	int m_nCounterFlash;	// フラッシュ管理カウンター
 };
 
 #endif	// _ENEMY_BOSS_DRAGON_H_

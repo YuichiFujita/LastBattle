@@ -249,6 +249,10 @@ void CSceneGame::Update(void)
 	else if (m_pHitStop->IsStop())
 	{ // ヒットストップ中の場合
 
+		// シネマスコープの更新
+		assert(m_pCinemaScope != nullptr);
+		m_pCinemaScope->Update();
+
 		// カメラの更新
 		GET_MANAGER->GetCamera()->Update();
 	}

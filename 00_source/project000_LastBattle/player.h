@@ -143,6 +143,7 @@ public:
 
 	// メンバ関数
 	void SetEnableDrawUI(const bool bDraw);	// UI描画設定
+	void SetNoneTwinSword(void);			// 剣の状態初期化
 	bool Hit(const int nDamage);			// ヒット
 	bool HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKnock);	// ノックバックヒット
 	void InitNormal(void);	// 通常状態の初期化
