@@ -555,27 +555,35 @@ void CCamera::SetEnableUpdate(const bool bUpdate)
 }
 
 //============================================================
-//	向きの設定処理
+//	視点の設定処理
 //============================================================
-void CCamera::SetVec3Rotation(const D3DXVECTOR3& rRot)
+void CCamera::SetPositionV(const D3DXVECTOR3& rPosV)
 {
-	// 引数のカメラの向きを設定
-	m_aCamera[TYPE_MAIN].rot = rRot;
 
-	// 向きを正規化
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);
 }
 
 //============================================================
-//	目標向きの設定処理
+//	注視点の設定処理
 //============================================================
-void CCamera::SetVec3DestRotation(const D3DXVECTOR3& rRot)
+void CCamera::SetPositionR(const D3DXVECTOR3& rPosR)
 {
-	// 引数のカメラの目標向きを設定
-	m_aCamera[TYPE_MAIN].destRot = rRot;
 
-	// 向きを正規化
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);
+}
+
+//============================================================
+//	向きの設定処理
+//============================================================
+void CCamera::SetRotation(const D3DXVECTOR3& rRot)
+{
+
+}
+
+//============================================================
+//	距離の設定処理
+//============================================================
+void CCamera::SetDistance(const float fDis)
+{
+
 }
 
 //============================================================
@@ -606,24 +614,6 @@ CCamera::EState CCamera::GetState(void) const
 {
 	// 状態を返す
 	return m_state;
-}
-
-//============================================================
-//	向き取得処理
-//============================================================
-D3DXVECTOR3 CCamera::GetVec3Rotation(void) const
-{
-	// カメラの向きを返す
-	return m_aCamera[TYPE_MAIN].rot;
-}
-
-//============================================================
-//	目標向き取得処理
-//============================================================
-D3DXVECTOR3 CCamera::GetVec3DestRotation(void) const
-{
-	// カメラの目標向きを返す
-	return m_aCamera[TYPE_MAIN].destRot;
 }
 
 //============================================================

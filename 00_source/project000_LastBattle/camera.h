@@ -111,19 +111,26 @@ public:
 	SCamera GetCamera(const EType type);	// カメラ取得
 	void SetState(const EState state);		// カメラ状態設定
 	EState GetState(void) const;			// カメラ状態取得
-
-	void SetDestRotate(void);		// カメラ目標位置設定 (回転)
-	void SetDestFollow(void);		// カメラ目標位置設定 (追従)
-	void SetDestLookPlayer(void);	// カメラ目標位置設定 (プレイヤー注目)
-	void SetDestLookBoss(void);		// カメラ目標位置設定 (ボス注目)
-	void SetFollowLook(const D3DXVECTOR3 &rLookPos);	// 追従カメラの位置視認
-
+	void SetDestRotate(void);				// カメラ目標位置設定 (回転)
+	void SetDestFollow(void);				// カメラ目標位置設定 (追従)
+	void SetDestLookPlayer(void);			// カメラ目標位置設定 (プレイヤー注目)
+	void SetDestLookBoss(void);				// カメラ目標位置設定 (ボス注目)
+	void SetFollowLook(const D3DXVECTOR3 &rLookPos);		// 追従カメラの位置視認
 	void SetSwing(const EType type, const SSwing swing);	// カメラ揺れ設定
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
-	void SetVec3Rotation(const D3DXVECTOR3& rRot);			// 現在向き設定
-	void SetVec3DestRotation(const D3DXVECTOR3& rRot);		// 目標向き設定
-	D3DXVECTOR3 GetVec3Rotation(void) const;				// 現在向き取得
-	D3DXVECTOR3 GetVec3DestRotation(void) const;			// 目標向き取得
+
+	void SetPositionV(const D3DXVECTOR3& rPos);	// 視点設定
+	void SetPositionR(const D3DXVECTOR3& rPos);	// 注視点設定
+	void SetRotation(const D3DXVECTOR3& rRot);	// 向き設定
+	void SetDistance(const float fDis);			// 距離設定
+	D3DXVECTOR3 GetPositionV(void) const		{ return m_aCamera[TYPE_MAIN].posV; }		// 現在の視点取得
+	D3DXVECTOR3 GetDestPositionV(void) const	{ return m_aCamera[TYPE_MAIN].destPosV; }	// 目標の視点取得
+	D3DXVECTOR3 GetPositionR(void) const		{ return m_aCamera[TYPE_MAIN].posR; }		// 現在の注視点取得
+	D3DXVECTOR3 GetDestPositionR(void) const	{ return m_aCamera[TYPE_MAIN].destPosR; }	// 目標の注視点取得
+	D3DXVECTOR3 GetRotation(void) const			{ return m_aCamera[TYPE_MAIN].rot; }		// 現在の向き取得
+	D3DXVECTOR3 GetDestRotation(void) const		{ return m_aCamera[TYPE_MAIN].destRot; }	// 目標の向き取得
+	float GetDistance(void) const				{ return m_aCamera[TYPE_MAIN].fDis; }		// 現在の距離取得
+	float GetDestDistance(void) const			{ return m_aCamera[TYPE_MAIN].fDestDis; }	// 目標の距離取得
 
 	// 静的メンバ関数
 	static CCamera *Create(void);				// 生成

@@ -731,6 +731,9 @@ void CEnemyBossDragon::SetDeath(void)
 	// カメラ揺れを設定
 	pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_START_SWING);
 
+	// カメラを何もしない状態に設定 (固定カメラにする)
+	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_NONE);
+
 	// ゲームを終了状態にする
 	CSceneGame::GetGameManager()->GameEnd();
 
@@ -1097,6 +1100,13 @@ void CEnemyBossDragon::SetDeathStaging(void)
 		// 自身の向きを初期化
 		SetVec3Rotation(VEC3_ZERO);	// 向き
 		SetDestRotation(VEC3_ZERO);	// 目標向き
+	}
+
+	// カメラ情報の設定
+	{
+		CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+
+		//pCamera->SetPosition();
 	}
 }
 

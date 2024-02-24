@@ -1413,8 +1413,8 @@ void CPlayer::SetLStickRotation(void)
 	{ // デッドゾーン以上の場合
 
 		// スティック傾き方向のベクトルを作成
-		vec.x = sinf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI);
-		vec.z = cosf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI);
+		vec.x = sinf(pPad->GetPressLStickRot() + pCamera->GetRotation().y + HALF_PI);
+		vec.z = cosf(pPad->GetPressLStickRot() + pCamera->GetRotation().y + HALF_PI);
 
 		// スティック傾き方向を向きに設定
 		m_destRot.y = atan2f(-vec.x, -vec.z);	// 目標向き
@@ -1738,7 +1738,7 @@ void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
 				{ // スティックの傾き量がデッドゾーン以上の場合
 
 					// スティック入力方向を設定
-					m_dodge.fRot = pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI;
+					m_dodge.fRot = pPad->GetPressLStickRot() + pCamera->GetRotation().y + HALF_PI;
 					useful::NormalizeRot(m_dodge.fRot);	// 向き正規化
 				}
 				else
@@ -1789,8 +1789,8 @@ void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 		float fMove = fLTilt * STICK_REV;	// プレイヤー移動量
 
 		// 移動量を更新
-		m_move.x += sinf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
-		m_move.z += cosf(pPad->GetPressLStickRot() + pCamera->GetVec3Rotation().y + HALF_PI) * fMove * MOVE_REV;
+		m_move.x += sinf(pPad->GetPressLStickRot() + pCamera->GetRotation().y + HALF_PI) * fMove * MOVE_REV;
+		m_move.z += cosf(pPad->GetPressLStickRot() + pCamera->GetRotation().y + HALF_PI) * fMove * MOVE_REV;
 
 		// 目標向きを設定
 		m_destRot.y = atan2f(-m_move.x, -m_move.z);
