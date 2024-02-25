@@ -277,6 +277,10 @@ void CSceneGame::Update(void)
 	{
 		CScene::GetBoss()->Hit(99999999);
 	}
+	if (GET_INPUTKEY->IsTrigger(DIK_8))
+	{
+		CScene::GetBoss()->SetState(CEnemy::STATE_STAN);
+	}
 }
 
 //============================================================

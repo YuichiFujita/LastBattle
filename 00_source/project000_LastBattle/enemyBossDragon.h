@@ -79,6 +79,8 @@ public:
 		MOTION_TAIL_ATTACK,		// しっぽ攻撃モーション
 		MOTION_FLY_ATTACK,		// 空中攻撃モーション
 		MOTION_FLY_RUSH,		// 空中突進攻撃モーション
+		MOTION_STAN,			// スタンモーション
+		MOTION_HOWL_FLYUP,		// 咆哮飛び上がりモーション
 		MOTION_DEATH,			// 死亡モーション
 		MOTION_MAX				// この列挙型の総数
 	};
@@ -123,15 +125,22 @@ public:
 		bool bLook;			// テレポート先にカメラを向かせるか
 	};
 
+	// ライド構造体
+	struct SRide
+	{
+		float fDir;	// ステージ中央から見たボスの方向
+	};
+
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;		// 描画
-	int  GetWaistModelID(void) const override;			// 腰モデルのインデックス取得
-	int  GetHeadModelID(void) const override;			// 頭モデルのインデックス取得
-	void SetEnableDrawUI(const bool bDraw) override;	// UI描画設定
-	bool Hit(const int nDamage) override;				// ヒット
+	void Draw(CShader *pShader = nullptr) override;			// 描画
+	int  GetWaistModelID(void) const override;				// 腰モデルのインデックス取得
+	int  GetHeadModelID(void) const override;				// 頭モデルのインデックス取得
+	bool IsRideOK(const D3DXVECTOR3& rPos) const override;	// ライド可能か取得
+	void SetEnableDrawUI(const bool bDraw) override;		// UI描画設定
+	bool Hit(const int nDamage) override;					// ヒット
 	bool HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
 
 	// メンバ関数
@@ -155,12 +164,18 @@ public:
 private:
 	// オーバーライド関数
 	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
-	void UpdateMotion(void) override;	// モーションの更新
-	void SetSpawn(void) override;		// スポーン状態の設定
-	void SetDeath(void) override;		// 死亡状態の設定
-	void UpdateSpawn(void) override;	// スポーン状態時の更新
-	void UpdateNormal(void) override;	// 通常状態時の更新
-	void UpdateDeath(void) override;	// 死亡状態時の更新
+	void UpdateMotion(void) override;		// モーションの更新
+	void SetSpawn(void) override;			// スポーン状態の設定
+	void SetStan(void) override;			// スタン状態の設定
+	void SetRideFlyUp(void) override;		// ライド飛び上がり状態の設定
+	void SetRideRotate(void) override;		// ライド旋回状態の設定
+	void SetDeath(void) override;			// 死亡状態の設定
+	void UpdateSpawn(void) override;		// スポーン状態時の更新
+	void UpdateNormal(void) override;		// 通常状態時の更新
+	void UpdateStan(void) override;			// スタン状態時の更新
+	void UpdateRideFlyUp(void) override;	// ライド飛び上がり状態時の更新
+	void UpdateRideRotate(void) override;	// ライド旋回状態時の更新
+	void UpdateDeath(void) override;		// 死亡状態時の更新
 
 	// メンバ関数
 	void LimitPosition(D3DXVECTOR3 *pPos);	// 位置範囲外の補正
@@ -190,6 +205,7 @@ private:
 	CEnemyAttack::EAttack m_oldAtk;	// 前回の攻撃
 	CEnemyAttack::EAttack m_curAtk;	// 今回の攻撃
 	STeleport m_teleport;	// テレポートの情報
+	SRide m_ride;			// ライドの情報
 	EAction m_action;		// 行動
 	int m_nCounterSameAct;	// 同じ行動の連続数
 	int m_nCounterAttack;	// 攻撃管理カウンター

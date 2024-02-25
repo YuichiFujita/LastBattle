@@ -25,6 +25,7 @@
 #include "timerManager.h"
 #include "cinemaScope.h"
 #include "player.h"
+#include "collision.h"
 
 //************************************************************
 //	定数宣言
@@ -78,13 +79,15 @@ namespace
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
 	const int	HOWL_WAIT_FRAME	= 40;			// 咆哮の余韻フレーム
-	const int	ATK_WAIT_FRAME	= 30;			// 攻撃の余韻フレーム
+	const int	ATK_WAIT_FRAME	= 60;			// 攻撃の余韻フレーム
+	const int	STAN_ATK_WAIT	= -30;			// スタン後の攻撃の余韻計測開始フレーム
 	const float	REV_ROTA		= 0.15f;		// 向き変更の補正係数
 	const float	SCALE_MAGIC		= 35.0f;		// 魔法陣の半径変動量
 	const float	MOVE_MAGIC		= 30.0f;		// 魔法陣の上下移動量
 	const float	MAGIC_CIRCLE_RADIUS	= 400.0f;	// 魔法陣の半径
 	const float	MAGIC_ALPHA_RADIUS	= 400.0f;	// 魔法陣の透明半径
 	const float	MAGIC_DELPOS_PLUSY	= 250.0f;	// 魔法陣の消失位置の加算量Y
+	const float	RIDE_FIND_RADIUS	= 250.0f;	// ライド時のボス検知半径
 
 	const int	NUM_MULTI_FLASH		= 2;	// 死亡後連続するフラッシュの回数
 	const int	HITSTOP_DEATH_START	= 90;	// 死亡初めのヒットストップの長さ
@@ -98,6 +101,14 @@ namespace
 	const D3DXVECTOR3 DEATH_CAMERA_OFFSET	= D3DXVECTOR3(35.0f, 106.0f, 0.0f);		// 死亡カメラの位置オフセット
 	const CCamera::SSwing DEATH_START_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 死亡初めのカメラ揺れ
 	const CCamera::SSwing DEATH_MULTI_SWING	= CCamera::SSwing(8.6f, 1.5f, 0.24f);	// 死亡後連続するカメラ揺れ
+
+	const float	RIDE_ROTATE_DIS  = 2400.0f;	// 旋回時のステージ中央から離れる距離
+	const float	RIDE_ROTATE_POSY = 1200.0f;	// 旋回時のY座標
+	const float	RIDE_ROTATE_MOVE = 0.006f;	// 旋回時の回転速度
+
+	const float	STAN_CANERA_DIS = 600.0f;	// スタンカメラの距離
+	const D3DXVECTOR3 STAN_CAMERA_OFFSET	= D3DXVECTOR3(0.0f, 100.0f, 0.0f);	// スタンカメラの位置オフセット
+	const D3DXVECTOR3 STAN_CAMERA_ROT		= D3DXVECTOR3(1.46f, 0.0f, 0.0f);	// スタンカメラの向き
 
 	// 体力の情報
 	namespace lifeInfo
@@ -147,6 +158,7 @@ CEnemyBossDragon::CEnemyBossDragon(const EType type) : CEnemy(type),
 {
 	// メンバ変数をクリア
 	memset(&m_teleport, 0, sizeof(m_teleport));	// テレポートの情報
+	memset(&m_ride, 0, sizeof(m_ride));			// ライドの情報
 }
 
 //============================================================
@@ -164,15 +176,16 @@ HRESULT CEnemyBossDragon::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_teleport, 0, sizeof(m_teleport));		// テレポートの情報
+	memset(&m_ride, 0, sizeof(m_ride));				// ライドの情報
 	m_oldAtk			= CEnemyAttack::ATTACK_00;	// 前回の攻撃
 	m_curAtk			= CEnemyAttack::ATTACK_00;	// 今回の攻撃
-	m_pLife				= nullptr;	// 体力の情報
-	m_pAttack			= nullptr;	// 攻撃の情報
-	m_pMagicCircle		= nullptr;	// 魔法陣の情報
-	m_action			= ACT_NONE;	// 行動
-	m_nCounterSameAct	= 0;		// 同じ行動の連続数
-	m_nCounterAttack	= 0;		// 攻撃管理カウンター
-	m_nCounterFlash		= 0;		// フラッシュ管理カウンター
+	m_pLife				= nullptr;		// 体力の情報
+	m_pAttack			= nullptr;		// 攻撃の情報
+	m_pMagicCircle		= nullptr;		// 魔法陣の情報
+	m_action			= ACT_NONE;		// 行動
+	m_nCounterSameAct	= 0;			// 同じ行動の連続数
+	m_nCounterAttack	= 0;			// 攻撃管理カウンター
+	m_nCounterFlash		= 0;			// フラッシュ管理カウンター
 
 	// 敵の初期化
 	if (FAILED(CEnemy::Init()))
@@ -283,6 +296,27 @@ int CEnemyBossDragon::GetHeadModelID(void) const
 }
 
 //============================================================
+//	ライド可能かの取得処理
+//============================================================
+bool CEnemyBossDragon::IsRideOK(const D3DXVECTOR3& rPos) const
+{
+	// スタン状態ではない場合ライド不可
+	if (GetState() != STATE_STAN) { return false; }
+
+	// XZ平面の円の当たり判定
+	bool bRideOK = collision::Circle2D
+	( // 引数
+		GetVec3Position(),	// 判定位置
+		rPos,				// 判定目標位置
+		RIDE_FIND_RADIUS,	// 判定半径
+		0.0f				// 判定目標半径
+	);
+
+	// 円判定内ならライド可能
+	return bRideOK;
+}
+
+//============================================================
 //	UI描画の設定処理
 //============================================================
 void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
@@ -300,20 +334,26 @@ void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
 bool CEnemyBossDragon::Hit(const int nDamage)
 {
 	if (IsDeath())						{ return false; }	// 死亡済み
-	if (GetState() != STATE_NORMAL)		{ return false; }	// 通常状態以外
 	if (m_action == ACT_MAGIC_FADEIN)	{ return false; }	// 魔法陣フェードイン中
 	if (m_action == ACT_MAGIC_FADEOUT)	{ return false; }	// 魔法陣フェードアウト中
 	if (m_pLife->GetNum() <= 0)			{ return false; }	// 体力なし
 
-	// 変数を宣言
-	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
-	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
+	int nState = GetState();
+	if (nState != STATE_NORMAL
+	&&  nState != STATE_RIDE_ROTATE)
+	{ // 通常・ライド旋回状態以外の場合抜ける
+
+		return false;
+	}
 
 	// 体力にダメージを与える
 	m_pLife->AddNum(-nDamage);
 
 	if (m_pLife->GetNum() > 0)
 	{ // 体力が残っている場合
+
+		// ダメージを受ける前の状態を保存
+		SetPrevState((EState)GetState());
 
 		// ダメージ状態にする
 		SetState(STATE_DAMAGE);
@@ -586,6 +626,8 @@ void CEnemyBossDragon::UpdateMotion(void)
 	case MOTION_HOWL:			// 咆哮モーション
 	case MOTION_IDOL:			// 待機モーション
 	case MOTION_FLY_IDOL:		// 空中待機モーション
+	case MOTION_STAN:			// スタンモーション
+	case MOTION_HOWL_FLYUP:		// 咆哮飛び上がりモーション
 	case MOTION_DEATH:			// 死亡モーション
 		break;
 
@@ -697,6 +739,53 @@ void CEnemyBossDragon::SetSpawn(void)
 }
 
 //============================================================
+//	スタン状態の設定処理
+//============================================================
+void CEnemyBossDragon::SetStan(void)
+{
+	// スタン状態の設定
+	CEnemy::SetStan();
+
+	// スタンモーションを設定
+	SetMotion(MOTION_STAN, BLEND_FRAME);
+}
+
+//============================================================
+//	ライド飛び上がり状態の設定処理
+//============================================================
+void CEnemyBossDragon::SetRideFlyUp(void)
+{
+	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+
+	// ライド飛び上がり状態の設定
+	CEnemy::SetRideFlyUp();
+
+	// 咆哮飛び上がりモーションを設定
+	SetMotion(MOTION_HOWL_FLYUP, BLEND_FRAME);
+
+	// カメラを何もしない状態に設定 (固定カメラにする)
+	pCamera->SetState(CCamera::STATE_NONE);
+
+	// カメラの注視点をボスの中心に設定
+	pCamera->SetPositionR(GetVec3Position() + STAN_CAMERA_OFFSET);
+
+	// カメラの向きを設定
+	pCamera->SetRotation(GetVec3Rotation() + STAN_CAMERA_ROT);
+
+	// カメラの距離を設定
+	pCamera->SetDistance(STAN_CANERA_DIS);
+}
+
+//============================================================
+//	ライド旋回状態の設定処理
+//============================================================
+void CEnemyBossDragon::SetRideRotate(void)
+{
+	// ライド旋回状態の設定
+	CEnemy::SetRideRotate();
+}
+
+//============================================================
 //	死亡状態の設定処理
 //============================================================
 void CEnemyBossDragon::SetDeath(void)
@@ -743,7 +832,7 @@ void CEnemyBossDragon::SetDeath(void)
 	pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_START_SWING);
 
 	// カメラを何もしない状態に設定 (固定カメラにする)
-	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_NONE);
+	pCamera->SetState(CCamera::STATE_NONE);
 
 	// ゲームを終了状態にする
 	CSceneGame::GetGameManager()->GameEnd();
@@ -815,6 +904,98 @@ void CEnemyBossDragon::UpdateNormal(void)
 
 	// 行動の更新
 	UpdateAction();
+}
+
+//============================================================
+//	スタン状態時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateStan(void)
+{
+	// スタン状態の更新
+	CEnemy::UpdateStan();
+
+	if (GetState() == STATE_NORMAL)
+	{ // 親クラス更新でスタンが終了した場合
+
+		// 攻撃までの待機時間を設定
+		m_nCounterAttack = STAN_ATK_WAIT;
+
+		// 待機モーションに移行
+		SetMotion(MOTION_IDOL, BLEND_FRAME);
+	}
+}
+
+//============================================================
+//	ライド飛び上がり状態時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateRideFlyUp(void)
+{
+	// ライド飛び上がり状態の更新
+	CEnemy::UpdateRideFlyUp();
+
+	// 別モーション指定エラー
+	assert(GetMotionType() == MOTION_HOWL_FLYUP);
+
+	if (IsMotionFinish())
+	{ // モーションが終了している場合
+
+		CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+
+		// ライド情報を初期化
+		m_ride.fDir = 0.0f;	// ボス方向を初期化
+
+		// 旋回飛行モーションを設定
+		SetMotion(MOTION_FLY_IDOL);
+
+		// カメラを騎乗状態に設定
+		pCamera->SetState(CCamera::STATE_RIDE);
+		pCamera->SetDestRide();
+
+		// ライド旋回状態にする
+		SetState(STATE_RIDE_ROTATE);
+	}
+}
+
+//============================================================
+//	ライド旋回状態時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateRideRotate(void)
+{
+	// ライド旋回状態時の更新
+	CEnemy::UpdateRideRotate();
+
+	// 別モーション指定エラー
+	assert(GetMotionType() == MOTION_FLY_IDOL);
+
+	CStage *pStage = CScene::GetStage();		// ステージ情報
+	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
+	D3DXVECTOR3 posCenter = pStage->GetStageLimit().center;	// ステージ中央位置
+
+	// 敵の位置を設定
+	posEnemy.x = posCenter.x + sinf(m_ride.fDir) * RIDE_ROTATE_DIS;
+	posEnemy.y = RIDE_ROTATE_POSY;
+	posEnemy.z = posCenter.z + cosf(m_ride.fDir) * RIDE_ROTATE_DIS;
+
+	// 敵の向きを進行方向に設定
+	rotEnemy.y = atan2f(posCenter.x - posEnemy.x, posCenter.z - posEnemy.z);
+	rotEnemy.y += D3DX_PI * 0.5f;
+
+	// 敵位置の設定方向を回転
+	m_ride.fDir += RIDE_ROTATE_MOVE;
+	useful::NormalizeRot(m_ride.fDir);
+
+	// 位置・向き反映
+	SetVec3Position(posEnemy);
+	SetVec3Rotation(rotEnemy);
+
+	// TODO：降りるタイミングの計算等を行う
+	if (GET_INPUTKEY->IsTrigger(DIK_7))
+	{
+		CScene::GetPlayer()->SetState(CPlayer::STATE_RIDE_END);
+		SetState(STATE_NORMAL);
+		SetTeleport(VEC3_ZERO, VEC3_ZERO);
+	}
 }
 
 //============================================================

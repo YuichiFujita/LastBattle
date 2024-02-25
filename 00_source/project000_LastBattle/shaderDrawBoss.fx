@@ -146,6 +146,9 @@ void PS
 		outCol *= tex2D(texObject, inVertex.tex);
 	}
 
+	// ピクセル透明度を拡散光のものにする
+	outCol.a = g_diffuse.a;
+
 	// スクリーン座標を求める
 	screenPos = float2(inVertex.screen.x / inVertex.screen.w, -inVertex.screen.y / inVertex.screen.w);
 

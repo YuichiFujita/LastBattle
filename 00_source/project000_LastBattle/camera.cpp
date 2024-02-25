@@ -73,6 +73,16 @@ namespace
 		const float	MAX_SUB_DIS		= 1500.0f;			// 下方向カメラの距離減算量
 	}
 
+	// 騎乗カメラ情報
+	namespace ride
+	{
+		const D3DXVECTOR3 OFFSET_POSR = D3DXVECTOR3(0.0f, 340.0f, 0.0f);	// 回転カメラの注視点のオフセット
+		const D3DXVECTOR2 INIT_ROT = D3DXVECTOR2(1.8f, 0.0f);				// 回転カメラの向き初期値
+
+		const float INIT_DIS = 400.0f;	// 回転カメラの距離初期値
+		const float SUB_ROTY = 0.5f;	// 回転カメラの向き減算量Y
+	}
+
 	// プレイヤー注目情報
 	namespace lookPlayer
 	{
@@ -241,6 +251,13 @@ void CCamera::Update(void)
 
 			// カメラの更新 (追従)
 			Follow();
+
+			break;
+
+		case STATE_RIDE:	// 騎乗状態
+
+			// カメラの更新 (騎乗)
+			Ride();
 
 			break;
 
@@ -421,6 +438,47 @@ void CCamera::SetDestFollow(void)
 	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].destPosR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
 	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].destPosR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
 	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].destPosR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+}
+
+//============================================================
+//	カメラ目標位置の設定処理 (騎乗)
+//============================================================
+void CCamera::SetDestRide(void)
+{
+	if (m_state != STATE_RIDE) { return; }	// カメラ騎乗状態以外
+	CPlayer	*pPlayer = CScene::GetPlayer();	// プレイヤー情報
+	CEnemy	*pBoss	 = CScene::GetBoss();	// ボス情報
+	CStage	*pStage	 = CScene::GetStage();	// ステージ情報
+	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();		// プレイヤー位置
+	D3DXVECTOR3 posBoss   = pBoss->GetVec3Position();		// ボス位置
+	D3DXVECTOR3 posCenter = pStage->GetStageLimit().center;	// ステージ中央位置
+
+	//--------------------------------------------------------
+	//	向きの更新
+	//--------------------------------------------------------
+	// 現在向きの設定
+	m_aCamera[TYPE_MAIN].rot.x = m_aCamera[TYPE_MAIN].destRot.x = ride::INIT_ROT.x;
+	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.x = atan2f(posCenter.x - posBoss.x, posCenter.z - posBoss.z) - ride::SUB_ROTY;
+
+	// 向きを正規化
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);
+
+	//--------------------------------------------------------
+	//	距離の更新
+	//--------------------------------------------------------
+	m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = ride::INIT_DIS;
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 注視点の設定
+	m_aCamera[TYPE_MAIN].posR = m_aCamera[TYPE_MAIN].destPosR = posBoss + ride::OFFSET_POSR;
+
+	// 視点の設定
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
 }
 
 //============================================================
@@ -839,6 +897,43 @@ void CCamera::Follow(void)
 	m_aCamera[TYPE_MAIN].posV.x += diffPosV.x * follow::REV_POSV.x;
 	m_aCamera[TYPE_MAIN].posV.y += diffPosV.y * follow::REV_POSV.y;
 	m_aCamera[TYPE_MAIN].posV.z += diffPosV.z * follow::REV_POSV.z;
+}
+
+//============================================================
+//	カメラの更新処理 (騎乗)
+//============================================================
+void CCamera::Ride(void)
+{
+	CPlayer	*pPlayer = CScene::GetPlayer();	// プレイヤー情報
+	CEnemy	*pBoss	 = CScene::GetBoss();	// ボス情報
+	CStage	*pStage	 = CScene::GetStage();	// ステージ情報
+	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();		// プレイヤー位置
+	D3DXVECTOR3 posBoss   = pBoss->GetVec3Position();		// ボス位置
+	D3DXVECTOR3 posCenter = pStage->GetStageLimit().center;	// ステージ中央位置
+
+	//--------------------------------------------------------
+	//	向きの更新
+	//--------------------------------------------------------
+	// 現在向きの更新
+	m_aCamera[TYPE_MAIN].rot.x = ride::INIT_ROT.x;
+	m_aCamera[TYPE_MAIN].rot.y = atan2f(posCenter.x - posBoss.x, posCenter.z - posBoss.z) - ride::SUB_ROTY;
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+
+	//--------------------------------------------------------
+	//	距離の更新
+	//--------------------------------------------------------
+	m_aCamera[TYPE_MAIN].fDis = ride::INIT_DIS;
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR = posBoss + ride::OFFSET_POSR;
+
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
 }
 
 //============================================================

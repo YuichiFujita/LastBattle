@@ -37,6 +37,7 @@ public:
 		STATE_CONTROL,		// 操作状態
 		STATE_ROTATE,		// 回転状態
 		STATE_FOLLOW,		// 追従状態
+		STATE_RIDE,			// 騎乗状態
 		STATE_LOOK_PLAYER,	// プレイヤー注目状態
 		STATE_LOOK_BOSS,	// ボス注目状態
 		STATE_MAX			// この列挙型の総数
@@ -117,6 +118,7 @@ public:
 
 	void SetDestRotate(void);		// カメラ目標位置設定 (回転)
 	void SetDestFollow(void);		// カメラ目標位置設定 (追従)
+	void SetDestRide(void);			// カメラ目標位置設定 (騎乗)
 	void SetDestLookPlayer(void);	// カメラ目標位置設定 (プレイヤー注目)
 	void SetDestLookBoss(void);		// カメラ目標位置設定 (ボス注目)
 
@@ -141,6 +143,7 @@ private:
 	// メンバ関数
 	void Rotate(void);		// カメラの更新 (回転)
 	void Follow(void);		// カメラの更新 (追従)
+	void Ride(void);		// カメラの更新 (騎乗)
 	void LookPlayer(void);	// カメラの更新 (プレイヤー注目)
 	void LookBoss(void);	// カメラの更新 (ボス注目)
 	void Control(void);		// カメラの更新 (操作)

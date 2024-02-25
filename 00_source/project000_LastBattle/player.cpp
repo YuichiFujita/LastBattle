@@ -355,20 +355,11 @@ void CPlayer::Update(void)
 	ELowerMotion curLowMotion = L_MOTION_IDOL;	// 現在の下半身モーション
 	EUpperMotion curUpMotion  = U_MOTION_IDOL;	// 現在の上半身モーション
 
-	// TODO：プレイヤーライドON/OFF
-	if (GET_INPUTKEY->IsTrigger(DIK_9))
-	{
-		SetState(m_state == STATE_RIDE ? STATE_NORMAL : STATE_RIDE);
-	}
-
 	// オブジェクト分割キャラクターの更新
 	CObjectDivChara::Update();
 
 	// 過去位置の更新
 	UpdateOldPosition();
-
-	// 重力の更新
-	UpdateGravity();
 
 	switch (m_state)
 	{ // 状態ごとの処理
@@ -396,6 +387,13 @@ void CPlayer::Update(void)
 
 		break;
 
+	case STATE_RIDE_END:
+
+		// ライド終了状態の更新
+		UpdateRideEnd((int*)&curLowMotion, (int*)&curUpMotion);
+
+		break;
+
 	case STATE_DAMAGE:
 
 		// 通常状態の更新
@@ -412,9 +410,8 @@ void CPlayer::Update(void)
 
 	case STATE_DEATH:
 
-		// 死亡モーションにする
-		curLowMotion = L_MOTION_DEATH;
-		curUpMotion  = U_MOTION_DEATH;
+		// 死亡状態時の更新
+		UpdateDeath();
 
 		break;
 
@@ -443,6 +440,14 @@ void CPlayer::Update(void)
 
 	// モーションの更新
 	UpdateMotion(curLowMotion, curUpMotion);
+
+	if (m_state == STATE_RIDE)
+	{ // ライド状態の場合
+
+		// 位置・向きオフセットを設定
+		SetPartsPosition(BODY_LOWER, L_MODEL_WAIST, RIDE_POS_OFFSET);
+		SetPartsRotation(BODY_LOWER, L_MODEL_WAIST, RIDE_ROT_OFFSET);
+	}
 }
 
 //============================================================
@@ -493,33 +498,11 @@ void CPlayer::SetState(const int nState)
 		// 引数の状態を設定
 		m_state = (EState)nState;
 
-		if (m_state == STATE_RIDE)
-		{ // ライド状態になった場合
+		// 腰の親モデルを初期化
+		GetMultiModel(BODY_LOWER, L_MODEL_WAIST)->SetParentModel(nullptr);
 
-			// ボスの体マトリックスを腰の親モデルに設定
-			GetMultiModel(BODY_LOWER, L_MODEL_WAIST)->SetParentModel
-			(CScene::GetBoss()->GetMultiModel(CEnemyBossDragon::MODEL_BODY));
-
-			// 位置・向きオフセットを設定
-			SetPartsPosition(BODY_LOWER, L_MODEL_WAIST, RIDE_POS_OFFSET);
-			SetPartsRotation(BODY_LOWER, L_MODEL_WAIST, RIDE_ROT_OFFSET);
-
-			// 影の自動描画をOFFにする
-			m_pShadow->SetEnableDraw(false);
-		}
-		else
-		{ // ライド状態が解除された場合
-
-			// 腰の親モデルを初期化
-			GetMultiModel(BODY_LOWER, L_MODEL_WAIST)->SetParentModel(nullptr);
-
-			// 位置・向きオフセットを初期化
-			SetPartsPosition(BODY_LOWER, L_MODEL_WAIST, VEC3_ZERO);
-			SetPartsRotation(BODY_LOWER, L_MODEL_WAIST, VEC3_ZERO);
-
-			// 影の自動描画をONにする
-			m_pShadow->SetEnableDraw(true);
-		}
+		// 自動描画をONにする
+		SetEnableDraw(true);
 	}
 	else { assert(false); }
 }
@@ -879,6 +862,43 @@ void CPlayer::SetInvuln(void)
 }
 
 //============================================================
+//	ライド設定処理
+//============================================================
+void CPlayer::SetRide(void)
+{
+	// 無敵状態にする
+	SetState(STATE_RIDE);
+
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// 回避情報を初期化
+	m_dodge.bDodge = false;	// 回避状況
+	m_dodge.fMove = 0.0f;
+
+	// ジャンプ情報を初期化
+	m_jump.bJump = false;	// ジャンプ状況
+
+	for (int nCntBlur = 0; nCntBlur < BODY_MAX; nCntBlur++)
+	{ // ブラーの数分繰り返す
+
+		// ブラーを削除
+		m_apBlur[nCntBlur]->SetState(CBlur::STATE_VANISH);
+	}
+
+	// ボスの体マトリックスを腰の親モデルに設定
+	GetMultiModel(BODY_LOWER, L_MODEL_WAIST)->SetParentModel
+	(CScene::GetBoss()->GetMultiModel(CEnemyBossDragon::MODEL_BODY));
+
+	// 自動描画をOFFにする
+	SetEnableDraw(false);
+	CObject::SetEnableDraw(true);	// 自身はON
+
+	// マテリアルを再設定
+	ResetMaterial();
+}
+
+//============================================================
 //	モーションの設定処理
 //============================================================
 void CPlayer::SetMotion
@@ -977,6 +997,22 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 				if (nMotion != L_MOTION_IDOL)
 				{ // 待機モーション以外の場合
+
+					// 現在のモーションの設定
+					SetMotion(BODY_LOWER, nMotion);
+				}
+			}
+
+			break;
+
+		case L_MOTION_RIDE_ATTACK_00:	// ライド攻撃モーション一段階目：ループOFF
+		case L_MOTION_RIDE_ATTACK_01:	// ライド攻撃モーション二段階目：ループOFF
+
+			if (IsMotionCancel(BODY_LOWER))
+			{ // キャンセルできる場合
+
+				if (nMotion != L_MOTION_RIDE_IDOL)
+				{ // ライド待機モーション以外の場合
 
 					// 現在のモーションの設定
 					SetMotion(BODY_LOWER, nMotion);
@@ -1139,6 +1175,48 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 		break;
 
+	case L_MOTION_RIDE_IDOL:	// ライド待機モーション：ループON
+		break;
+
+	case L_MOTION_RIDE_ATTACK_00:	// ライド攻撃モーション一段階目：ループOFF
+
+		if (IsMotionCombo(BODY_LOWER))
+		{ // モーションコンボができる場合
+
+			if (m_attack.bInput)
+			{ // 攻撃が先行入力されている場合
+
+				// 次の攻撃モーションを設定
+				SetMotion(BODY_LOWER, GetMotionType(BODY_LOWER) + 1);
+
+				// 入力反映を加算
+				m_attack.Add();	// 全モーションに反映したら先行入力を初期化
+
+				// 処理を抜ける
+				break;
+			}
+		}
+
+		if (IsMotionFinish(BODY_LOWER))
+		{ // モーションが終了した場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_LOWER, nMotion);
+		}
+
+		break;
+
+	case L_MOTION_RIDE_ATTACK_01:	// ライド攻撃モーション二段階目：ループOFF
+
+		if (IsMotionFinish(BODY_LOWER))
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_LOWER, nMotion);
+		}
+
+		break;
+
 	case L_MOTION_DEATH:	// 死亡モーション：ループON
 		break;
 
@@ -1191,6 +1269,22 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 				if (nMotion != U_MOTION_IDOL)
 				{ // 待機モーション以外の場合
+
+					// 現在のモーションの設定
+					SetMotion(BODY_UPPER, nMotion);
+				}
+			}
+
+			break;
+
+		case U_MOTION_RIDE_ATTACK_00:	// ライド攻撃モーション一段階目：ループOFF
+		case U_MOTION_RIDE_ATTACK_01:	// ライド攻撃モーション二段階目：ループOFF
+
+			if (IsMotionCancel(BODY_UPPER))
+			{ // キャンセルできる場合
+
+				if (nMotion != U_MOTION_RIDE_IDOL)
+				{ // ライド待機モーション以外の場合
 
 					// 現在のモーションの設定
 					SetMotion(BODY_UPPER, nMotion);
@@ -1356,6 +1450,48 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 		break;
 
+	case U_MOTION_RIDE_IDOL:	// ライド待機モーション：ループON
+		break;
+
+	case U_MOTION_RIDE_ATTACK_00:	// ライド攻撃モーション一段階目：ループOFF
+
+		if (IsMotionCombo(BODY_UPPER))
+		{ // モーションコンボができる場合
+
+			if (m_attack.bInput)
+			{ // 攻撃が先行入力されている場合
+
+				// 次の攻撃モーションを設定
+				SetMotion(BODY_UPPER, GetMotionType(BODY_UPPER) + 1);
+
+				// 入力反映を加算
+				m_attack.Add();	// 全モーションに反映したら先行入力を初期化
+
+				// 処理を抜ける
+				break;
+			}
+		}
+
+		if (IsMotionFinish(BODY_UPPER))
+		{ // モーションが終了した場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_UPPER, nMotion);
+		}
+
+		break;
+
+	case U_MOTION_RIDE_ATTACK_01:	// ライド攻撃モーション二段階目：ループOFF
+
+		if (IsMotionFinish(BODY_UPPER))
+		{ // モーションが終了していた場合
+
+			// 現在のモーションの設定
+			SetMotion(BODY_UPPER, nMotion);
+		}
+
+		break;
+
 	case U_MOTION_DEATH:	// 死亡モーション：ループON
 		break;
 
@@ -1481,7 +1617,9 @@ bool CPlayer::IsAttack(void) const
 				 || curMotion == U_MOTION_ATTACK_01
 				 || curMotion == U_MOTION_ATTACK_02
 				 || curMotion == U_MOTION_JUMP_ATTACK_00
-				 || curMotion == U_MOTION_JUMP_ATTACK_01);
+				 || curMotion == U_MOTION_JUMP_ATTACK_01
+				 || curMotion == U_MOTION_RIDE_ATTACK_00
+				 || curMotion == U_MOTION_RIDE_ATTACK_01);
 
 	// 攻撃状況を返す
 	return bAttack;
@@ -1504,6 +1642,38 @@ void CPlayer::UpdateSpawn(void)
 }
 
 //============================================================
+//	死亡状態時の更新処理
+//============================================================
+void CPlayer::UpdateDeath(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 位置更新
+	UpdatePosition(&posPlayer);
+
+	// 着地判定
+	UpdateLanding(&posPlayer);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posPlayer, RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+
+	// 死亡モーションにする
+	SetMotion(BODY_LOWER, L_MOTION_DEATH);
+	SetMotion(BODY_UPPER, U_MOTION_DEATH);
+}
+
+//============================================================
 //	通常状態時の更新処理
 //============================================================
 void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
@@ -1516,8 +1686,14 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	CStage *pStage = CScene::GetStage();				// ステージ情報
 	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
 
+	// 重力の更新
+	UpdateGravity();
+
 	// 攻撃操作
 	UpdateAttack(posPlayer, rotPlayer);
+
+	// 騎乗操作
+	UpdateRide(posPlayer);
 
 	// 回避操作
 	UpdateDodge(rotPlayer);
@@ -1555,7 +1731,16 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 //============================================================
 void CPlayer::UpdateRide(int *pLowMotion, int *pUpMotion)
 {
-	// 変数を宣言
+	// 上下にライドモーションを設定
+	*pLowMotion = L_MOTION_RIDE_IDOL;
+	*pUpMotion  = U_MOTION_RIDE_IDOL;
+
+	// 騎乗攻撃操作
+	UpdateRideAttack();
+
+	// 身体の色を元に戻す
+	ResetMaterial();
+
 	CMultiModel *pModelWaistPlayer = GetMultiModel(BODY_LOWER, L_MODEL_WAIST);	// プレイヤー腰モデル情報
 	D3DXMATRIX  mtxWaistPlayer = pModelWaistPlayer->GetMtxWorld();	// プレイヤー腰マトリックス
 
@@ -1566,21 +1751,62 @@ void CPlayer::UpdateRide(int *pLowMotion, int *pUpMotion)
 	D3DXVECTOR3 rotPlayer = VEC3_ZERO;
 	rotPlayer.y = useful::GetMatrixRotation(mtxWaistPlayer).y;
 
-	// 位置・向きオフセットを設定
-	SetPartsPosition(BODY_LOWER, L_MODEL_WAIST, RIDE_POS_OFFSET);
-	SetPartsRotation(BODY_LOWER, L_MODEL_WAIST, RIDE_ROT_OFFSET);
-
-	// 攻撃操作
-	UpdateAttack(posPlayer, rotPlayer);
-
-	// 身体の色を元に戻す
-	ResetMaterial();
-
 	// 位置を反映
 	SetVec3Position(posPlayer);
 
 	// 向きを反映
 	SetVec3Rotation(rotPlayer);
+}
+
+//============================================================
+//	ライド終了状態時の更新処理
+//============================================================
+void CPlayer::UpdateRideEnd(int *pLowMotion, int *pUpMotion)
+{
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 変数を宣言
+	D3DXVECTOR3 posCenter = pStage->GetStageLimit().center;	// ステージ中央位置
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 位置更新
+	UpdatePosition(&posPlayer);
+
+	if (posPlayer.y <= pStage->GetStageLimit().fField)
+	{ // 着地した場合
+
+		// 着地判定
+		UpdateLanding(&posPlayer);
+
+		// ステージ範囲外の補正
+		pStage->LimitPosition(posPlayer, RADIUS);
+
+		// 通常状態にする
+		SetState(STATE_NORMAL);
+
+		// ステージ方向を向かせる
+		D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
+		rotPlayer.y = atan2f(posPlayer.x - posCenter.x, posPlayer.z - posCenter.z);
+
+		// 向きを反映
+		SetVec3Rotation(rotPlayer);
+
+		// カメラを追従状態に設定
+		GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
+		GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
+	}
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+
+	// 上下に落下モーションを設定
+	*pLowMotion = L_MOTION_FALL;
+	*pUpMotion  = U_MOTION_FALL;
 }
 
 //============================================================
@@ -1752,6 +1978,63 @@ void CPlayer::UpdateSkyAttack(void)
 				// 先行入力を受け付ける
 				m_attack.bInput = true;
 			}
+		}
+	}
+}
+
+//============================================================
+//	騎乗攻撃操作の更新処理
+//============================================================
+void CPlayer::UpdateRideAttack(void)
+{
+	// ボスが旋回中ではない場合抜ける
+	if (CScene::GetBoss()->GetState() == CEnemyBossDragon::STATE_RIDE_ROTATE)
+
+	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
+	{
+		if (!IsAttack())
+		{ // 攻撃中ではない場合
+
+			// 攻撃モーションを指定
+			SetMotion(BODY_LOWER, L_MOTION_RIDE_ATTACK_00);
+			SetMotion(BODY_UPPER, U_MOTION_RIDE_ATTACK_00);
+		}
+		else
+		{ // 攻撃中の場合
+
+			if (GetMotionType(BODY_UPPER) != U_MOTION_RIDE_ATTACK_01)	// TODO：一番最後の攻撃にする
+			{ // 最終攻撃モーションではない場合
+
+				// コンボ可能までの残りフレームを計算
+				int nWholeFrame = GetMotionComboFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
+				if (nWholeFrame < ATTACK_BUFFER_FRAME)
+				{ // 先行入力が可能な場合
+
+					// 先行入力を受け付ける
+					m_attack.bInput = true;
+				}
+			}
+		}
+	}
+}
+
+//============================================================
+//	騎乗操作の更新処理
+//============================================================
+void CPlayer::UpdateRide(const D3DXVECTOR3& rPos)
+{
+	CInputPad *pPad = GET_INPUTPAD;	// パッド
+	if (pPad->IsTrigger(CInputPad::KEY_B))
+	{
+		CEnemy *pBoss = CScene::GetBoss();	// ボス情報
+		if (pBoss->IsRideOK(rPos))
+		{ // ボスへの騎乗が可能な場合
+
+			// プレイヤーを騎乗状態にする
+			SetRide();
+
+			// ボスをライド飛び上がり状態にする
+			pBoss->SetState(CEnemy::STATE_RIDE_FLYUP);
 		}
 	}
 }

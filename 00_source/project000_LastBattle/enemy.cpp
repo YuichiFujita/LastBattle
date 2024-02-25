@@ -11,10 +11,8 @@
 #include "manager.h"
 #include "renderer.h"
 #include "stage.h"
-
 #include "enemyBossDragon.h"
 #include "enemyMiniDragon.h"
-
 #include "collSphere.h"
 
 //************************************************************
@@ -39,9 +37,10 @@ namespace
 
 	const int	DAMAGE_FRAME	= 4;		// ダメージ状態の維持フレーム
 	const int	INVULN_FRAME	= 12;		// 無敵状態の維持フレーム
-	const float	INVULN_ALPHA	= 0.7f;		// 無敵状態の基礎透明度
+	const int	STAN_FRAME		= 640;		// スタン状態の維持フレーム
+	const float	STAN_ALPHA		= 0.75f;	// 無敵状態の基礎透明度
 	const float	ADD_SINROT		= 0.1f;		// 透明度をふわふわさせる際のサインカーブ向き加算量
-	const float	MAX_ADD_ALPHA	= 0.25f;	// 透明度の最大加算量
+	const float	MAX_ADD_ALPHA	= 0.15f;	// 透明度の最大加算量
 }
 
 //************************************************************
@@ -54,13 +53,15 @@ CEnemy::SStatusInfo	CEnemy::m_aStatusInfo[TYPE_MAX]	= {};	// ステータス情報
 CEnemy::SCollInfo	CEnemy::m_aCollInfo[TYPE_MAX]	= {};	// 当たり判定情報
 CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =		// 状態更新関数
 {
-	&CEnemy::UpdateNone,	// なにもしない状態時の更新
-	&CEnemy::UpdateSpawn,	// スポーン状態時の更新
-	&CEnemy::UpdateNormal,	// 通常状態時の更新
-	&CEnemy::UpdateDamage,	// ダメージ状態時の更新
-	&CEnemy::UpdateInvuln,	// 無敵状態時の更新
-	&CEnemy::UpdateStan,	// スタン状態時の更新
-	&CEnemy::UpdateDeath,	// 死亡状態時の更新
+	&CEnemy::UpdateNone,		// なにもしない状態時の更新
+	&CEnemy::UpdateSpawn,		// スポーン状態時の更新
+	&CEnemy::UpdateNormal,		// 通常状態時の更新
+	&CEnemy::UpdateDamage,		// ダメージ状態時の更新
+	&CEnemy::UpdateInvuln,		// 無敵状態時の更新
+	&CEnemy::UpdateStan,		// スタン状態時の更新
+	&CEnemy::UpdateRideFlyUp,	// ライド飛び上がり状態時の更新
+	&CEnemy::UpdateRideRotate,	// ライド旋回状態時の更新
+	&CEnemy::UpdateDeath,		// 死亡状態時の更新
 };
 
 //************************************************************
@@ -78,6 +79,7 @@ CEnemy::CEnemy(const EType type) : CObjectChara(CObject::LABEL_ENEMY, CObject::D
 	m_destRot		(VEC3_ZERO),			// 目標向き
 	m_move			(VEC3_ZERO),			// 移動量
 	m_state			(STATE_NONE),			// 状態
+	m_prevState		(STATE_NONE),			// ダメージを受ける前の状態
 	m_fSinAlpha		(0.0f),					// 透明向き
 	m_bJump			(false),				// ジャンプ状況
 	m_nCounterState	(0)						// 状態管理カウンター
@@ -103,7 +105,8 @@ HRESULT CEnemy::Init(void)
 	m_destRot	= VEC3_ZERO;	// 目標向き
 	m_move		= VEC3_ZERO;	// 移動量
 	m_state		= STATE_NONE;	// 状態
-	m_fSinAlpha = 0.0f;			// 透明向き
+	m_prevState	= STATE_NONE;	// ダメージを受ける前の状態
+	m_fSinAlpha	= 0.0f;			// 透明向き
 	m_bJump		= false;		// ジャンプ状況
 	m_nCounterState	= 0;		// 状態管理カウンター
 
@@ -242,6 +245,24 @@ void CEnemy::SetState(const int nState)
 		SetInvuln();
 		break;
 
+	case STATE_STAN:	// スタン状態
+
+		// スタン状態の設定
+		SetStan();
+		break;
+
+	case STATE_RIDE_FLYUP:	// ライド飛び上がり状態
+
+		// ライド飛び上がり状態の設定
+		SetRideFlyUp();
+		break;
+
+	case STATE_RIDE_ROTATE:	// ライド旋回状態
+
+		// ライド旋回状態の設定
+		SetRideRotate();
+		break;
+
 	case STATE_DEATH:	// 死亡状態
 
 		// 死亡状態の設定
@@ -308,6 +329,15 @@ void CEnemy::InitNormal(void)
 void CEnemy::DrawCrop(void)
 {
 	assert(false);
+}
+
+//============================================================
+//	ライド可能かの取得処理
+//============================================================
+bool CEnemy::IsRideOK(const D3DXVECTOR3& /*rPos*/) const
+{
+	assert(false);
+	return false;
 }
 
 //============================================================
@@ -549,6 +579,24 @@ void CEnemy::SetInvuln(void)
 	// カウンターを初期化
 	m_nCounterState = 0;	// 状態管理カウンター
 
+	// 描画を再開
+	SetEnableDraw(true);
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 透明度を不透明に再設定
+	SetAlpha(1.0f);
+}
+
+//============================================================
+//	スタン状態の設定処理
+//============================================================
+void CEnemy::SetStan(void)
+{
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
 	// 透明向きを初期化
 	m_fSinAlpha = 0.0f;
 
@@ -559,7 +607,43 @@ void CEnemy::SetInvuln(void)
 	ResetMaterial();
 
 	// 無敵の基礎透明度を設定
-	SetAlpha(INVULN_ALPHA);
+	SetAlpha(STAN_ALPHA);
+}
+
+//============================================================
+//	ライド飛び上がり状態の設定処理
+//============================================================
+void CEnemy::SetRideFlyUp(void)
+{
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// 描画を再開
+	SetEnableDraw(true);
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 透明度を再設定
+	SetAlpha(1.0f);
+}
+
+//============================================================
+//	ライド旋回状態の設定処理
+//============================================================
+void CEnemy::SetRideRotate(void)
+{
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// 描画を再開
+	SetEnableDraw(true);
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 透明度を再設定
+	SetAlpha(1.0f);
 }
 
 //============================================================
@@ -617,7 +701,7 @@ void CEnemy::UpdateSpawn(void)
 	{ // 不透明になり切った場合
 
 		// 通常状態にする
-		m_state = STATE_NORMAL;
+		SetState(STATE_NORMAL);
 	}
 }
 
@@ -664,8 +748,9 @@ void CEnemy::UpdateDamage(void)
 	// 身体の色を赤くする
 	SetAllMaterial(material::DamageRed());
 
-	// 通常動作の更新
-	UpdateNormal();
+	// ダメージを受ける前の状態更新
+	assert(m_prevState > NONE_IDX && m_prevState < STATE_MAX);
+	(this->*(m_aFuncUpdateState[m_prevState]))();
 
 	// カウンターを加算
 	m_nCounterState++;
@@ -688,21 +773,9 @@ void CEnemy::UpdateDamage(void)
 //============================================================
 void CEnemy::UpdateInvuln(void)
 {
-	// 変数を宣言
-	float fAddAlpha = 0.0f;	// 透明度の加算量
-
-	// サインカーブ向きを回転
-	m_fSinAlpha += ADD_SINROT;
-	useful::NormalizeRot(m_fSinAlpha);	// 向き正規化
-
-	// 透明度加算量を求める
-	fAddAlpha = (MAX_ADD_ALPHA / 2.0f) * (sinf(m_fSinAlpha) - 1.0f);
-
-	// 透明度を設定
-	SetAlpha(INVULN_ALPHA + fAddAlpha);
-
-	// 通常動作の更新
-	UpdateNormal();
+	// ダメージを受ける前の状態更新
+	assert(m_prevState > NONE_IDX && m_prevState < STATE_MAX);
+	(this->*(m_aFuncUpdateState[m_prevState]))();
 
 	// カウンターを加算
 	m_nCounterState++;
@@ -715,8 +788,9 @@ void CEnemy::UpdateInvuln(void)
 		// 不透明にする
 		SetAlpha(1.0f);
 
-		// 通常状態を設定
-		SetState(STATE_NORMAL);
+		// ダメージを受ける前の状態を設定
+		assert(m_prevState != STATE_NONE);
+		SetState(m_prevState);
 	}
 }
 
@@ -725,7 +799,70 @@ void CEnemy::UpdateInvuln(void)
 //============================================================
 void CEnemy::UpdateStan(void)
 {
-	assert(false);
+	float fAddAlpha = 0.0f;	// 透明度の加算量
+
+	// サインカーブ向きを回転
+	m_fSinAlpha += ADD_SINROT;
+	useful::NormalizeRot(m_fSinAlpha);	// 向き正規化
+
+	// 透明度加算量を求める
+	fAddAlpha = (MAX_ADD_ALPHA / 2.0f) * (sinf(m_fSinAlpha) - 1.0f);
+
+	// 透明度を設定
+	SetAlpha(STAN_ALPHA + fAddAlpha);
+
+	// カウンターを加算
+	m_nCounterState++;
+	if (m_nCounterState > STAN_FRAME)
+	{ // スタン状態の終了フレームになった場合
+
+		// カウンターを初期化
+		m_nCounterState = 0;
+
+		// 不透明にする
+		SetAlpha(1.0f);
+
+		// 通常状態を設定
+		SetState(STATE_NORMAL);
+	}
+
+	D3DXVECTOR3 posEnemy = GetVec3Position();			// 敵位置
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 過去位置の更新
+	UpdateOldPosition();
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 位置更新
+	UpdatePosition(&posEnemy);
+
+	// 着地判定
+	UpdateLanding(&posEnemy);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posEnemy, m_status.fRadius);
+
+	// 位置を反映
+	SetVec3Position(posEnemy);
+}
+
+//============================================================
+//	ライド飛び上がり状態時の更新処理
+//============================================================
+void CEnemy::UpdateRideFlyUp(void)
+{
+
+}
+
+//============================================================
+//	ライド旋回状態時の更新処理
+//============================================================
+void CEnemy::UpdateRideRotate(void)
+{
+
 }
 
 //============================================================

@@ -83,6 +83,9 @@ public:
 		L_MOTION_LAND,				// 着地モーション
 		L_MOTION_JUMP_ATTACK_00,	// 空中攻撃モーション一段階目
 		L_MOTION_JUMP_ATTACK_01,	// 空中攻撃モーション二段階目
+		L_MOTION_RIDE_IDOL,			// ライド待機モーション
+		L_MOTION_RIDE_ATTACK_00,	// ライド攻撃モーション一段階目
+		L_MOTION_RIDE_ATTACK_01,	// ライド攻撃モーション二段階目
 		L_MOTION_DEATH,				// 死亡モーション
 		L_MOTION_MAX				// この列挙型の総数
 	};
@@ -102,6 +105,9 @@ public:
 		U_MOTION_LAND,				// 着地モーション
 		U_MOTION_JUMP_ATTACK_00,	// 空中攻撃モーション一段階目
 		U_MOTION_JUMP_ATTACK_01,	// 空中攻撃モーション二段階目
+		U_MOTION_RIDE_IDOL,			// ライド待機モーション
+		U_MOTION_RIDE_ATTACK_00,	// ライド攻撃モーション一段階目
+		U_MOTION_RIDE_ATTACK_01,	// ライド攻撃モーション二段階目
 		U_MOTION_DEATH,				// 死亡モーション
 		U_MOTION_MAX				// この列挙型の総数
 	};
@@ -113,6 +119,7 @@ public:
 		STATE_SPAWN,	// スポーン状態
 		STATE_NORMAL,	// 通常状態
 		STATE_RIDE,		// ライド状態
+		STATE_RIDE_END,	// ライド終了状態
 		STATE_DAMAGE,	// ダメージ状態
 		STATE_INVULN,	// 無敵状態
 		STATE_DEATH,	// 死亡状態
@@ -150,6 +157,7 @@ public:
 	void InitNormal(void);	// 通常状態の初期化
 	void SetSpawn(void);	// スポーン設定
 	void SetInvuln(void);	// 無敵設定
+	void SetRide(void);		// ライド設定
 
 private:
 	// 先行入力構造体
@@ -240,10 +248,12 @@ private:
 	bool IsAttack(void) const;		// 攻撃状況取得
 
 	void UpdateSpawn(void);	// スポーン状態時の更新
-	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
-	void UpdateRide(int *pLowMotion, int *pUpMotion);	// ライド状態時の更新
-	void UpdateDamage(int *pLowMotion, int *pUpMotion);	// ダメージ状態時の更新
-	void UpdateInvuln(int *pLowMotion, int *pUpMotion);	// 無敵状態時の更新
+	void UpdateDeath(void);	// 死亡状態時の更新
+	void UpdateNormal(int *pLowMotion, int *pUpMotion);		// 通常状態時の更新
+	void UpdateRide(int *pLowMotion, int *pUpMotion);		// ライド状態時の更新
+	void UpdateRideEnd(int *pLowMotion, int *pUpMotion);	// ライド終了状態時の更新
+	void UpdateDamage(int *pLowMotion, int *pUpMotion);		// ダメージ状態時の更新
+	void UpdateInvuln(int *pLowMotion, int *pUpMotion);		// 無敵状態時の更新
 
 	void UpdateAttack	// 攻撃操作の更新
 	( // 引数
@@ -252,6 +262,8 @@ private:
 	);
 	void UpdateLandAttack(void);	// 地上攻撃操作の更新
 	void UpdateSkyAttack(void);		// 空中攻撃操作の更新
+	void UpdateRideAttack(void);	// 騎乗攻撃操作の更新
+	void UpdateRide(const D3DXVECTOR3& rPos);			// 騎乗操作の更新
 	void UpdateDodge(const D3DXVECTOR3& rRot);			// 回避操作の更新
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新

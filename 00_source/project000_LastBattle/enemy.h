@@ -39,14 +39,16 @@ public:
 	// 状態列挙
 	enum EState
 	{
-		STATE_NONE = 0,	// なにもしない状態
-		STATE_SPAWN,	// スポーン状態
-		STATE_NORMAL,	// 通常状態
-		STATE_DAMAGE,	// ダメージ状態
-		STATE_INVULN,	// 無敵状態
-		STATE_STAN,		// スタン状態
-		STATE_DEATH,	// 死亡状態
-		STATE_MAX		// この列挙型の総数
+		STATE_NONE = 0,		// なにもしない状態
+		STATE_SPAWN,		// スポーン状態
+		STATE_NORMAL,		// 通常状態
+		STATE_DAMAGE,		// ダメージ状態
+		STATE_INVULN,		// 無敵状態
+		STATE_STAN,			// スタン状態
+		STATE_RIDE_FLYUP,	// ライド飛び上がり状態
+		STATE_RIDE_ROTATE,	// ライド旋回状態
+		STATE_DEATH,		// 死亡状態
+		STATE_MAX			// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -107,7 +109,8 @@ public:
 	// 仮想関数
 	virtual void InitNormal(void);	// 通常状態の初期化
 	virtual void DrawCrop(void);	// 切り抜き用の描画
-	virtual void SetEnableDrawUI(const bool bDraw);	// UI描画設定
+	virtual bool IsRideOK(const D3DXVECTOR3& rPos) const;	// ライド可能か取得
+	virtual void SetEnableDrawUI(const bool bDraw);			// UI描画設定
 
 	// 静的メンバ関数
 	static CEnemy *Create	// 生成
@@ -139,16 +142,21 @@ protected:
 	virtual void UpdateMotion(void) = 0;	// モーションの更新
 
 	// 仮想関数
-	virtual void SetSpawn(void);		// スポーン状態の設定
-	virtual void SetInvuln(void);		// 無敵状態の設定
-	virtual void SetDeath(void);		// 死亡状態の設定
-	virtual void UpdateNone(void);		// なにもしない状態時の更新
-	virtual void UpdateSpawn(void);		// スポーン状態時の更新
-	virtual void UpdateNormal(void);	// 通常状態時の更新
-	virtual void UpdateDamage(void);	// ダメージ状態時の更新
-	virtual void UpdateInvuln(void);	// 無敵状態時の更新
-	virtual void UpdateStan(void);		// スタン状態時の更新
-	virtual void UpdateDeath(void);		// 死亡状態時の更新
+	virtual void SetSpawn(void);			// スポーン状態の設定
+	virtual void SetInvuln(void);			// 無敵状態の設定
+	virtual void SetStan(void);				// スタン状態の設定
+	virtual void SetRideFlyUp(void);		// ライド飛び上がり状態の設定
+	virtual void SetRideRotate(void);		// ライド旋回状態の設定
+	virtual void SetDeath(void);			// 死亡状態の設定
+	virtual void UpdateNone(void);			// なにもしない状態時の更新
+	virtual void UpdateSpawn(void);			// スポーン状態時の更新
+	virtual void UpdateNormal(void);		// 通常状態時の更新
+	virtual void UpdateDamage(void);		// ダメージ状態時の更新
+	virtual void UpdateInvuln(void);		// 無敵状態時の更新
+	virtual void UpdateStan(void);			// スタン状態時の更新
+	virtual void UpdateRideFlyUp(void);		// ライド飛び上がり状態時の更新
+	virtual void UpdateRideRotate(void);	// ライド旋回状態時の更新
+	virtual void UpdateDeath(void);			// 死亡状態時の更新
 
 	// メンバ関数
 	void UpdateLook	// 対象視認
@@ -167,6 +175,7 @@ protected:
 	);
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
+	void SetPrevState(const EState state) { m_prevState = state; }	// ダメージを受ける前の状態設定
 
 private:
 	// 状態更新の関数ポインタ型エイリアス定義
@@ -186,6 +195,7 @@ private:
 	D3DXVECTOR3	m_destRot;			// 目標向き
 	D3DXVECTOR3	m_move;				// 移動量
 	EState	m_state;				// 状態
+	EState	m_prevState;			// ダメージを受ける前の状態
 	int		m_nCounterState;		// 状態管理カウンター
 	float	m_fSinAlpha;			// 透明向き
 	bool	m_bJump;				// ジャンプ状況

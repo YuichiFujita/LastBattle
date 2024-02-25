@@ -564,6 +564,34 @@ bool CMotion::IsRightWeaponCollision(void)
 }
 
 //============================================================
+//	原点位置の取得処理
+//============================================================
+D3DXVECTOR3 CMotion::GetOriginPosition(const int nParts) const
+{
+	if (nParts > NONE_IDX && nParts < motion::MAX_PARTS)
+	{ // パーツ数がオーバーしていない場合
+
+		// 原点位置を返す
+		return m_info.aOriginKey[nParts].pos;
+	}
+	else { assert(false); return VEC3_ZERO; }
+}
+
+//============================================================
+//	原点向きの取得処理
+//============================================================
+D3DXVECTOR3 CMotion::GetOriginRotation(const int nParts) const
+{
+	if (nParts > NONE_IDX && nParts < motion::MAX_PARTS)
+	{ // パーツ数がオーバーしていない場合
+
+		// 原点向きを返す
+		return m_info.aOriginKey[nParts].rot;
+	}
+	else { assert(false); return VEC3_ZERO; }
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CMotion *CMotion::Create(CObjectChara *pChara)
