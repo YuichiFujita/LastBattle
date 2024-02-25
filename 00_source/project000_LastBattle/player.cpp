@@ -29,6 +29,7 @@
 #include "stage.h"
 #include "field.h"
 #include "enemy.h"
+#include "enemyBossDragon.h"
 
 #include "effect3D.h"
 #include "particle3D.h"
@@ -108,7 +109,9 @@ namespace
 	const int	PRESS_JUMP_FRAME	= 10;	// ジャンプ高度上昇の受付入力時間
 	const int	ATTACK_BUFFER_FRAME	= 8;	// 攻撃の先行入力可能フレーム
 
-	const D3DXVECTOR3 SHADOW_SIZE	= D3DXVECTOR3(80.0f, 0.0f, 80.0f);		// 影の大きさ
+	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);	// ボスライド時のオフセット位置
+	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);	// ボスライド時のオフセット向き
+	const D3DXVECTOR3 SHADOW_SIZE		= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
 
 	// 体力の情報
 	namespace lifeInfo
@@ -352,6 +355,12 @@ void CPlayer::Update(void)
 	ELowerMotion curLowMotion = L_MOTION_IDOL;	// 現在の下半身モーション
 	EUpperMotion curUpMotion  = U_MOTION_IDOL;	// 現在の上半身モーション
 
+	// TODO：プレイヤーライドON/OFF
+	if (GET_INPUTKEY->IsTrigger(DIK_9))
+	{
+		SetState(m_state == STATE_RIDE ? STATE_NORMAL : STATE_RIDE);
+	}
+
 	// オブジェクト分割キャラクターの更新
 	CObjectDivChara::Update();
 
@@ -377,6 +386,13 @@ void CPlayer::Update(void)
 
 		// 通常状態の更新
 		UpdateNormal((int*)&curLowMotion, (int*)&curUpMotion);
+
+		break;
+
+	case STATE_RIDE:
+
+		// ライド状態の更新
+		UpdateRide((int*)&curLowMotion, (int*)&curUpMotion);
 
 		break;
 
@@ -476,6 +492,34 @@ void CPlayer::SetState(const int nState)
 
 		// 引数の状態を設定
 		m_state = (EState)nState;
+
+		if (m_state == STATE_RIDE)
+		{ // ライド状態になった場合
+
+			// ボスの体マトリックスを腰の親モデルに設定
+			GetMultiModel(BODY_LOWER, L_MODEL_WAIST)->SetParentModel
+			(CScene::GetBoss()->GetMultiModel(CEnemyBossDragon::MODEL_BODY));
+
+			// 位置・向きオフセットを設定
+			SetPartsPosition(BODY_LOWER, L_MODEL_WAIST, RIDE_POS_OFFSET);
+			SetPartsRotation(BODY_LOWER, L_MODEL_WAIST, RIDE_ROT_OFFSET);
+
+			// 影の自動描画をOFFにする
+			m_pShadow->SetEnableDraw(false);
+		}
+		else
+		{ // ライド状態が解除された場合
+
+			// 腰の親モデルを初期化
+			GetMultiModel(BODY_LOWER, L_MODEL_WAIST)->SetParentModel(nullptr);
+
+			// 位置・向きオフセットを初期化
+			SetPartsPosition(BODY_LOWER, L_MODEL_WAIST, VEC3_ZERO);
+			SetPartsRotation(BODY_LOWER, L_MODEL_WAIST, VEC3_ZERO);
+
+			// 影の自動描画をONにする
+			m_pShadow->SetEnableDraw(true);
+		}
 	}
 	else { assert(false); }
 }
@@ -1498,6 +1542,39 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 
 	// ステージ範囲外の補正
 	pStage->LimitPosition(posPlayer, RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+
+	// 向きを反映
+	SetVec3Rotation(rotPlayer);
+}
+
+//============================================================
+//	ライド状態時の更新処理
+//============================================================
+void CPlayer::UpdateRide(int *pLowMotion, int *pUpMotion)
+{
+	// 変数を宣言
+	CMultiModel *pModelWaistPlayer = GetMultiModel(BODY_LOWER, L_MODEL_WAIST);	// プレイヤー腰モデル情報
+	D3DXMATRIX  mtxWaistPlayer = pModelWaistPlayer->GetMtxWorld();	// プレイヤー腰マトリックス
+
+	// 位置を腰マトリックスから求める
+	D3DXVECTOR3 posPlayer = useful::GetMatrixPosition(mtxWaistPlayer);
+
+	// 向きを腰マトリックスから求める (XZは反映しない)
+	D3DXVECTOR3 rotPlayer = VEC3_ZERO;
+	rotPlayer.y = useful::GetMatrixRotation(mtxWaistPlayer).y;
+
+	// 位置・向きオフセットを設定
+	SetPartsPosition(BODY_LOWER, L_MODEL_WAIST, RIDE_POS_OFFSET);
+	SetPartsRotation(BODY_LOWER, L_MODEL_WAIST, RIDE_ROT_OFFSET);
+
+	// 攻撃操作
+	UpdateAttack(posPlayer, rotPlayer);
+
+	// 身体の色を元に戻す
+	ResetMaterial();
 
 	// 位置を反映
 	SetVec3Position(posPlayer);

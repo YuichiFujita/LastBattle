@@ -20,6 +20,7 @@
 #include "player.h"
 #include "enemy.h"
 #include "enemyBossDragon.h"
+#include "multiModel.h"
 
 //************************************************************
 //	定数宣言
@@ -194,6 +195,13 @@ void CGameManager::ResetColorGameChara(void)
 	pBoss->ResetMaterial();			// マテリアル再設定
 	pBoss->SetAlpha(1.0f);			// 透明度初期化
 	pBoss->SetEnableDraw(true);		// 自動描画ON
+
+	for (int nCntParts = 0; nCntParts < pBoss->GetNumModel(); nCntParts++)
+	{ // パーツ数分繰り返す
+
+		// パーツの拡大率を初期化
+		pBoss->GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+	}
 }
 
 //============================================================

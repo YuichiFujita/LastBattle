@@ -112,6 +112,7 @@ public:
 		STATE_NONE = 0,	// 何もしない状態
 		STATE_SPAWN,	// スポーン状態
 		STATE_NORMAL,	// 通常状態
+		STATE_RIDE,		// ライド状態
 		STATE_DAMAGE,	// ダメージ状態
 		STATE_INVULN,	// 無敵状態
 		STATE_DEATH,	// 死亡状態
@@ -240,6 +241,7 @@ private:
 
 	void UpdateSpawn(void);	// スポーン状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
+	void UpdateRide(int *pLowMotion, int *pUpMotion);	// ライド状態時の更新
 	void UpdateDamage(int *pLowMotion, int *pUpMotion);	// ダメージ状態時の更新
 	void UpdateInvuln(int *pLowMotion, int *pUpMotion);	// 無敵状態時の更新
 

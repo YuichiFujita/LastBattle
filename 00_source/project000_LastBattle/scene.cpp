@@ -74,9 +74,6 @@ HRESULT CScene::Init(void)
 		return E_FAIL;
 	}
 
-	// プレイヤーの生成
-	CPlayer::Create(m_mode);
-
 	if (m_mode == MODE_GAME)
 	{ // ゲーム画面の場合
 
@@ -88,6 +85,9 @@ HRESULT CScene::Init(void)
 			boss::SPAWN_ROT				// 向き
 		);
 	}
+
+	// プレイヤーの生成
+	CPlayer::Create(m_mode);
 
 	// 成功を返す
 	return S_OK;
