@@ -79,6 +79,7 @@ public:
 		MOTION_TAIL_ATTACK,		// しっぽ攻撃モーション
 		MOTION_FLY_ATTACK,		// 空中攻撃モーション
 		MOTION_FLY_RUSH,		// 空中突進攻撃モーション
+		MOTION_KNOCK,			// ノックバックモーション
 		MOTION_STAN,			// スタンモーション
 		MOTION_HOWL_FLYUP,		// 咆哮飛び上がりモーション
 		MOTION_SHAKE_OFF,		// 空中振り下ろしモーション
@@ -153,7 +154,7 @@ public:
 	( // 引数
 		const D3DXVECTOR3& rPos,			// テレポート目標位置
 		const D3DXVECTOR3& rRot,			// テレポート目標向き
-		const EMotion motion = MOTION_NONE,	// テレポート後モーション
+		const EMotion motion = MOTION_IDOL,	// テレポート後モーション
 		const bool bLook = true				// テレポート先にカメラを向かせるか
 	);
 	void SetActPunchGround(void);	// 地面殴りの行動設定
@@ -168,6 +169,7 @@ private:
 	const char *GetModelFileName(const int nModel) const override;	// モデルファイル取得
 	void UpdateMotion(void) override;		// モーションの更新
 	void SetSpawn(void) override;			// スポーン状態の設定
+	void SetKnock(void) override;			// ノックバック状態の設定
 	void SetStan(void) override;			// スタン状態の設定
 	void SetRideFlyUp(void) override;		// ライド飛び上がり状態の設定
 	void SetRideRotate(void) override;		// ライド旋回状態の設定
@@ -175,6 +177,7 @@ private:
 	void SetDeath(void) override;			// 死亡状態の設定
 	void UpdateSpawn(void) override;		// スポーン状態時の更新
 	void UpdateNormal(void) override;		// 通常状態時の更新
+	void UpdateKnock(void) override;		// ノックバック状態時の更新
 	void UpdateStan(void) override;			// スタン状態時の更新
 	void UpdateRideFlyUp(void) override;	// ライド飛び上がり状態時の更新
 	void UpdateRideRotate(void) override;	// ライド旋回状態時の更新
@@ -186,6 +189,7 @@ private:
 	void SelectAttack(void);	// 攻撃選択
 	void UpdateAttack(void);	// 攻撃更新
 	void UpdateAction(void);	// 行動更新
+	void SetKnockStaging(void);	// ノックバック演出の設定
 	void SetDeathStaging(void);	// 死亡演出の設定
 	bool IsFly(void) const;		// 飛行フラグの取得
 

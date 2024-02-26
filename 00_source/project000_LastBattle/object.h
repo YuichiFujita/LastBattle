@@ -86,6 +86,7 @@ public:
 		LABEL_WAVE,			// 波動
 		LABEL_FIRE,			// 炎
 		LABEL_THUNDER,		// 雷
+		LABEL_BLUR,			// ブラー
 		LABEL_EFFECT,		// エフェクト
 		LABEL_PARTICLE,		// パーティクル
 		LABEL_PLAYER,		// プレイヤー

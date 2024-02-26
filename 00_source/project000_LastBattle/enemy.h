@@ -44,6 +44,7 @@ public:
 		STATE_NORMAL,		// 通常状態
 		STATE_DAMAGE,		// ダメージ状態
 		STATE_INVULN,		// 無敵状態
+		STATE_KNOCK,		// ノックバック状態
 		STATE_STAN,			// スタン状態
 		STATE_RIDE_FLYUP,	// ライド飛び上がり状態
 		STATE_RIDE_ROTATE,	// ライド旋回状態
@@ -145,6 +146,7 @@ protected:
 	// 仮想関数
 	virtual void SetSpawn(void);			// スポーン状態の設定
 	virtual void SetInvuln(void);			// 無敵状態の設定
+	virtual void SetKnock(void);			// ノックバック状態の設定
 	virtual void SetStan(void);				// スタン状態の設定
 	virtual void SetRideFlyUp(void);		// ライド飛び上がり状態の設定
 	virtual void SetRideRotate(void);		// ライド旋回状態の設定
@@ -155,6 +157,7 @@ protected:
 	virtual void UpdateNormal(void);		// 通常状態時の更新
 	virtual void UpdateDamage(void);		// ダメージ状態時の更新
 	virtual void UpdateInvuln(void);		// 無敵状態時の更新
+	virtual void UpdateKnock(void);			// ノックバック状態時の更新
 	virtual void UpdateStan(void);			// スタン状態時の更新
 	virtual void UpdateRideFlyUp(void);		// ライド飛び上がり状態時の更新
 	virtual void UpdateRideRotate(void);	// ライド旋回状態時の更新

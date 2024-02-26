@@ -32,11 +32,11 @@ namespace
 	{
 #ifdef _DEBUG
 
-		const int TIME_LIMIT = 240;	// §ŒÀŠÔ
+		const int TIME_LIMIT = 0;	// §ŒÀŠÔ
 
 #else	// NDEBUG
 
-		const int TIME_LIMIT = 240;	// §ŒÀŠÔ
+		const int TIME_LIMIT = 0;	// §ŒÀŠÔ
 
 #endif	// _DEBUG
 

@@ -76,6 +76,7 @@ namespace
 	const CCamera::SSwing LAND_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.09f);	// 咆哮のカメラ揺れ
 	const CCamera::SSwing RIDE_SWING	= CCamera::SSwing(9.5f, 2.0f, 0.09f);	// 飛び上がり前の咆哮のカメラ揺れ
+	const int	KNOCK_LIFE		= 600;			// ノックバックする体力
 	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
@@ -105,13 +106,22 @@ namespace
 
 	const float	RIDE_ROTATE_DIS  = 2400.0f;	// 旋回時のステージ中央から離れる距離
 	const float	RIDE_ROTATE_POSY = 1200.0f;	// 旋回時のY座標
-	const float	RIDE_ROTATE_MOVE = 0.005f;	// 旋回時の回転速度
+	const float	RIDE_ROTATE_MOVE = 0.01f;	// 旋回時の回転速度
 
 	const int	FLYUP_MOTION_KEY = 2;		// 飛び上がりモーションの咆哮の開始キー
-	const int	ROTATE_FRAME     = 560;		// 合計旋回フレーム
+	const int	ROTATE_FRAME     = 480;		// 合計旋回フレーム
 	const float	STAN_CANERA_DIS  = 600.0f;	// スタンカメラの距離
 	const D3DXVECTOR3 STAN_CAMERA_OFFSET	= D3DXVECTOR3(0.0f, 100.0f, 0.0f);	// スタンカメラの位置オフセット
 	const D3DXVECTOR3 STAN_CAMERA_ROT		= D3DXVECTOR3(1.46f, 0.0f, 0.0f);	// スタンカメラの向き
+
+	const int	HITSTOP_KNOCK			= 11;		// ノックバック時のヒットストップの長さ
+	const float	FLASH_INITALPHA_KNOCK	= 0.65f;	// ノックバック時のフラッシュ開始透明度
+	const float	FLASH_SUBALPHA_KNOCK	= 0.02f;	// ノックバック時のフラッシュ透明度減算量
+	const float	KNOCK_CAM_DIS			= 600.0f;	// ノックバックカメラの距離
+	const CCamera::SSwing KNOCK_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);		// ノックバック時のカメラ揺れ
+	const D3DXVECTOR3 KNOCK_CAM_OFFPOS	= D3DXVECTOR3(0.0f, 100.0f, 0.0f);			// ノックバックカメラの位置オフセット
+	const D3DXVECTOR3 KNOCK_CAM_OFFROT	= D3DXVECTOR3(1.75f, 0.45f, 0.0f);			// ノックバックカメラの向きオフセット
+	const D3DXVECTOR3 KNOCK_PLAYER_POS_OFFSET = D3DXVECTOR3(0.0f, 0.0f, -600.0f);	// ノックバック時のプレイヤー位置オフセット
 
 	// 体力の情報
 	namespace lifeInfo
@@ -133,7 +143,7 @@ namespace
 // ランダム攻撃のON/OFF
 #if 0
 #define RANDOM_ATTACK_ON	// ランダム攻撃
-#define ATTACK (CEnemyAttack::ATTACK_02)
+#define ATTACK (CEnemyAttack::ATTACK_04)
 #endif
 
 //************************************************************
@@ -351,17 +361,34 @@ bool CEnemyBossDragon::Hit(const int nDamage)
 		return false;
 	}
 
+	int nOldLife = m_pLife->GetNum();	// ダメージ前の体力
+	int nCurLife = 0;					// ダメージ後の体力
+
 	// 体力にダメージを与える
 	m_pLife->AddNum(-nDamage);
 
-	if (m_pLife->GetNum() > 0)
+	// ダメージ後の体力を取得
+	nCurLife = m_pLife->GetNum();
+
+	if (nCurLife > 0)
 	{ // 体力が残っている場合
 
 		// ダメージを受ける前の状態を保存
 		SetPrevState((EState)GetState());
 
-		// ダメージ状態にする
-		SetState(STATE_DAMAGE);
+		if (nOldLife >= KNOCK_LIFE
+		&&  nCurLife <  KNOCK_LIFE)
+		{ // 今回で体力が一定値を下回った場合
+
+			// ノックバック状態にする
+			SetState(STATE_KNOCK);
+		}
+		else
+		{ // 通常体力減少の場合
+
+			// ダメージ状態にする
+			SetState(STATE_DAMAGE);
+		}
 	}
 	else
 	{ // 体力が残っていない場合
@@ -631,6 +658,7 @@ void CEnemyBossDragon::UpdateMotion(void)
 	case MOTION_HOWL:			// 咆哮モーション
 	case MOTION_IDOL:			// 待機モーション
 	case MOTION_FLY_IDOL:		// 空中待機モーション
+	case MOTION_KNOCK:			// ノックバックモーション
 	case MOTION_STAN:			// スタンモーション
 	case MOTION_SHAKE_OFF:		// 空中振り下ろしモーション
 	case MOTION_HOWL_FLYUP:		// 咆哮飛び上がりモーション
@@ -756,6 +784,55 @@ void CEnemyBossDragon::SetSpawn(void)
 }
 
 //============================================================
+//	 ノックバック状態の設定処理
+//============================================================
+void CEnemyBossDragon::SetKnock(void)
+{
+	// ノックバック状態の設定
+	CEnemy::SetKnock();
+
+	// ゲーム画面ではない場合抜ける
+	if (GET_MANAGER->GetMode() != CScene::MODE_GAME) { return; }
+
+	CHitStop *pHitStop	= CSceneGame::GetHitStop();	// ヒットストップ情報
+	CFlash   *pFlash	= CSceneGame::GetFlash();	// フラッシュ情報
+	CCamera  *pCamera	= GET_MANAGER->GetCamera();	// カメラ情報
+
+	// カウンターを初期化
+	m_nCounterAttack = 0;	// 攻撃管理カウンター
+	m_nCounterRotate = 0;	// ライド旋回カウンター
+	m_nCounterFlash  = 0;	// フラッシュ管理カウンター
+
+	// 攻撃クラスを破棄
+	SAFE_REF_RELEASE(m_pAttack);
+
+	// 次の攻撃を設定
+	m_curAtk = CEnemyAttack::ATTACK_00;
+
+	// ノックバックモーションを設定
+	SetMotion(MOTION_KNOCK);
+
+	// ヒットストップさせる
+	pHitStop->SetStop(HITSTOP_KNOCK);
+
+	// フラッシュを設定
+	pFlash->Set
+	( // 引数
+		FLASH_INITALPHA_KNOCK,	// 開始透明度
+		FLASH_SUBALPHA_KNOCK	// 透明度減算量
+	);
+
+	// カメラ揺れを設定
+	pCamera->SetSwing(CCamera::TYPE_MAIN, KNOCK_SWING);
+
+	// カメラを何もしない状態に設定 (固定カメラにする)
+	pCamera->SetState(CCamera::STATE_NONE);
+
+	// ノックバック演出の設定
+	SetKnockStaging();
+}
+
+//============================================================
 //	スタン状態の設定処理
 //============================================================
 void CEnemyBossDragon::SetStan(void)
@@ -865,18 +942,15 @@ void CEnemyBossDragon::SetDeath(void)
 	// ゲーム画面ではない場合抜ける
 	if (GET_MANAGER->GetMode() != CScene::MODE_GAME) { return; }
 
-	CGameManager *pGameManager = CSceneGame::GetGameManager();	// ゲームマネージャーの情報
-	CTimerManager *pTimer = CSceneGame::GetTimerManager();		// タイマーマネージャーの情報
-	CCinemaScope *pScope = CSceneGame::GetCinemaScope();		// シネマスコープの情報
+	CGameManager  *pGameManager = CSceneGame::GetGameManager();	// ゲームマネージャーの情報
+	CTimerManager *pTimer	= CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
+	CCinemaScope  *pScope	= CSceneGame::GetCinemaScope();		// シネマスコープの情報
 	CHitStop *pHitStop	= CSceneGame::GetHitStop();	// ヒットストップ情報
-	CFlash	*pFlash		= CSceneGame::GetFlash();	// フラッシュ情報
-	CCamera	*pCamera	= GET_MANAGER->GetCamera();	// カメラ情報
+	CFlash   *pFlash	= CSceneGame::GetFlash();	// フラッシュ情報
+	CCamera  *pCamera	= GET_MANAGER->GetCamera();	// カメラ情報
 
 	// フラッシュ管理カウンターを初期化
 	m_nCounterFlash = 0;
-
-	// ゲームキャラの色情報リセット
-	pGameManager->ResetColorGameChara();
 
 	// ゲームUIの自動描画をOFFにする
 	pGameManager->SetDrawGameUI(false);
@@ -902,9 +976,6 @@ void CEnemyBossDragon::SetDeath(void)
 
 	// カメラを何もしない状態に設定 (固定カメラにする)
 	pCamera->SetState(CCamera::STATE_NONE);
-
-	// ゲームを終了状態にする
-	CSceneGame::GetGameManager()->GameEnd();
 
 	// タイマーの計測終了
 	pTimer->End();
@@ -973,6 +1044,35 @@ void CEnemyBossDragon::UpdateNormal(void)
 
 	// 行動の更新
 	UpdateAction();
+}
+
+//============================================================
+//	ノックバック状態時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateKnock(void)
+{
+	// ノックバック状態の更新
+	CEnemy::UpdateKnock();
+
+	// 別モーション指定エラー
+	assert(GetMotionType() == MOTION_KNOCK);
+
+	if (IsMotionFinish())
+	{ // モーションが終了した場合
+
+		CGameManager *pGameManager = CSceneGame::GetGameManager();	// ゲームマネージャーの情報
+		CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+
+		// ゲームを通常状態にする
+		pGameManager->SetState(CGameManager::STATE_NORMAL);
+
+		// カメラを追従状態に設定
+		pCamera->SetState(CCamera::STATE_FOLLOW);
+		pCamera->SetDestFollow();
+
+		// スタン状態にする
+		SetState(STATE_STAN);
+	}
 }
 
 //============================================================
@@ -1364,6 +1464,75 @@ void CEnemyBossDragon::UpdateAction(void)
 }
 
 //============================================================
+//	ノックバック演出の設定処理
+//============================================================
+void CEnemyBossDragon::SetKnockStaging(void)
+{
+	// ステージに残る演出の邪魔になるオブジェクトを破棄
+	{
+		// 破棄するラベルを要素に追加
+		std::vector<ELabel> releaseLabel;	// 破棄ラベル配列
+		releaseLabel.push_back(CObject::LABEL_EFFECT);		// エフェクト
+		releaseLabel.push_back(CObject::LABEL_PARTICLE);	// パーティクル
+		releaseLabel.push_back(CObject::LABEL_FIRE);		// 炎
+		releaseLabel.push_back(CObject::LABEL_THUNDER);		// 雷
+		releaseLabel.push_back(CObject::LABEL_WAVE);		// 波動
+
+		// 指定したラベルのオブジェクト全破棄
+		CObject::ReleaseAll(releaseLabel);
+
+		// 破棄ラベル配列をクリア
+		releaseLabel.clear();
+	}
+
+	// プレイヤー・敵の演出設定
+	{
+		CStage  *pStage  = CScene::GetStage();	// ステージ情報
+		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
+
+		// ゲーム画面を演出状態にする
+		CSceneGame::GetGameManager()->SetState(CGameManager::STATE_STAGING);
+
+		// 自身の位置をステージ中央にする
+		D3DXVECTOR3 posEnemy = pStage->GetStageLimit().center;	// ボス設定位置
+		UpdateLanding(&posEnemy);	// 着地判定
+		LimitPosition(&posEnemy);	// 位置範囲外の補正
+		SetVec3Position(posEnemy);	// 位置を反映
+
+		// 自身の向きを初期化
+		SetVec3Rotation(VEC3_ZERO);	// 向き
+		SetDestRotation(VEC3_ZERO);	// 目標向き
+
+		// プレイヤーの位置を設定
+		D3DXVECTOR3 posPlayer = posEnemy + KNOCK_PLAYER_POS_OFFSET;
+		pPlayer->SetVec3Position(posPlayer);	// 位置を反映
+
+		// プレイヤーの向きを設定
+		D3DXVECTOR3 rotPlayer = VEC3_ZERO;
+		rotPlayer.y = atan2f(posPlayer.x - posEnemy.x, posPlayer.z - posEnemy.z);
+		pPlayer->SetVec3Rotation(rotPlayer);	// 向きを反映
+		pPlayer->SetDestRotation(rotPlayer);	// 目標向きを反映
+
+		// 通常状態を初期化
+		pPlayer->InitNormal();
+	}
+
+	// カメラ情報の設定
+	{
+		CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+
+		// カメラの注視点をボスの中心に設定
+		pCamera->SetPositionR(GetVec3Position() + KNOCK_CAM_OFFPOS);
+
+		// カメラの向きを設定
+		pCamera->SetRotation(GetVec3Rotation() + KNOCK_CAM_OFFROT);
+
+		// カメラの距離を設定
+		pCamera->SetDistance(KNOCK_CAM_DIS);
+	}
+}
+
+//============================================================
 //	死亡演出の設定処理
 //============================================================
 void CEnemyBossDragon::SetDeathStaging(void)
@@ -1387,15 +1556,12 @@ void CEnemyBossDragon::SetDeathStaging(void)
 
 	// プレイヤー・敵の演出設定
 	{
-		// プレイヤーの自動描画をOFFにする
-		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
-		pPlayer->SetEnableDraw(false);
-
-		// 剣・軌跡の表示をOFFにする
-		pPlayer->SetNoneTwinSword();
+		// ゲーム画面を演出状態にする
+		CSceneGame::GetGameManager()->SetState(CGameManager::STATE_STAGING);
 
 		// 自身の位置をステージ中央にする
 		CStage *pStage = CScene::GetStage();	// ステージ情報
+		CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
 		D3DXVECTOR3 posEnemy = pStage->GetStageLimit().center;	// ボス設定位置
 		UpdateLanding(&posEnemy);	// 着地判定
 		LimitPosition(&posEnemy);	// 位置範囲外の補正
@@ -1404,6 +1570,9 @@ void CEnemyBossDragon::SetDeathStaging(void)
 		// 自身の向きを初期化
 		SetVec3Rotation(VEC3_ZERO);	// 向き
 		SetDestRotation(VEC3_ZERO);	// 目標向き
+
+		// 剣の自動描画をOFFにする
+		pPlayer->SetNoneTwinSword();
 	}
 
 	// カメラ情報の設定

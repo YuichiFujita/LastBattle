@@ -83,6 +83,7 @@ namespace
 	const float	INIT_JUMP	= 4.0f;		// ジャンプ量の初期値
 	const float	PULS_JUMP	= 4.15f;	// ジャンプ高度上昇量
 	const float	GRAVITY		= 0.85f;	// 重力
+	const float	MIN_GRAVITY = -35.0f;	// 重力の最小値
 	const float	RADIUS		= 20.0f;	// 半径
 	const float	HEIGHT		= 80.0f;	// 縦幅
 	const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
@@ -110,7 +111,8 @@ namespace
 	const int	ATTACK_BUFFER_FRAME	= 11;	// 攻撃の先行入力可能フレーム
 
 	const int	RIDE_MAX_ATTACK	= 2;		// ライド攻撃の総数
-	const float	RIDE_END_MOVEUP = 10.0f;	// ライド終了時の上移動量
+	const float	RIDE_END_MOVEUP	= 10.0f;	// ライド終了時の上移動量
+	const float	RIDE_END_LINE	= 900.0f;	// ライド終了のY座標
 	const CCamera::SSwing RIDEEND_SWING	= CCamera::SSwing(13.0f, 1.8f, 0.14f);	// ライド振りほどかれ時のカメラ揺れ
 	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);		// ボスライド時のオフセット位置
 	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);		// ボスライド時のオフセット向き
@@ -125,7 +127,7 @@ namespace
 		const D3DXVECTOR3	SIZE_GAUGE	= D3DXVECTOR3(200.0f, 20.0f, 0.0f);			// ゲージ大きさ
 		const D3DXCOLOR		COL_FRONT	= D3DXCOLOR(0.93f, 0.92f, 0.25f, 1.0f);		// 表ゲージ色
 		const D3DXCOLOR		COL_BACK	= D3DXCOLOR(0.03f, 0.03f, 0.008f, 1.0f);	// 裏ゲージ色
-		const int	MAX_LIFE		= 100;	// 最大表示値
+		const int	MAX_LIFE		= 300;	// 最大表示値
 		const int	CHANGE_FRAME	= 40;	// 表示値変動フレーム
 	}
 
@@ -354,7 +356,24 @@ void CPlayer::Uninit(void)
 //============================================================
 void CPlayer::Update(void)
 {
-	// 変数を宣言
+	if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
+	{ // ゲーム画面の場合
+
+		if (CSceneGame::GetGameManager()->GetState() == CGameManager::STATE_STAGING)
+		{ // 演出状態の場合
+
+			// 影の自動更新をOFFにする
+			m_pShadow->SetEnableUpdate(false);
+			return;
+		}
+		else
+		{ // 演出状態の場合
+
+			// 影の自動更新をONにする
+			m_pShadow->SetEnableUpdate(true);
+		}
+	}
+
 	ELowerMotion curLowMotion = L_MOTION_IDOL;	// 現在の下半身モーション
 	EUpperMotion curUpMotion  = U_MOTION_IDOL;	// 現在の上半身モーション
 
@@ -458,6 +477,24 @@ void CPlayer::Update(void)
 //============================================================
 void CPlayer::Draw(CShader *pShader)
 {
+	if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
+	{ // ゲーム画面の場合
+
+		if (CSceneGame::GetGameManager()->GetState() == CGameManager::STATE_STAGING)
+		{ // 演出状態の場合
+
+			// 影の自動描画をOFFにする
+			m_pShadow->SetEnableDraw(false);
+			return;
+		}
+		else
+		{ // 演出状態の場合
+
+			// 影の自動描画をONにする
+			m_pShadow->SetEnableDraw(true);
+		}
+	}
+
 	CToonShader	*pToonShader = CToonShader::GetInstance();	// トゥーンシェーダー情報
 	if (pToonShader->IsEffectOK())
 	{ // エフェクトが使用可能な場合
@@ -506,6 +543,7 @@ void CPlayer::SetState(const int nState)
 
 		// 自動描画をONにする
 		SetEnableDraw(true);
+
 	}
 	else { assert(false); }
 }
@@ -1686,7 +1724,7 @@ void CPlayer::UpdateRideEnd(void)
 	// 位置更新
 	UpdatePosition(&posPlayer);
 
-	if (posPlayer.y <= pStage->GetStageLimit().fField)
+	if (posPlayer.y <= RIDE_END_LINE)
 	{ // 着地した場合
 
 		// 着地判定
@@ -2072,13 +2110,6 @@ void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド
 	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ
 
-	for (int nCntBlur = 0; nCntBlur < BODY_MAX; nCntBlur++)
-	{ // ブラーの数分繰り返す
-
-		// ブラーの状態を設定
-		m_apBlur[nCntBlur]->SetState((m_dodge.bDodge) ? CBlur::STATE_NORMAL : CBlur::STATE_VANISH);
-	}
-
 	if (m_dodge.bDodge)
 	{ // 回避中の場合
 
@@ -2152,6 +2183,13 @@ void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
 				SetMotion(BODY_UPPER, U_MOTION_DODGE);
 			}
 		}
+	}
+
+	for (int nCntBlur = 0; nCntBlur < BODY_MAX; nCntBlur++)
+	{ // ブラーの数分繰り返す
+
+		// ブラーの状態を設定
+		m_apBlur[nCntBlur]->SetState((m_dodge.bDodge) ? CBlur::STATE_NORMAL : CBlur::STATE_VANISH);
 	}
 }
 
@@ -2261,6 +2299,9 @@ void CPlayer::UpdateGravity(void)
 
 		// 重力を加算
 		m_move.y -= GRAVITY;
+
+		// 下移動量の補正
+		useful::LimitMinNum(m_move.y, MIN_GRAVITY);
 	}
 }
 

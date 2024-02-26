@@ -150,6 +150,9 @@ public:
 	static CListManager<CPlayer> *GetList(void);	// リスト取得
 
 	// メンバ関数
+	void SetDestRotation(const D3DXVECTOR3& rRot) { m_destRot = rRot; }	// 目標向き設定
+	D3DXVECTOR3 GetDestRotation(void) const		  { return m_destRot; }	// 目標向き取得
+
 	void SetEnableDrawUI(const bool bDraw);	// UI描画設定
 	void SetNoneTwinSword(void);			// 剣の状態初期化
 	bool Hit(const int nDamage);			// ヒット

@@ -33,6 +33,7 @@ public:
 		STATE_NONE = 0,	// 何もしない状態
 		STATE_START,	// 開始状態
 		STATE_NORMAL,	// 通常状態
+		STATE_STAGING,	// 演出状態
 		STATE_END,		// 終了状態
 		STATE_MAX		// この列挙型の総数
 	};
@@ -56,10 +57,9 @@ public:
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
-	void GameEnd(void);	// ゲーム終了
+	void SetState(const EState state);		// 状態設定
 	EState GetState(void) const;			// 状態取得
 	void SetDrawGameUI(const bool bDraw);	// ゲーム画面のUI描画設定
-	void ResetColorGameChara(void);			// ゲームキャラの色情報再設定
 	void TransitionResult(const CRetentionManager::EWin win);	// リザルト画面遷移
 
 	// 静的メンバ関数

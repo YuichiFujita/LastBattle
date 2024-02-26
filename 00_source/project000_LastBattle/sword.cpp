@@ -298,6 +298,7 @@ void CSword::SetState(const EState state)
 
 		// ‹OÕ‚ÌŽ©“®•`‰æ‚ðOFF‚É‚·‚é
 		m_pOrbit->SetState(COrbit::STATE_NONE);
+		m_pOrbit->SetEnableDraw(false);
 
 	case STATE_VANISH:	// ÁŽ¸ó‘Ô
 		break;
@@ -306,6 +307,10 @@ void CSword::SetState(const EState state)
 
 		// •s“§–¾‚É‚·‚é
 		SetAlpha(1.0f);
+
+		// ‹OÕ‚ÌŽ©“®•`‰æ‚ðON‚É‚·‚é
+		m_pOrbit->SetState(COrbit::STATE_NORMAL);
+		m_pOrbit->SetEnableDraw(true);
 
 		break;
 

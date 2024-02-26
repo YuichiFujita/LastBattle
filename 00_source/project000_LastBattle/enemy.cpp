@@ -13,6 +13,7 @@
 #include "stage.h"
 #include "enemyBossDragon.h"
 #include "enemyMiniDragon.h"
+#include "multiModel.h"
 #include "collSphere.h"
 
 //************************************************************
@@ -58,6 +59,7 @@ CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =		// 状態更新関数
 	&CEnemy::UpdateNormal,		// 通常状態時の更新
 	&CEnemy::UpdateDamage,		// ダメージ状態時の更新
 	&CEnemy::UpdateInvuln,		// 無敵状態時の更新
+	&CEnemy::UpdateKnock,		// ノックバック状態時の更新
 	&CEnemy::UpdateStan,		// スタン状態時の更新
 	&CEnemy::UpdateRideFlyUp,	// ライド飛び上がり状態時の更新
 	&CEnemy::UpdateRideRotate,	// ライド旋回状態時の更新
@@ -244,6 +246,12 @@ void CEnemy::SetState(const int nState)
 
 		// 無敵状態の設定
 		SetInvuln();
+		break;
+
+	case STATE_KNOCK:	// ノックバック状態
+
+		// ノックバック状態の設定
+		SetKnock();
 		break;
 
 	case STATE_STAN:	// スタン状態
@@ -597,6 +605,24 @@ void CEnemy::SetInvuln(void)
 }
 
 //============================================================
+//	ノックバック状態の設定処理
+//============================================================
+void CEnemy::SetKnock(void)
+{
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// 描画を再開
+	SetEnableDraw(true);
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 透明度を不透明に再設定
+	SetAlpha(1.0f);
+}
+
+//============================================================
 //	スタン状態の設定処理
 //============================================================
 void CEnemy::SetStan(void)
@@ -817,6 +843,14 @@ void CEnemy::UpdateInvuln(void)
 		assert(m_prevState != STATE_NONE);
 		SetState(m_prevState);
 	}
+}
+
+//============================================================
+//	ノックバック状態時の更新処理
+//============================================================
+void CEnemy::UpdateKnock(void)
+{
+
 }
 
 //============================================================

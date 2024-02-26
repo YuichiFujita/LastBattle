@@ -674,6 +674,14 @@ void CObject::ReleaseAll(const std::vector<ELabel> label)
 				// 次のオブジェクトを代入
 				CObject *pObjectNext = pObject->m_pNext;
 
+				if (pObject->m_label == LABEL_NONE)
+				{ // 自動破棄しないラベルの場合
+
+					// 次のオブジェクトへのポインタを代入
+					pObject = pObjectNext;
+					continue;
+				}
+
 				if (pObject->m_bDeath)
 				{ // 死亡している場合
 
@@ -698,9 +706,6 @@ void CObject::ReleaseAll(const std::vector<ELabel> label)
 			}
 		}
 	}
-
-	// 全死亡処理
-	DeathAll();
 }
 
 //============================================================
@@ -784,7 +789,7 @@ void CObject::UpdateAll(void)
 				}
 
 				if (!pObject->m_bUpdate
-				&&   pObject->m_bDeath)
+				||   pObject->m_bDeath)
 				{ // 自動更新がOFF、または死亡している場合
 
 					// 次のオブジェクトへのポインタを代入

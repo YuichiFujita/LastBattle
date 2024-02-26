@@ -115,6 +115,8 @@ void CGameManager::Update(void)
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_NONE:
+	case STATE_NORMAL:
+	case STATE_STAGING:
 	case STATE_END:
 		break;
 
@@ -125,17 +127,6 @@ void CGameManager::Update(void)
 
 		break;
 
-	case STATE_NORMAL:
-
-		if (CSceneGame::GetTimerManager()->GetState() == CTimerManager::STATE_END)
-		{ // 計測が終了していた場合
-
-			// リザルト画面に遷移させる
-			TransitionResult(CRetentionManager::WIN_FAILED);
-		}
-
-		break;
-
 	default:	// 例外処理
 		assert(false);
 		break;
@@ -143,12 +134,12 @@ void CGameManager::Update(void)
 }
 
 //============================================================
-//	ゲーム終了処理
+//	状態設定処理
 //============================================================
-void CGameManager::GameEnd(void)
+void CGameManager::SetState(const EState state)
 {
-	// 終了状態にする
-	m_state = STATE_END;
+	// 状態を設定
+	m_state = state;
 }
 
 //============================================================
@@ -175,33 +166,6 @@ void CGameManager::SetDrawGameUI(const bool bDraw)
 	pTimer->SetEnableDraw(bDraw);		// タイマー
 	pPlayer->SetEnableDrawUI(bDraw);	// プレイヤー関連UI
 	pBoss->SetEnableDrawUI(bDraw);		// ボス関連UI
-}
-
-//============================================================
-//	ゲームキャラの色情報リセット処理
-//============================================================
-void CGameManager::ResetColorGameChara(void)
-{
-	// ポインタを宣言
-	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
-	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
-
-	// プレイヤーの色情報を初期化
-	pPlayer->ResetMaterial();		// マテリアル再設定
-	pPlayer->SetAlpha(1.0f);		// 透明度初期化
-	pPlayer->SetEnableDraw(true);	// 自動描画ON
-
-	// ボスの色情報を初期化
-	pBoss->ResetMaterial();			// マテリアル再設定
-	pBoss->SetAlpha(1.0f);			// 透明度初期化
-	pBoss->SetEnableDraw(true);		// 自動描画ON
-
-	for (int nCntParts = 0; nCntParts < pBoss->GetNumModel(); nCntParts++)
-	{ // パーツ数分繰り返す
-
-		// パーツの拡大率を初期化
-		pBoss->GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
-	}
 }
 
 //============================================================
