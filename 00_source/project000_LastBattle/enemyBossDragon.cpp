@@ -130,7 +130,7 @@ namespace
 // ƒ‰ƒ“ƒ_ƒ€UŒ‚‚ÌON/OFF
 #if 0
 #define RANDOM_ATTACK_ON	// ƒ‰ƒ“ƒ_ƒ€UŒ‚
-#define ATTACK (CEnemyAttack::ATTACK_03)
+#define ATTACK (CEnemyAttack::ATTACK_02)
 #endif
 
 //************************************************************

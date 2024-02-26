@@ -2378,9 +2378,9 @@ END_MOTIONSET
 MOTIONSET
 
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
-	NUM_KEY = 5	# キー数
-	COMBO = 25	# コンボフレーム
-	CANCEL = 37	# キャンセルフレーム
+	NUM_KEY = 4	# キー数
+	COMBO = 20	# コンボフレーム
+	CANCEL = 30	# キャンセルフレーム
 
 	KEYSET
 	
@@ -2466,7 +2466,7 @@ MOTIONSET
 	
 	KEYSET
 	
-		FRAME = 3
+		FRAME = 40
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 -4.90 0.00
@@ -2507,48 +2507,7 @@ MOTIONSET
 	
 	KEYSET
 	
-		FRAME = 22
-		
-		KEY	# ----- [ 0 ] -----
-			POS = 0.00 -4.90 0.00
-			ROT = 0.22 0.00 0.00
-		END_KEY
-
-		KEY	# ----- [ 1 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = 1.47 -0.02 -1.32
-		END_KEY
-
-		KEY	# ----- [ 2 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = 1.47 0.02 1.32
-		END_KEY
-
-		KEY	# ----- [ 3 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = -0.72 0.22 0.00
-		END_KEY
-
-		KEY	# ----- [ 4 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = -0.72 -0.22 0.00
-		END_KEY
-
-		KEY	# ----- [ 5 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = 0.00 0.00 0.00
-		END_KEY
-
-		KEY	# ----- [ 6 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = 0.00 0.00 0.00
-		END_KEY
-		
-	END_KEYSET
-	
-	KEYSET
-	
-		FRAME = 22
+		FRAME = 40
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 -4.90 0.00
@@ -2595,9 +2554,9 @@ END_MOTIONSET
 MOTIONSET
 
 	LOOP = 0	# ループするかどうか[0:ループしない / 1:ループする]
-	NUM_KEY = 5	# キー数
-	COMBO = 25	# コンボフレーム
-	CANCEL = 37	# キャンセルフレーム
+	NUM_KEY = 4	# キー数
+	COMBO = 20	# コンボフレーム
+	CANCEL = 30	# キャンセルフレーム
 
 	KEYSET
 	
@@ -2683,7 +2642,7 @@ MOTIONSET
 	
 	KEYSET
 	
-		FRAME = 3
+		FRAME = 40
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 -4.90 0.00
@@ -2724,7 +2683,7 @@ MOTIONSET
 	
 	KEYSET
 	
-		FRAME = 22
+		FRAME = 40
 		
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 -4.90 0.00

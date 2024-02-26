@@ -107,8 +107,9 @@ namespace
 	const float	DODGE_SIDE_MOVE	= 4.0f;		// 回避の横移動量
 	const int	DODGE_WAIT_FRAME	= 100;	// 回避のフールタイムフレーム
 	const int	PRESS_JUMP_FRAME	= 10;	// ジャンプ高度上昇の受付入力時間
-	const int	ATTACK_BUFFER_FRAME	= 8;	// 攻撃の先行入力可能フレーム
+	const int	ATTACK_BUFFER_FRAME	= 11;	// 攻撃の先行入力可能フレーム
 
+	const int	RIDE_MAX_ATTACK = 2;	// ライド攻撃の総数
 	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);	// ボスライド時のオフセット位置
 	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);	// ボスライド時のオフセット向き
 	const D3DXVECTOR3 SHADOW_SIZE		= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
@@ -1179,6 +1180,7 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 		break;
 
 	case L_MOTION_RIDE_ATTACK_00:	// ライド攻撃モーション一段階目：ループOFF
+	case L_MOTION_RIDE_ATTACK_01:	// ライド攻撃モーション二段階目：ループOFF
 
 		if (IsMotionCombo(BODY_LOWER))
 		{ // モーションコンボができる場合
@@ -1187,7 +1189,8 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 			{ // 攻撃が先行入力されている場合
 
 				// 次の攻撃モーションを設定
-				SetMotion(BODY_LOWER, GetMotionType(BODY_LOWER) + 1);
+				int nNextMotion = ((GetMotionType(BODY_LOWER) - U_MOTION_RIDE_ATTACK_00 + 1) % RIDE_MAX_ATTACK) + U_MOTION_RIDE_ATTACK_00;
+				SetMotion(BODY_LOWER, nNextMotion);
 
 				// 入力反映を加算
 				m_attack.Add();	// 全モーションに反映したら先行入力を初期化
@@ -1199,17 +1202,6 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 		if (IsMotionFinish(BODY_LOWER))
 		{ // モーションが終了した場合
-
-			// 現在のモーションの設定
-			SetMotion(BODY_LOWER, nMotion);
-		}
-
-		break;
-
-	case L_MOTION_RIDE_ATTACK_01:	// ライド攻撃モーション二段階目：ループOFF
-
-		if (IsMotionFinish(BODY_LOWER))
-		{ // モーションが終了していた場合
 
 			// 現在のモーションの設定
 			SetMotion(BODY_LOWER, nMotion);
@@ -1454,6 +1446,7 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 		break;
 
 	case U_MOTION_RIDE_ATTACK_00:	// ライド攻撃モーション一段階目：ループOFF
+	case U_MOTION_RIDE_ATTACK_01:	// ライド攻撃モーション二段階目：ループOFF
 
 		if (IsMotionCombo(BODY_UPPER))
 		{ // モーションコンボができる場合
@@ -1462,7 +1455,8 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 			{ // 攻撃が先行入力されている場合
 
 				// 次の攻撃モーションを設定
-				SetMotion(BODY_UPPER, GetMotionType(BODY_UPPER) + 1);
+				int nNextMotion = ((GetMotionType(BODY_UPPER) - U_MOTION_RIDE_ATTACK_00 + 1) % RIDE_MAX_ATTACK) + U_MOTION_RIDE_ATTACK_00;
+				SetMotion(BODY_UPPER, nNextMotion);
 
 				// 入力反映を加算
 				m_attack.Add();	// 全モーションに反映したら先行入力を初期化
@@ -1474,17 +1468,6 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 		if (IsMotionFinish(BODY_UPPER))
 		{ // モーションが終了した場合
-
-			// 現在のモーションの設定
-			SetMotion(BODY_UPPER, nMotion);
-		}
-
-		break;
-
-	case U_MOTION_RIDE_ATTACK_01:	// ライド攻撃モーション二段階目：ループOFF
-
-		if (IsMotionFinish(BODY_UPPER))
-		{ // モーションが終了していた場合
 
 			// 現在のモーションの設定
 			SetMotion(BODY_UPPER, nMotion);
@@ -1995,24 +1978,24 @@ void CPlayer::UpdateRideAttack(void)
 		if (!IsAttack())
 		{ // 攻撃中ではない場合
 
-			// 攻撃モーションを指定
-			SetMotion(BODY_LOWER, L_MOTION_RIDE_ATTACK_00);
-			SetMotion(BODY_UPPER, U_MOTION_RIDE_ATTACK_00);
+			if (GetMotionType(BODY_UPPER) != U_MOTION_RIDE_ATTACK_00)
+			{ // 初撃のモーションではない場合
+
+				// 攻撃モーションを指定
+				SetMotion(BODY_LOWER, L_MOTION_RIDE_ATTACK_00);
+				SetMotion(BODY_UPPER, U_MOTION_RIDE_ATTACK_00);
+			}
 		}
 		else
 		{ // 攻撃中の場合
 
-			if (GetMotionType(BODY_UPPER) != U_MOTION_RIDE_ATTACK_01)	// TODO：一番最後の攻撃にする
-			{ // 最終攻撃モーションではない場合
+			// コンボ可能までの残りフレームを計算
+			int nWholeFrame = GetMotionComboFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
+			if (nWholeFrame < ATTACK_BUFFER_FRAME)
+			{ // 先行入力が可能な場合
 
-				// コンボ可能までの残りフレームを計算
-				int nWholeFrame = GetMotionComboFrame(BODY_UPPER) - GetMotionWholeCounter(BODY_UPPER);
-				if (nWholeFrame < ATTACK_BUFFER_FRAME)
-				{ // 先行入力が可能な場合
-
-					// 先行入力を受け付ける
-					m_attack.bInput = true;
-				}
+				// 先行入力を受け付ける
+				m_attack.bInput = true;
 			}
 		}
 	}
