@@ -107,7 +107,9 @@ namespace
 	const float	RIDE_ROTATE_POSY = 1200.0f;	// 旋回時のY座標
 	const float	RIDE_ROTATE_MOVE = 0.005f;	// 旋回時の回転速度
 
-	const float	STAN_CANERA_DIS = 600.0f;	// スタンカメラの距離
+	const int	FLYUP_MOTION_KEY = 2;		// 飛び上がりモーションの咆哮の開始キー
+	const int	ROTATE_FRAME     = 560;		// 合計旋回フレーム
+	const float	STAN_CANERA_DIS  = 600.0f;	// スタンカメラの距離
 	const D3DXVECTOR3 STAN_CAMERA_OFFSET	= D3DXVECTOR3(0.0f, 100.0f, 0.0f);	// スタンカメラの位置オフセット
 	const D3DXVECTOR3 STAN_CAMERA_ROT		= D3DXVECTOR3(1.46f, 0.0f, 0.0f);	// スタンカメラの向き
 
@@ -1003,7 +1005,7 @@ void CEnemyBossDragon::UpdateRideFlyUp(void)
 	// 別モーション指定エラー
 	assert(GetMotionType() == MOTION_HOWL_FLYUP);
 
-	if (GetMotionKey() == 2 && GetMotionKeyCounter() == 0)	// TODO：定数化
+	if (GetMotionKey() == FLYUP_MOTION_KEY && GetMotionKeyCounter() == 0)
 	{ // モーションが口を開け始めたタイミングの場合
 
 		// 飛び上がり前の咆哮のカメラ揺れ設定
@@ -1067,7 +1069,7 @@ void CEnemyBossDragon::UpdateRideRotate(void)
 
 		// カウンターを加算
 		m_nCounterRotate++;
-		if (m_nCounterRotate > 360)	// TODO：定数化
+		if (m_nCounterRotate > ROTATE_FRAME)
 		{ // ライドの最大経過時間の場合
 
 			// ライド終了状態にする
