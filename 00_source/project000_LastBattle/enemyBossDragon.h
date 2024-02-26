@@ -81,6 +81,7 @@ public:
 		MOTION_FLY_RUSH,		// 空中突進攻撃モーション
 		MOTION_STAN,			// スタンモーション
 		MOTION_HOWL_FLYUP,		// 咆哮飛び上がりモーション
+		MOTION_SHAKE_OFF,		// 空中振り下ろしモーション
 		MOTION_COME_DOWN,		// 上空復帰モーション
 		MOTION_DEATH,			// 死亡モーション
 		MOTION_MAX				// この列挙型の総数

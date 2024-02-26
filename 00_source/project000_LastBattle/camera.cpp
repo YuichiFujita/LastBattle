@@ -79,8 +79,8 @@ namespace
 		const D3DXVECTOR3 OFFSET_POSR = D3DXVECTOR3(0.0f, 340.0f, 0.0f);	// 回転カメラの注視点のオフセット
 		const D3DXVECTOR2 INIT_ROT = D3DXVECTOR2(1.8f, 0.0f);				// 回転カメラの向き初期値
 
-		const float INIT_DIS = 400.0f;	// 回転カメラの距離初期値
-		const float SUB_ROTY = 0.5f;	// 回転カメラの向き減算量Y
+		const float INIT_DIS = 560.0f;	// 回転カメラの距離初期値
+		const float SUB_ROTY = 0.6f;	// 回転カメラの向き減算量Y
 	}
 
 	// プレイヤー注目情報

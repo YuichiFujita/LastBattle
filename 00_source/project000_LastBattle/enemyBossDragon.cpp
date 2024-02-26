@@ -105,7 +105,7 @@ namespace
 
 	const float	RIDE_ROTATE_DIS  = 2400.0f;	// 旋回時のステージ中央から離れる距離
 	const float	RIDE_ROTATE_POSY = 1200.0f;	// 旋回時のY座標
-	const float	RIDE_ROTATE_MOVE = 0.01f;	// 旋回時の回転速度
+	const float	RIDE_ROTATE_MOVE = 0.005f;	// 旋回時の回転速度
 
 	const float	STAN_CANERA_DIS = 600.0f;	// スタンカメラの距離
 	const D3DXVECTOR3 STAN_CAMERA_OFFSET	= D3DXVECTOR3(0.0f, 100.0f, 0.0f);	// スタンカメラの位置オフセット
@@ -630,6 +630,7 @@ void CEnemyBossDragon::UpdateMotion(void)
 	case MOTION_IDOL:			// 待機モーション
 	case MOTION_FLY_IDOL:		// 空中待機モーション
 	case MOTION_STAN:			// スタンモーション
+	case MOTION_SHAKE_OFF:		// 空中振り下ろしモーション
 	case MOTION_HOWL_FLYUP:		// 咆哮飛び上がりモーション
 	case MOTION_DEATH:			// 死亡モーション
 		break;
@@ -1039,9 +1040,6 @@ void CEnemyBossDragon::UpdateRideRotate(void)
 	// ライド旋回状態時の更新
 	CEnemy::UpdateRideRotate();
 
-	// 別モーション指定エラー
-	assert(GetMotionType() == MOTION_FLY_IDOL);
-
 	CStage *pStage = CScene::GetStage();		// ステージ情報
 	D3DXVECTOR3 posEnemy = GetVec3Position();	// 敵位置
 	D3DXVECTOR3 rotEnemy = GetVec3Rotation();	// 敵向き
@@ -1074,6 +1072,9 @@ void CEnemyBossDragon::UpdateRideRotate(void)
 
 			// ライド終了状態にする
 			CScene::GetPlayer()->SetRideEnd();
+
+			// 空中振り下ろしモーションを設定
+			SetMotion(MOTION_SHAKE_OFF);
 
 			// ドラゴン咆哮の再生
 			PLAY_SOUND(CSound::LABEL_SE_DRAGON_ROAR_S);
