@@ -81,6 +81,7 @@ public:
 		MOTION_FLY_RUSH,		// 空中突進攻撃モーション
 		MOTION_STAN,			// スタンモーション
 		MOTION_HOWL_FLYUP,		// 咆哮飛び上がりモーション
+		MOTION_COME_DOWN,		// 上空復帰モーション
 		MOTION_DEATH,			// 死亡モーション
 		MOTION_MAX				// この列挙型の総数
 	};
@@ -102,11 +103,11 @@ public:
 	// テレポート列挙
 	enum ETeleport
 	{
-		TELEPORT_INIT = 0,		// テレポートの初期化
-		TELEPORT_APPEAR,		// 魔法陣の出現
-		TELEPORT_MOVE,			// 魔法陣の移動
-		TELEPORT_DISAPPEAR,		// 魔法陣の消失
-		TELEPORT_MAX			// この列挙型の総数
+		TELEPORT_INIT = 0,	// テレポートの初期化
+		TELEPORT_APPEAR,	// 魔法陣の出現
+		TELEPORT_MOVE,		// 魔法陣の移動
+		TELEPORT_DISAPPEAR,	// 魔法陣の消失
+		TELEPORT_MAX		// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -169,12 +170,14 @@ private:
 	void SetStan(void) override;			// スタン状態の設定
 	void SetRideFlyUp(void) override;		// ライド飛び上がり状態の設定
 	void SetRideRotate(void) override;		// ライド旋回状態の設定
+	void SetRideEnd(void) override;			// ライド終了状態の設定
 	void SetDeath(void) override;			// 死亡状態の設定
 	void UpdateSpawn(void) override;		// スポーン状態時の更新
 	void UpdateNormal(void) override;		// 通常状態時の更新
 	void UpdateStan(void) override;			// スタン状態時の更新
 	void UpdateRideFlyUp(void) override;	// ライド飛び上がり状態時の更新
 	void UpdateRideRotate(void) override;	// ライド旋回状態時の更新
+	void UpdateRideEnd(void) override;		// ライド終了状態時の更新
 	void UpdateDeath(void) override;		// 死亡状態時の更新
 
 	// メンバ関数
@@ -209,6 +212,7 @@ private:
 	EAction m_action;		// 行動
 	int m_nCounterSameAct;	// 同じ行動の連続数
 	int m_nCounterAttack;	// 攻撃管理カウンター
+	int m_nCounterRotate;	// ライド旋回カウンター
 	int m_nCounterFlash;	// フラッシュ管理カウンター
 };
 

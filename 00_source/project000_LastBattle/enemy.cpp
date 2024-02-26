@@ -61,6 +61,7 @@ CEnemy::AFuncUpdateState CEnemy::m_aFuncUpdateState[] =		// 状態更新関数
 	&CEnemy::UpdateStan,		// スタン状態時の更新
 	&CEnemy::UpdateRideFlyUp,	// ライド飛び上がり状態時の更新
 	&CEnemy::UpdateRideRotate,	// ライド旋回状態時の更新
+	&CEnemy::UpdateRideEnd,		// ライド終了状態時の更新
 	&CEnemy::UpdateDeath,		// 死亡状態時の更新
 };
 
@@ -263,6 +264,12 @@ void CEnemy::SetState(const int nState)
 		SetRideRotate();
 		break;
 
+	case STATE_RIDE_END:	// ライド終了状態
+
+		// ライド終了状態の設定
+		SetRideEnd();
+		break;
+
 	case STATE_DEATH:	// 死亡状態
 
 		// 死亡状態の設定
@@ -332,20 +339,20 @@ void CEnemy::DrawCrop(void)
 }
 
 //============================================================
+//	UI描画の設定処理
+//============================================================
+void CEnemy::SetEnableDrawUI(const bool /*bDraw*/)
+{
+
+}
+
+//============================================================
 //	ライド可能かの取得処理
 //============================================================
 bool CEnemy::IsRideOK(const D3DXVECTOR3& /*rPos*/) const
 {
 	assert(false);
 	return false;
-}
-
-//============================================================
-//	UI描画の設定処理
-//============================================================
-void CEnemy::SetEnableDrawUI(const bool /*bDraw*/)
-{
-
 }
 
 //============================================================
@@ -647,6 +654,24 @@ void CEnemy::SetRideRotate(void)
 }
 
 //============================================================
+//	ライド終了状態の設定処理
+//============================================================
+void CEnemy::SetRideEnd(void)
+{
+	// カウンターを初期化
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// 描画を再開
+	SetEnableDraw(true);
+
+	// マテリアルを再設定
+	ResetMaterial();
+
+	// 透明度を再設定
+	SetAlpha(1.0f);
+}
+
+//============================================================
 //	死亡状態の設定処理
 //============================================================
 void CEnemy::SetDeath(void)
@@ -861,6 +886,14 @@ void CEnemy::UpdateRideFlyUp(void)
 //	ライド旋回状態時の更新処理
 //============================================================
 void CEnemy::UpdateRideRotate(void)
+{
+
+}
+
+//============================================================
+//	ライド終了状態時の更新処理
+//============================================================
+void CEnemy::UpdateRideEnd(void)
 {
 
 }

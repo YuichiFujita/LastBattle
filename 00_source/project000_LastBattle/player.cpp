@@ -109,7 +109,8 @@ namespace
 	const int	PRESS_JUMP_FRAME	= 10;	// ジャンプ高度上昇の受付入力時間
 	const int	ATTACK_BUFFER_FRAME	= 11;	// 攻撃の先行入力可能フレーム
 
-	const int	RIDE_MAX_ATTACK = 2;	// ライド攻撃の総数
+	const int	RIDE_MAX_ATTACK	= 2;		// ライド攻撃の総数
+	const float	RIDE_END_MOVEUP = 10.0f;	// ライド終了時の上移動量
 	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);	// ボスライド時のオフセット位置
 	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);	// ボスライド時のオフセット向き
 	const D3DXVECTOR3 SHADOW_SIZE		= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
@@ -391,7 +392,7 @@ void CPlayer::Update(void)
 	case STATE_RIDE_END:
 
 		// ライド終了状態の更新
-		UpdateRideEnd((int*)&curLowMotion, (int*)&curUpMotion);
+		UpdateRideEnd();
 
 		break;
 
@@ -412,7 +413,7 @@ void CPlayer::Update(void)
 	case STATE_DEATH:
 
 		// 死亡状態時の更新
-		UpdateDeath();
+		UpdateDeath((int*)&curLowMotion, (int*)&curUpMotion);
 
 		break;
 
@@ -867,18 +868,24 @@ void CPlayer::SetInvuln(void)
 //============================================================
 void CPlayer::SetRide(void)
 {
-	// 無敵状態にする
+	// ライド状態にする
 	SetState(STATE_RIDE);
 
-	// カウンターを初期化
+	// 情報を初期化
+	memset(&m_jump, 0, sizeof(m_jump));		// ジャンプの情報
+	memset(&m_dodge, 0, sizeof(m_dodge));	// 回避の情報
 	m_nCounterState = 0;	// 状態管理カウンター
 
-	// 回避情報を初期化
+	// フラグを初期化
 	m_dodge.bDodge = false;	// 回避状況
-	m_dodge.fMove = 0.0f;
-
-	// ジャンプ情報を初期化
 	m_jump.bJump = false;	// ジャンプ状況
+
+	// 移動量を初期化
+	m_move = VEC3_ZERO;
+
+	// ライド待機モーションを設定
+	SetMotion(BODY_LOWER, L_MOTION_RIDE_IDOL);
+	SetMotion(BODY_UPPER, U_MOTION_RIDE_IDOL);
 
 	for (int nCntBlur = 0; nCntBlur < BODY_MAX; nCntBlur++)
 	{ // ブラーの数分繰り返す
@@ -894,6 +901,38 @@ void CPlayer::SetRide(void)
 	// 自動描画をOFFにする
 	SetEnableDraw(false);
 	CObject::SetEnableDraw(true);	// 自身はON
+
+	// マテリアルを再設定
+	ResetMaterial();
+}
+
+//============================================================
+//	ライド終了の設定処理
+//============================================================
+void CPlayer::SetRideEnd(void)
+{
+	// ライド終了状態にする
+	SetState(STATE_RIDE_END);
+
+	// 情報を初期化
+	memset(&m_jump, 0, sizeof(m_jump));		// ジャンプの情報
+	memset(&m_dodge, 0, sizeof(m_dodge));	// 回避の情報
+	m_nCounterState = 0;	// 状態管理カウンター
+
+	// フラグを初期化
+	m_dodge.bDodge = false;	// 回避状況
+	m_jump.bJump = false;	// ジャンプ状況
+
+	// 上移動量を与える
+	m_move = VEC3_ZERO;
+	m_move.y = RIDE_END_MOVEUP;
+
+	// 落下モーションを設定
+	SetMotion(BODY_LOWER, L_MOTION_FALL);
+	SetMotion(BODY_UPPER, U_MOTION_FALL);
+
+	// 自動描画をONにする
+	SetEnableDraw(true);
 
 	// マテリアルを再設定
 	ResetMaterial();
@@ -1625,16 +1664,17 @@ void CPlayer::UpdateSpawn(void)
 }
 
 //============================================================
-//	死亡状態時の更新処理
+//	ライド終了状態時の更新処理
 //============================================================
-void CPlayer::UpdateDeath(void)
+void CPlayer::UpdateRideEnd(void)
 {
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-
 	// ポインタを宣言
 	CStage *pStage = CScene::GetStage();				// ステージ情報
 	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 変数を宣言
+	D3DXVECTOR3 posCenter = pStage->GetStageLimit().center;	// ステージ中央位置
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
 
 	// 重力の更新
 	UpdateGravity();
@@ -1642,18 +1682,35 @@ void CPlayer::UpdateDeath(void)
 	// 位置更新
 	UpdatePosition(&posPlayer);
 
-	// 着地判定
-	UpdateLanding(&posPlayer);
+	if (posPlayer.y <= pStage->GetStageLimit().fField)
+	{ // 着地した場合
 
-	// ステージ範囲外の補正
-	pStage->LimitPosition(posPlayer, RADIUS);
+		// 着地判定
+		UpdateLanding(&posPlayer);
+
+		// ステージ範囲外の補正
+		pStage->LimitPosition(posPlayer, RADIUS);
+
+		// 通常状態にする
+		SetState(STATE_NORMAL);
+
+		// ステージ方向を向かせる
+		D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
+		rotPlayer.y = atan2f(posPlayer.x - posCenter.x, posPlayer.z - posCenter.z);
+
+		// 向きを反映
+		SetVec3Rotation(rotPlayer);
+
+		// ボスをライド終了状態にする
+		CScene::GetBoss()->SetState(CEnemy::STATE_RIDE_END);
+
+		// カメラを追従状態に設定
+		GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
+		GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
+	}
 
 	// 位置を反映
 	SetVec3Position(posPlayer);
-
-	// 死亡モーションにする
-	SetMotion(BODY_LOWER, L_MOTION_DEATH);
-	SetMotion(BODY_UPPER, U_MOTION_DEATH);
 }
 
 //============================================================
@@ -1675,9 +1732,6 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 	// 攻撃操作
 	UpdateAttack(posPlayer, rotPlayer);
 
-	// 騎乗操作
-	UpdateRide(posPlayer);
-
 	// 回避操作
 	UpdateDodge(rotPlayer);
 
@@ -1686,6 +1740,9 @@ void CPlayer::UpdateNormal(int *pLowMotion, int *pUpMotion)
 
 	// ジャンプ操作
 	UpdateJump(pLowMotion, pUpMotion);
+
+	// 騎乗操作
+	UpdateRide(posPlayer);
 
 	// 位置更新
 	UpdatePosition(&posPlayer);
@@ -1739,57 +1796,6 @@ void CPlayer::UpdateRide(int *pLowMotion, int *pUpMotion)
 
 	// 向きを反映
 	SetVec3Rotation(rotPlayer);
-}
-
-//============================================================
-//	ライド終了状態時の更新処理
-//============================================================
-void CPlayer::UpdateRideEnd(int *pLowMotion, int *pUpMotion)
-{
-	// ポインタを宣言
-	CStage *pStage = CScene::GetStage();				// ステージ情報
-	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
-
-	// 変数を宣言
-	D3DXVECTOR3 posCenter = pStage->GetStageLimit().center;	// ステージ中央位置
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-
-	// 重力の更新
-	UpdateGravity();
-
-	// 位置更新
-	UpdatePosition(&posPlayer);
-
-	if (posPlayer.y <= pStage->GetStageLimit().fField)
-	{ // 着地した場合
-
-		// 着地判定
-		UpdateLanding(&posPlayer);
-
-		// ステージ範囲外の補正
-		pStage->LimitPosition(posPlayer, RADIUS);
-
-		// 通常状態にする
-		SetState(STATE_NORMAL);
-
-		// ステージ方向を向かせる
-		D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
-		rotPlayer.y = atan2f(posPlayer.x - posCenter.x, posPlayer.z - posCenter.z);
-
-		// 向きを反映
-		SetVec3Rotation(rotPlayer);
-
-		// カメラを追従状態に設定
-		GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
-		GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
-	}
-
-	// 位置を反映
-	SetVec3Position(posPlayer);
-
-	// 上下に落下モーションを設定
-	*pLowMotion = L_MOTION_FALL;
-	*pUpMotion  = U_MOTION_FALL;
 }
 
 //============================================================
@@ -1854,6 +1860,38 @@ void CPlayer::UpdateInvuln(int *pLowMotion, int *pUpMotion)
 		// 通常状態を設定
 		SetState(STATE_NORMAL);
 	}
+}
+
+//============================================================
+//	死亡状態時の更新処理
+//============================================================
+void CPlayer::UpdateDeath(int *pLowMotion, int *pUpMotion)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 位置更新
+	UpdatePosition(&posPlayer);
+
+	// 着地判定
+	UpdateLanding(&posPlayer);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posPlayer, RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+
+	// 死亡モーションにする
+	*pLowMotion = L_MOTION_DEATH;
+	*pUpMotion  = U_MOTION_DEATH;
 }
 
 //============================================================

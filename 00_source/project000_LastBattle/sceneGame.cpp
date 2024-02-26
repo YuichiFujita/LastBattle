@@ -275,7 +275,7 @@ void CSceneGame::Update(void)
 	// TODOFƒ{ƒXŽEŠQ
 	if (GET_INPUTKEY->IsTrigger(DIK_0))
 	{
-		CScene::GetBoss()->Hit(99999999);
+		CScene::GetPlayer()->Hit(99999999);
 	}
 	if (GET_INPUTKEY->IsTrigger(DIK_8))
 	{

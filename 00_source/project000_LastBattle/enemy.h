@@ -47,6 +47,7 @@ public:
 		STATE_STAN,			// スタン状態
 		STATE_RIDE_FLYUP,	// ライド飛び上がり状態
 		STATE_RIDE_ROTATE,	// ライド旋回状態
+		STATE_RIDE_END,		// ライド終了状態
 		STATE_DEATH,		// 死亡状態
 		STATE_MAX			// この列挙型の総数
 	};
@@ -109,8 +110,8 @@ public:
 	// 仮想関数
 	virtual void InitNormal(void);	// 通常状態の初期化
 	virtual void DrawCrop(void);	// 切り抜き用の描画
-	virtual bool IsRideOK(const D3DXVECTOR3& rPos) const;	// ライド可能か取得
 	virtual void SetEnableDrawUI(const bool bDraw);			// UI描画設定
+	virtual bool IsRideOK(const D3DXVECTOR3& rPos) const;	// ライド可能か取得
 
 	// 静的メンバ関数
 	static CEnemy *Create	// 生成
@@ -147,6 +148,7 @@ protected:
 	virtual void SetStan(void);				// スタン状態の設定
 	virtual void SetRideFlyUp(void);		// ライド飛び上がり状態の設定
 	virtual void SetRideRotate(void);		// ライド旋回状態の設定
+	virtual void SetRideEnd(void);			// ライド終了状態の設定
 	virtual void SetDeath(void);			// 死亡状態の設定
 	virtual void UpdateNone(void);			// なにもしない状態時の更新
 	virtual void UpdateSpawn(void);			// スポーン状態時の更新
@@ -156,6 +158,7 @@ protected:
 	virtual void UpdateStan(void);			// スタン状態時の更新
 	virtual void UpdateRideFlyUp(void);		// ライド飛び上がり状態時の更新
 	virtual void UpdateRideRotate(void);	// ライド旋回状態時の更新
+	virtual void UpdateRideEnd(void);		// ライド終了状態時の更新
 	virtual void UpdateDeath(void);			// 死亡状態時の更新
 
 	// メンバ関数

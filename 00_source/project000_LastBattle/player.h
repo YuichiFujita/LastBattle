@@ -158,6 +158,7 @@ public:
 	void SetSpawn(void);	// スポーン設定
 	void SetInvuln(void);	// 無敵設定
 	void SetRide(void);		// ライド設定
+	void SetRideEnd(void);	// ライド終了設定
 
 private:
 	// 先行入力構造体
@@ -247,13 +248,13 @@ private:
 	void SetLStickRotation(void);	// Lスティック向きを向かせる
 	bool IsAttack(void) const;		// 攻撃状況取得
 
-	void UpdateSpawn(void);	// スポーン状態時の更新
-	void UpdateDeath(void);	// 死亡状態時の更新
+	void UpdateSpawn(void);		// スポーン状態時の更新
+	void UpdateRideEnd(void);	// ライド終了状態時の更新
 	void UpdateNormal(int *pLowMotion, int *pUpMotion);		// 通常状態時の更新
 	void UpdateRide(int *pLowMotion, int *pUpMotion);		// ライド状態時の更新
-	void UpdateRideEnd(int *pLowMotion, int *pUpMotion);	// ライド終了状態時の更新
 	void UpdateDamage(int *pLowMotion, int *pUpMotion);		// ダメージ状態時の更新
 	void UpdateInvuln(int *pLowMotion, int *pUpMotion);		// 無敵状態時の更新
+	void UpdateDeath(int *pLowMotion, int *pUpMotion);		// 死亡状態時の更新
 
 	void UpdateAttack	// 攻撃操作の更新
 	( // 引数

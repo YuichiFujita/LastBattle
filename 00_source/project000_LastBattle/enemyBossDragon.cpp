@@ -104,7 +104,7 @@ namespace
 
 	const float	RIDE_ROTATE_DIS  = 2400.0f;	// 旋回時のステージ中央から離れる距離
 	const float	RIDE_ROTATE_POSY = 1200.0f;	// 旋回時のY座標
-	const float	RIDE_ROTATE_MOVE = 0.006f;	// 旋回時の回転速度
+	const float	RIDE_ROTATE_MOVE = 0.01f;	// 旋回時の回転速度
 
 	const float	STAN_CANERA_DIS = 600.0f;	// スタンカメラの距離
 	const D3DXVECTOR3 STAN_CAMERA_OFFSET	= D3DXVECTOR3(0.0f, 100.0f, 0.0f);	// スタンカメラの位置オフセット
@@ -152,6 +152,7 @@ CEnemyBossDragon::CEnemyBossDragon(const EType type) : CEnemy(type),
 	m_action			(ACT_NONE),			// 行動
 	m_nCounterSameAct	(0),				// 同じ行動の連続数
 	m_nCounterAttack	(0),				// 攻撃管理カウンター
+	m_nCounterRotate	(0),				// ライド旋回カウンター
 	m_nCounterFlash		(0),				// フラッシュ管理カウンター
 	m_oldAtk	(CEnemyAttack::ATTACK_00),	// 前回の攻撃
 	m_curAtk	(CEnemyAttack::ATTACK_00)	// 今回の攻撃
@@ -185,6 +186,7 @@ HRESULT CEnemyBossDragon::Init(void)
 	m_action			= ACT_NONE;		// 行動
 	m_nCounterSameAct	= 0;			// 同じ行動の連続数
 	m_nCounterAttack	= 0;			// 攻撃管理カウンター
+	m_nCounterRotate	= 0;			// ライド旋回カウンター
 	m_nCounterFlash		= 0;			// フラッシュ管理カウンター
 
 	// 敵の初期化
@@ -693,6 +695,17 @@ void CEnemyBossDragon::UpdateMotion(void)
 
 		break;
 
+	case MOTION_COME_DOWN:		// 上空復帰モーション
+
+		if (IsMotionFinish())
+		{ // モーションが終了していた場合
+
+			// 待機モーションに移行
+			SetMotion(MOTION_IDOL, BLEND_FRAME);
+		}
+
+		break;
+
 	default:	// 例外処理
 		assert(false);
 		break;
@@ -746,6 +759,11 @@ void CEnemyBossDragon::SetStan(void)
 	// スタン状態の設定
 	CEnemy::SetStan();
 
+	// カウンターを初期化
+	m_nCounterAttack = 0;	// 攻撃管理カウンター
+	m_nCounterRotate = 0;	// ライド旋回カウンター
+	m_nCounterFlash  = 0;	// フラッシュ管理カウンター
+
 	// スタンモーションを設定
 	SetMotion(MOTION_STAN, BLEND_FRAME);
 }
@@ -759,6 +777,11 @@ void CEnemyBossDragon::SetRideFlyUp(void)
 
 	// ライド飛び上がり状態の設定
 	CEnemy::SetRideFlyUp();
+
+	// カウンターを初期化
+	m_nCounterAttack = 0;	// 攻撃管理カウンター
+	m_nCounterRotate = 0;	// ライド旋回カウンター
+	m_nCounterFlash  = 0;	// フラッシュ管理カウンター
 
 	// 咆哮飛び上がりモーションを設定
 	SetMotion(MOTION_HOWL_FLYUP, BLEND_FRAME);
@@ -783,6 +806,48 @@ void CEnemyBossDragon::SetRideRotate(void)
 {
 	// ライド旋回状態の設定
 	CEnemy::SetRideRotate();
+
+	// カウンターを初期化
+	m_nCounterAttack = 0;	// 攻撃管理カウンター
+	m_nCounterFlash  = 0;	// フラッシュ管理カウンター
+}
+
+//============================================================
+//	ライド終了状態の設定処理
+//============================================================
+void CEnemyBossDragon::SetRideEnd(void)
+{
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	CPlayer *pPlayer = CScene::GetPlayer();				// プレイヤー情報
+	D3DXVECTOR3 posPlayer = pPlayer->GetVec3Position();	// プレイヤー位置
+	D3DXVECTOR3 posEnemy = GetVec3Position();			// ボス位置
+	D3DXVECTOR3 rotEnemy = GetVec3Rotation();			// ボス向き
+
+	// ライド終了状態の設定
+	CEnemy::SetRideEnd();
+
+	// カウンターを初期化
+	m_nCounterAttack = 0;	// 攻撃管理カウンター
+	m_nCounterRotate = 0;	// ライド旋回カウンター
+	m_nCounterFlash  = 0;	// フラッシュ管理カウンター
+
+	// 上空復帰モーションを設定
+	SetMotion(MOTION_COME_DOWN);
+
+	// ボスの位置を中央に設定
+	posEnemy = pStage->GetStageLimit().center;	// ステージ中央を設定
+
+	// 着地判定・ステージ範囲外の補正
+	UpdateLanding(&posEnemy);
+	pStage->LimitPosition(posEnemy, GetStatusInfo().fRadius);
+
+	// 位置を反映
+	SetVec3Position(posEnemy);
+
+	// 向きをプレイヤー方向にする
+	rotEnemy.y = atan2f(posEnemy.x - posPlayer.x, posEnemy.z - posPlayer.z);
+	SetVec3Rotation(rotEnemy);
+	SetDestRotation(rotEnemy);
 }
 
 //============================================================
@@ -989,12 +1054,33 @@ void CEnemyBossDragon::UpdateRideRotate(void)
 	SetVec3Position(posEnemy);
 	SetVec3Rotation(rotEnemy);
 
-	// TODO：降りるタイミングの計算等を行う
-	if (GET_INPUTKEY->IsTrigger(DIK_7))
-	{
-		CScene::GetPlayer()->SetState(CPlayer::STATE_RIDE_END);
+	if (CScene::GetPlayer()->GetState() != CPlayer::STATE_RIDE_END)
+	{ // ライドが終了していない場合
+
+		// カウンターを加算
+		m_nCounterRotate++;
+		if (m_nCounterRotate > 360)	// TODO：定数
+		{ // ライドの最大経過時間の場合
+
+			// ライド終了状態にする
+			CScene::GetPlayer()->SetRideEnd();
+		}
+	}
+}
+
+//============================================================
+//	ライド終了状態時の更新処理
+//============================================================
+void CEnemyBossDragon::UpdateRideEnd(void)
+{
+	// ライド終了状態時の更新
+	CEnemy::UpdateRideEnd();
+
+	if (GetMotionType() != MOTION_COME_DOWN)
+	{ // モーションが上空復帰ではなくなった場合
+
+		// 通常状態を設定
 		SetState(STATE_NORMAL);
-		SetTeleport(VEC3_ZERO, VEC3_ZERO);
 	}
 }
 
