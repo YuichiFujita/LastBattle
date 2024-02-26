@@ -30,7 +30,8 @@ namespace
 		{ "data\\SE\\sword_swing002.wav", 0 },	// Œ•‚Ì•—Ø‚è‰¹02
 		{ "data\\SE\\sword_hit000.wav", 0 },	// Œ•‚Ìƒqƒbƒg‰¹
 		{ "data\\SE\\walk000.wav", 0 },			// ‘«‰¹
-		{ "data\\SE\\dragon_roar000.wav", 0 },	// ƒhƒ‰ƒSƒ“™ôšK
+		{ "data\\SE\\dragon_roar000.wav", 0 },	// ƒhƒ‰ƒSƒ“™ôšK (’·)
+		{ "data\\SE\\dragon_roar001.wav", 0 },	// ƒhƒ‰ƒSƒ“™ôšK (’Z)
 	};
 }
 

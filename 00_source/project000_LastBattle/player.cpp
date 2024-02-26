@@ -111,9 +111,10 @@ namespace
 
 	const int	RIDE_MAX_ATTACK	= 2;		// ライド攻撃の総数
 	const float	RIDE_END_MOVEUP = 10.0f;	// ライド終了時の上移動量
-	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);	// ボスライド時のオフセット位置
-	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);	// ボスライド時のオフセット向き
-	const D3DXVECTOR3 SHADOW_SIZE		= D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
+	const CCamera::SSwing RIDEEND_SWING	= CCamera::SSwing(13.0f, 1.8f, 0.14f);	// ライド振りほどかれ時のカメラ揺れ
+	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);		// ボスライド時のオフセット位置
+	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);		// ボスライド時のオフセット向き
+	const D3DXVECTOR3 SHADOW_SIZE		= D3DXVECTOR3(80.0f, 0.0f, 80.0f);		// 影の大きさ
 
 	// 体力の情報
 	namespace lifeInfo
@@ -936,6 +937,9 @@ void CPlayer::SetRideEnd(void)
 
 	// マテリアルを再設定
 	ResetMaterial();
+
+	// カメラ揺れを設定
+	GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, RIDEEND_SWING);
 }
 
 //============================================================

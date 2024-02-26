@@ -40,7 +40,8 @@ public:
 		LABEL_SE_SWORD_SWING_002,	// Œ•‚Ì•—Ø‚è‰¹02
 		LABEL_SE_SWORD_HIT,			// Œ•‚Ìƒqƒbƒg‰¹
 		LABEL_SE_WALK,				// ‘«‰¹
-		LABEL_SE_DRAGON_ROAR,		// ƒhƒ‰ƒSƒ“™ôšK
+		LABEL_SE_DRAGON_ROAR_L,		// ƒhƒ‰ƒSƒ“™ôšK (’·)
+		LABEL_SE_DRAGON_ROAR_S,		// ƒhƒ‰ƒSƒ“™ôšK (’Z)
 		LABEL_MAX					// ‚±‚Ì—ñ‹“Œ^‚Ì‘”
 	};
 

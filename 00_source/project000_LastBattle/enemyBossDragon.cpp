@@ -74,7 +74,8 @@ namespace
 	};
 
 	const CCamera::SSwing LAND_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 着地のカメラ揺れ
-	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.075f);	// 咆哮のカメラ揺れ
+	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.09f);	// 咆哮のカメラ揺れ
+	const CCamera::SSwing RIDE_SWING	= CCamera::SSwing(9.5f, 2.0f, 0.09f);	// 飛び上がり前の咆哮のカメラ揺れ
 	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
@@ -928,7 +929,7 @@ void CEnemyBossDragon::UpdateSpawn(void)
 		GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, HOWL_SWING);
 
 		// ドラゴン咆哮の再生
-		PLAY_SOUND(CSound::LABEL_SE_DRAGON_ROAR);
+		PLAY_SOUND(CSound::LABEL_SE_DRAGON_ROAR_L);
 	}
 	else if (IsMotionFinish())
 	{ // モーションが終了していた場合
@@ -1001,7 +1002,16 @@ void CEnemyBossDragon::UpdateRideFlyUp(void)
 	// 別モーション指定エラー
 	assert(GetMotionType() == MOTION_HOWL_FLYUP);
 
-	if (IsMotionFinish())
+	if (GetMotionKey() == 2 && GetMotionKeyCounter() == 0)	// TODO：定数化
+	{ // モーションが口を開け始めたタイミングの場合
+
+		// 飛び上がり前の咆哮のカメラ揺れ設定
+		GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, RIDE_SWING);
+
+		// ドラゴン咆哮の再生
+		PLAY_SOUND(CSound::LABEL_SE_DRAGON_ROAR_S);
+	}
+	else if (IsMotionFinish())
 	{ // モーションが終了している場合
 
 		CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
@@ -1059,11 +1069,14 @@ void CEnemyBossDragon::UpdateRideRotate(void)
 
 		// カウンターを加算
 		m_nCounterRotate++;
-		if (m_nCounterRotate > 360)	// TODO：定数
+		if (m_nCounterRotate > 360)	// TODO：定数化
 		{ // ライドの最大経過時間の場合
 
 			// ライド終了状態にする
 			CScene::GetPlayer()->SetRideEnd();
+
+			// ドラゴン咆哮の再生
+			PLAY_SOUND(CSound::LABEL_SE_DRAGON_ROAR_S);
 		}
 	}
 }
