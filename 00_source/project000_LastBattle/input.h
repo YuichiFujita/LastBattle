@@ -74,6 +74,9 @@ public:
 	bool IsPress(int nKey);		// プレス取得
 	bool IsTrigger(int nKey);	// トリガー取得
 	bool IsRelease(int nKey);	// リリース取得
+	bool IsAnyPress(void);		// 全プレス取得
+	bool IsAnyTrigger(void);	// 全トリガー取得
+	bool IsAnyRelease(void);	// 全リリース取得
 
 private:
 	// メンバ変数
@@ -114,6 +117,9 @@ public:
 	bool IsPress(EKey mouKey);		// プレス取得
 	bool IsTrigger(EKey mouKey);	// トリガー取得
 	bool IsRelease(EKey mouKey);	// リリース取得
+	bool IsAnyPress(void);			// 全プレス取得
+	bool IsAnyTrigger(void);		// 全トリガー取得
+	bool IsAnyRelease(void);		// 全リリース取得
 	D3DXVECTOR3 GetMove(void);		// 移動量取得
 
 private:
@@ -144,10 +150,10 @@ public:
 		KEY_BACK,		// BACKボタン
 		KEY_LSTICKPUSH,	// 左スティック押し込み
 		KEY_RSTICKPUSH,	// 右スティック押し込み
-		KEY_L1,			// LBボタン
-		KEY_R1,			// RBボタン
-		KEY_L2,			// LTボタン
-		KEY_R2,			// RTボタン
+		KEY_LB,			// LBボタン
+		KEY_RB,			// RBボタン
+		KEY_LT,			// LTボタン
+		KEY_RT,			// RTボタン
 		KEY_A,			// Aボタン
 		KEY_B,			// Bボタン
 		KEY_X,			// Xボタン
@@ -191,9 +197,16 @@ public:
 	bool IsTrigger(EKey joyKey, int nPadID = 0);	// トリガー取得	(ボタン)
 	bool IsRelease(EKey joyKey, int nPadID = 0);	// リリース取得	(ボタン)
 
-	bool IsPressAll(EKey joyKey);	// 全プレス取得		(ボタン)
-	bool IsTriggerAll(EKey joyKey);	// 全トリガー取得	(ボタン)
-	bool IsReleaseAll(EKey joyKey);	// 全リリース取得	(ボタン)
+	bool IsPressAll(EKey joyKey);		// 全プレス取得		(ボタン)
+	bool IsTriggerAll(EKey joyKey);		// 全トリガー取得	(ボタン)
+	bool IsReleaseAll(EKey joyKey);		// 全リリース取得	(ボタン)
+	bool IsAnyPress(int nPadID = 0);	// 全プレス取得		(ボタン)
+	bool IsAnyTrigger(int nPadID = 0);	// 全トリガー取得	(ボタン)
+	bool IsAnyRelease(int nPadID = 0);	// 全リリース取得	(ボタン)
+
+	void InitPress(int nPadID = 0);		// プレス初期化		(ボタン)
+	void InitTrigger(int nPadID = 0);	// トリガー初期化	(ボタン)
+	void InitRelease(int nPadID = 0);	// リリース初期化	(ボタン)
 
 	SHORT GetPressLStickX(int nPadID = 0);		// プレス取得 (LスティックX)
 	SHORT GetPressLStickY(int nPadID = 0);		// プレス取得 (LスティックY)

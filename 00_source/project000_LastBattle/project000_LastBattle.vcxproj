@@ -249,6 +249,7 @@
     <ClCompile Include="shaderMono.cpp" />
     <ClCompile Include="shaderToon.cpp" />
     <ClCompile Include="shadow.cpp" />
+    <ClCompile Include="skip.cpp" />
     <ClCompile Include="sky.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="stage.cpp" />
@@ -364,6 +365,7 @@
     <ClInclude Include="shaderMono.h" />
     <ClInclude Include="shaderToon.h" />
     <ClInclude Include="shadow.h" />
+    <ClInclude Include="skip.h" />
     <ClInclude Include="sky.h" />
     <ClInclude Include="sound.h" />
     <ClInclude Include="stage.h" />

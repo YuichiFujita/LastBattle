@@ -16,6 +16,7 @@
 #include "timerManager.h"
 #include "retentionManager.h"
 #include "modelFont.h"
+#include "skip.h"
 #include "camera.h"
 #include "player.h"
 #include "enemy.h"
@@ -27,9 +28,11 @@
 //************************************************************
 namespace
 {
-	const D3DXVECTOR3 POS_NAME = D3DXVECTOR3(0.0f, 100.0f, 400.0f);	// 名前の表示位置
+	const D3DXVECTOR3 POS_NAME  = D3DXVECTOR3(0.0f, 100.0f, 400.0f);	// 名前の表示位置
+	const D3DXVECTOR3 POS_SKIP  = D3DXVECTOR3(1030.0f, 590.0f, 0.0f);	// スキップ操作の表示位置
+	const D3DXVECTOR3 SIZE_SKIP = D3DXVECTOR3(460.0f, 110.0f, 0.0f);	// スキップ操作の表示大きさ
 
-	const int GAMEEND_WAIT_FRAME = 120;	// リザルト画面への遷移余韻フレーム
+	const int GAMEEND_WAIT_FRAME= 120;	// リザルト画面への遷移余韻フレーム
 }
 
 //************************************************************
@@ -40,6 +43,7 @@ namespace
 //============================================================
 CGameManager::CGameManager() :
 	m_pBossName		(nullptr),		// ボスの名前モデル情報
+	m_pSkip			(nullptr),		// スキップ情報
 	m_state			(STATE_NONE),	// 状態
 	m_startState	(START_PLAYER)	// 開始状態
 {
@@ -65,6 +69,7 @@ HRESULT CGameManager::Init(void)
 
 	// メンバ変数を初期化
 	m_pBossName	 = nullptr;			// ボスの名前モデル情報
+	m_pSkip		 = nullptr;			// スキップ情報
 	m_state		 = STATE_START;		// 状態
 	m_startState = START_PLAYER;	// 開始状態
 
@@ -84,6 +89,20 @@ HRESULT CGameManager::Init(void)
 
 	// 自動描画をOFFにする
 	m_pBossName->SetEnableDraw(false);
+
+	// スキップ情報の生成
+	m_pSkip = CSkip::Create
+	( // 引数
+		POS_SKIP,	// 位置
+		SIZE_SKIP	// 大きさ
+	);
+	if (m_pSkip == nullptr)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// スコープインさせる
 	pScope->SetScopeIn();
@@ -105,6 +124,9 @@ void CGameManager::Uninit(void)
 {
 	// ボスの名前モデルの終了
 	SAFE_UNINIT(m_pBossName);
+
+	// スキップの破棄
+	SAFE_REF_RELEASE(m_pSkip);
 }
 
 //============================================================
@@ -233,10 +255,17 @@ void CGameManager::Release(CGameManager *&prGameManager)
 //============================================================
 void CGameManager::UpdateStart(void)
 {
-	if (GET_MANAGER->GetFade()->GetState() != CFade::FADE_NONE) { return; }	// フェード中の場合抜ける
+	// フェード中の場合抜ける
+	if (GET_MANAGER->GetFade()->GetState() != CFade::FADE_NONE) { return; }
 
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
 	CEnemy  *pBoss   = CScene::GetBoss();	// ボス情報
+
+	// ボスの名前モデルの更新
+	m_pBossName->Update();
+
+	// スキップ情報の更新
+	m_pSkip->Update();
 
 	switch (m_startState)
 	{ // 開始状態ごとの処理
@@ -282,9 +311,6 @@ void CGameManager::UpdateStart(void)
 
 	// 開始演出のスキップ
 	SkipStart();
-
-	// ボスの名前モデルの更新
-	m_pBossName->Update();
 }
 
 //============================================================
@@ -314,6 +340,12 @@ void CGameManager::EndStart(void)
 	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
 	GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
 
+	// ボスの名前モデルの終了
+	SAFE_UNINIT(m_pBossName);
+
+	// スキップの破棄
+	SAFE_REF_RELEASE(m_pSkip);
+
 	// タイマーの計測開始
 	pTimer->Start();
 
@@ -332,15 +364,27 @@ void CGameManager::SkipStart(void)
 	CInputKeyboard	*pKeyboard	= GET_INPUTKEY;	// キーボード
 	CInputPad		*pPad		= GET_INPUTPAD;	// パッド
 
-	if (pKeyboard->IsTrigger(DIK_RETURN)  || pKeyboard->IsTrigger(DIK_SPACE)
-	||  pPad->IsTrigger(CInputPad::KEY_A) || pPad->IsTrigger(CInputPad::KEY_B)
-	||  pPad->IsTrigger(CInputPad::KEY_X) || pPad->IsTrigger(CInputPad::KEY_Y))
+	if (pKeyboard->IsAnyTrigger() || pPad->IsAnyTrigger())
 	{ // 決定の操作が行われた場合
 
-		// 開始演出を終了状態にする
-		m_startState = START_END;
+		// スキップ操作を表示させる
+		m_pSkip->SetDisp();
+	}
 
-		// 開始演出の終了
-		EndStart();
+	if (pKeyboard->IsTrigger(DIK_RETURN) || pPad->IsTrigger(CInputPad::KEY_START))
+	{ // スキップ操作が行われた場合
+
+		if (m_pSkip->IsDisp())
+		{ // スキップ操作が表示されている場合
+
+			// 開始演出を終了状態にする
+			m_startState = START_END;
+
+			// 開始演出の終了
+			EndStart();
+
+			// トリガー情報を初期化 (開始直後のポーズ防止)
+			pPad->InitTrigger(CInputPad::KEY_START);
+		}
 	}
 }

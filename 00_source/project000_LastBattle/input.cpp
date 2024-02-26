@@ -256,6 +256,60 @@ bool CInputKeyboard::IsRelease(int nKey)
 }
 
 //============================================================
+//	全プレス取得処理
+//============================================================
+bool CInputKeyboard::IsAnyPress(void)
+{
+	for (int nCntKey = 0; nCntKey < keyboard::MAX_KEY; nCntKey++)
+	{ // キーの最大数分繰り返す
+
+		if (m_aKeyStatePress[nCntKey] & 0x80)
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//============================================================
+//	全トリガー取得処理
+//============================================================
+bool CInputKeyboard::IsAnyTrigger(void)
+{
+	for (int nCntKey = 0; nCntKey < keyboard::MAX_KEY; nCntKey++)
+	{ // キーの最大数分繰り返す
+
+		if (m_aKeyStateTrigger[nCntKey] & 0x80)
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//============================================================
+//	全リリース取得処理
+//============================================================
+bool CInputKeyboard::IsAnyRelease(void)
+{
+	for (int nCntKey = 0; nCntKey < keyboard::MAX_KEY; nCntKey++)
+	{ // キーの最大数分繰り返す
+
+		if (m_aKeyStateRelease[nCntKey] & 0x80)
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CInputKeyboard *CInputKeyboard::Create(HINSTANCE hInstance, HWND hWnd)
@@ -457,6 +511,60 @@ bool CInputMouse::IsRelease(EKey mouKey)
 {
 	// 入力情報を返す
 	return (m_keyStateRelease.rgbButtons[mouKey] & 0x80) ? true : false;
+}
+
+//============================================================
+//	全プレス取得処理
+//============================================================
+bool CInputMouse::IsAnyPress(void)
+{
+	for (int nCntMouKey = 0; nCntMouKey < mouse::MAX_KEY; nCntMouKey++)
+	{ // マウスキーの最大数分繰り返す
+
+		if (m_keyStatePress.rgbButtons[nCntMouKey] & 0x80)
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//============================================================
+//	全トリガー取得処理
+//============================================================
+bool CInputMouse::IsAnyTrigger(void)
+{
+	for (int nCntMouKey = 0; nCntMouKey < mouse::MAX_KEY; nCntMouKey++)
+	{ // マウスキーの最大数分繰り返す
+
+		if (m_keyStateTrigger.rgbButtons[nCntMouKey] & 0x80)
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//============================================================
+//	全リリース取得処理
+//============================================================
+bool CInputMouse::IsAnyRelease(void)
+{
+	for (int nCntMouKey = 0; nCntMouKey < mouse::MAX_KEY; nCntMouKey++)
+	{ // マウスキーの最大数分繰り返す
+
+		if (m_keyStateRelease.rgbButtons[nCntMouKey] & 0x80)
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
 }
 
 //============================================================
@@ -781,6 +889,87 @@ bool CInputPad::IsRelease(EKey joyKey, int nPadID)
 {
 	// 入力情報を返す
 	return (m_aKeyStateRelease[nPadID].Gamepad.wButtons & (1 << joyKey)) ? true : false;
+}
+
+//============================================================
+//	全プレス取得処理 (ボタン)
+//============================================================
+bool CInputPad::IsAnyPress(int nPadID)
+{
+	for (int nCntPadKey = 0; nCntPadKey < KEY_MAX; nCntPadKey++)
+	{ // パッドキーの最大数分繰り返す
+
+		if (m_aKeyStatePress[nPadID].Gamepad.wButtons & (1 << nCntPadKey))
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//============================================================
+//	全トリガー取得処理 (ボタン)
+//============================================================
+bool CInputPad::IsAnyTrigger(int nPadID)
+{
+	for (int nCntPadKey = 0; nCntPadKey < KEY_MAX; nCntPadKey++)
+	{ // パッドキーの最大数分繰り返す
+
+		if (m_aKeyStateTrigger[nPadID].Gamepad.wButtons & (1 << nCntPadKey))
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//============================================================
+//	全リリース取得処理 (ボタン)
+//============================================================
+bool CInputPad::IsAnyRelease(int nPadID)
+{
+	for (int nCntPadKey = 0; nCntPadKey < KEY_MAX; nCntPadKey++)
+	{ // パッドキーの最大数分繰り返す
+
+		if (m_aKeyStateRelease[nPadID].Gamepad.wButtons & (1 << nCntPadKey))
+		{ // 入力があった場合
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//============================================================
+//	プレス初期化処理 (ボタン)
+//============================================================
+void CInputPad::InitPress(int nPadID)
+{
+	// メモリをクリア
+	memset(&m_aKeyStatePress[nPadID].Gamepad.wButtons, 0, sizeof(m_aKeyStatePress[nPadID].Gamepad.wButtons));
+}
+
+//============================================================
+//	トリガー初期化処理 (ボタン)
+//============================================================
+void CInputPad::InitTrigger(int nPadID)
+{
+	// メモリをクリア
+	memset(&m_aKeyStateTrigger[nPadID].Gamepad.wButtons, 0, sizeof(m_aKeyStateTrigger[nPadID].Gamepad.wButtons));
+}
+
+//============================================================
+//	リリース初期化処理 (ボタン)
+//============================================================
+void CInputPad::InitRelease(int nPadID)
+{
+	// メモリをクリア
+	memset(&m_aKeyStateRelease[nPadID].Gamepad.wButtons, 0, sizeof(m_aKeyStateRelease[nPadID].Gamepad.wButtons));
 }
 
 //============================================================
