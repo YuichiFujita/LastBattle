@@ -104,9 +104,9 @@ namespace
 	const float	INVULN_ALPHA	= 0.7f;		// 無敵状態の基礎透明度
 	const float	ADD_SINROT		= 0.2f;		// 透明度をふわふわさせる際のサインカーブ向き加算量
 	const float	MAX_ADD_ALPHA	= 0.25f;	// 透明度の最大加算量
-	const float	DODGE_REV_MOVE	= 0.07f;	// 回避移動量の減算係数
+	const float	DODGE_REV_MOVE	= 0.09f;	// 回避移動量の減算係数
 	const float	DODGE_MIN_MOVE	= 0.35f;	// 回避移動量の最小値
-	const float	DODGE_SIDE_MOVE	= 4.0f;		// 回避の横移動量
+	const float	DODGE_SIDE_MOVE	= 9.5f;		// 回避の横移動量
 	const int	DODGE_WAIT_FRAME	= 100;	// 回避のフールタイムフレーム
 	const int	PRESS_JUMP_FRAME	= 10;	// ジャンプ高度上昇の受付入力時間
 	const int	ATTACK_BUFFER_FRAME	= 11;	// 攻撃の先行入力可能フレーム

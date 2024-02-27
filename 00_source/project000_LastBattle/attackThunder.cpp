@@ -189,6 +189,9 @@ void CAttackThunder::Update(void)
 
 	case STATE_ATTACK:
 
+		// プレイヤーとの当たり判定
+		CollisionPlayer();
+
 		for (int nCntThunder = 0; nCntThunder < attackThunder::NUM_THUNDER; nCntThunder++)
 		{ // 雷の生成数分繰り返す
 
@@ -220,9 +223,6 @@ void CAttackThunder::Update(void)
 				return;
 			}
 		}
-
-		// プレイヤーとの当たり判定
-		CollisionPlayer();
 
 		break;
 

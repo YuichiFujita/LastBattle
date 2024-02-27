@@ -154,7 +154,7 @@ namespace
 // ƒ‰ƒ“ƒ_ƒ€UŒ‚‚ÌON/OFF
 #if 0
 #define RANDOM_ATTACK_ON	// ƒ‰ƒ“ƒ_ƒ€UŒ‚
-#define ATTACK (CEnemyAttack::ATTACK_04)
+#define ATTACK (CEnemyAttack::ATTACK_00)
 #endif
 
 //************************************************************
