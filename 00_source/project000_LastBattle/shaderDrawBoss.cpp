@@ -23,7 +23,7 @@ namespace
 		"data\\TEXTURE\\SHADER\\toon003.png",	// トゥーンマップテクスチャ
 	};
 
-	const char* EFFECT_FX = "shaderDrawBoss.fx";	// ボス描画シェーダーのエフェクトファイル
+	const char* EFFECT_FX = "data\\SHADER\\shaderDrawBoss.fx";	// ボス描画シェーダーのエフェクトファイル
 }
 
 //************************************************************

@@ -720,13 +720,13 @@
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="shaderToon.fx">
+    <FxCompile Include="data\SHADER\shaderDrawBoss.fx">
       <Filter>エフェクト ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="shaderDrawBoss.fx">
+    <FxCompile Include="data\SHADER\shaderMono.fx">
       <Filter>エフェクト ファイル</Filter>
     </FxCompile>
-    <FxCompile Include="shaderMono.fx">
+    <FxCompile Include="data\SHADER\shaderToon.fx">
       <Filter>エフェクト ファイル</Filter>
     </FxCompile>
   </ItemGroup>

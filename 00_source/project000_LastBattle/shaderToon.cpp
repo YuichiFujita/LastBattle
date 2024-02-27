@@ -23,7 +23,7 @@ namespace
 		"data\\TEXTURE\\SHADER\\toon003.png",	// トゥーンマップテクスチャ
 	};
 
-	const char* EFFECT_FX = "shaderToon.fx";	// トゥーンシェーダーのエフェクトファイル
+	const char* EFFECT_FX = "data\\SHADER\\shaderToon.fx";	// トゥーンシェーダーのエフェクトファイル
 }
 
 //************************************************************
