@@ -13,7 +13,7 @@
 #include "scene.h"
 #include "sceneGame.h"
 #include "cinemaScope.h"
-#include "timerManager.h"
+#include "timerUI.h"
 #include "retentionManager.h"
 #include "modelFont.h"
 #include "skip.h"
@@ -28,11 +28,11 @@
 //************************************************************
 namespace
 {
-	const D3DXVECTOR3 POS_NAME  = D3DXVECTOR3(0.0f, 100.0f, 400.0f);	// 名前の表示位置
-	const D3DXVECTOR3 POS_SKIP  = D3DXVECTOR3(1030.0f, 590.0f, 0.0f);	// スキップ操作の表示位置
-	const D3DXVECTOR3 SIZE_SKIP = D3DXVECTOR3(460.0f, 110.0f, 0.0f);	// スキップ操作の表示大きさ
-
-	const int GAMEEND_WAIT_FRAME= 120;	// リザルト画面への遷移余韻フレーム
+	const D3DXVECTOR3 POS_NAME	 = D3DXVECTOR3(0.0f, 100.0f, 400.0f);	// 名前の表示位置
+	const D3DXVECTOR3 POS_SKIP	 = D3DXVECTOR3(1092.0f, 673.0f, 0.0f);	// スキップ操作の表示位置
+	const D3DXVECTOR3 SIZE_SKIP	 = D3DXVECTOR3(381.0f, 77.0f, 0.0f);	// スキップ操作の表示大きさ
+	const int CHANGE_UI_PRIORITY = 5;	// シネマスコープ終了時のUI優先順位
+	const int GAMEEND_WAIT_FRAME = 120;	// リザルト画面への遷移余韻フレーム
 }
 
 //************************************************************
@@ -139,7 +139,6 @@ void CGameManager::Update(void)
 	case STATE_NONE:
 	case STATE_NORMAL:
 	case STATE_STAGING:
-	case STATE_END:
 		break;
 
 	case STATE_START:
@@ -179,12 +178,11 @@ CGameManager::EState CGameManager::GetState(void) const
 void CGameManager::SetDrawGameUI(const bool bDraw)
 {
 	// ポインタを宣言
-	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
+	CTimerUI *pTimer = CSceneGame::GetTimerUI();	// タイマーマネージャーの情報
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
 	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
 
 	// 自動描画を設定
-	pTimer->SetEnableLogoDraw(bDraw);	// タイマーロゴ
 	pTimer->SetEnableDraw(bDraw);		// タイマー
 	pPlayer->SetEnableDrawUI(bDraw);	// プレイヤー関連UI
 	pBoss->SetEnableDrawUI(bDraw);		// ボス関連UI
@@ -195,14 +193,11 @@ void CGameManager::SetDrawGameUI(const bool bDraw)
 //============================================================
 void CGameManager::TransitionResult(const CRetentionManager::EWin win)
 {
-	// 終了状態にする
-	m_state = STATE_END;
+	// タイマーの計測終了
+	CSceneGame::GetTimerUI()->End();
 
 	// リザルト情報を保存
-	GET_RETENTION->SetResult(win, CSceneGame::GetTimerManager()->Get());
-
-	// タイマーの計測終了
-	CSceneGame::GetTimerManager()->End();
+	GET_RETENTION->SetResult(win, CSceneGame::GetTimerUI()->Get());
 
 	// リザルト画面に遷移
 	GET_MANAGER->SetScene(CScene::MODE_RESULT, GAMEEND_WAIT_FRAME);
@@ -261,12 +256,6 @@ void CGameManager::UpdateStart(void)
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
 	CEnemy  *pBoss   = CScene::GetBoss();	// ボス情報
 
-	// ボスの名前モデルの更新
-	m_pBossName->Update();
-
-	// スキップ情報の更新
-	m_pSkip->Update();
-
 	switch (m_startState)
 	{ // 開始状態ごとの処理
 	case START_PLAYER:	// プレイヤースポーン状態
@@ -291,6 +280,9 @@ void CGameManager::UpdateStart(void)
 		if (pBoss->GetState() == CEnemy::STATE_NONE)
 		{ // スポーン演出が終了した場合
 
+			// 開始演出の終了
+			EndStart();
+
 			// 終了状態にする
 			m_startState = START_END;
 		}
@@ -299,8 +291,21 @@ void CGameManager::UpdateStart(void)
 	}
 	case START_END:	// 終了状態
 	{
-		// 開始演出の終了
-		EndStart();
+		CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
+
+		if (pScope->GetState() == CCinemaScope::STATE_NONE)
+		{ // 演出が終了した場合
+
+			CTimerUI *pTimer  = CSceneGame::GetTimerUI();	// タイマーマネージャーの情報
+
+			// UI優先順位をシネマスコープより上にする
+			pPlayer->SetLifePriority(CHANGE_UI_PRIORITY);
+			pBoss->SetLifePriority(CHANGE_UI_PRIORITY);
+			pTimer->SetPriority(CHANGE_UI_PRIORITY);
+
+			// 通常状態にする
+			m_state = STATE_NORMAL;
+		}
 
 		break;
 	}
@@ -311,6 +316,14 @@ void CGameManager::UpdateStart(void)
 
 	// 開始演出のスキップ
 	SkipStart();
+
+	// ボスの名前モデルの更新
+	if (m_pBossName != nullptr)
+	m_pBossName->Update();
+
+	// スキップ情報の更新
+	if (m_pSkip != nullptr)
+	m_pSkip->Update();
 }
 
 //============================================================
@@ -318,10 +331,10 @@ void CGameManager::UpdateStart(void)
 //============================================================
 void CGameManager::EndStart(void)
 {
-	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
-	CEnemy  *pBoss   = CScene::GetBoss();	// ボス情報
-	CTimerManager *pTimer = CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
-	CCinemaScope *pScope  = CSceneGame::GetCinemaScope();	// シネマスコープの情報
+	CPlayer  *pPlayer = CScene::GetPlayer();		// プレイヤー情報
+	CEnemy   *pBoss   = CScene::GetBoss();			// ボス情報
+	CTimerUI *pTimer  = CSceneGame::GetTimerUI();	// タイマーマネージャーの情報
+	CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
 
 	// 通常状態の設定・初期化
 	pPlayer->InitNormal();	// プレイヤー
@@ -348,9 +361,6 @@ void CGameManager::EndStart(void)
 
 	// タイマーの計測開始
 	pTimer->Start();
-
-	// 通常状態にする
-	m_state = STATE_NORMAL;
 }
 
 //============================================================
@@ -384,7 +394,7 @@ void CGameManager::SkipStart(void)
 			EndStart();
 
 			// トリガー情報を初期化 (開始直後のポーズ防止)
-			pPad->InitTrigger(CInputPad::KEY_START);
+			pPad->InitTrigger();
 		}
 	}
 }

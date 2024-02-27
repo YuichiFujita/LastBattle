@@ -641,8 +641,8 @@ void CRankingManager::UpdateTime(void)
 		m_fScale += time::ADD_SCALE - ((time::MAX_SUB_SCALE) / (float)(ranking::NUM_DISP - 1)) * fabsf((float)m_nCounterDraw - (float)(ranking::NUM_DISP - 1));
 
 		// クリアタイム表示の大きさを設定
-		m_apTime[m_nCounterDraw]->SetScalingValue(time::SIZE_VAL * m_fScale);
-		m_apTime[m_nCounterDraw]->SetScalingPart(time::SIZE_PART * m_fScale);
+		m_apTime[m_nCounterDraw]->SetSizingValue(time::SIZE_VAL * m_fScale);
+		m_apTime[m_nCounterDraw]->SetSizingPart(time::SIZE_PART * m_fScale);
 	}
 	else
 	{ // 拡大率が最小値以下の場合
@@ -667,8 +667,8 @@ void CRankingManager::RevisionTime(void)
 	m_fScale = 1.0f;
 
 	// クリアタイム表示の大きさを設定
-	m_apTime[m_nCounterDraw]->SetScalingValue(time::SIZE_VAL);
-	m_apTime[m_nCounterDraw]->SetScalingPart(time::SIZE_PART);
+	m_apTime[m_nCounterDraw]->SetSizingValue(time::SIZE_VAL);
+	m_apTime[m_nCounterDraw]->SetSizingPart(time::SIZE_PART);
 
 	// 描画カウンターを減算
 	m_nCounterDraw--;
@@ -740,8 +740,8 @@ void CRankingManager::SkipStaging(void)
 		m_apTime[nCntRank]->SetEnableDraw(true);
 
 		// クリアタイム表示の大きさを設定
-		m_apTime[nCntRank]->SetScalingValue(time::SIZE_VAL);
-		m_apTime[nCntRank]->SetScalingPart(time::SIZE_PART);
+		m_apTime[nCntRank]->SetSizingValue(time::SIZE_VAL);
+		m_apTime[nCntRank]->SetSizingPart(time::SIZE_PART);
 	}
 
 	// 状態を変更

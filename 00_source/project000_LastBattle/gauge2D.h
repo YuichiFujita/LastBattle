@@ -64,7 +64,8 @@ public:
 		const D3DXCOLOR& rColBack = XCOL_BLACK,		// 裏ゲージ色
 		const bool bDrawFrame = false,				// 枠描画状況
 		const char *pPassTex = nullptr,				// フレームテクスチャパス
-		const D3DXVECTOR3& rSizeFrame = VEC3_ONE	// 枠大きさ
+		const D3DXVECTOR3& rSizeFrame = VEC3_ONE,	// 枠大きさ
+		const D3DXVECTOR3& rOffsetFrame = VEC3_ONE	// 枠オフセット
 	);
 
 	// メンバ関数
@@ -76,16 +77,18 @@ public:
 
 	void BindTexture(const int nPolygonID, const int nTextureID);		// テクスチャ割当 (インデックス)
 	void BindTexture(const int nPolygonID, const char *pTexturePass);	// テクスチャ割当 (パス)
-	void SetScalingGauge(const D3DXVECTOR3& rSize);	// ゲージ大きさ設定
-	D3DXVECTOR3 GetScalingGauge(void) const;		// ゲージ大きさ取得
-	void SetScalingFrame(const D3DXVECTOR3& rSize);	// 背景大きさ設定
-	D3DXVECTOR3 GetScalingFrame(void) const;		// 背景大きさ取得
-	void SetColorFront(const D3DXCOLOR& rCol);		// 表ゲージ色設定
-	D3DXCOLOR GetColorFront(void) const;			// 表ゲージ色取得
-	void SetColorBack(const D3DXCOLOR& rCol);		// 裏ゲージ色設定
-	D3DXCOLOR GetColorBack(void) const;				// 裏ゲージ色取得
-	void SetEnableDrawFrame(const bool bDraw);		// 枠表示状況設定
-	bool IsEnableDrawFrame(void) const;				// 枠表示状況取得
+	void SetOffsetFrame(const D3DXVECTOR3& rOffset);	// 枠オフセット設定
+	D3DXVECTOR3 GetOffsetFrame(void) const;				// 枠オフセット取得
+	void SetSizingGauge(const D3DXVECTOR3& rSize);		// ゲージ大きさ設定
+	D3DXVECTOR3 GetSizingGauge(void) const;				// ゲージ大きさ取得
+	void SetSizingFrame(const D3DXVECTOR3& rSize);		// 枠大きさ設定
+	D3DXVECTOR3 GetSizingFrame(void) const;				// 枠大きさ取得
+	void SetColorFront(const D3DXCOLOR& rCol);			// 表ゲージ色設定
+	D3DXCOLOR GetColorFront(void) const;				// 表ゲージ色取得
+	void SetColorBack(const D3DXCOLOR& rCol);			// 裏ゲージ色設定
+	D3DXCOLOR GetColorBack(void) const;					// 裏ゲージ色取得
+	void SetEnableDrawFrame(const bool bDraw);			// 枠表示状況設定
+	bool IsEnableDrawFrame(void) const;					// 枠表示状況取得
 
 private:
 	// オーバーライド関数
@@ -97,6 +100,7 @@ private:
 	// メンバ変数
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;	// 頂点バッファへのポインタ
 	D3DXVECTOR3	m_pos;					// 位置
+	D3DXVECTOR3	m_offsetFrame;			// 枠オフセット
 	D3DXVECTOR3	m_sizeGauge;			// ゲージ大きさ
 	D3DXVECTOR3	m_sizeFrame;			// 枠大きさ
 	D3DXCOLOR	m_colFront;				// 表ゲージ色

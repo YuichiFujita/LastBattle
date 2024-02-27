@@ -633,8 +633,8 @@ void CResultManager::UpdateTime(void)
 
 		// タイム表示の大きさを設定
 		m_pTimeLogo->SetVec3Sizing(SIZE_TIME_LOGO * m_fScale);
-		m_pTime->SetScalingValue(SIZE_TIME_VAL * m_fScale);
-		m_pTime->SetScalingPart(SIZE_TIME_PART * m_fScale);
+		m_pTime->SetSizingValue(SIZE_TIME_VAL * m_fScale);
+		m_pTime->SetSizingPart(SIZE_TIME_PART * m_fScale);
 	}
 	else
 	{ // 拡大率が最小値以下の場合
@@ -644,8 +644,8 @@ void CResultManager::UpdateTime(void)
 
 		// タイム表示の大きさを設定
 		m_pTimeLogo->SetVec3Sizing(SIZE_TIME_LOGO);
-		m_pTime->SetScalingValue(SIZE_TIME_VAL);
-		m_pTime->SetScalingPart(SIZE_TIME_PART);
+		m_pTime->SetSizingValue(SIZE_TIME_VAL);
+		m_pTime->SetSizingPart(SIZE_TIME_PART);
 
 		// 状態を変更
 		m_state = STATE_CONTINUE_WAIT;	// コンテニュー表示待機状態
@@ -824,8 +824,8 @@ void CResultManager::SkipStaging(void)
 
 		// タイム表示の大きさを設定
 		m_pTimeLogo->SetVec3Sizing(SIZE_TIME_LOGO);
-		m_pTime->SetScalingValue(SIZE_TIME_VAL);
-		m_pTime->SetScalingPart(SIZE_TIME_PART);
+		m_pTime->SetSizingValue(SIZE_TIME_VAL);
+		m_pTime->SetSizingPart(SIZE_TIME_PART);
 	}
 
 	// コンテニューロゴ表示の描画開始

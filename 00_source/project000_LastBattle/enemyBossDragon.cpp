@@ -22,7 +22,7 @@
 #include "random.h"
 #include "hitStop.h"
 #include "flash.h"
-#include "timerManager.h"
+#include "timerUI.h"
 #include "cinemaScope.h"
 #include "player.h"
 #include "collision.h"
@@ -100,7 +100,7 @@ namespace
 	const float	FLASH_SUBALPHA_DEATH_MULTI	= 0.02f;	// 死亡後連続するフラッシュ透明度減算量
 
 	const float	DEATH_CANERA_DIS = 800.0f;	// 死亡カメラの距離
-	const D3DXVECTOR3 DEATH_CAMERA_OFFSET	= D3DXVECTOR3(35.0f, 106.0f, 0.0f);		// 死亡カメラの位置オフセット
+	const D3DXVECTOR3 DEATH_CAMERA_OFFSET	= D3DXVECTOR3(35.0f, 136.0f, 0.0f);		// 死亡カメラの位置オフセット
 	const CCamera::SSwing DEATH_START_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 死亡初めのカメラ揺れ
 	const CCamera::SSwing DEATH_MULTI_SWING	= CCamera::SSwing(8.6f, 1.5f, 0.24f);	// 死亡後連続するカメラ揺れ
 
@@ -111,7 +111,7 @@ namespace
 	const int	FLYUP_MOTION_KEY = 2;		// 飛び上がりモーションの咆哮の開始キー
 	const int	ROTATE_FRAME     = 480;		// 合計旋回フレーム
 	const float	STAN_CANERA_DIS  = 600.0f;	// スタンカメラの距離
-	const D3DXVECTOR3 STAN_CAMERA_OFFSET	= D3DXVECTOR3(0.0f, 100.0f, 0.0f);	// スタンカメラの位置オフセット
+	const D3DXVECTOR3 STAN_CAMERA_OFFSET	= D3DXVECTOR3(0.0f, 145.0f, 0.0f);	// スタンカメラの位置オフセット
 	const D3DXVECTOR3 STAN_CAMERA_ROT		= D3DXVECTOR3(1.46f, 0.0f, 0.0f);	// スタンカメラの向き
 
 	const int	HITSTOP_KNOCK			= 11;		// ノックバック時のヒットストップの長さ
@@ -126,14 +126,15 @@ namespace
 	// 体力の情報
 	namespace lifeInfo
 	{
-		const char *TEXTURE_FRAME = "data\\TEXTURE\\lifeframe001.png";	// 体力フレーム表示のテクスチャファイル
+		const char *TEX_FRAME = "data\\TEXTURE\\lifeframe001.png";	// 体力フレーム表示のテクスチャファイル
 
-		const D3DXVECTOR3	POS				= D3DXVECTOR3(760.0f, 650.0f, 0.0f);			// 位置
-		const D3DXCOLOR		COL_FRONT		= D3DXCOLOR(0.77f, 0.19f, 0.94f, 1.0f);			// 表ゲージ色
-		const D3DXCOLOR		COL_BACK		= D3DXCOLOR(0.02f, 0.008f, 0.03f, 1.0f);		// 裏ゲージ色
-		const D3DXVECTOR3	SIZE_GAUGE		= D3DXVECTOR3(460.0f, 20.0f, 0.0f);				// ゲージ大きさ
-		const D3DXVECTOR3	SIZE_FRAME		= SIZE_GAUGE + D3DXVECTOR3(16.5f, 16.5f, 0.0f);	// フレーム大きさ
-		const int			CHANGE_FRAME	= 10;	// 表示値変動フレーム
+		const D3DXVECTOR3	POS			 = D3DXVECTOR3(832.5f, 685.0f, 0.0f);		// 位置
+		const D3DXVECTOR3	SIZE_GAUGE	 = D3DXVECTOR3(448.0f, 15.7f, 0.0f);		// ゲージ大きさ
+		const D3DXVECTOR3	SIZE_FRAME	 = D3DXVECTOR3(448.5f, 33.5f, 0.0f);		// フレーム大きさ
+		const D3DXVECTOR3	OFFSET_FRAME = D3DXVECTOR3(-0.5f, -13.0f, 0.0f);		// フレームオフセット
+		const D3DXCOLOR		COL_FRONT	 = D3DXCOLOR(0.77f, 0.19f, 0.94f, 1.0f);	// 表ゲージ色
+		const D3DXCOLOR		COL_BACK	 = D3DXCOLOR(0.02f, 0.008f, 0.03f, 1.0f);	// 裏ゲージ色
+		const int			CHANGE_FRAME = 10;	// 表示値変動フレーム
 	}
 }
 
@@ -221,8 +222,9 @@ HRESULT CEnemyBossDragon::Init(void)
 		lifeInfo::COL_FRONT,		// 表ゲージ色
 		lifeInfo::COL_BACK,			// 裏ゲージ色
 		true,						// 枠描画状況
-		lifeInfo::TEXTURE_FRAME,	// フレームテクスチャパス
-		lifeInfo::SIZE_FRAME		// 枠大きさ
+		lifeInfo::TEX_FRAME,		// フレームテクスチャパス
+		lifeInfo::SIZE_FRAME,		// 枠大きさ
+		lifeInfo::OFFSET_FRAME		// 枠オフセット
 	);
 
 	// 魔法陣の生成
@@ -341,6 +343,16 @@ void CEnemyBossDragon::SetEnableDrawUI(const bool bDraw)
 
 	// UIオブジェクトに描画状況を反映
 	m_pLife->SetEnableDraw(bDraw);	// 体力
+}
+
+//============================================================
+//	体力ゲージの優先順位の設定処理
+//============================================================
+void CEnemyBossDragon::SetLifePriority(const int nPrio)
+{
+	// 体力ゲージの優先順位を設定
+	assert(m_pLife != nullptr);
+	m_pLife->SetPriority(nPrio);
 }
 
 //============================================================
@@ -794,6 +806,7 @@ void CEnemyBossDragon::SetKnock(void)
 	// ゲーム画面ではない場合抜ける
 	if (GET_MANAGER->GetMode() != CScene::MODE_GAME) { return; }
 
+	CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
 	CHitStop *pHitStop	= CSceneGame::GetHitStop();	// ヒットストップ情報
 	CFlash   *pFlash	= CSceneGame::GetFlash();	// フラッシュ情報
 	CCamera  *pCamera	= GET_MANAGER->GetCamera();	// カメラ情報
@@ -811,6 +824,9 @@ void CEnemyBossDragon::SetKnock(void)
 
 	// ノックバックモーションを設定
 	SetMotion(MOTION_KNOCK);
+
+	// スコープインさせる
+	pScope->SetScopeIn();
 
 	// ヒットストップさせる
 	pHitStop->SetStop(HITSTOP_KNOCK);
@@ -942,9 +958,9 @@ void CEnemyBossDragon::SetDeath(void)
 	// ゲーム画面ではない場合抜ける
 	if (GET_MANAGER->GetMode() != CScene::MODE_GAME) { return; }
 
-	CGameManager  *pGameManager = CSceneGame::GetGameManager();	// ゲームマネージャーの情報
-	CTimerManager *pTimer	= CSceneGame::GetTimerManager();	// タイマーマネージャーの情報
-	CCinemaScope  *pScope	= CSceneGame::GetCinemaScope();		// シネマスコープの情報
+	CGameManager *pGameManager = CSceneGame::GetGameManager();	// ゲームマネージャーの情報
+	CCinemaScope *pScope	= CSceneGame::GetCinemaScope();		// シネマスコープの情報
+	CTimerUI *pTimer	= CSceneGame::GetTimerUI();	// タイマーUIの情報
 	CHitStop *pHitStop	= CSceneGame::GetHitStop();	// ヒットストップ情報
 	CFlash   *pFlash	= CSceneGame::GetFlash();	// フラッシュ情報
 	CCamera  *pCamera	= GET_MANAGER->GetCamera();	// カメラ情報
@@ -1086,11 +1102,16 @@ void CEnemyBossDragon::UpdateStan(void)
 	if (GetState() == STATE_NORMAL)
 	{ // 親クラス更新でスタンが終了した場合
 
+		CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
+
 		// 攻撃までの待機時間を設定
 		m_nCounterAttack = STAN_ATK_WAIT;
 
 		// 待機モーションに移行
 		SetMotion(MOTION_IDOL, BLEND_FRAME);
+
+		// スコープアウトさせる
+		pScope->SetScopeOut();
 	}
 }
 

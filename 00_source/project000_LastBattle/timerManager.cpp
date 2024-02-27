@@ -13,7 +13,6 @@
 #include "texture.h"
 #include "value.h"
 #include "object2D.h"
-#include "player.h"
 
 //************************************************************
 //	定数宣言
@@ -23,16 +22,11 @@ namespace
 	const char *TEXTURE_FILE[] =	// テクスチャファイル
 	{
 		"data\\TEXTURE\\timer000.png",	// 区切り表示
-		"data\\TEXTURE\\timer001.png",	// ロゴ表示
 	};
 
 	const int	PRIORITY	= 6;					// タイマーの優先順位
 	const DWORD	TIME_NUMMIN	= (DWORD)(0);			// 最少タイム
 	const DWORD	TIME_NUMMAX	= (DWORD)(99 * 60000);	// 最大タイム
-	const DWORD	TIME_NUMRED	= (DWORD)(1 * 60000);	// 赤くなるタイム
-
-	const D3DXVECTOR3 ADDPOS_LOGO	= D3DXVECTOR3(-330.0f, 0.0f, 0.0f);					// ロゴの位置加算量
-	const D3DXVECTOR3 SIZE_LOGO		= D3DXVECTOR3(1234.0f * 0.5f, 238.0f * 0.5f, 0.0f);	// ロゴの大きさ
 }
 
 //************************************************************
@@ -47,7 +41,6 @@ static_assert(NUM_ARRAY(TEXTURE_FILE) == CTimerManager::TEXTURE_MAX, "ERROR : Te
 //	コンストラクタ
 //============================================================
 CTimerManager::CTimerManager() :
-	m_pLogo				(nullptr),		// ロゴの情報
 	m_pos				(VEC3_ZERO),	// 位置
 	m_sizeValue			(VEC3_ZERO),	// 数字の大きさ
 	m_sizePart			(VEC3_ZERO),	// 区切りの大きさ
@@ -86,7 +79,6 @@ HRESULT CTimerManager::Init(void)
 	// メンバ変数を初期化
 	memset(&m_apValue[0],	0, sizeof(m_apValue));	// 数値の情報
 	memset(&m_apPart[0],	0, sizeof(m_apPart));	// 区切りの情報
-	m_pLogo				= nullptr;		// ロゴの情報
 	m_pos				= VEC3_ZERO;	// 位置
 	m_sizeValue			= VEC3_ZERO;	// 数字の大きさ
 	m_sizePart			= VEC3_ZERO;	// 区切りの大きさ
@@ -138,25 +130,6 @@ HRESULT CTimerManager::Init(void)
 		m_apPart[nCntTimer]->SetPriority(PRIORITY);
 	}
 
-	// ロゴの生成
-	m_pLogo = CObject2D::Create(VEC3_ZERO, SIZE_LOGO);
-	if (m_pLogo == nullptr)
-	{ // 生成に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// テクスチャを登録・割当
-	m_pLogo->BindTexture(pTexture->Regist(TEXTURE_FILE[TEXTURE_LOGO]));
-
-	// 優先順位を設定
-	m_pLogo->SetPriority(PRIORITY);
-
-	// 自動描画をOFFにする
-	m_pLogo->SetEnableDraw(false);
-
 	// 成功を返す
 	return S_OK;
 }
@@ -181,9 +154,6 @@ void CTimerManager::Uninit(void)
 		// 区切りの終了
 		SAFE_UNINIT(m_apPart[nCntTimer]);
 	}
-
-	// ロゴの終了
-	SAFE_UNINIT(m_pLogo);
 }
 
 //============================================================
@@ -221,13 +191,6 @@ void CTimerManager::Update(void)
 
 					// 現在の計測ミリ秒を設定
 					m_dwTime = nTime;
-
-					if (m_dwTime <= TIME_NUMRED)
-					{ // タイマーが残り一分の場合
-
-						// 色を赤に設定
-						SetColor(XCOL_RED);
-					}
 				}
 				else
 				{  // タイムが 0以下の場合
@@ -277,12 +240,105 @@ void CTimerManager::Update(void)
 		m_apPart[nCntTimer]->Update();
 	}
 
-	// ロゴの更新
-	m_pLogo->Update();
-
 	// デバッグ表示
 	GET_MANAGER->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "タイマー：[%d:%d:%d]\n", m_dwTime / 60000, (m_dwTime / 1000) % 60, m_dwTime % 1000);
 	GET_MANAGER->GetDebugProc()->Print(CDebugProc::POINT_LEFT, "停止タイマー：[%d:%d:%d]\n", m_dwStopTime / 60000, (m_dwStopTime / 1000) % 60, m_dwStopTime % 1000);
+}
+
+//============================================================
+//	位置の設定処理
+//============================================================
+void CTimerManager::SetPosition(const D3DXVECTOR3& rPos)
+{
+	// 引数の位置を設定
+	m_pos = rPos;
+
+	// 数字の表示設定
+	SetDrawValue();
+}
+
+//============================================================
+//	位置取得処理
+//============================================================
+D3DXVECTOR3 CTimerManager::GetPosition(void) const
+{
+	// 位置を返す
+	return m_pos;
+}
+
+//============================================================
+//	優先順位の設定処理
+//============================================================
+void CTimerManager::SetPriority(const int nPriority)
+{
+	if (m_apValue[0] != nullptr)
+	{ // スコアの先頭の数値が使用されている場合
+
+		// 数字オブジェクトの優先順位を設定
+		for (int nCntTimer = 0; nCntTimer < timer::MAX_DIGIT; nCntTimer++)
+		{ // タイマーの桁数分繰り返す
+
+			m_apValue[nCntTimer]->SetPriority(nPriority);
+		}
+
+		// 区切りオブジェクトの優先順位を設定
+		for (int nCntTimer = 0; nCntTimer < timer::MAX_PART; nCntTimer++)
+		{ // 区切りの数分繰り返す
+
+			m_apPart[nCntTimer]->SetPriority(nPriority);
+		}
+	}
+	else { assert(false); }	// 非使用中
+}
+
+//============================================================
+//	更新状況の設定処理
+//============================================================
+void CTimerManager::SetEnableUpdate(const bool bUpdate)
+{
+	if (m_apValue[0] != nullptr)
+	{ // スコアの先頭の数値が使用されている場合
+
+		// 数字オブジェクトの更新状況を設定
+		for (int nCntTimer = 0; nCntTimer < timer::MAX_DIGIT; nCntTimer++)
+		{ // タイマーの桁数分繰り返す
+
+			m_apValue[nCntTimer]->SetEnableUpdate(bUpdate);
+		}
+
+		// 区切りオブジェクトの更新状況を設定
+		for (int nCntTimer = 0; nCntTimer < timer::MAX_PART; nCntTimer++)
+		{ // 区切りの数分繰り返す
+
+			m_apPart[nCntTimer]->SetEnableUpdate(bUpdate);
+		}
+	}
+	else { assert(false); }	// 非使用中
+}
+
+//============================================================
+//	描画状況の設定処理
+//============================================================
+void CTimerManager::SetEnableDraw(const bool bDraw)
+{
+	if (m_apValue[0] != nullptr)
+	{ // スコアの先頭の数値が使用されている場合
+
+		// 数字オブジェクトの描画状況を設定
+		for (int nCntTimer = 0; nCntTimer < timer::MAX_DIGIT; nCntTimer++)
+		{ // タイマーの桁数分繰り返す
+
+			m_apValue[nCntTimer]->SetEnableDraw(bDraw);
+		}
+
+		// 区切りオブジェクトの描画状況を設定
+		for (int nCntTimer = 0; nCntTimer < timer::MAX_PART; nCntTimer++)
+		{ // 区切りの数分繰り返す
+
+			m_apPart[nCntTimer]->SetEnableDraw(bDraw);
+		}
+	}
+	else { assert(false); }	// 非使用中
 }
 
 //============================================================
@@ -325,10 +381,10 @@ CTimerManager *CTimerManager::Create
 		pTimerManager->SetPosition(rPos);
 
 		// 数字の大きさを設定
-		pTimerManager->SetScalingValue(rSizeValue);
+		pTimerManager->SetSizingValue(rSizeValue);
 
 		// 区切りの大きさを設定
-		pTimerManager->SetScalingPart(rSizePart);
+		pTimerManager->SetSizingPart(rSizePart);
 
 		// 数字の空白を設定
 		pTimerManager->SetSpaceValue(rSpaceValue);
@@ -824,21 +880,9 @@ void CTimerManager::SetLimit(const ETime time, const long nTime)
 }
 
 //============================================================
-//	位置の設定処理
-//============================================================
-void CTimerManager::SetPosition(const D3DXVECTOR3& rPos)
-{
-	// 引数の位置を設定
-	m_pos = rPos;
-
-	// 数字の表示設定
-	SetDrawValue();
-}
-
-//============================================================
 //	数字の大きさの設定処理
 //============================================================
-void CTimerManager::SetScalingValue(const D3DXVECTOR3& rSize)
+void CTimerManager::SetSizingValue(const D3DXVECTOR3& rSize)
 {
 	// 引数の数字の大きさを設定
 	m_sizeValue = rSize;
@@ -850,7 +894,7 @@ void CTimerManager::SetScalingValue(const D3DXVECTOR3& rSize)
 //============================================================
 //	区切りの大きさの設定処理
 //============================================================
-void CTimerManager::SetScalingPart(const D3DXVECTOR3& rSize)
+void CTimerManager::SetSizingPart(const D3DXVECTOR3& rSize)
 {
 	// 引数の区切りの大きさを設定
 	m_sizePart = rSize;
@@ -909,107 +953,9 @@ void CTimerManager::SetColor(const D3DXCOLOR& rCol)
 }
 
 //============================================================
-//	優先順位の設定処理
-//============================================================
-void CTimerManager::SetPriority(const int nPriority)
-{
-	if (m_apValue[0] != nullptr)
-	{ // スコアの先頭の数値が使用されている場合
-
-		// 数字オブジェクトの優先順位を設定
-		for (int nCntTimer = 0; nCntTimer < timer::MAX_DIGIT; nCntTimer++)
-		{ // タイマーの桁数分繰り返す
-
-			m_apValue[nCntTimer]->SetPriority(nPriority);
-		}
-
-		// 区切りオブジェクトの優先順位を設定
-		for (int nCntTimer = 0; nCntTimer < timer::MAX_PART; nCntTimer++)
-		{ // 区切りの数分繰り返す
-
-			m_apPart[nCntTimer]->SetPriority(nPriority);
-		}
-	}
-	else { assert(false); }	// 非使用中
-}
-
-//============================================================
-//	更新状況の設定処理
-//============================================================
-void CTimerManager::SetEnableUpdate(const bool bUpdate)
-{
-	if (m_apValue[0] != nullptr)
-	{ // スコアの先頭の数値が使用されている場合
-
-		// 数字オブジェクトの更新状況を設定
-		for (int nCntTimer = 0; nCntTimer < timer::MAX_DIGIT; nCntTimer++)
-		{ // タイマーの桁数分繰り返す
-
-			m_apValue[nCntTimer]->SetEnableUpdate(bUpdate);
-		}
-
-		// 区切りオブジェクトの更新状況を設定
-		for (int nCntTimer = 0; nCntTimer < timer::MAX_PART; nCntTimer++)
-		{ // 区切りの数分繰り返す
-
-			m_apPart[nCntTimer]->SetEnableUpdate(bUpdate);
-		}
-	}
-	else { assert(false); }	// 非使用中
-}
-
-//============================================================
-//	描画状況の設定処理
-//============================================================
-void CTimerManager::SetEnableDraw(const bool bDraw)
-{
-	if (m_apValue[0] != nullptr)
-	{ // スコアの先頭の数値が使用されている場合
-
-		// 数字オブジェクトの描画状況を設定
-		for (int nCntTimer = 0; nCntTimer < timer::MAX_DIGIT; nCntTimer++)
-		{ // タイマーの桁数分繰り返す
-
-			m_apValue[nCntTimer]->SetEnableDraw(bDraw);
-		}
-
-		// 区切りオブジェクトの描画状況を設定
-		for (int nCntTimer = 0; nCntTimer < timer::MAX_PART; nCntTimer++)
-		{ // 区切りの数分繰り返す
-
-			m_apPart[nCntTimer]->SetEnableDraw(bDraw);
-		}
-	}
-	else { assert(false); }	// 非使用中
-}
-
-//============================================================
-//	ロゴの描画状況の設定処理
-//============================================================
-void CTimerManager::SetEnableLogoDraw(const bool bDraw)
-{
-	if (m_pLogo != nullptr)
-	{ // ロゴが使用されている場合
-
-		// 引数をロゴの描画状況に設定
-		m_pLogo->SetEnableDraw(bDraw);
-	}
-	else { assert(false); }	// 非使用中
-}
-
-//============================================================
-//	位置取得処理
-//============================================================
-D3DXVECTOR3 CTimerManager::GetPosition(void) const
-{
-	// 位置を返す
-	return m_pos;
-}
-
-//============================================================
 //	数字の大きさ取得処理
 //============================================================
-D3DXVECTOR3 CTimerManager::GetScalingValue(void) const
+D3DXVECTOR3 CTimerManager::GetSizingValue(void) const
 {
 	// 数字の大きさを返す
 	return m_sizeValue;
@@ -1018,7 +964,7 @@ D3DXVECTOR3 CTimerManager::GetScalingValue(void) const
 //============================================================
 //	区切りの大きさ取得処理
 //============================================================
-D3DXVECTOR3 CTimerManager::GetScalingPart(void) const
+D3DXVECTOR3 CTimerManager::GetSizingPart(void) const
 {
 	// 区切りの大きさを返す
 	return m_sizePart;
@@ -1097,14 +1043,6 @@ void CTimerManager::SetDrawValue(void)
 				posPoly += spaceValue;
 			}
 		}
-	}
-	else { assert(false); }	// 非使用中
-
-	if (m_pLogo != nullptr)
-	{ // ロゴが使用されている場合
-
-		// ロゴの位置を設定		
-		m_pLogo->SetVec3Position(m_pos + ADDPOS_LOGO);
 	}
 	else { assert(false); }	// 非使用中
 }

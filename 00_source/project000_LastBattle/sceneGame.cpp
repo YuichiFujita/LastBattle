@@ -13,7 +13,7 @@
 #include "camera.h"
 
 #include "gameManager.h"
-#include "timerManager.h"
+#include "timerUI.h"
 #include "cinemaScope.h"
 #include "pause.h"
 #include "hitStop.h"
@@ -28,35 +28,29 @@
 //************************************************************
 namespace
 {
-	namespace timerUI
+	namespace timerInfo
 	{
-#ifdef _DEBUG
-
 		const int TIME_LIMIT = 0;	// 制限時間
 
-#else	// NDEBUG
-
-		const int TIME_LIMIT = 0;	// 制限時間
-
-#endif	// _DEBUG
-
-		const D3DXVECTOR3 POS			= D3DXVECTOR3(710.0f, 50.0f, 0.0f);	// タイマー位置
-		const D3DXVECTOR3 VAL_SIZE		= D3DXVECTOR3(72.0f, 96.0f, 0.0f);	// タイマー数字大きさ
-		const D3DXVECTOR3 PART_SIZE		= D3DXVECTOR3(42.0f, 96.0f, 0.0f);	// タイマー区切り大きさ
-		const D3DXVECTOR3 VAL_SPACE		= D3DXVECTOR3(VAL_SIZE.x * 0.85f, 0.0f, 0.0f);	// タイマー数字空白
-		const D3DXVECTOR3 PART_SPACE	= D3DXVECTOR3(PART_SIZE.x * 0.85f, 0.0f, 0.0f);	// タイマー区切り空白
+		const D3DXVECTOR3 POS		 = D3DXVECTOR3(955.0f, 43.5f, 0.0f);	// タイマー位置
+		const D3DXVECTOR3 OFFSET	 = D3DXVECTOR3(146.0f, 13.0f, 0.0f);	// タイマー背景オフセット
+		const D3DXVECTOR3 VAL_SIZE	 = D3DXVECTOR3(46.8f, 62.4f, 0.0f);		// タイマー数字大きさ
+		const D3DXVECTOR3 PART_SIZE	 = D3DXVECTOR3(27.3f, 62.4f, 0.0f);		// タイマー区切り大きさ
+		const D3DXVECTOR3 BG_SIZE	 = D3DXVECTOR3(397.5f, 33.5f, 0.0f);	// タイマー背景大きさ
+		const D3DXVECTOR3 VAL_SPACE	 = D3DXVECTOR3(VAL_SIZE.x * 0.85f, 0.0f, 0.0f);		// タイマー数字空白
+		const D3DXVECTOR3 PART_SPACE = D3DXVECTOR3(PART_SIZE.x * 0.85f, 0.0f, 0.0f);	// タイマー区切り空白
 	}
 }
 
 //************************************************************
 //	静的メンバ変数宣言
 //************************************************************
-CGameManager	*CSceneGame::m_pGameManager		= nullptr;	// ゲームマネージャー
-CTimerManager	*CSceneGame::m_pTimerManager	= nullptr;	// タイマーマネージャー
-CCinemaScope	*CSceneGame::m_pCinemaScope		= nullptr;	// シネマスコープ
-CPause			*CSceneGame::m_pPause			= nullptr;	// ポーズ
-CHitStop		*CSceneGame::m_pHitStop			= nullptr;	// ヒットストップ
-CFlash			*CSceneGame::m_pFlash			= nullptr;	// フラッシュ
+CGameManager	*CSceneGame::m_pGameManager	= nullptr;	// ゲームマネージャー
+CTimerUI		*CSceneGame::m_pTimerUI		= nullptr;	// タイマーUI
+CCinemaScope	*CSceneGame::m_pCinemaScope	= nullptr;	// シネマスコープ
+CPause			*CSceneGame::m_pPause		= nullptr;	// ポーズ
+CHitStop		*CSceneGame::m_pHitStop		= nullptr;	// ヒットストップ
+CFlash			*CSceneGame::m_pFlash		= nullptr;	// フラッシュ
 
 //************************************************************
 //	子クラス [CSceneGame] のメンバ関数
@@ -91,30 +85,29 @@ HRESULT CSceneGame::Init(void)
 	// 剣のセットアップ読込
 	CSword::LoadSetup();
 
-	// タイマーマネージャーの生成
-	m_pTimerManager = CTimerManager::Create
+	// シーンの初期化
+	CScene::Init();	// ステージ・プレイヤーの生成
+
+	// タイマーUIの生成
+	m_pTimerUI = CTimerUI::Create
 	( // 引数
 		CTimerManager::TIME_SEC,	// 設定タイム
-		timerUI::TIME_LIMIT,		// 制限時間
-		timerUI::POS,				// 位置
-		timerUI::VAL_SIZE,			// 数字の大きさ
-		timerUI::PART_SIZE,			// 区切りの大きさ
-		timerUI::VAL_SPACE,			// 数字の空白
-		timerUI::PART_SPACE			// 区切りの空白
+		timerInfo::TIME_LIMIT,		// 制限時間
+		timerInfo::POS,				// 位置
+		timerInfo::VAL_SIZE,		// 数字の大きさ
+		timerInfo::PART_SIZE,		// 区切りの大きさ
+		timerInfo::VAL_SPACE,		// 数字の空白
+		timerInfo::PART_SPACE,		// 区切りの空白
+		timerInfo::OFFSET,			// 背景のオフセット
+		timerInfo::BG_SIZE			// 背景の大きさ
 	);
-	if (m_pTimerManager == nullptr)
+	if (m_pTimerUI == nullptr)
 	{ // 非使用中の場合
 
 		// 失敗を返す
 		assert(false);
 		return E_FAIL;
 	}
-
-	// ロゴの自動描画をONにする
-	m_pTimerManager->SetEnableLogoDraw(true);
-
-	// シーンの初期化
-	CScene::Init();	// ステージ・プレイヤーの生成
 
 	// シネマスコープの生成
 	m_pCinemaScope = CCinemaScope::Create();
@@ -187,8 +180,8 @@ void CSceneGame::Uninit(void)
 	// ゲームマネージャーの破棄
 	SAFE_REF_RELEASE(m_pGameManager);
 
-	// タイマーマネージャーの破棄
-	SAFE_REF_RELEASE(m_pTimerManager);
+	// タイマーUIの破棄
+	SAFE_REF_RELEASE(m_pTimerUI);
 
 	// シネマスコープの破棄
 	SAFE_REF_RELEASE(m_pCinemaScope);
@@ -215,9 +208,9 @@ void CSceneGame::Update(void)
 	assert(m_pGameManager != nullptr);
 	m_pGameManager->Update();
 
-	// タイマーマネージャーの更新
-	assert(m_pTimerManager != nullptr);
-	m_pTimerManager->Update();
+	// タイマーUIの更新
+	assert(m_pTimerUI != nullptr);
+	m_pTimerUI->Update();
 
 	// ヒットストップの更新
 	assert(m_pHitStop != nullptr);
@@ -304,15 +297,15 @@ CGameManager *CSceneGame::GetGameManager(void)
 }
 
 //============================================================
-//	タイマーマネージャー取得処理
+//	タイマーUI取得処理
 //============================================================
-CTimerManager *CSceneGame::GetTimerManager(void)
+CTimerUI *CSceneGame::GetTimerUI(void)
 {
 	// インスタンス未使用
-	assert(m_pTimerManager != nullptr);
+	assert(m_pTimerUI != nullptr);
 
-	// タイマーマネージャーのポインタを返す
-	return m_pTimerManager;
+	// タイマーUIのポインタを返す
+	return m_pTimerUI;
 }
 
 //============================================================

@@ -112,6 +112,7 @@ public:
 	virtual void InitNormal(void);	// 通常状態の初期化
 	virtual void DrawCrop(void);	// 切り抜き用の描画
 	virtual void SetEnableDrawUI(const bool bDraw);			// UI描画設定
+	virtual void SetLifePriority(const int nPrio);			// 体力ゲージの優先順位設定
 	virtual bool IsRideOK(const D3DXVECTOR3& rPos) const;	// ライド可能か取得
 
 	// 静的メンバ関数

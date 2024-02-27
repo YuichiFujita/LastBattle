@@ -35,7 +35,6 @@ public:
 		STATE_START,	// 開始状態
 		STATE_NORMAL,	// 通常状態
 		STATE_STAGING,	// 演出状態
-		STATE_END,		// 終了状態
 		STATE_MAX		// この列挙型の総数
 	};
 

@@ -260,6 +260,7 @@
     <ClCompile Include="thunder.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="timerManager.cpp" />
+    <ClCompile Include="timerUI.cpp" />
     <ClCompile Include="titleManager.cpp" />
     <ClCompile Include="tutorialManager.cpp" />
     <ClCompile Include="useful.cpp" />
@@ -376,6 +377,7 @@
     <ClInclude Include="thunder.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="timerManager.h" />
+    <ClInclude Include="timerUI.h" />
     <ClInclude Include="titleManager.h" />
     <ClInclude Include="tutorialManager.h" />
     <ClInclude Include="useful.h" />

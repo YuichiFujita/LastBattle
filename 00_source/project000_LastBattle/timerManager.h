@@ -45,7 +45,6 @@ public:
 	enum ETexture
 	{
 		TEXTURE_PART = 0,	// 区切り表示のテクスチャ
-		TEXTURE_LOGO,		// ロゴ表示のテクスチャ
 		TEXTURE_MAX			// この列挙型の総数
 	};
 
@@ -71,12 +70,19 @@ public:
 	CTimerManager();
 
 	// デストラクタ
-	~CTimerManager();
+	virtual ~CTimerManager();
+
+	// 仮想関数
+	virtual HRESULT Init(void);	// 初期化
+	virtual void Uninit(void);	// 終了
+	virtual void Update(void);	// 更新
+	virtual void SetPosition(const D3DXVECTOR3& rPos);	// 位置設定
+	virtual D3DXVECTOR3 GetPosition(void) const;		// 位置取得
+	virtual void SetPriority(const int nPriority);		// 優先順位設定
+	virtual void SetEnableUpdate(const bool bUpdate);	// 更新状況設定
+	virtual void SetEnableDraw(const bool bDraw);		// 描画状況設定
 
 	// メンバ関数
-	HRESULT Init(void);	// 初期化
-	void Uninit(void);	// 終了
-	void Update(void);	// 更新
 	void Start(void);	// 計測開始
 	void End(void);		// 計測終了
 	void EnableStop(const bool bStop);	// 計測停止設定
@@ -93,19 +99,13 @@ public:
 	int GetMin(void);			// 分取得
 	long GetLimit(void);		// 制限時間取得
 	void SetLimit(const ETime time, const long nTime);	// 制限時間設定
-	void SetPosition(const D3DXVECTOR3& rPos);			// 位置設定
-	void SetScalingValue(const D3DXVECTOR3& rSize);		// 区切りの大きさ設定
-	void SetScalingPart(const D3DXVECTOR3& rSize);		// 数字の大きさ設定
+	void SetSizingValue(const D3DXVECTOR3& rSize);		// 区切りの大きさ設定
+	void SetSizingPart(const D3DXVECTOR3& rSize);		// 数字の大きさ設定
 	void SetSpaceValue(const D3DXVECTOR3& rSpace);		// 区切りの空白設定
 	void SetSpacePart(const D3DXVECTOR3& rSpace);		// 数字の空白設定
 	void SetColor(const D3DXCOLOR& rCol);				// 色の設定
-	void SetPriority(const int nPriority);				// 優先順位設定
-	void SetEnableUpdate(const bool bUpdate);			// 更新状況設定
-	void SetEnableDraw(const bool bDraw);				// 描画状況設定
-	void SetEnableLogoDraw(const bool bDraw);			// ロゴ描画状況設定
-	D3DXVECTOR3 GetPosition(void) const;				// 位置取得
-	D3DXVECTOR3 GetScalingValue(void) const;			// 区切りの大きさ取得
-	D3DXVECTOR3 GetScalingPart(void) const;				// 数字の大きさ取得
+	D3DXVECTOR3 GetSizingValue(void) const;				// 区切りの大きさ取得
+	D3DXVECTOR3 GetSizingPart(void) const;				// 数字の大きさ取得
 	D3DXVECTOR3 GetSpaceValue(void) const;				// 区切りの空白取得
 	D3DXVECTOR3 GetSpacePart(void) const;				// 数字の空白取得
 
@@ -132,7 +132,6 @@ private:
 	// メンバ変数
 	CValue *m_apValue[timer::MAX_DIGIT];	// 数値の情報
 	CObject2D *m_apPart[timer::MAX_PART];	// 区切りの情報
-	CObject2D *m_pLogo;			// ロゴの情報
 	D3DXVECTOR3 m_pos;			// 位置
 	D3DXVECTOR3 m_sizeValue;	// 数字の大きさ
 	D3DXVECTOR3 m_sizePart;		// 区切りの大きさ

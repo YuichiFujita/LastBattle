@@ -20,7 +20,7 @@
 //************************************************************
 namespace
 {
-	const char *TEXTURE_FILE = nullptr /*"data\\TEXTURE\\skip000.png"*/;	// スキップ操作表示テクスチャ
+	const char *TEXTURE_FILE = "data\\TEXTURE\\skip000.png";	// スキップ操作表示テクスチャ
 	const int	PRIORITY	 = 6;		// スキップ操作表示の優先順位
 	const int	DISP_FRAME	 = 240;		// 完全不透明フレーム
 	const float	FADE_LEVEL	 = 0.05f;	// 透明度のフレーム変動量

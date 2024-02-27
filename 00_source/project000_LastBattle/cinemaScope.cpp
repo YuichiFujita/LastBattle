@@ -22,11 +22,11 @@
 //************************************************************
 namespace
 {
-	const int PRIORITY = 6;	// シネマスコープ表示の優先順位
+	const int PRIORITY = 5;	// シネマスコープ表示の優先順位
 
 	namespace scope
 	{
-		const D3DXVECTOR3	SIZE	= D3DXVECTOR3(SCREEN_SIZE.x, 55.0f, 0.0f);	// スコープの大きさ
+		const D3DXVECTOR3	SIZE	= D3DXVECTOR3(SCREEN_SIZE.x, 94.0f, 0.0f);	// スコープの大きさ
 		const D3DXVECTOR3	POS		= D3DXVECTOR3(SCREEN_SIZE.x + SIZE.x * 0.5f, SIZE.y * 0.5f, 0.0f);	// スコープの位置
 		const D3DXVECTOR3	SPACE	= D3DXVECTOR3(-SIZE.x * 2.0f, SCREEN_SIZE.y - SIZE.y, 0.0f);		// スコープの空白
 		const D3DXCOLOR		COL		= XCOL_BLACK;	// スコープの色

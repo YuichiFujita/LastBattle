@@ -154,6 +154,7 @@ public:
 	D3DXVECTOR3 GetDestRotation(void) const		  { return m_destRot; }	// 目標向き取得
 
 	void SetEnableDrawUI(const bool bDraw);	// UI描画設定
+	void SetLifePriority(const int nPrio);	// 体力ゲージの優先順位設定
 	void SetNoneTwinSword(void);			// 剣の状態初期化
 	bool Hit(const int nDamage);			// ヒット
 	bool HitKnockBack(const int nDamage, const D3DXVECTOR3& vecKnock);	// ノックバックヒット

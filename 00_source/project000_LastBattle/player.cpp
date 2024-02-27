@@ -30,6 +30,7 @@
 #include "field.h"
 #include "enemy.h"
 #include "enemyBossDragon.h"
+#include "cinemaScope.h"
 
 #include "effect3D.h"
 #include "particle3D.h"
@@ -121,13 +122,15 @@ namespace
 	// 体力の情報
 	namespace lifeInfo
 	{
-		const char *TEXTURE_FRAME = "data\\TEXTURE\\lifeframe002.png";	// 体力フレーム表示のテクスチャファイル
+		const char *TEX_FRAME = "data\\TEXTURE\\lifeframe002.png";	// 体力フレーム表示のテクスチャファイル
 
-		const D3DXVECTOR3	POS			= D3DXVECTOR3(260.0f, 170.0f, 0.0f);		// 位置
-		const D3DXVECTOR3	SIZE_GAUGE	= D3DXVECTOR3(200.0f, 20.0f, 0.0f);			// ゲージ大きさ
-		const D3DXCOLOR		COL_FRONT	= D3DXCOLOR(0.93f, 0.92f, 0.25f, 1.0f);		// 表ゲージ色
-		const D3DXCOLOR		COL_BACK	= D3DXCOLOR(0.03f, 0.03f, 0.008f, 1.0f);	// 裏ゲージ色
-		const int	MAX_LIFE		= 300;	// 最大表示値
+		const D3DXVECTOR3	POS			 = D3DXVECTOR3(219.0f, 59.0f, 0.0f);		// 位置
+		const D3DXVECTOR3	SIZE_GAUGE	 = D3DXVECTOR3(219.0f, 15.7f, 0.0f);		// ゲージ大きさ
+		const D3DXVECTOR3	SIZE_FRAME	 = D3DXVECTOR3(220.0f, 33.5f, 0.0f);		// フレーム大きさ
+		const D3DXVECTOR3	OFFSET_FRAME = D3DXVECTOR3(-0.4f, -13.0f, 0.0f);		// フレームオフセット
+		const D3DXCOLOR		COL_FRONT	 = D3DXCOLOR(0.98f, 0.98f, 0.02f, 1.0f);	// 表ゲージ色
+		const D3DXCOLOR		COL_BACK	 = D3DXCOLOR(0.03f, 0.03f, 0.008f, 1.0f);	// 裏ゲージ色
+		const int	MAX_LIFE		= 250;	// 最大表示値
 		const int	CHANGE_FRAME	= 40;	// 表示値変動フレーム
 	}
 
@@ -282,9 +285,10 @@ HRESULT CPlayer::Init(void)
 		lifeInfo::SIZE_GAUGE,	// ゲージ大きさ
 		lifeInfo::COL_FRONT,	// 表ゲージ色
 		lifeInfo::COL_BACK,		// 裏ゲージ色
-		true,
-		lifeInfo::TEXTURE_FRAME,
-		lifeInfo::SIZE_GAUGE + D3DXVECTOR3(16.5f, 16.5f, 0.0f)
+		true,					// 枠描画状況
+		lifeInfo::TEX_FRAME,	// フレームテクスチャパス
+		lifeInfo::SIZE_FRAME,	// 枠大きさ
+		lifeInfo::OFFSET_FRAME	// 枠オフセット
 	);
 
 	// 影の生成
@@ -688,6 +692,16 @@ void CPlayer::SetEnableDrawUI(const bool bDraw)
 {
 	// UIオブジェクトに描画状況を反映
 	m_pLife->SetEnableDraw(bDraw);	// 体力
+}
+
+//============================================================
+//	体力ゲージの優先順位の設定処理
+//============================================================
+void CPlayer::SetLifePriority(const int nPrio)
+{
+	// 体力ゲージの優先順位を設定
+	assert(m_pLife != nullptr);
+	m_pLife->SetPriority(nPrio);
 }
 
 //============================================================
@@ -1745,6 +1759,9 @@ void CPlayer::UpdateRideEnd(void)
 
 		// ボスをライド終了状態にする
 		CScene::GetBoss()->SetState(CEnemy::STATE_RIDE_END);
+
+		// スコープアウトさせる
+		CSceneGame::GetCinemaScope()->SetScopeOut();
 
 		// カメラを追従状態に設定
 		GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
