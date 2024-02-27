@@ -21,7 +21,7 @@
 namespace shadow
 {
 	const float	MIN_ALPHA = 0.25f;	// α値の最小値
-	const float	MAX_ALPHA = 0.65f;	// α値の最大値
+	const float	MAX_ALPHA = 0.55f;	// α値の最大値
 }
 
 //************************************************************
@@ -61,7 +61,11 @@ public:
 	);
 
 	// メンバ関数
-	void SetSizingOrigin(const D3DXVECTOR3& rSize);	// 元の大きさ設定
+	void SetMinAlpha(const float fMin) { m_fMinAlpha = fMin; }	// 透明度の最小値設定
+	void SetMaxAlpha(const float fMax) { m_fMaxAlpha = fMax; }	// 透明度の最大値設定
+	float GetMinAlpha(void) const { return m_fMinAlpha; }		// 透明度の最小値取得
+	float GetMaxAlpha(void) const { return m_fMaxAlpha; }		// 透明度の最大値取得
+	void SetSizingOrigin(const D3DXVECTOR3& rSize);				// 元の大きさ設定
 	void SetDrawInfo(void);				// 描画情報設定
 	D3DXVECTOR3 SetDrawPosition(void);	// 描画位置設定
 	void DeleteObjectParent(void);		// 親オブジェクト削除
@@ -73,8 +77,8 @@ private:
 	// メンバ変数
 	CObject *m_pParentObject;	// 親オブジェクト
 	D3DXVECTOR3 m_sizeOrigin;	// 元の大きさ
-	const float m_fMinAlpha;	// 透明度の最小値定数
-	const float m_fMaxAlpha;	// 透明度の最大値定数
+	float m_fMinAlpha;			// 透明度の最小値
+	float m_fMaxAlpha;			// 透明度の最大値
 };
 
 #endif	// _SHADOW_H_

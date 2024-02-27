@@ -28,7 +28,7 @@
 //************************************************************
 namespace
 {
-	const D3DXVECTOR3 POS_NAME	 = D3DXVECTOR3(0.0f, 100.0f, 400.0f);	// 名前の表示位置
+	const D3DXVECTOR3 POS_NAME	 = D3DXVECTOR3(0.0f, 60.0f, 400.0f);	// 名前の表示位置
 	const D3DXVECTOR3 POS_SKIP	 = D3DXVECTOR3(1092.0f, 673.0f, 0.0f);	// スキップ操作の表示位置
 	const D3DXVECTOR3 SIZE_SKIP	 = D3DXVECTOR3(381.0f, 77.0f, 0.0f);	// スキップ操作の表示大きさ
 	const int CHANGE_UI_PRIORITY = 5;	// シネマスコープ終了時のUI優先順位
@@ -179,8 +179,8 @@ void CGameManager::SetDrawGameUI(const bool bDraw)
 {
 	// ポインタを宣言
 	CTimerUI *pTimer = CSceneGame::GetTimerUI();	// タイマーマネージャーの情報
-	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤーの情報
-	CEnemy *pBoss = CScene::GetBoss();		// ボスの情報
+	CPlayer *pPlayer = CScene::GetPlayer();			// プレイヤーの情報
+	CEnemy *pBoss = CScene::GetBoss();				// ボスの情報
 
 	// 自動描画を設定
 	pTimer->SetEnableDraw(bDraw);		// タイマー

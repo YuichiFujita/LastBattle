@@ -20,6 +20,7 @@
 //	前方宣言
 //************************************************************
 class CGauge2D;		// ゲージ2Dクラス
+class CShadow;		// 影クラス
 class CEnemyAttack;	// 敵攻撃クラス
 class CMagicCircle;	// 魔法陣クラス
 
@@ -209,6 +210,7 @@ private:
 
 	// メンバ変数
 	CGauge2D *m_pLife;				// 体力の情報
+	CShadow *m_pShadow;				// 影の情報
 	CEnemyAttack *m_pAttack;		// 攻撃の情報
 	CMagicCircle *m_pMagicCircle;	// 魔法陣の情報
 	CEnemyAttack::EAttack m_oldAtk;	// 前回の攻撃

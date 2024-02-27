@@ -26,7 +26,7 @@ namespace
 		"data\\TEXTURE\\shadow000.jpg",	// ŠÛ‰eƒeƒNƒXƒ`ƒƒ
 	};
 
-	const int	PRIORITY		= 2;		// ‰e‚Ì—Dæ‡ˆÊ
+	const int	PRIORITY		= 1;		// ‰e‚Ì—Dæ‡ˆÊ
 	const float	PLUS_POSY		= 0.01f;	// ‚¿‚ç‚Â‚«–h~—p‚ÌcÀ•W‰ÁZ—Ê
 	const float	MAX_DIS_HEIGHT	= 200.0f;	// ‰e‚Æe‚Ìc‚Ì‹——£‚ÌÅ‘å’l
 	const float	MAX_PLUS_SIZE	= 120.0f;	// ‰e‚Ì‘å‚«‚³‰ÁZ—Ê‚ÌÅ‘å’l

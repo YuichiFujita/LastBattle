@@ -117,7 +117,6 @@ namespace
 	const CCamera::SSwing RIDEEND_SWING	= CCamera::SSwing(13.0f, 1.8f, 0.14f);	// ライド振りほどかれ時のカメラ揺れ
 	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);		// ボスライド時のオフセット位置
 	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);		// ボスライド時のオフセット向き
-	const D3DXVECTOR3 SHADOW_SIZE		= D3DXVECTOR3(80.0f, 0.0f, 80.0f);		// 影の大きさ
 
 	// 体力の情報
 	namespace lifeInfo
@@ -132,6 +131,12 @@ namespace
 		const D3DXCOLOR		COL_BACK	 = D3DXCOLOR(0.03f, 0.03f, 0.008f, 1.0f);	// 裏ゲージ色
 		const int	MAX_LIFE		= 250;	// 最大表示値
 		const int	CHANGE_FRAME	= 40;	// 表示値変動フレーム
+	}
+
+	// 影の情報
+	namespace shadowInfo
+	{
+		const D3DXVECTOR3 SIZE = D3DXVECTOR3(80.0f, 0.0f, 80.0f);	// 影の大きさ
 	}
 
 	// ブラーの情報
@@ -292,7 +297,7 @@ HRESULT CPlayer::Init(void)
 	);
 
 	// 影の生成
-	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, SHADOW_SIZE, this);
+	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, shadowInfo::SIZE, this);
 	if (m_pShadow == nullptr)
 	{ // 非使用中の場合
 
@@ -461,11 +466,11 @@ void CPlayer::Update(void)
 		m_apSowrd[nCntSword]->Update();
 	}
 
-	// 影の更新
-	m_pShadow->Update();
-
 	// モーションの更新
 	UpdateMotion(curLowMotion, curUpMotion);
+
+	// 影の更新
+	m_pShadow->Update();
 
 	if (m_state == STATE_RIDE)
 	{ // ライド状態の場合

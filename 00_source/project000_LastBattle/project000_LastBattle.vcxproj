@@ -195,6 +195,7 @@
     <ClCompile Include="magicCircle.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
+    <ClCompile Include="map.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="modelFont.cpp" />
     <ClCompile Include="modelUI.cpp" />
@@ -314,6 +315,7 @@
     <ClInclude Include="magicCircle.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="manager.h" />
+    <ClInclude Include="map.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="modelFont.h" />
     <ClInclude Include="modelUI.h" />

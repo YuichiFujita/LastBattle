@@ -27,7 +27,7 @@ namespace
 
 	const CCamera::SSwing LAND_SWING = CCamera::SSwing(8.0f, 1.5f, 0.25f);	// 雷着弾時のカメラ揺れ
 
-	const int	WARNING_PRIO	= 0;		// 警告表示の優先順位
+	const int	WARNING_PRIO	= 1;		// 警告表示の優先順位
 	const int	DMG_THUNDER		= 15;		// 雷のダメージ量
 	const float COLL_RADIUS		= 120.0f;	// 判定の半径
 

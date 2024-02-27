@@ -17,6 +17,7 @@
 #include "sceneGame.h"
 #include "gameManager.h"
 #include "gauge2D.h"
+#include "shadow.h"
 #include "magicCircle.h"
 #include "retentionManager.h"
 #include "random.h"
@@ -136,6 +137,15 @@ namespace
 		const D3DXCOLOR		COL_BACK	 = D3DXCOLOR(0.02f, 0.008f, 0.03f, 1.0f);	// 裏ゲージ色
 		const int			CHANGE_FRAME = 10;	// 表示値変動フレーム
 	}
+
+	// 影の情報
+	namespace shadowInfo
+	{
+		const D3DXVECTOR3 SIZE = D3DXVECTOR3(300.0f, 0.0f, 300.0f);	// 影の大きさ
+
+		const float MIN_FADE_LEVEL = 0.01f;	// 最小透明度の加減量
+		const float MAX_FADE_LEVEL = 0.05f;	// 最大透明度の加減量
+	}
 }
 
 //************************************************************
@@ -227,6 +237,16 @@ HRESULT CEnemyBossDragon::Init(void)
 		lifeInfo::OFFSET_FRAME		// 枠オフセット
 	);
 
+	// 影の生成
+	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, shadowInfo::SIZE, this);
+	if (m_pShadow == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
 	// 魔法陣の生成
 	m_pMagicCircle = CMagicCircle::Create(VEC3_ZERO, VEC3_ZERO, 0.0f, MAGIC_ALPHA_RADIUS);
 	if (m_pMagicCircle == nullptr)
@@ -255,6 +275,10 @@ HRESULT CEnemyBossDragon::Init(void)
 //============================================================
 void CEnemyBossDragon::Uninit(void)
 {
+	// 影の終了
+	m_pShadow->DeleteObjectParent();	// 親オブジェクトを削除
+	SAFE_UNINIT(m_pShadow);
+
 	// 攻撃の破棄
 	SAFE_REF_RELEASE(m_pAttack);
 
@@ -269,6 +293,9 @@ void CEnemyBossDragon::Update(void)
 {
 	// 敵の更新
 	CEnemy::Update();
+
+	// 影の更新
+	m_pShadow->Update();
 }
 
 //============================================================
@@ -790,6 +817,13 @@ void CEnemyBossDragon::SetSpawn(void)
 	SetVec3Rotation(rotEnemy);
 	SetDestRotation(rotEnemy);
 
+	for (int nCntParts = 0; nCntParts < GetNumModel(); nCntParts++)
+	{ // パーツ数分繰り返す
+
+		// パーツ拡大率を修正
+		GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+	}
+
 	// カメラをボス注目状態に設定
 	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_LOOK_BOSS);
 	GET_MANAGER->GetCamera()->SetDestLookBoss();	// カメラ目標位置の初期化
@@ -846,6 +880,13 @@ void CEnemyBossDragon::SetKnock(void)
 
 	// ノックバック演出の設定
 	SetKnockStaging();
+
+	for (int nCntParts = 0; nCntParts < GetNumModel(); nCntParts++)
+	{ // パーツ数分繰り返す
+
+		// パーツ拡大率を修正
+		GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+	}
 }
 
 //============================================================
@@ -863,6 +904,13 @@ void CEnemyBossDragon::SetStan(void)
 
 	// スタンモーションを設定
 	SetMotion(MOTION_STAN, BLEND_FRAME);
+
+	for (int nCntParts = 0; nCntParts < GetNumModel(); nCntParts++)
+	{ // パーツ数分繰り返す
+
+		// パーツ拡大率を修正
+		GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+	}
 }
 
 //============================================================
@@ -882,6 +930,13 @@ void CEnemyBossDragon::SetRideFlyUp(void)
 
 	// 咆哮飛び上がりモーションを設定
 	SetMotion(MOTION_HOWL_FLYUP, BLEND_FRAME);
+
+	for (int nCntParts = 0; nCntParts < GetNumModel(); nCntParts++)
+	{ // パーツ数分繰り返す
+
+		// パーツ拡大率を修正
+		GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+	}
 
 	// カメラを何もしない状態に設定 (固定カメラにする)
 	pCamera->SetState(CCamera::STATE_NONE);
@@ -907,6 +962,13 @@ void CEnemyBossDragon::SetRideRotate(void)
 	// カウンターを初期化
 	m_nCounterAttack = 0;	// 攻撃管理カウンター
 	m_nCounterFlash  = 0;	// フラッシュ管理カウンター
+
+	for (int nCntParts = 0; nCntParts < GetNumModel(); nCntParts++)
+	{ // パーツ数分繰り返す
+
+		// パーツ拡大率を修正
+		GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+	}
 }
 
 //============================================================
@@ -945,6 +1007,13 @@ void CEnemyBossDragon::SetRideEnd(void)
 	rotEnemy.y = atan2f(posEnemy.x - posPlayer.x, posEnemy.z - posPlayer.z);
 	SetVec3Rotation(rotEnemy);
 	SetDestRotation(rotEnemy);
+
+	for (int nCntParts = 0; nCntParts < GetNumModel(); nCntParts++)
+	{ // パーツ数分繰り返す
+
+		// パーツ拡大率を修正
+		GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+	}
 }
 
 //============================================================
@@ -986,6 +1055,13 @@ void CEnemyBossDragon::SetDeath(void)
 		FLASH_INITALPHA_DEATH_START,	// 開始透明度
 		FLASH_SUBALPHA_DEATH_START		// 透明度減算量
 	);
+
+	for (int nCntParts = 0; nCntParts < GetNumModel(); nCntParts++)
+	{ // パーツ数分繰り返す
+
+		// パーツ拡大率を修正
+		GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+	}
 
 	// カメラ揺れを設定
 	pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_START_SWING);
@@ -1363,6 +1439,13 @@ void CEnemyBossDragon::UpdateAttack(void)
 				return;
 			}
 		}
+
+		for (int nCntParts = 0; nCntParts < GetNumModel(); nCntParts++)
+		{ // パーツ数分繰り返す
+
+			// パーツ拡大率を修正
+			GetMultiModel(nCntParts)->SetVec3Scaling(VEC3_ONE);
+		}
 	}
 	else
 	{ // 攻撃が存在する場合
@@ -1642,6 +1725,9 @@ void CEnemyBossDragon::UpdateMagicFadeIn(const D3DXVECTOR3& rPos)
 	{ // テレポート状態ごとの処理
 	case TELEPORT_INIT:		// テレポートの初期化
 	{
+		// 影の完全に透明にできるようにする
+		m_pShadow->SetMinAlpha(0.0f);
+
 		// 魔法陣の自動描画をONにする
 		m_pMagicCircle->SetEnableDraw(true);
 
@@ -1723,6 +1809,16 @@ void CEnemyBossDragon::UpdateMagicFadeIn(const D3DXVECTOR3& rPos)
 		assert(false);
 		break;
 	}
+
+	// 影の最小透明度を少しずつ透明にする
+	float fMinAlpha = m_pShadow->GetMinAlpha() - shadowInfo::MIN_FADE_LEVEL;
+	useful::LimitMinNum(fMinAlpha, 0.0f);
+	m_pShadow->SetMinAlpha(fMinAlpha);
+
+	// 影の最大透明度を少しずつ透明にする
+	float fMaxAlpha = m_pShadow->GetMaxAlpha() - shadowInfo::MAX_FADE_LEVEL;
+	useful::LimitMinNum(fMaxAlpha, 0.0f);
+	m_pShadow->SetMaxAlpha(fMaxAlpha);
 
 	// 魔法陣の位置を反映
 	m_pMagicCircle->SetVec3Position(D3DXVECTOR3(rPos.x, fMagicPosY, rPos.z));
@@ -1845,6 +1941,16 @@ void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, 
 		assert(false);
 		break;
 	}
+
+	// 影の最小透明度を少しずつ元に戻す
+	float fMinAlpha = m_pShadow->GetMinAlpha() + shadowInfo::MIN_FADE_LEVEL;
+	useful::LimitMaxNum(fMinAlpha, shadow::MIN_ALPHA);
+	m_pShadow->SetMinAlpha(fMinAlpha);
+
+	// 影の最大透明度を少しずつ元に戻す
+	float fMaxAlpha = m_pShadow->GetMaxAlpha() + shadowInfo::MAX_FADE_LEVEL;
+	useful::LimitMaxNum(fMaxAlpha, shadow::MAX_ALPHA);
+	m_pShadow->SetMaxAlpha(fMaxAlpha);
 
 	// 魔法陣の位置を反映
 	m_pMagicCircle->SetVec3Position(D3DXVECTOR3(pPos->x, fMagicPosY, pPos->z));

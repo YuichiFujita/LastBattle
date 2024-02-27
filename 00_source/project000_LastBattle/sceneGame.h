@@ -18,12 +18,12 @@
 //************************************************************
 //	前方宣言
 //************************************************************
-class CGameManager;		// ゲームマネージャークラス
-class CTimerUI;			// タイマーUIクラス
-class CCinemaScope;		// シネマスコープクラス
-class CPause;			// ポーズクラス
-class CHitStop;			// ヒットストップクラス
-class CFlash;			// フラッシュクラス
+class CGameManager;	// ゲームマネージャークラス
+class CTimerUI;		// タイマーUIクラス
+class CCinemaScope;	// シネマスコープクラス
+class CPause;		// ポーズクラス
+class CHitStop;		// ヒットストップクラス
+class CFlash;		// フラッシュクラス
 
 //************************************************************
 //	クラス定義
