@@ -59,11 +59,11 @@ namespace
 	// 回転カメラ情報
 	namespace rotate
 	{
-		const D3DXVECTOR3 INIT_POSR	= D3DXVECTOR3(0.0f, 550.0f, 0.0f);	// 回転カメラの注視点の初期値
-		const D3DXVECTOR2 INIT_ROT	= D3DXVECTOR2(1.9f, 0.0f);			// 回転カメラの向き初期値
+		const D3DXVECTOR3 INIT_POSR	= D3DXVECTOR3(0.0f, 50.0f, 0.0f);	// 回転カメラの注視点の初期値
+		const D3DXVECTOR2 INIT_ROT	= D3DXVECTOR2(1.4f, 0.0f);			// 回転カメラの向き初期値
 
-		const float INIT_DIS	= 6350.0f;	// 回転カメラの距離初期値
-		const float ADD_ROTY	= 0.005f;	// 回転カメラの向き加算量Y
+		const float INIT_DIS	= 150.0f;	// 回転カメラの距離初期値
+		const float ADD_ROTY	= 0.0025f;	// 回転カメラの向き加算量Y
 	}
 
 	// 追従カメラ情報

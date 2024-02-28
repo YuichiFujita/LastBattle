@@ -16,6 +16,7 @@
 #include "multiModel.h"
 #include "sceneGame.h"
 #include "gameManager.h"
+#include "rankingManager.h"
 #include "gauge2D.h"
 #include "shadow.h"
 #include "magicCircle.h"
@@ -1031,6 +1032,9 @@ void CEnemyBossDragon::SetDeath(void)
 
 	// タイマーの計測終了
 	pTimer->End();
+
+	// ランキングに設定
+	CRankingManager::Set(pTimer->Get());
 }
 
 //============================================================

@@ -36,9 +36,9 @@ namespace
 
 	const int PRIORITY = 5;	// リザルトの優先順位
 
-	const D3DXCOLOR SETCOL_FADE		= D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.6f);	// α値の停止値
-	const D3DXCOLOR INITCOL_FADE	= XCOL_AWHITE;			// α値の初期値
-	const D3DXVECTOR3 SIZE_FADE		= SCREEN_SIZE * 0.95f;	// フェードの大きさ
+	const D3DXCOLOR SETCOL_FADE		= D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);	// α値の停止値
+	const D3DXCOLOR INITCOL_FADE	= XCOL_AWHITE;							// α値の初期値
+	const D3DXVECTOR3 SIZE_FADE		= SCREEN_SIZE - D3DXVECTOR3(50.0f, 50.0f, 0.0f);	// フェードの大きさ
 
 	const float ADD_ALPHA = 0.008f;	// α値の加算量
 
@@ -786,8 +786,7 @@ void CResultManager::UpdateTransition(void)
 				case SELECT_NO:
 
 					// シーンの設定
-					//GET_MANAGER->SetScene(CScene::MODE_RANKING);	// ランキング画面	// TODO：ランキング作成次第遷移戻す
-					GET_MANAGER->SetScene(CScene::MODE_TITLE);	// タイトル画面
+					GET_MANAGER->SetScene(CScene::MODE_RANKING);	// ランキング画面
 
 					break;
 				}

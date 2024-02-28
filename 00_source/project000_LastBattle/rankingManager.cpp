@@ -25,7 +25,7 @@ namespace
 {
 	const char *TEXTURE_FILE[] =	// テクスチャファイル
 	{
-		nullptr,	// ランキングロゴテクスチャ
+		"data\\TEXTURE\\ranking001.png",	// ランキングロゴテクスチャ
 		"data\\TEXTURE\\ranking000.png",	// ランキング順位テクスチャ
 	};
 
