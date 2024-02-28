@@ -1182,6 +1182,9 @@ void CEnemyBossDragon::UpdateRideFlyUp(void)
 		// 旋回飛行モーションを設定
 		SetMotion(MOTION_FLY_IDOL);
 
+		// スコープアウトさせる
+		CSceneGame::GetCinemaScope()->SetScopeOut();
+
 		// カメラを騎乗状態に設定
 		pCamera->SetState(CCamera::STATE_RIDE);
 		pCamera->SetDestRide();

@@ -1828,9 +1828,6 @@ void CPlayer::UpdateRideEnd(void)
 		// ボスをライド終了状態にする
 		CScene::GetBoss()->SetState(CEnemy::STATE_RIDE_END);
 
-		// スコープアウトさせる
-		CSceneGame::GetCinemaScope()->SetScopeOut();
-
 		// カメラを追従状態に設定
 		GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
 		GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
