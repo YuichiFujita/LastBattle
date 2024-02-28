@@ -105,12 +105,11 @@ public:
 	// 純粋仮想関数
 	virtual int GetWaistModelID(void) const = 0;	// 腰モデルのインデックス取得
 	virtual int GetHeadModelID(void) const = 0;		// 頭モデルのインデックス取得
-	virtual bool Hit(const int nDamage) = 0;		// ヒット
-	virtual bool HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) = 0;	// ノックバックヒット
 
 	// 仮想関数
 	virtual void InitNormal(void);	// 通常状態の初期化
 	virtual void DrawCrop(void);	// 切り抜き用の描画
+	virtual bool Hit(const int nDamage);					// ヒット
 	virtual void SetEnableDrawUI(const bool bDraw);			// UI描画設定
 	virtual void SetLifePriority(const int nPrio);			// 体力ゲージの優先順位設定
 	virtual bool IsRideOK(const D3DXVECTOR3& rPos) const;	// ライド可能か取得

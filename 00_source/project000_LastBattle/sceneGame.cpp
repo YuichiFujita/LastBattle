@@ -264,16 +264,6 @@ void CSceneGame::Update(void)
 	}
 
 #endif	// _DEBUG
-
-	// TODOFƒ{ƒXŽEŠQ
-	if (GET_INPUTKEY->IsTrigger(DIK_0))
-	{
-		CScene::GetPlayer()->Hit(99999999);
-	}
-	if (GET_INPUTKEY->IsTrigger(DIK_8))
-	{
-		CScene::GetBoss()->SetState(CEnemy::STATE_STAN);
-	}
 }
 
 //============================================================

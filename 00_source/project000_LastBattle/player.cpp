@@ -87,9 +87,12 @@ namespace
 	const float	MIN_GRAVITY = -35.0f;	// 重力の最小値
 	const float	RADIUS		= 20.0f;	// 半径
 	const float	HEIGHT		= 80.0f;	// 縦幅
+	const float KNOCK_SIDE	= 36.0f;	// ノックバック横移動量
+	const float KNOCK_UP	= 17.0f;	// ノックバック縦移動量
 	const float	REV_ROTA	= 0.15f;	// 向き変更の補正係数
 	const float	MOVE_REV	= 0.5f;		// 移動量の補正係数
 	const float	DODGE_REV	= 0.12f;	// 回避の移動量の減衰係数
+	const float	KNOCK_REV	= 0.04f;	// 吹っ飛びの移動量の減衰係数
 	const float	JUMP_REV	= 0.16f;	// 空中の移動量の減衰係数
 	const float	LAND_REV	= 0.16f;	// 地上の移動量の減衰係数
 	const float	STICK_REV	= 0.00015f;	// 移動操作スティックの傾き量の補正係数
@@ -425,6 +428,13 @@ void CPlayer::Update(void)
 
 		break;
 
+	case STATE_KNOCK:
+
+		// ノックバック状態の更新
+		UpdateKnock();
+
+		break;
+
 	case STATE_DAMAGE:
 
 		// 通常状態の更新
@@ -723,6 +733,64 @@ void CPlayer::SetNoneTwinSword(void)
 }
 
 //============================================================
+//	ノックバックヒット処理
+//============================================================
+bool CPlayer::HitKnockBack(const int nDamage, const D3DXVECTOR3& rVecKnock)
+{
+	if (IsDeath())				 { return false; }	// 死亡済み
+	if (m_state != STATE_NORMAL) { return false; }	// 通常状態以外
+	if (m_dodge.bDodge)			 { return false; }	// 回避中
+	if (m_pLife->GetNum() <= 0)	 { return false; }	// 体力なし
+
+	// 体力にダメージを与える
+	m_pLife->AddNum(-nDamage);
+
+	if (m_pLife->GetNum() > 0)
+	{ // 体力が残っている場合
+
+		D3DXVECTOR3 vecKnock = rVecKnock;			// ノックバックベクトル
+		vecKnock.y = 0.0f;							// ベクトルY方向初期化
+		D3DXVec3Normalize(&vecKnock, &vecKnock);	// ベクトル正規化
+
+		// ノックバック状態にする
+		SetState(STATE_KNOCK);
+
+		// ノックバック移動量を設定
+		m_move.x = KNOCK_SIDE * vecKnock.x;
+		m_move.y = KNOCK_UP;
+		m_move.z = KNOCK_SIDE * vecKnock.z;
+
+		// ノックバック方向に向きを設定
+		D3DXVECTOR3 rotPlayer = GetVec3Rotation();		// プレイヤー向き
+		rotPlayer.y = atan2f(vecKnock.x, vecKnock.z);	// 吹っ飛び向きを計算
+		SetVec3Rotation(rotPlayer);	// 向きを設定
+		SetDestRotation(rotPlayer);	// 目標向きを設定
+
+		// 空中状態にする
+		m_jump.bJump = true;
+
+		// 落下モーションを設定
+		SetMotion(BODY_LOWER, L_MOTION_FALL);
+		SetMotion(BODY_UPPER, U_MOTION_FALL);
+	}
+	else
+	{ // 体力が残っていない場合
+
+		// 死亡状態にする
+		SetState(STATE_DEATH);
+
+		if (GET_MANAGER->GetMode() == CScene::MODE_GAME)
+		{ // ゲーム画面の場合
+
+			// リザルト画面に遷移させる
+			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_FAILED);
+		}
+	}
+
+	return true;
+}
+
+//============================================================
 //	ヒット処理
 //============================================================
 bool CPlayer::Hit(const int nDamage)
@@ -731,10 +799,6 @@ bool CPlayer::Hit(const int nDamage)
 	if (m_state != STATE_NORMAL) { return false; }	// 通常状態以外
 	if (m_dodge.bDodge)			 { return false; }	// 回避中
 	if (m_pLife->GetNum() <= 0)	 { return false; }	// 体力なし
-
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
 
 	// 体力にダメージを与える
 	m_pLife->AddNum(-nDamage);
@@ -760,46 +824,6 @@ bool CPlayer::Hit(const int nDamage)
 	}
 
 	return true;
-}
-
-//============================================================
-//	ノックバックヒット処理
-//============================================================
-bool CPlayer::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
-{
-#if 0
-
-	if (IsDeath()) { return; }	// 死亡済み
-	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
-
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
-
-	// カウンターを初期化
-	m_nCounterState = 0;
-
-	// ノックバック移動量を設定
-	m_move.x = KNOCK_SIDE * vecKnock.x;
-	m_move.y = KNOCK_UP;
-	m_move.z = KNOCK_SIDE * vecKnock.z;
-
-	// ノックバック方向に向きを設定
-	rotPlayer.y = atan2f(vecKnock.x, vecKnock.z);	// 吹っ飛び向きを計算
-	SetVec3Rotation(rotPlayer);	// 向きを設定
-
-	// 空中状態にする
-	m_bJump = true;
-
-	// ノック状態を設定
-	SetState(STATE_KNOCK);
-
-	// サウンドの再生
-	PLAY_SOUND->Play(CSound::LABEL_SE_HIT);	// ヒット音
-
-#endif
-
-	return false;
 }
 
 //============================================================
@@ -1725,6 +1749,45 @@ void CPlayer::UpdateSpawn(void)
 }
 
 //============================================================
+//	ノックバック状態時の更新処理
+//============================================================
+void CPlayer::UpdateKnock(void)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
+
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 透明度を設定
+	SetAlpha(INVULN_ALPHA);
+
+	// 重力の更新
+	UpdateGravity();
+
+	// 位置更新
+	UpdatePosition(&posPlayer);
+
+	// 着地判定
+	if (UpdateLanding(&posPlayer))
+	{ // 着地していた場合
+
+		// 不透明にする
+		SetAlpha(1.0f);
+
+		// ダメージ状態にする
+		SetState(STATE_DAMAGE);
+	}
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posPlayer, RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+}
+
+//============================================================
 //	ライド終了状態時の更新処理
 //============================================================
 void CPlayer::UpdateRideEnd(void)
@@ -2330,8 +2393,10 @@ void CPlayer::UpdateGravity(void)
 //============================================================
 //	着地状況の更新処理
 //============================================================
-void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
+bool CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 {
+	bool bLand = false;	// 着地フラグ
+
 	// ジャンプしている状態にする
 	m_jump.bJump = true;
 
@@ -2342,6 +2407,9 @@ void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 
 		// ジャンプフラグをOFFにする
 		m_jump.bJump = false;
+
+		// 着地フラグをONにする
+		bLand = true;
 	}
 
 	if (!m_jump.bJump)
@@ -2363,6 +2431,9 @@ void CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 			SetMotion(BODY_UPPER, U_MOTION_LAND);
 		}
 	}
+
+	// 着地フラグを返す
+	return bLand;
 }
 
 //============================================================
@@ -2421,7 +2492,13 @@ void CPlayer::UpdatePosition(D3DXVECTOR3 *pPos)
 	*pPos += m_move;
 
 	// 移動量を減衰
-	if (m_dodge.bDodge)
+	if (m_state == STATE_KNOCK)
+	{ // ノックバック中の場合
+
+		m_move.x += (0.0f - m_move.x) * KNOCK_REV;
+		m_move.z += (0.0f - m_move.z) * KNOCK_REV;
+	}
+	else if (m_dodge.bDodge)
 	{ // 回避中の場合
 
 		m_move.x += (0.0f - m_move.x) * DODGE_REV;

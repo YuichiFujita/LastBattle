@@ -140,13 +140,12 @@ public:
 	void Uninit(void) override;		// 終了
 	void Update(void) override;		// 更新
 	void Draw(CShader *pShader = nullptr) override;			// 描画
+	bool Hit(const int nDamage) override;					// ヒット
 	int  GetWaistModelID(void) const override;				// 腰モデルのインデックス取得
 	int  GetHeadModelID(void) const override;				// 頭モデルのインデックス取得
 	bool IsRideOK(const D3DXVECTOR3& rPos) const override;	// ライド可能か取得
 	void SetEnableDrawUI(const bool bDraw) override;		// UI描画設定
 	void SetLifePriority(const int nPrio) override;			// 体力ゲージの優先順位設定
-	bool Hit(const int nDamage) override;					// ヒット
-	bool HitKnockBack(const int nDamage, const D3DXVECTOR3 &vecKnock) override;	// ノックバックヒット
 
 	// メンバ関数
 	void InitNormal(void);	// 通常状態の初期化

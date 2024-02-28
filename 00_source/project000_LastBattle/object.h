@@ -116,10 +116,6 @@ public:
 	virtual void Release(void)	= 0;	// 破棄
 
 	// 仮想関数
-	virtual bool Hit(void);	// ヒット
-	virtual bool Hit(const int nDmg);	// ダメージヒット
-	virtual bool HitKnockBack(const int nDmg, const D3DXVECTOR3& vecKnock);	// ノックバックヒット
-
 	virtual void BindTexture(const int nTextureID);		// テクスチャ割当 (インデックス)
 	virtual void BindTexture(const char *pTexturePass);	// テクスチャ割当 (パス)
 	virtual void BindModel(const int nModelID);			// モデル割当 (インデックス)

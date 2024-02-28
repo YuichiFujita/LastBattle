@@ -248,7 +248,8 @@ void CImpact::CollisionPlayer(void)
 		{ // 上下の範囲内の場合
 
 			// プレイヤーのヒット処理
-			player->Hit(DMG_IMPACT);
+			D3DXVECTOR3 vecKnock = posPlayer - posImpact;
+			player->HitKnockBack(DMG_IMPACT, vecKnock);
 		}
 	}
 }

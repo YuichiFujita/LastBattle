@@ -322,6 +322,63 @@ void CEnemyBossDragon::Draw(CShader *pShader)
 }
 
 //============================================================
+//	ヒット処理
+//============================================================
+bool CEnemyBossDragon::Hit(const int nDamage)
+{
+	if (IsDeath())						{ return false; }	// 死亡済み
+	if (m_action == ACT_MAGIC_FADEIN)	{ return false; }	// 魔法陣フェードイン中
+	if (m_action == ACT_MAGIC_FADEOUT)	{ return false; }	// 魔法陣フェードアウト中
+	if (m_pLife->GetNum() <= 0)			{ return false; }	// 体力なし
+
+	int nState = GetState();
+	if (nState != STATE_NORMAL
+	&&  nState != STATE_RIDE_ROTATE)
+	{ // 通常・ライド旋回状態以外の場合抜ける
+
+		return false;
+	}
+
+	int nOldLife = m_pLife->GetNum();	// ダメージ前の体力
+	int nCurLife = 0;					// ダメージ後の体力
+
+	// 体力にダメージを与える
+	m_pLife->AddNum(-nDamage);
+
+	// ダメージ後の体力を取得
+	nCurLife = m_pLife->GetNum();
+
+	if (nCurLife > 0)
+	{ // 体力が残っている場合
+
+		// ダメージを受ける前の状態を保存
+		SetPrevState((EState)GetState());
+
+		if (nOldLife >= KNOCK_LIFE
+		&&  nCurLife <  KNOCK_LIFE)
+		{ // 今回で体力が一定値を下回った場合
+
+			// ノックバック状態にする
+			SetState(STATE_KNOCK);
+		}
+		else
+		{ // 通常体力減少の場合
+
+			// ダメージ状態にする
+			SetState(STATE_DAMAGE);
+		}
+	}
+	else
+	{ // 体力が残っていない場合
+
+		// 死亡状態にする
+		SetState(STATE_DEATH);
+	}
+
+	return true;
+}
+
+//============================================================
 //	腰モデルのインデックス取得処理
 //============================================================
 int CEnemyBossDragon::GetWaistModelID(void) const
@@ -380,103 +437,6 @@ void CEnemyBossDragon::SetLifePriority(const int nPrio)
 	// 体力ゲージの優先順位を設定
 	assert(m_pLife != nullptr);
 	m_pLife->SetPriority(nPrio);
-}
-
-//============================================================
-//	ヒット処理
-//============================================================
-bool CEnemyBossDragon::Hit(const int nDamage)
-{
-	if (IsDeath())						{ return false; }	// 死亡済み
-	if (m_action == ACT_MAGIC_FADEIN)	{ return false; }	// 魔法陣フェードイン中
-	if (m_action == ACT_MAGIC_FADEOUT)	{ return false; }	// 魔法陣フェードアウト中
-	if (m_pLife->GetNum() <= 0)			{ return false; }	// 体力なし
-
-	int nState = GetState();
-	if (nState != STATE_NORMAL
-	&&  nState != STATE_RIDE_ROTATE)
-	{ // 通常・ライド旋回状態以外の場合抜ける
-
-		return false;
-	}
-
-	int nOldLife = m_pLife->GetNum();	// ダメージ前の体力
-	int nCurLife = 0;					// ダメージ後の体力
-
-	// 体力にダメージを与える
-	m_pLife->AddNum(-nDamage);
-
-	// ダメージ後の体力を取得
-	nCurLife = m_pLife->GetNum();
-
-	if (nCurLife > 0)
-	{ // 体力が残っている場合
-
-		// ダメージを受ける前の状態を保存
-		SetPrevState((EState)GetState());
-
-		if (nOldLife >= KNOCK_LIFE
-		&&  nCurLife <  KNOCK_LIFE)
-		{ // 今回で体力が一定値を下回った場合
-
-			// ノックバック状態にする
-			SetState(STATE_KNOCK);
-		}
-		else
-		{ // 通常体力減少の場合
-
-			// ダメージ状態にする
-			SetState(STATE_DAMAGE);
-		}
-	}
-	else
-	{ // 体力が残っていない場合
-
-		// 死亡状態にする
-		SetState(STATE_DEATH);
-	}
-
-	return true;
-}
-
-//============================================================
-//	ノックバックヒット処理
-//============================================================
-bool CEnemyBossDragon::HitKnockBack(const int /*nDamage*/, const D3DXVECTOR3 & /*vecKnock*/)
-{
-#if 0
-
-	if (IsDeath()) { return; }	// 死亡済み
-	if (m_state != STATE_NORMAL) { return; }	// 通常状態以外
-
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
-
-	// カウンターを初期化
-	m_nCounterState = 0;
-
-	// ノックバック移動量を設定
-	m_move.x = KNOCK_SIDE * vecKnock.x;
-	m_move.y = KNOCK_UP;
-	m_move.z = KNOCK_SIDE * vecKnock.z;
-
-	// ノックバック方向に向きを設定
-	rotPlayer.y = atan2f(vecKnock.x, vecKnock.z);	// 吹っ飛び向きを計算
-	SetVec3Rotation(rotPlayer);	// 向きを設定
-
-	// 空中状態にする
-	m_bJump = true;
-
-	// ノック状態を設定
-	SetState(STATE_KNOCK);
-
-	// サウンドの再生
-	PLAY_SOUND->Play(CSound::LABEL_SE_HIT);	// ヒット音
-
-#endif
-
-	return false;
 }
 
 //============================================================

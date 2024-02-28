@@ -337,7 +337,8 @@ void CEnemyAttack06::UpdateAttack(void)
 				{ // 攻撃が当たった場合
 
 					// プレイヤーのヒット処理
-					pPlayer->Hit(DMG_TAIL);
+					D3DXVECTOR3 vecKnock = posCentPlayer - pBoss->GetVec3Position();
+					pPlayer->HitKnockBack(DMG_TAIL, vecKnock);
 				}
 			}
 		}
