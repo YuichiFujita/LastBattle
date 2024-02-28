@@ -11,14 +11,9 @@
 #define _PLAY_CONTROL_H_
 
 //************************************************************
-//	インクルードファイル
-//************************************************************
-#include "object.h"
-
-//************************************************************
 //	前方宣言
 //************************************************************
-class CObject2D;	// オブジェクト2Dクラス
+class CAnim2D;	// アニメーション2Dクラス
 
 //************************************************************
 //	クラス定義
@@ -71,6 +66,7 @@ public:
 		EControl contType,	// 表示操作
 		EDisp dispType		// 表示形式
 	);
+	void SetHide(const bool bFlash = true);	// 非表示設定
 	bool IsDisp(void);	// 表示取得
 
 	// 静的メンバ関数
@@ -83,13 +79,14 @@ public:
 
 private:
 	// メンバ変数
-	CObject2D *m_pControl;		// 操作の情報
+	CAnim2D *m_pControl;		// 操作の情報
 	D3DXVECTOR3 m_originSize;	// 操作の元の大きさ
 	EControl m_contType;		// 表示操作
 	EDisp m_dispType;			// 表示形式
-	EState m_state;	// 状態
-	int m_nCounter;	// 状態管理カウンター
-	float m_fScale;	// 拡大率
+	EState m_state;		// 状態
+	int m_nCounter;		// 状態管理カウンター
+	float m_fSinScale;	// 拡縮向き
+	float m_fScale;		// 拡大率
 };
 
 #endif	// _PLAY_CONTROL_H_

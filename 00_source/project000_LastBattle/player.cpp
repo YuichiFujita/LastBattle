@@ -25,6 +25,7 @@
 #include "blur.h"
 #include "sword.h"
 #include "swordWaveManager.h"
+#include "playControl.h"
 #include "gauge2D.h"
 #include "shadow.h"
 #include "stage.h"
@@ -122,6 +123,13 @@ namespace
 	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);		// ボスライド時のオフセット位置
 	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);		// ボスライド時のオフセット向き
 
+	// プレイ操作の情報
+	namespace playInfo
+	{
+		const D3DXVECTOR3 POS	= SCREEN_CENT + D3DXVECTOR3(180.0f, 140.0f, 0.0f);	// 位置
+;		const D3DXVECTOR3 SIZE	= D3DXVECTOR3(810.0f, 180.0f, 0.0f);				// 大きさ
+	}
+
 	// 体力の情報
 	namespace lifeInfo
 	{
@@ -176,6 +184,7 @@ static_assert(NUM_ARRAY(SWORD_OFFSET) == player::NUM_SWORD, "ERROR : Body Count 
 //	コンストラクタ
 //============================================================
 CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRIORITY),
+	m_pPlayControl	(nullptr),		// プレイ操作の情報
 	m_pLife			(nullptr),		// 体力の情報
 	m_pShadow		(nullptr),		// 影の情報
 	m_oldPos		(VEC3_ZERO),	// 過去位置
@@ -212,6 +221,7 @@ HRESULT CPlayer::Init(void)
 	memset(&m_jump,		0, sizeof(m_jump));		// ジャンプの情報
 	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
 	memset(&m_attack,	0, sizeof(m_attack));	// 攻撃の情報
+	m_pPlayControl	= nullptr;		// プレイ操作の情報
 	m_pLife			= nullptr;		// 体力の情報
 	m_pShadow		= nullptr;		// 影の情報
 	m_oldPos		= VEC3_ZERO;	// 過去位置
@@ -285,6 +295,20 @@ HRESULT CPlayer::Init(void)
 		m_apBlur[nCntBlur]->SetState(CBlur::STATE_NONE);
 	}
 
+	// プレイ操作の生成
+	m_pPlayControl = CPlayControl::Create
+	( // 引数
+		playInfo::POS,	// 位置
+		playInfo::SIZE	// 大きさ
+	);
+	if (m_pPlayControl == nullptr)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
 	// 体力の生成
 	m_pLife = CGauge2D::Create
 	( // 引数
@@ -299,11 +323,18 @@ HRESULT CPlayer::Init(void)
 		lifeInfo::SIZE_FRAME,	// 枠大きさ
 		lifeInfo::OFFSET_FRAME	// 枠オフセット
 	);
+	if (m_pLife == nullptr)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// 影の生成
 	m_pShadow = CShadow::Create(CShadow::TEXTURE_NORMAL, shadowInfo::SIZE, this);
 	if (m_pShadow == nullptr)
-	{ // 非使用中の場合
+	{ // 生成に失敗した場合
 
 		// 失敗を返す
 		assert(false);
@@ -349,6 +380,9 @@ void CPlayer::Uninit(void)
 	// 影の終了
 	m_pShadow->DeleteObjectParent();	// 親オブジェクトを削除
 	SAFE_UNINIT(m_pShadow);
+
+	// プレイ操作の破棄
+	SAFE_REF_RELEASE(m_pPlayControl);
 
 	// リストから自身のオブジェクトを削除
 	m_pList->DeleteList(m_iterator);
@@ -482,6 +516,9 @@ void CPlayer::Update(void)
 
 	// 影の更新
 	m_pShadow->Update();
+
+	// プレイ操作の更新
+	m_pPlayControl->Update();
 
 	if (m_state == STATE_RIDE)
 	{ // ライド状態の場合
@@ -1027,6 +1064,13 @@ void CPlayer::SetRideEnd(void)
 
 	// カメラ揺れを設定
 	GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, RIDEEND_SWING);
+
+	if (m_pPlayControl->IsDisp())
+	{ // 操作表示がされている場合
+
+		// 表示を消す
+		m_pPlayControl->SetHide(false);
+	}
 }
 
 //============================================================
@@ -2143,6 +2187,13 @@ void CPlayer::UpdateRideAttack(void)
 	// ボスが旋回中ではない場合抜ける
 	if (CScene::GetBoss()->GetState() == CEnemyBossDragon::STATE_RIDE_ROTATE)
 
+	if (!m_pPlayControl->IsDisp())
+	{ // 操作表示がされていない場合
+
+		// 表示を出す
+		m_pPlayControl->SetDisp(CPlayControl::CONTROL_RUSH, CPlayControl::DISP_BLINK);
+	}
+
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
 	{
 		if (!IsAttack())
@@ -2176,18 +2227,38 @@ void CPlayer::UpdateRideAttack(void)
 //============================================================
 void CPlayer::UpdateRide(const D3DXVECTOR3& rPos)
 {
-	CInputPad *pPad = GET_INPUTPAD;	// パッド
-	if (pPad->IsTrigger(CInputPad::KEY_B))
-	{
-		CEnemy *pBoss = CScene::GetBoss();	// ボス情報
-		if (pBoss->IsRideOK(rPos))
-		{ // ボスへの騎乗が可能な場合
+	CEnemy *pBoss = CScene::GetBoss();	// ボス情報
+	if (pBoss->IsRideOK(rPos))
+	{ // ボスへの騎乗が可能な場合
+
+		if (!m_pPlayControl->IsDisp())
+		{ // 操作表示がされていない場合
+
+			// 表示を出す
+			m_pPlayControl->SetDisp(CPlayControl::CONTROL_RIDE, CPlayControl::DISP_NORMAL);
+		}
+
+		CInputPad *pPad = GET_INPUTPAD;	// パッド
+		if (pPad->IsTrigger(CInputPad::KEY_B))
+		{
+			// 操作表示を消す
+			m_pPlayControl->SetHide();
 
 			// プレイヤーを騎乗状態にする
 			SetRide();
 
 			// ボスをライド飛び上がり状態にする
 			pBoss->SetState(CEnemy::STATE_RIDE_FLYUP);
+		}
+	}
+	else
+	{ // ボスへの騎乗が不可能な場合
+
+		if (m_pPlayControl->IsDisp())
+		{ // 操作表示がされている場合
+
+			// 表示を消す
+			m_pPlayControl->SetHide(false);
 		}
 	}
 }

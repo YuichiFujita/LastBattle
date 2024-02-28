@@ -13,7 +13,7 @@
 #include "sound.h"
 #include "fade.h"
 #include "texture.h"
-#include "object2D.h"
+#include "anim2D.h"
 
 //************************************************************
 //	定数宣言
@@ -24,12 +24,18 @@ namespace
 	{
 		nullptr,								// 操作なし
 		"data\\TEXTURE\\playControl000.png",	// 騎乗操作テクスチャ
-		"data\\TEXTURE\\playControl000.png",	// 連続攻撃操作テクスチャ
+		"data\\TEXTURE\\playControl001.png",	// 連続攻撃操作テクスチャ
 	};
 
-	const int	PRIORITY	 = 6;		// プレイ操作表示の優先順位
-	const int	DISP_FRAME	 = 240;		// 完全不透明フレーム
-	const float	FADE_LEVEL	 = 0.05f;	// 透明度のフレーム変動量
+	const POSGRID2 PART = POSGRID2(1, 2);	// テクスチャ分割数
+	const int	PRIORITY		= 6;		// プレイ操作表示の優先順位
+	const int	SCALEIN_FRAME	= 8;		// 表示開始から完了までのフレーム数
+	const int	BLINK_FRAME		= 12;		// 点滅フレーム
+	const float	MUL_SCALEPLUS	= 0.5f;		// 拡大率加算量の倍率
+	const float	ORIGIN_SCALE	= 1.0f;		// 基礎拡大率
+	const float	ADD_SINROT		= 0.035f;	// 拡大率を上下させるサインカーブ向き加算量
+	const float	MAX_ADD_SCALE	= 0.08f;	// 拡大率の最大加算量
+	const float	FADE_LEVEL		= 0.05f;	// 透明度のフレーム変動量
 }
 
 //************************************************************
@@ -50,6 +56,7 @@ CPlayControl::CPlayControl() :
 	m_dispType		(DISP_NORMAL),	// 表示形式
 	m_state			(STATE_NONE),	// 状態
 	m_nCounter		(0),			// 状態管理カウンター
+	m_fSinScale		(0.0f),			// 拡縮向き
 	m_fScale		(0.0f)			// 拡大率
 {
 
@@ -75,15 +82,18 @@ HRESULT CPlayControl::Init(void)
 	m_dispType		= DISP_NORMAL;	// 表示形式
 	m_state			= STATE_NONE;	// 状態
 	m_nCounter		= 0;			// 状態管理カウンター
+	m_fSinScale		= 0.0f;			// 拡縮向き
 	m_fScale		= 0.0f;			// 拡大率
 
 	// 操作情報の生成
-	m_pControl = CObject2D::Create
+	m_pControl = CAnim2D::Create
 	( // 引数
+		PART.x,		// テクスチャ横分割数
+		PART.y,		// テクスチャ縦分割数
 		VEC3_ZERO,	// 位置
 		VEC3_ZERO,	// 大きさ
 		VEC3_ZERO,	// 向き
-		XCOL_WHITE	// 色
+		XCOL_AWHITE	// 色
 	);
 	if (m_pControl == nullptr)
 	{ // 非使用中の場合
@@ -123,16 +133,16 @@ void CPlayControl::Update(void)
 		switch (m_state)
 		{ // 状態ごとの処理
 		case STATE_SCALEIN:
-
+		{
 			// 拡大率を設定
-			m_fScale = easeing::OutCubic(m_nCounter, 0, 40) + 1.0f;
+			m_fScale = (easeing::OutCubic((SCALEIN_FRAME - m_nCounter), 0, SCALEIN_FRAME) * MUL_SCALEPLUS) + 1.0f;
 
 			// 操作表示の大きさを設定
 			sizeCont = m_originSize * m_fScale;
 
 			// カウンターを加算
 			m_nCounter++;
-			if (m_nCounter > 40)
+			if (m_nCounter > SCALEIN_FRAME)
 			{ // 表示時間を超えた場合
 
 				// カウンター初期化
@@ -143,25 +153,28 @@ void CPlayControl::Update(void)
 			}
 
 			break;
-
+		}
 		case STATE_DISP:
+		{
+			float fAddScale = 0.0f;	// 拡大率の加算量
 
-			// カウンターを加算
-			m_nCounter++;
-			if (m_nCounter > DISP_FRAME)
-			{ // 表示時間を超えた場合
+			// サインカーブ向きを回転
+			m_fSinScale += ADD_SINROT;
+			useful::NormalizeRot(m_fSinScale);	// 向き正規化
 
-				// カウンター初期化
-				m_nCounter = 0;
+			// 拡大率加算量を求める
+			fAddScale = (MAX_ADD_SCALE / 2.0f) * (sinf(m_fSinScale) - 1.0f);
 
-				// 表示終了状態にする
-				m_state = STATE_FADEOUT;
-			}
+			// 拡大率を設定
+			m_fScale = ORIGIN_SCALE + fAddScale;
+
+			// 操作表示の大きさを設定
+			sizeCont = m_originSize * m_fScale;
 
 			break;
-
+		}
 		case STATE_FADEOUT:
-
+		{
 			// α値を減算
 			colCont.a -= FADE_LEVEL;
 			if (colCont.a <= 0.0f)
@@ -175,7 +188,7 @@ void CPlayControl::Update(void)
 			}
 
 			break;
-
+		}
 		default:
 			assert(false);
 			break;
@@ -210,22 +223,63 @@ void CPlayControl::SetDisp
 	// 既に表示中の場合抜ける
 	if (m_state == STATE_DISP) { return; }
 
-	// カウンターを初期化
-	m_nCounter = 0;
-
 	// 表示操作を設定
 	m_contType = contType;
 	m_pControl->BindTexture(TEX_CONTROL_FILE[m_contType]);
 
 	// 表示形式を設定
 	m_dispType = dispType;
+	switch (m_dispType)
+	{ // 表示形式ごとの処理
+	case DISP_NORMAL:
+		m_pControl->SetCounter(0);
+		break;
+
+	case DISP_BLINK:
+		m_pControl->SetCounter(BLINK_FRAME);
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	// 情報を初期化
+	m_nCounter	= 0;
+	m_fSinScale	= 0.0f;
+	m_fScale	= 1.0f;
+
+	// パターンを初期化
+	m_pControl->SetPattern(0);
+
+	// 操作表示の大きさを初期化
+	D3DXVECTOR3 sizeCont = m_pControl->GetVec3Sizing();						// 操作表示の大きさ
+	m_fScale = easeing::OutCubic(SCALEIN_FRAME, 0, SCALEIN_FRAME) + 1.0f;	// 初期拡大率を設定
+	sizeCont = m_originSize * m_fScale;		// 操作表示の大きさを設定
+	m_pControl->SetVec3Sizing(sizeCont);	// 大きさ反映
 
 	// 操作表示を不透明にする
 	D3DXCOLOR colCont = m_pControl->GetColor();	// 操作表示の色
 	colCont.a = 1.0f;				// 不透明にする
 	m_pControl->SetColor(colCont);	// 色反映
 
-	// フェードアウト状態にする
+	// 表示開始状態にする
+	m_state = STATE_SCALEIN;
+}
+
+//============================================================
+//	非表示設定処理
+//============================================================
+void CPlayControl::SetHide(const bool bFlash)
+{
+	if (bFlash)
+	{ // フラッシュがONの場合
+
+		// パターンを進める
+		m_pControl->SetPattern(1);
+	}
+
+	// 表示終了状態にする
 	m_state = STATE_FADEOUT;
 }
 
@@ -235,7 +289,7 @@ void CPlayControl::SetDisp
 bool CPlayControl::IsDisp(void)
 {
 	// 表示状況を設定
-	bool bDisp = (m_state == STATE_DISP);
+	bool bDisp = (m_state == STATE_DISP || m_state == STATE_SCALEIN);
 
 	// 表示状況を返す
 	return bDisp;

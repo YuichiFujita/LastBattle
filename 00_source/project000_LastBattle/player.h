@@ -33,6 +33,7 @@ class CBlur;		// ブラークラス
 class CSword;		// 剣クラス
 class CGauge2D;		// ゲージ2Dクラス
 class CShadow;		// 影クラス
+class CPlayControl;	// プレイ操作クラス
 
 //************************************************************
 //	クラス定義
@@ -299,19 +300,20 @@ private:
 
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
-	CSword		*m_apSword[player::NUM_SWORD];		// 剣の情報
-	CBlur		*m_apBlur[BODY_MAX];				// ブラーの情報
-	CGauge2D	*m_pLife;			// 体力の情報
-	CShadow		*m_pShadow;			// 影の情報
-	D3DXVECTOR3	m_oldPos;			// 過去位置
-	D3DXVECTOR3	m_move;				// 移動量
-	D3DXVECTOR3	m_destRot;			// 目標向き
-	EState		m_state;			// 状態
-	int			m_nCounterState;	// 状態管理カウンター
-	float		m_fSinAlpha;		// 透明向き
-	SJump		m_jump;				// ジャンプの情報
-	SDodge		m_dodge;			// 回避の情報
-	SAttack		m_attack;			// 攻撃の情報
+	CSword			*m_apSword[player::NUM_SWORD];	// 剣の情報
+	CBlur			*m_apBlur[BODY_MAX];			// ブラーの情報
+	CPlayControl	*m_pPlayControl;	// プレイ操作の情報
+	CGauge2D		*m_pLife;			// 体力の情報
+	CShadow			*m_pShadow;			// 影の情報
+	D3DXVECTOR3		m_oldPos;			// 過去位置
+	D3DXVECTOR3		m_move;				// 移動量
+	D3DXVECTOR3		m_destRot;			// 目標向き
+	EState			m_state;			// 状態
+	int				m_nCounterState;	// 状態管理カウンター
+	float			m_fSinAlpha;		// 透明向き
+	SJump			m_jump;				// ジャンプの情報
+	SDodge			m_dodge;			// 回避の情報
+	SAttack			m_attack;			// 攻撃の情報
 };
 
 #endif	// _PLAYER_H_

@@ -91,7 +91,7 @@ namespace
 	const float	MAGIC_CIRCLE_RADIUS	= 400.0f;	// 魔法陣の半径
 	const float	MAGIC_ALPHA_RADIUS	= 400.0f;	// 魔法陣の透明半径
 	const float	MAGIC_DELPOS_PLUSY	= 250.0f;	// 魔法陣の消失位置の加算量Y
-	const float	RIDE_FIND_RADIUS	= 250.0f;	// ライド時のボス検知半径
+	const float	RIDE_FIND_RADIUS	= 550.0f;	// ライド時のボス検知半径
 
 	const int	NUM_MULTI_FLASH		= 2;	// 死亡後連続するフラッシュの回数
 	const int	HITSTOP_DEATH_START	= 90;	// 死亡初めのヒットストップの長さ
