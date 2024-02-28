@@ -87,6 +87,7 @@ public:
 		L_MOTION_RIDE_ATTACK_00,	// ライド攻撃モーション一段階目
 		L_MOTION_RIDE_ATTACK_01,	// ライド攻撃モーション二段階目
 		L_MOTION_DEATH,				// 死亡モーション
+		L_MOTION_TITLE_ATTACK,		// タイトル攻撃モーション
 		L_MOTION_MAX				// この列挙型の総数
 	};
 
@@ -109,6 +110,7 @@ public:
 		U_MOTION_RIDE_ATTACK_00,	// ライド攻撃モーション一段階目
 		U_MOTION_RIDE_ATTACK_01,	// ライド攻撃モーション二段階目
 		U_MOTION_DEATH,				// 死亡モーション
+		U_MOTION_TITLE_ATTACK,		// タイトル攻撃モーション
 		U_MOTION_MAX				// この列挙型の総数
 	};
 
@@ -139,12 +141,16 @@ public:
 	void Update(void) override;		// 更新
 	void Draw(CShader *pShader = nullptr) override;		// 描画
 	void SetState(const int nState) override;			// 状態設定
-	int  GetState(void) const override;					// 状態取得
+	int GetState(void) const override;					// 状態取得
 	float GetRadius(void) const override;				// 半径取得
 	float GetHeight(void) const override;				// 縦幅取得
 	void SetEnableUpdate(const bool bUpdate) override;	// 更新状況設定
 	void SetEnableDraw(const bool bDraw) override;		// 描画状況設定
 	D3DXMATRIX CalcMtxWorld(void) const override;		// マトリックス計算結果取得
+
+	// 仮想関数
+	virtual void SetStag(const int /*nStag*/) {}			// 演出状態設定
+	virtual int GetStag(void) const { return NONE_IDX; }	// 演出状態取得
 
 	// 静的メンバ関数
 	static CPlayer *Create(CScene::EMode mode);		// 生成
@@ -153,7 +159,6 @@ public:
 	// メンバ関数
 	void SetDestRotation(const D3DXVECTOR3& rRot) { m_destRot = rRot; }	// 目標向き設定
 	D3DXVECTOR3 GetDestRotation(void) const		  { return m_destRot; }	// 目標向き取得
-
 	bool HitKnockBack(const int nDamage, const D3DXVECTOR3& rVecKnock);	// ノックバックヒット
 	bool Hit(const int nDamage);			// ヒット
 	void SetEnableDrawUI(const bool bDraw);	// UI描画設定
@@ -164,6 +169,26 @@ public:
 	void SetInvuln(void);	// 無敵設定
 	void SetRide(void);		// ライド設定
 	void SetRideEnd(void);	// ライド終了設定
+
+protected:
+	// オーバーライド関数
+	void SetMotion	// モーション設定
+	( // 引数
+		const EBody bodyID,			// 身体インデックス
+		const int nType,			// モーション種類
+		const int nBlendFrame = 0	// ブレンドフレーム
+	) override;
+
+	// メンバ関数
+	void UpdateOldPosition(void);			// 過去位置の更新
+	void UpdateGravity(void);				// 重力の更新
+	bool UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
+	void UpdatePosition(D3DXVECTOR3 *pPos);	// 位置の更新
+	void UpdateRotation(D3DXVECTOR3 *pRot);	// 向きの更新
+	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
+	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
+	CSword *GetSword(const int nSword);		// 剣の取得
+	CShadow *GetShadow(void);				// 影の取得
 
 private:
 	// 先行入力構造体
@@ -230,14 +255,6 @@ private:
 	// モーション更新の関数ポインタ型エイリアス定義
 	typedef void (CPlayer::*AFuncUpdateMotion)(const int);
 
-	// オーバーライド関数
-	void SetMotion	// モーション設定
-	( // 引数
-		const EBody bodyID,			// 身体インデックス
-		const int nType,			// モーション種類
-		const int nBlendFrame = 0	// ブレンドフレーム
-	) override;
-
 	// メンバ関数
 	void LoadSetup(const EBody bodyID, const char **ppModelPass);	// セットアップ
 	void UpdateMotion(const int nLowMotion, const int nUpMotion);	// モーション更新
@@ -256,11 +273,11 @@ private:
 	void UpdateSpawn(void);		// スポーン状態時の更新
 	void UpdateKnock(void);		// ノックバック状態時の更新
 	void UpdateRideEnd(void);	// ライド終了状態時の更新
-	void UpdateNormal(int *pLowMotion, int *pUpMotion);		// 通常状態時の更新
-	void UpdateRide(int *pLowMotion, int *pUpMotion);		// ライド状態時の更新
-	void UpdateDamage(int *pLowMotion, int *pUpMotion);		// ダメージ状態時の更新
-	void UpdateInvuln(int *pLowMotion, int *pUpMotion);		// 無敵状態時の更新
-	void UpdateDeath(int *pLowMotion, int *pUpMotion);		// 死亡状態時の更新
+	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
+	void UpdateRide(int *pLowMotion, int *pUpMotion);	// ライド状態時の更新
+	void UpdateDamage(int *pLowMotion, int *pUpMotion);	// ダメージ状態時の更新
+	void UpdateInvuln(int *pLowMotion, int *pUpMotion);	// 無敵状態時の更新
+	void UpdateDeath(int *pLowMotion, int *pUpMotion);	// 死亡状態時の更新
 
 	void UpdateAttack	// 攻撃操作の更新
 	( // 引数
@@ -274,15 +291,7 @@ private:
 	void UpdateDodge(const D3DXVECTOR3& rRot);			// 回避操作の更新
 	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
 	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
-
-	void UpdateOldPosition(void);				// 過去位置の更新
-	void UpdateGravity(void);					// 重力の更新
-	bool UpdateLanding(D3DXVECTOR3 *pPos);		// 着地状況の更新
-	void UpdateCollEnemy(D3DXVECTOR3 *pPos);	// 敵との当たり判定の更新
-	void UpdatePosition(D3DXVECTOR3 *pPos);		// 位置の更新
-	void UpdateRotation(D3DXVECTOR3 *pRot);		// 向きの更新
-	bool UpdateFadeOut(const float fAdd);		// フェードアウト状態時の更新
-	bool UpdateFadeIn(const float fSub);		// フェードイン状態時の更新
+	void UpdateCollEnemy(D3DXVECTOR3 *pPos);			// 敵との当たり判定の更新
 
 	// 静的メンバ変数
 	static CListManager<CPlayer> *m_pList;			// オブジェクトリスト
@@ -290,7 +299,7 @@ private:
 
 	// メンバ変数
 	CListManager<CPlayer>::AIterator m_iterator;	// イテレーター
-	CSword		*m_apSowrd[player::NUM_SWORD];		// 剣の情報
+	CSword		*m_apSword[player::NUM_SWORD];		// 剣の情報
 	CBlur		*m_apBlur[BODY_MAX];				// ブラーの情報
 	CGauge2D	*m_pLife;			// 体力の情報
 	CShadow		*m_pShadow;			// 影の情報

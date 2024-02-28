@@ -11,6 +11,11 @@
 #define _TITLEMANAGER_H_
 
 //************************************************************
+//	インクルードファイル
+//************************************************************
+#include "scene.h"
+
+//************************************************************
 //	前方宣言
 //************************************************************
 class CObject2D;	// オブジェクト2Dクラス
@@ -25,10 +30,9 @@ public:
 	// ロゴ列挙
 	enum ELogo
 	{
-		LOGO_NEVER = 0,	// NEVERロゴ
-		LOGO_GIVE,		// GIVEロゴ
-		LOGO_UP,		// UP!ロゴ
-		LOGO_MAX		// この列挙型の総数
+		LOGO_LAST = 0,		// LASTロゴ
+		LOGO_BATTLE,		// BATTLEロゴ
+		LOGO_MAX			// この列挙型の総数
 	};
 
 	// 選択列挙
@@ -42,11 +46,12 @@ public:
 	// 状態列挙
 	enum EState
 	{
-		STATE_NONE = 0,	// 何もしない状態
-		STATE_FADEOUT,	// フェードアウト状態
-		STATE_MOVE,		// タイトル縮小状態
-		STATE_WAIT,		// 遷移待機状態
-		STATE_MAX		// この列挙型の総数
+		STATE_NONE = 0,		// 何もしない状態
+		STATE_FADEOUT,		// フェードアウト状態
+		STATE_MOVE,			// タイトル縮小状態
+		STATE_WAIT,			// 遷移待機状態
+		STATE_TRANSITION,	// 遷移状態
+		STATE_MAX			// この列挙型の総数
 	};
 
 	// コンストラクタ
@@ -56,9 +61,10 @@ public:
 	~CTitleManager();
 
 	// メンバ関数
-	HRESULT Init(void);	// 初期化
-	void Uninit(void);	// 終了
-	void Update(void);	// 更新
+	HRESULT Init(void);		// 初期化
+	void Uninit(void);		// 終了
+	void Update(void);		// 更新
+	void Transition(void);	// 遷移
 
 	// 静的メンバ関数
 	static CTitleManager *Create(void);	// 生成
@@ -75,8 +81,9 @@ private:
 	// メンバ変数
 	CObject2D *m_apLogo[LOGO_MAX];		// タイトル表示の情報
 	CObject2D *m_apSelect[SELECT_MAX];	// 選択表示の情報
-	CObject2D *m_pFade;		// フェードの情報
-	CObject2D *m_pSelectBG;	// 選択背景の情報
+	CObject2D *m_pFade;			// フェードの情報
+	CObject2D *m_pSelectBG;		// 選択背景の情報
+	CScene::EMode m_nextMode;	// 次のモード
 	EState m_state;		// 状態
 	float m_fScale;		// タイトル拡大率
 	int m_nSelect;		// 現在の選択

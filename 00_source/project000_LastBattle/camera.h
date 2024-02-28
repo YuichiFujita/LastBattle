@@ -35,6 +35,8 @@ public:
 	{
 		STATE_NONE = 0,		// なにもしない状態
 		STATE_CONTROL,		// 操作状態
+		STATE_TITLE_WAIT,	// タイトル待機状態
+		STATE_TITLE_ATK,	// タイトル攻撃状態
 		STATE_ROTATE,		// 回転状態
 		STATE_FOLLOW,		// 追従状態
 		STATE_RIDE,			// 騎乗状態
@@ -112,10 +114,13 @@ public:
 	SCamera GetCamera(const EType type);	// カメラ取得
 	void SetState(const EState state);		// カメラ状態設定
 	EState GetState(void) const;			// カメラ状態取得
+	SLook GetLook(void) const { return m_look; }			// 視認情報取得
 	void SetFollowLook(const D3DXVECTOR3 &rLookPos);		// 追従カメラの位置視認
 	void SetSwing(const EType type, const SSwing swing);	// カメラ揺れ設定
 	void SetEnableUpdate(const bool bUpdate);				// 更新状況設定
 
+	void SetDestTitleWait(void);	// カメラ目標位置設定 (タイトル待機)
+	void SetDestTitleAtk(void);		// カメラ目標位置設定 (タイトル攻撃)
 	void SetDestRotate(void);		// カメラ目標位置設定 (回転)
 	void SetDestFollow(void);		// カメラ目標位置設定 (追従)
 	void SetDestRide(void);			// カメラ目標位置設定 (騎乗)
@@ -141,6 +146,8 @@ public:
 
 private:
 	// メンバ関数
+	void TitleWait(void);	// カメラの更新 (タイトル待機)
+	void TitleAtk(void);	// カメラの更新 (タイトル攻撃)
 	void Rotate(void);		// カメラの更新 (回転)
 	void Follow(void);		// カメラの更新 (追従)
 	void Ride(void);		// カメラの更新 (騎乗)

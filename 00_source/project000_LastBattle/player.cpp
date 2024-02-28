@@ -8,6 +8,7 @@
 //	インクルードファイル
 //************************************************************
 #include "player.h"
+#include "playerTitle.h"
 #include "manager.h"
 #include "sceneGame.h"
 #include "gameManager.h"
@@ -185,7 +186,7 @@ CPlayer::CPlayer() : CObjectDivChara(CObject::LABEL_PLAYER, CObject::DIM_3D, PRI
 	m_nCounterState	(0)				// 状態管理カウンター
 {
 	// メンバ変数をクリア
-	memset(&m_apSowrd,	0, sizeof(m_apSowrd));	// 剣の情報
+	memset(&m_apSword,	0, sizeof(m_apSword));	// 剣の情報
 	memset(&m_apBlur,	0, sizeof(m_apBlur));	// ブラーの情報
 	memset(&m_jump,		0, sizeof(m_jump));		// ジャンプの情報
 	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
@@ -206,7 +207,7 @@ CPlayer::~CPlayer()
 HRESULT CPlayer::Init(void)
 {
 	// メンバ変数を初期化
-	memset(&m_apSowrd,	0, sizeof(m_apSowrd));	// 剣の情報
+	memset(&m_apSword,	0, sizeof(m_apSword));	// 剣の情報
 	memset(&m_apBlur,	0, sizeof(m_apBlur));	// ブラーの情報
 	memset(&m_jump,		0, sizeof(m_jump));		// ジャンプの情報
 	memset(&m_dodge,	0, sizeof(m_dodge));	// 回避の情報
@@ -233,8 +234,8 @@ HRESULT CPlayer::Init(void)
 	{ // 剣の数分繰り返す
 
 		// 剣の生成
-		m_apSowrd[nCntSword] = CSword::Create(nullptr, SWORD_OFFSET[nCntSword]);
-		if (m_apSowrd[nCntSword] == nullptr)
+		m_apSword[nCntSword] = CSword::Create(nullptr, SWORD_OFFSET[nCntSword]);
+		if (m_apSword[nCntSword] == nullptr)
 		{ // 非使用中の場合
 
 			// 失敗を返す
@@ -257,7 +258,7 @@ HRESULT CPlayer::Init(void)
 	{ // 剣の数分繰り返す
 
 		// 親オブジェクト (持ち手) の設定
-		m_apSowrd[nCntSword]->SetParentObject(GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntSword));
+		m_apSword[nCntSword]->SetParentObject(GetMultiModel(BODY_UPPER, U_MODEL_HANDL + nCntSword));
 	}
 
 	for (int nCntBlur = 0; nCntBlur < BODY_MAX; nCntBlur++)
@@ -342,7 +343,7 @@ void CPlayer::Uninit(void)
 	{ // 剣の数分繰り返す
 
 		// 剣の終了
-		SAFE_UNINIT(m_apSowrd[nCntSword]);
+		SAFE_UNINIT(m_apSword[nCntSword]);
 	}
 
 	// 影の終了
@@ -470,10 +471,10 @@ void CPlayer::Update(void)
 	{ // 剣の数分繰り返す
 
 		// 剣の攻撃判定を設定
-		m_apSowrd[nCntSword]->SetEnableAttack(bColl[nCntSword]);
+		m_apSword[nCntSword]->SetEnableAttack(bColl[nCntSword]);
 
 		// 剣の更新
-		m_apSowrd[nCntSword]->Update();
+		m_apSword[nCntSword]->Update();
 	}
 
 	// モーションの更新
@@ -525,7 +526,7 @@ void CPlayer::Draw(CShader *pShader)
 		{ // 剣の数分繰り返す
 
 			// 剣の描画
-			m_apSowrd[nCntSword]->Draw(pToonShader);
+			m_apSword[nCntSword]->Draw(pToonShader);
 		}
 	}
 	else
@@ -541,7 +542,7 @@ void CPlayer::Draw(CShader *pShader)
 		{ // 剣の数分繰り返す
 
 			// 剣の描画
-			m_apSowrd[nCntSword]->Draw(pShader);
+			m_apSword[nCntSword]->Draw(pShader);
 		}
 	}
 }
@@ -650,9 +651,14 @@ CPlayer *CPlayer::Create(CScene::EMode mode)
 	// プレイヤーの生成
 	switch (mode)
 	{ // モードごとの処理
-	case CScene::MODE_TITLE:
 	case CScene::MODE_RESULT:
 	case CScene::MODE_RANKING:
+		break;
+
+	case CScene::MODE_TITLE:
+
+		// メモリ確保
+		pPlayer = new CPlayerTitle;	// プレイヤータイトル
 
 		break;
 
@@ -728,7 +734,7 @@ void CPlayer::SetNoneTwinSword(void)
 	{ // 剣の数分繰り返す
 
 		// 剣の描画を停止させる
-		m_apSowrd[nCntSword]->SetState(CSword::STATE_NONE);
+		m_apSword[nCntSword]->SetState(CSword::STATE_NONE);
 	}
 }
 
@@ -873,7 +879,7 @@ void CPlayer::InitNormal(void)
 	{ // 剣の数分繰り返す
 
 		// 剣の自動描画をOFFにする
-		m_apSowrd[nCntSword]->SetState(CSword::STATE_NONE);
+		m_apSword[nCntSword]->SetState(CSword::STATE_NONE);
 	}
 }
 
@@ -1054,7 +1060,7 @@ void CPlayer::SetMotion
 			{ // 剣の数分繰り返す
 
 				// 剣の状態を設定
-				m_apSowrd[nCntSword]->SetState((IsWeaponDisp(BODY_UPPER)) ? CSword::STATE_NORMAL : CSword::STATE_VANISH);
+				m_apSword[nCntSword]->SetState((IsWeaponDisp(BODY_UPPER)) ? CSword::STATE_NORMAL : CSword::STATE_VANISH);
 			}
 		}
 	}
@@ -1333,7 +1339,8 @@ void CPlayer::UpdateMotionLower(const int nMotion)
 
 		break;
 
-	case L_MOTION_DEATH:	// 死亡モーション：ループON
+	case L_MOTION_DEATH:		// 死亡モーション：ループON
+	case L_MOTION_TITLE_ATTACK:	// タイトル攻撃モーション：ループOFF
 		break;
 
 	default:	// 例外処理
@@ -1599,7 +1606,8 @@ void CPlayer::UpdateMotionUpper(const int nMotion)
 
 		break;
 
-	case U_MOTION_DEATH:	// 死亡モーション：ループON
+	case U_MOTION_DEATH:		// 死亡モーション：ループON
+	case U_MOTION_TITLE_ATTACK:	// タイトル攻撃モーション：ループOFF
 		break;
 
 	default:	// 例外処理
@@ -2609,6 +2617,30 @@ bool CPlayer::UpdateFadeIn(const float fSub)
 }
 
 //============================================================
+//	剣の取得処理
+//============================================================
+CSword *CPlayer::GetSword(const int nSword)
+{
+	if (nSword > NONE_IDX && nSword < player::NUM_SWORD)
+	{
+		// 剣のポインタを返す
+		assert(m_apSword[nSword] != nullptr);
+		return m_apSword[nSword];
+	}
+	else { assert(false); return nullptr; }
+}
+
+//============================================================
+//	影の取得処理
+//============================================================
+CShadow *CPlayer::GetShadow(void)
+{
+	// 影のポインタを返す
+	assert(m_pShadow != nullptr);
+	return m_pShadow;
+}
+
+//============================================================
 //	セットアップ処理
 //============================================================
 void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
@@ -2823,7 +2855,7 @@ void CPlayer::LoadSetup(const EBody bodyID, const char **ppModelPass)
 
 							// 剣の波動タイミングを追加
 							waveTiming.nMotion = GetMotionNumType(bodyID);	// 現在のモーションを設定
-							m_apSowrd[nSword]->GetWaveManager()->AddTiming(waveTiming);
+							m_apSword[nSword]->GetWaveManager()->AddTiming(waveTiming);
 						}
 						else { assert(false); }	// 範囲外
 					}

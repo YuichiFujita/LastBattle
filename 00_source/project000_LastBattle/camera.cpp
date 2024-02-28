@@ -44,6 +44,18 @@ namespace
 		const float REV_DIS = 0.001f;	// カメラ揺れ計算時のカメラ距離の補正係数
 	}
 
+	// タイトルカメラ情報
+	namespace title
+	{
+		const D3DXVECTOR3 INIT_POSR = D3DXVECTOR3(0.0f, 20.0f, 0.0f);	// タイトルカメラの注視点の初期値
+		const D3DXVECTOR2 INIT_ROT  = D3DXVECTOR2(1.57f, -0.5f);		// タイトルカメラの向き初期値
+
+		const float	INIT_DIS	= 300.0f;	// タイトルカメラの距離初期値
+		const float	ADD_ROTY	= 0.0f;		// タイトルカメラの向き加算量Y
+		const float	DEST_ROTY	= -0.5f;	// タイトルカメラ最終目標向きY
+		const int	MOVE_FRAME	= 0;		// タイトルカメラ最終目標向きに向かうフレーム数
+	}
+
 	// 回転カメラ情報
 	namespace rotate
 	{
@@ -240,6 +252,20 @@ void CCamera::Update(void)
 
 			break;
 
+		case STATE_TITLE_WAIT:	// タイトル待機状態
+
+			// カメラの更新 (タイトル待機)
+			TitleWait();
+
+			break;
+
+		case STATE_TITLE_ATK:	// タイトル攻撃状態
+
+			// カメラの更新 (タイトル攻撃)
+			TitleAtk();
+
+			break;
+
 		case STATE_ROTATE:	// 回転状態
 
 			// カメラの更新 (回転)
@@ -355,6 +381,54 @@ void CCamera::SetCamera(const EType type)
 
 	// ビューマトリックスの設定
 	pDevice->SetTransform(D3DTS_VIEW, &m_aCamera[type].mtxView);
+}
+
+//============================================================
+//	カメラ目標位置の設定処理 (タイトル待機)
+//============================================================
+void CCamera::SetDestTitleWait(void)
+{
+	if (m_state != STATE_TITLE_WAIT) { return; }	// カメラタイトル待機状態以外
+
+	//--------------------------------------------------------
+	//	向きの更新
+	//--------------------------------------------------------
+	// 現在向きの更新
+	m_aCamera[TYPE_MAIN].rot.x = m_aCamera[TYPE_MAIN].destRot.x = title::INIT_ROT.x;
+	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.y = title::INIT_ROT.y;
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
+
+	//--------------------------------------------------------
+	//	距離の更新
+	//--------------------------------------------------------
+	m_aCamera[TYPE_MAIN].fDis = m_aCamera[TYPE_MAIN].fDestDis = title::INIT_DIS;
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR = m_aCamera[TYPE_MAIN].destPosR = title::INIT_POSR;
+
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].destPosV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].destPosV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].destPosV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+
+}
+
+//============================================================
+//	カメラ目標位置の設定処理 (タイトル攻撃)
+//============================================================
+void CCamera::SetDestTitleAtk(void)
+{
+	// カメラ強制操作カウンターを設定
+	m_look.nCounterForce = title::MOVE_FRAME;
+
+	// 向き情報を設定
+	m_aCamera[TYPE_MAIN].destRot.y = title::DEST_ROTY;					// 目標向きを設定
+	m_look.fDiffRotY = title::DEST_ROTY - m_aCamera[TYPE_MAIN].rot.y;	// 差分向きを保存
+	m_look.fOldRotY  = m_aCamera[TYPE_MAIN].rot.y;						// 視認開始時の向きを保存
 }
 
 //============================================================
@@ -746,6 +820,72 @@ void CCamera::Release(CCamera *&prCamera)
 
 	// メモリ開放
 	SAFE_DELETE(prCamera);
+}
+
+//============================================================
+//	カメラの更新処理 (タイトル待機)
+//============================================================
+void CCamera::TitleWait(void)
+{
+	//--------------------------------------------------------
+	//	向きの更新
+	//--------------------------------------------------------
+	// 現在向きの更新
+	m_aCamera[TYPE_MAIN].rot.x =  title::INIT_ROT.x;
+	m_aCamera[TYPE_MAIN].rot.y += title::ADD_ROTY;
+	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+
+	//--------------------------------------------------------
+	//	距離の更新
+	//--------------------------------------------------------
+	m_aCamera[TYPE_MAIN].fDis = title::INIT_DIS;
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR = title::INIT_POSR;
+
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
+}
+
+//============================================================
+//	カメラの更新処理 (タイトル攻撃)
+//============================================================
+void CCamera::TitleAtk(void)
+{
+	//--------------------------------------------------------
+	//	向き・距離の更新
+	//--------------------------------------------------------
+	if (m_look.nCounterForce > 0)
+	{ // カメラの強制操作がONの場合
+
+		// カウンターを減算
+		m_look.nCounterForce--;
+
+		// カメラの目標向きを求める
+		float fRate = easeing::InOutQuad(-(m_look.nCounterForce - title::MOVE_FRAME), 0, title::MOVE_FRAME);	// カウンターからイージング値を計算
+		float fCurRotY = m_look.fDiffRotY * fRate;	// 差分向きと割合から今の向きを求める
+		useful::NormalizeRot(fCurRotY);				// 目標向きを正規化
+
+		// 左右の現在向きの更新
+		m_aCamera[TYPE_MAIN].rot.y = m_look.fOldRotY + fCurRotY;
+		useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot.y);	// 現在向きを正規化
+	}
+
+	//--------------------------------------------------------
+	//	位置の更新
+	//--------------------------------------------------------
+	// 注視点の更新
+	m_aCamera[TYPE_MAIN].posR = title::INIT_POSR;
+
+	// 視点の更新
+	m_aCamera[TYPE_MAIN].posV.x = m_aCamera[TYPE_MAIN].posR.x + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * sinf(m_aCamera[TYPE_MAIN].rot.y));
+	m_aCamera[TYPE_MAIN].posV.y = m_aCamera[TYPE_MAIN].posR.y + ((-m_aCamera[TYPE_MAIN].fDis * cosf(m_aCamera[TYPE_MAIN].rot.x)));
+	m_aCamera[TYPE_MAIN].posV.z = m_aCamera[TYPE_MAIN].posR.z + ((-m_aCamera[TYPE_MAIN].fDis * sinf(m_aCamera[TYPE_MAIN].rot.x)) * cosf(m_aCamera[TYPE_MAIN].rot.y));
 }
 
 //============================================================
