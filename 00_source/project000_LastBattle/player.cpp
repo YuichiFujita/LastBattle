@@ -123,6 +123,8 @@ namespace
 	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);		// ボスライド時のオフセット位置
 	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);		// ボスライド時のオフセット向き
 
+	const int SPAWN_SWING_MOTION_KEY = 2;	// スポーンモーションの剣を振る際のモーションキー
+
 	// プレイ操作の情報
 	namespace playInfo
 	{
@@ -815,6 +817,9 @@ bool CPlayer::HitKnockBack(const int nDamage, const D3DXVECTOR3& rVecKnock)
 		// 落下モーションを設定
 		SetMotion(BODY_LOWER, L_MOTION_FALL);
 		SetMotion(BODY_UPPER, U_MOTION_FALL);
+
+		// プレイヤーヒット音の再生
+		PLAY_SOUND(CSound::LABEL_SE_PLAYER_HIT);
 	}
 	else
 	{ // 体力が残っていない場合
@@ -851,6 +856,9 @@ bool CPlayer::Hit(const int nDamage)
 
 		// ダメージ状態にする
 		SetState(STATE_DAMAGE);
+
+		// プレイヤーヒット音の再生
+		PLAY_SOUND(CSound::LABEL_SE_PLAYER_HIT);
 	}
 	else
 	{ // 体力が残っていない場合
@@ -1791,6 +1799,12 @@ void CPlayer::UpdateSpawn(void)
 {
 	// 別モーションの指定がされている場合エラー
 	assert(GetMotionType(BODY_LOWER) == L_MOTION_SPAWN);
+
+	if (GetMotionKey(BODY_LOWER) == SPAWN_SWING_MOTION_KEY && GetMotionKeyCounter(BODY_LOWER) == 0)
+	{
+		// 剣の風切り音の再生
+		PLAY_SOUND(CSound::LABEL_SE_SWORD_SWING_000);
+	}
 
 	if (IsMotionCancel(BODY_LOWER))
 	{ // モーションがキャンセルできる場合

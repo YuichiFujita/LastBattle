@@ -28,7 +28,8 @@ namespace
 		{ "data\\SE\\sword_swing000.wav", 0 },	// 剣の風切り音00
 		{ "data\\SE\\sword_swing001.wav", 0 },	// 剣の風切り音01
 		{ "data\\SE\\sword_swing002.wav", 0 },	// 剣の風切り音02
-		{ "data\\SE\\sword_hit000.wav", 0 },	// 剣のヒット音
+		{ "data\\SE\\hit000.wav", 0 },			// プレイヤーのヒット音
+		{ "data\\SE\\hit001.wav", 0 },			// 剣のヒット音
 		{ "data\\SE\\walk000.wav", 0 },			// 足音
 		{ "data\\SE\\dragon_roar000.wav", 0 },	// ドラゴン咆哮 (長)
 		{ "data\\SE\\dragon_roar001.wav", 0 },	// ドラゴン咆哮 (短)

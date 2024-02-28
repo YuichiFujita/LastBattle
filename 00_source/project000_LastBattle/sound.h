@@ -38,6 +38,7 @@ public:
 		LABEL_SE_SWORD_SWING_000,	// 剣の風切り音00
 		LABEL_SE_SWORD_SWING_001,	// 剣の風切り音01
 		LABEL_SE_SWORD_SWING_002,	// 剣の風切り音02
+		LABEL_SE_PLAYER_HIT,		// プレイヤーのヒット音
 		LABEL_SE_SWORD_HIT,			// 剣のヒット音
 		LABEL_SE_WALK,				// 足音
 		LABEL_SE_DRAGON_ROAR_L,		// ドラゴン咆哮 (長)

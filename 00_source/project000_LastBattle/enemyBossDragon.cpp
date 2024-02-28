@@ -78,7 +78,7 @@ namespace
 	const CCamera::SSwing LAND_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.09f);	// 咆哮のカメラ揺れ
 	const CCamera::SSwing RIDE_SWING	= CCamera::SSwing(9.5f, 2.0f, 0.09f);	// 飛び上がり前の咆哮のカメラ揺れ
-	const int	KNOCK_LIFE		= 1000;			// ノックバックする体力
+	const int	KNOCK_LIFE		= 800;			// ノックバックする体力
 	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー

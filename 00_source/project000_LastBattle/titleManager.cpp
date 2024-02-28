@@ -524,7 +524,8 @@ void CTitleManager::UpdateStart(void)
 				}
 
 				// サウンドの再生
-				PLAY_SOUND(CSound::LABEL_SE_DECISION_000);	// 決定音00
+				PLAY_SOUND(CSound::LABEL_SE_SWORD_SWING_000);
+				PLAY_SOUND(CSound::LABEL_SE_DECISION_000);
 
 				// プレイヤーを攻撃演出にする
 				CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
