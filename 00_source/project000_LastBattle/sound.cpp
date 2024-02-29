@@ -31,8 +31,15 @@ namespace
 		{ "data\\SE\\hit000.wav", 0 },			// プレイヤーのヒット音
 		{ "data\\SE\\hit001.wav", 0 },			// 剣のヒット音
 		{ "data\\SE\\walk000.wav", 0 },			// 足音
+		{ "data\\SE\\land000.wav", 0 },			// 着地音
+		{ "data\\SE\\action000.wav", 0 },		// プレイヤーのアクション音
 		{ "data\\SE\\dragon_roar000.wav", 0 },	// ドラゴン咆哮 (長)
 		{ "data\\SE\\dragon_roar001.wav", 0 },	// ドラゴン咆哮 (短)
+		{ "data\\SE\\wing000.wav", 0 },			// 羽ばたき音
+		{ "data\\SE\\teleport000.wav", 0 },		// テレポート音
+		{ "data\\SE\\fire000.wav", 0 },			// 炎音
+		{ "data\\SE\\thunder000.wav", 0 },		// 雷音
+		{ "data\\SE\\warning000.wav", 0 },		// 雷警告音
 	};
 }
 

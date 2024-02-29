@@ -273,7 +273,7 @@ void CEnemyAttack02::UpdateThunder(void)
 			posThunder.z = cosf(fThunderRot) * m_nCounterNumAtk * CREATE_LENGTH;
 
 			// —‹UŒ‚‚ğƒ‰ƒ“ƒ_ƒ€ˆÊ’u‚É¶¬
-			CAttackThunder::Create(posThunder);
+			CAttackThunder::Create(posThunder, (nCntAttack == 0));
 		}
 
 		// UŒ‚‰ñ”‚ğ‰ÁZ

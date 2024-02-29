@@ -9,6 +9,7 @@
 //************************************************************
 #include "attackThunder.h"
 #include "manager.h"
+#include "sound.h"
 #include "thunder.h"
 #include "object3D.h"
 #include "scene.h"
@@ -65,7 +66,8 @@ CAttackThunder::CAttackThunder() : CObject(CObject::LABEL_THUNDER, DIM_3D),
 	m_posOrigin		(VEC3_ZERO),	// 雷の原点位置
 	m_state			(STATE_WARN),	// 状態
 	m_nCounterState	(0),			// 状態管理カウンター
-	m_nWarnFrame	(0)				// 警告表示フレーム数
+	m_nWarnFrame	(0),			// 警告表示フレーム数
+	m_bSound		(false)			// 効果音再生フラグ
 {
 	// メンバ変数をクリア
 	memset(&m_apThunder[0], 0, sizeof(m_apThunder));	// 雷の情報
@@ -91,6 +93,7 @@ HRESULT CAttackThunder::Init(void)
 	m_state		= STATE_WARN;	// 状態
 	m_nCounterState = 0;		// 状態管理カウンター
 	m_nWarnFrame	= 0;		// 警告表示フレーム数
+	m_bSound		= false;	// 効果音再生フラグ
 
 	// 警告表示の生成
 	m_pWarning = CObject3D::Create
@@ -216,6 +219,12 @@ void CAttackThunder::Update(void)
 					wave::MAX_RADIUS		// 半径の最大成長量
 				);
 
+				if (m_bSound)
+				{
+					// 雷音の再生
+					PLAY_SOUND(CSound::LABEL_SE_THUNDER);
+				}
+
 				// 自身を終了
 				Uninit();
 
@@ -246,6 +255,7 @@ void CAttackThunder::Draw(CShader * /*pShader*/)
 CAttackThunder *CAttackThunder::Create
 (
 	const D3DXVECTOR3 &rPos,	// 位置
+	const bool bSound,			// 効果音再生フラグ
 	const int nWarnFrame		// 警告表示フレーム数
 )
 {
@@ -271,8 +281,17 @@ CAttackThunder *CAttackThunder::Create
 		// 雷の原点位置を設定
 		pAttackThunder->SetOriginPosition(rPos);
 
+		// 効果音再生フラグを設定
+		pAttackThunder->m_bSound = bSound;
+
 		// 警告表示フレームを設定
 		pAttackThunder->m_nWarnFrame = nWarnFrame;
+
+		if (bSound)
+		{
+			// 雷警告音の再生
+			PLAY_SOUND(CSound::LABEL_SE_THUNDER_WARN);
+		}
 
 		// 確保したアドレスを返す
 		return pAttackThunder;

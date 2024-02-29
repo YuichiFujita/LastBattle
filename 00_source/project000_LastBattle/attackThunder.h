@@ -61,6 +61,7 @@ public:
 	static CAttackThunder *Create	// 生成
 	( // 引数
 		const D3DXVECTOR3& rPos,							// 位置
+		const bool bSound,									// 効果音再生フラグ
 		const int nWarnFrame = attackThunder::WARN_FRAME	// 警告表示フレーム数
 	);
 	static CListManager<CAttackThunder> *GetList(void);		// リスト取得
@@ -86,6 +87,7 @@ private:
 	EState m_state;				// 状態
 	int m_nCounterState;		// 状態管理カウンター
 	int m_nWarnFrame;			// 警告表示フレーム数
+	bool m_bSound;				// 効果音再生フラグ
 };
 
 #endif	// _ATTACK_THUNDER_H_

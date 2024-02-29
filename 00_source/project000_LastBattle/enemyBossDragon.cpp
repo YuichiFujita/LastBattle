@@ -78,7 +78,7 @@ namespace
 	const CCamera::SSwing LAND_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.09f);	// 咆哮のカメラ揺れ
 	const CCamera::SSwing RIDE_SWING	= CCamera::SSwing(9.5f, 2.0f, 0.09f);	// 飛び上がり前の咆哮のカメラ揺れ
-	const int	KNOCK_LIFE		= 1200;			// ノックバックする体力
+	const int	KNOCK_LIFE		= 800;			// ノックバックする体力
 	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
 	const int	HOWL_MOTION_KEY	= 13;			// モーションの咆哮の開始キー
@@ -153,9 +153,9 @@ namespace
 //	マクロ定義
 //************************************************************
 // ランダム攻撃のON/OFF
-#if 0
+#if 1
 #define RANDOM_ATTACK_ON	// ランダム攻撃
-#define ATTACK (CEnemyAttack::ATTACK_00)
+#define ATTACK (CEnemyAttack::ATTACK_05)
 #endif
 
 //************************************************************
@@ -1701,6 +1701,9 @@ void CEnemyBossDragon::UpdateMagicFadeIn(const D3DXVECTOR3& rPos)
 		// 魔法陣の位置を足の下にする
 		fMagicPosY = rPos.y;
 
+		// テレポート音の再生
+		PLAY_SOUND(CSound::LABEL_SE_TELEPORT);
+
 		// 魔法陣の出現状態にする
 		m_teleport.state = TELEPORT_APPEAR;
 
@@ -1832,6 +1835,9 @@ void CEnemyBossDragon::UpdateMagicFadeOut(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pRot, 
 		// 魔法陣の位置を頭の上にする
 		fMagicPosY  = GetMultiModel(MODEL_HEAD)->GetMtxWorld()._42 + MAGIC_DELPOS_PLUSY;
 		fMagicPosY += pPos->y - GetOldPosition().y;	// 過去位置から今フレームでずれたY座標分を加算
+
+		// テレポート音の再生
+		PLAY_SOUND(CSound::LABEL_SE_TELEPORT);
 
 		// 魔法陣の出現状態にする
 		m_teleport.state = TELEPORT_APPEAR;

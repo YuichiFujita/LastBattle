@@ -41,8 +41,15 @@ public:
 		LABEL_SE_PLAYER_HIT,		// プレイヤーのヒット音
 		LABEL_SE_SWORD_HIT,			// 剣のヒット音
 		LABEL_SE_WALK,				// 足音
+		LABEL_SE_LAND,				// 着地音
+		LABEL_SE_PLAYER_ACTION,		// プレイヤーのアクション音
 		LABEL_SE_DRAGON_ROAR_L,		// ドラゴン咆哮 (長)
 		LABEL_SE_DRAGON_ROAR_S,		// ドラゴン咆哮 (短)
+		LABEL_SE_WING,				// 羽ばたき音
+		LABEL_SE_TELEPORT,			// テレポート音
+		LABEL_SE_FIRE,				// 炎音
+		LABEL_SE_THUNDER,			// 雷音
+		LABEL_SE_THUNDER_WARN,		// 雷警告音
 		LABEL_MAX					// この列挙型の総数
 	};
 

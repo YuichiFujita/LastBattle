@@ -9,6 +9,8 @@
 //************************************************************
 #include "enemyAttack04.h"
 #include "enemyBossDragon.h"
+#include "manager.h"
+#include "sound.h"
 #include "player.h"
 #include "stage.h"
 #include "multiModel.h"
@@ -297,6 +299,9 @@ void CEnemyAttack04::CreateFire(void)
 			fire::LIFE		// éıñΩ
 		);
 	}
+
+	// âäâπÇÃçƒê∂
+	PLAY_SOUND(CSound::LABEL_SE_FIRE);
 }
 
 //============================================================

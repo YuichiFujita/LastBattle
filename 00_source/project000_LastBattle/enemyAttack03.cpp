@@ -256,7 +256,7 @@ void CEnemyAttack03::UpdateThunder(void)
 
 		// 雷攻撃をプレイヤー位置に生成
 		int nWarnFrame = attackThunder::WARN_FRAME - (MAX_SUB_WARN_WAIT / NUM_ATTACK) * m_nCounterNumAtk;	// 警告表示フレーム
-		CAttackThunder::Create(player->GetVec3Position(), nWarnFrame);
+		CAttackThunder::Create(player->GetVec3Position(), true, nWarnFrame);
 
 		// 攻撃回数を加算
 		m_nCounterNumAtk++;

@@ -162,7 +162,7 @@ bool CEnemyAttack01::Update(void)
 			D3DXVECTOR3 posThunder = VEC3_ZERO;					// 雷の位置
 
 			// 雷攻撃をプレイヤー位置に生成
-			CAttackThunder::Create(posPlayer);
+			CAttackThunder::Create(posPlayer, true);
 
 			for (int nCntAttack = 0; nCntAttack < NUM_THUNDER; nCntAttack++)
 			{ // 雷生成数分繰り返す
@@ -173,7 +173,7 @@ bool CEnemyAttack01::Update(void)
 				posThunder.z = posPlayer.z + cosf(fRandRot) * (rand() % DIV_LENRAND + ADD_LENRAND);
 
 				// 雷攻撃をランダム位置に生成
-				CAttackThunder::Create(posThunder);
+				CAttackThunder::Create(posThunder, true);
 			}
 
 			// 攻撃回数を加算
