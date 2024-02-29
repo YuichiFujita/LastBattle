@@ -106,8 +106,8 @@ public:
 	bool LandLimitPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove, const float fHeight);	// 範囲外の着地判定
 	bool CollisionKillY(const D3DXVECTOR3& rPos);					// キルY座標との当たり判定
 	bool LandFieldPosition(D3DXVECTOR3& rPos, D3DXVECTOR3& rMove);	// 地面着地 (回転考慮)
-	bool IsFieldPositionRange(const D3DXVECTOR3&rPos);				// メッシュの範囲内取得 (回転考慮)
-	float GetFieldPositionHeight(const D3DXVECTOR3&rPos);			// メッシュの着地位置取得 (回転考慮)
+	bool IsFieldPositionRange(const D3DXVECTOR3& rPos);				// メッシュの範囲内取得 (回転考慮)
+	float GetFieldPositionHeight(const D3DXVECTOR3& rPos);			// メッシュの着地位置取得 (回転考慮)
 
 	// 静的メンバ関数
 	static CStage *Create(const CScene::EMode mode);	// 生成

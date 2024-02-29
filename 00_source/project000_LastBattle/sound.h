@@ -53,6 +53,7 @@ public:
 		LABEL_SE_TELEPORT,			// テレポート音
 		LABEL_SE_PUNCH,				// パンチ音
 		LABEL_SE_CLAW,				// ひっかき音
+		LABEL_SE_TAIL,				// しっぽ音
 		LABEL_SE_NOISE,				// ノイズ音
 		LABEL_SE_EXPLOSION,			// 爆発音
 		LABEL_SE_FIRE,				// 炎音

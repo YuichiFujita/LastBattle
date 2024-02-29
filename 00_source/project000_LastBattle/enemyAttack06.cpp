@@ -9,6 +9,8 @@
 //************************************************************
 #include "enemyAttack06.h"
 #include "enemyBossDragon.h"
+#include "manager.h"
+#include "sound.h"
 #include "player.h"
 #include "stage.h"
 #include "multiModel.h"
@@ -286,6 +288,9 @@ void CEnemyAttack06::UpdateAttack(void)
 
 		// しっぽのサイズを拡大
 		pBoss->GetMultiModel(CEnemyBossDragon::MODEL_TAIL_00)->SetVec3Scaling(VEC3_ALL(SCALE_TAIL));
+
+		// しっぽ音の再生
+		PLAY_SOUND(CSound::LABEL_SE_TAIL);
 	}
 	else if (pBoss->GetMotionKey() == DOWN_MOTION_KEY && pBoss->GetMotionKeyCounter() == DOWN_MOTION_CNT)
 	{ // しっぽを振り降ろし始めたタイミングの場合

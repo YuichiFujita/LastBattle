@@ -61,7 +61,7 @@ namespace
 		const float	POSGAP		= 30.0f;	// ‰Š‚ÌˆÊ’u‚¸‚ê—Ê
 		const float	MOVE		= -2.0f;	// ‰Š‚ÌˆÚ“®—Ê
 		const int	SPAWN		= 3;		// ‰Š‚Ì¶¬”
-		const int	EFF_LIFE	= 8;		// ‰Š‚Ìõ–½
+		const int	EFF_LIFE	= 6;		// ‰Š‚Ìõ–½
 		const float	INIT_RAD	= 150.0f;	// ‰Š‚Ì”¼Œa
 		const float	INIT_SUBRAD	= 5.0f;		// ‰Š‚Ì”¼Œa‚ÌŒ¸Z—Ê
 		const int	DIV_RAD_RAND	= 61;	// ‰Š‚Ì”¼Œa‚Ìè—]Z‚Ì’l

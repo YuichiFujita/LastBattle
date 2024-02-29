@@ -161,10 +161,11 @@ public:
 	void SetDestRotation(const D3DXVECTOR3& rRot) { m_destRot = rRot; }	// 目標向き設定
 	D3DXVECTOR3 GetDestRotation(void) const		  { return m_destRot; }	// 目標向き取得
 	bool HitKnockBack(const int nDamage, const D3DXVECTOR3& rVecKnock);	// ノックバックヒット
-	bool Hit(const int nDamage);			// ヒット
-	void SetEnableDrawUI(const bool bDraw);	// UI描画設定
-	void SetLifePriority(const int nPrio);	// 体力ゲージの優先順位設定
-	void SetNoneTwinSword(void);			// 剣の状態初期化
+	bool Hit(const int nDamage);				// ヒット
+	void SetEnableDrawUI(const bool bDraw);		// UI描画設定
+	void SetLifePriority(const int nPrio);		// 体力ゲージの優先順位設定
+	void SetNoneTwinSword(void);				// 剣の状態初期化
+	void SetLanding(const D3DXVECTOR3& rPos);	// 強制着地する位置設定
 	void InitNormal(void);	// 通常状態の初期化
 	void SetSpawn(void);	// スポーン設定
 	void SetInvuln(void);	// 無敵設定

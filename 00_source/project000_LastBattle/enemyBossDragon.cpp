@@ -156,7 +156,7 @@ namespace
 //	マクロ定義
 //************************************************************
 // ランダム攻撃のON/OFF
-#if 1
+#if 0
 #define RANDOM_ATTACK_ON	// ランダム攻撃
 #define ATTACK (CEnemyAttack::ATTACK_06)
 #endif
@@ -758,6 +758,12 @@ void CEnemyBossDragon::UpdateMotion(void)
 		break;
 
 	case MOTION_TAIL_ATTACK:	// しっぽ攻撃モーション
+
+		if (GetMotionKey() == 5 && GetMotionKeyCounter() == 0)
+		{
+			// 羽ばたき音の再生
+			PLAY_SOUND(CSound::LABEL_SE_WING);
+		}
 
 		if (IsMotionFinish())
 		{ // モーションが終了していた場合

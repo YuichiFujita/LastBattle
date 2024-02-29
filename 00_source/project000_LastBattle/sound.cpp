@@ -43,6 +43,7 @@ namespace
 		{ "data\\SE\\teleport000.wav", 0 },		// テレポート音
 		{ "data\\SE\\punch000.wav", 0 },		// パンチ音
 		{ "data\\SE\\claw000.wav", 0 },			// ひっかき音
+		{ "data\\SE\\tail000.wav", 0 },			// しっぽ音
 		{ "data\\SE\\noise000.wav", 0 },		// ノイズ音
 		{ "data\\SE\\explosion000.wav", 0 },	// 爆発音
 		{ "data\\SE\\fire000.wav", 0 },			// 炎音

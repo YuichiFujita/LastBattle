@@ -779,6 +779,31 @@ void CPlayer::SetNoneTwinSword(void)
 }
 
 //============================================================
+//	強制着地させる位置の設定処理
+//============================================================
+void CPlayer::SetLanding(const D3DXVECTOR3& rPos)
+{
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = rPos;	// プレイヤー位置
+
+	// ポインタを宣言
+	CStage *pStage = CScene::GetStage();				// ステージ情報
+	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// Y座標を地面制限位置にする
+	posPlayer.y = pStage->GetStageLimit().fField;
+
+	// 着地判定
+	UpdateLanding(&posPlayer);
+
+	// ステージ範囲外の補正
+	pStage->LimitPosition(posPlayer, RADIUS);
+
+	// 位置を反映
+	SetVec3Position(posPlayer);
+}
+
+//============================================================
 //	ノックバックヒット処理
 //============================================================
 bool CPlayer::HitKnockBack(const int nDamage, const D3DXVECTOR3& rVecKnock)

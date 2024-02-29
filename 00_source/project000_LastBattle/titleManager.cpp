@@ -617,6 +617,10 @@ void CTitleManager::SkipStaging(void)
 	// カメラの更新を再開
 	GET_MANAGER->GetCamera()->SetEnableUpdate(true);
 
+	// プレイヤーを強制着地させる
+	CPlayer *pPlayer = CScene::GetPlayer();
+	pPlayer->SetLanding(pPlayer->GetVec3Position());
+
 	// 状態を変更
 	m_state = STATE_WAIT;	// 遷移待機状態
 }
