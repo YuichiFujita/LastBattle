@@ -37,6 +37,9 @@ public:
 private:
 	// オーバーライド関数
 	void UpdateNormal(int *pLowMotion, int *pUpMotion) override;	// 通常状態時の更新
+
+	// メンバ変数
+	D3DXVECTOR3 m_oldCamRot;	// カメラの過去向き
 };
 
 #endif	// _PLAYER_TUTORIAL_H_

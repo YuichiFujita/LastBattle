@@ -26,7 +26,7 @@
 //************************************************************
 namespace
 {
-	const D3DXVECTOR3 POS = D3DXVECTOR3(0.0f, 800.0f, 0.0f);	// プレイヤー生成位置
+
 }
 
 //************************************************************
@@ -35,7 +35,7 @@ namespace
 //============================================================
 //	コンストラクタ
 //============================================================
-CPlayerTutorial::CPlayerTutorial()
+CPlayerTutorial::CPlayerTutorial() : m_oldCamRot(VEC3_ZERO)
 {
 
 }
@@ -53,6 +53,9 @@ CPlayerTutorial::~CPlayerTutorial()
 //============================================================
 HRESULT CPlayerTutorial::Init(void)
 {
+	// メンバ変数を初期化
+	m_oldCamRot = VEC3_ZERO;	// カメラの過去向き
+
 	// プレイヤーの初期化
 	if (FAILED(CPlayer::Init()))
 	{ // 初期化に失敗した場合
@@ -64,10 +67,6 @@ HRESULT CPlayerTutorial::Init(void)
 
 	// 通常状態の初期化
 	InitNormal();
-
-	// 待機モーションを設定
-	//SetMotion(BODY_LOWER, L_MOTION_IDOL);
-	//SetMotion(BODY_UPPER, U_MOTION_IDOL);
 
 	// 自動更新・自動描画をONにする
 	SetEnableUpdate(true);
@@ -91,13 +90,13 @@ void CPlayerTutorial::Uninit(void)
 //============================================================
 void CPlayerTutorial::Update(void)
 {
-#if 1
+	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+	CTutorialManager *pTutorialManager = CSceneTutorial::GetTutorialManager();	// チュートリアルマネージャー情報
+
 	if (GET_MANAGER->GetMode() == CScene::MODE_TUTORIAL)
 	{ // チュートリアル画面の場合
 
-		CCamera *pCamera = GET_MANAGER->GetCamera();								// カメラ情報
-		CTutorialManager *pTutorialManager = CSceneTutorial::GetTutorialManager();	// チュートリアルマネージャー情報
-		CTutorialManager::EState state = pTutorialManager->GetState();				// チュートリアル状態
+		CTutorialManager::EState state = pTutorialManager->GetState();	// チュートリアル状態
 		if (state != CTutorialManager::STATE_PROGRESSION
 		&&  state != CTutorialManager::STATE_NEXTWAIT)
 		{ // レッスン確認状態の場合
@@ -114,37 +113,28 @@ void CPlayerTutorial::Update(void)
 		}
 	}
 
-	// プレイヤーの更新
-	CPlayer::Update();
-#else
-	// オブジェクト分割キャラクターの更新
-	CObjectDivChara::Update();
+	// 状態が通常以外ならエラー
+	assert(GetState() == STATE_NORMAL);
 
-	// 過去位置の更新
-	UpdateOldPosition();
+	if (pTutorialManager->GetLesson() == CTutorialManager::LESSON_01)
+	{ // レッスン01：移動・カメラ操作に挑戦中の場合
 
+		D3DXVECTOR3 curCamRot = pCamera->GetRotation();	// 現在のカメラ向き
+		if (fabsf(m_oldCamRot.x - curCamRot.x) >= 0.001f
+		||  fabsf(m_oldCamRot.y - curCamRot.y) >= 0.001f
+		||  fabsf(m_oldCamRot.z - curCamRot.z) >= 0.001f)
+		{ // カメラの向きが動いていた場合
 
-
-	bool bColl[] =	// 判定ON/OFF状況
-	{
-		IsLeftWeaponCollision(BODY_UPPER),	// 左手の武器の攻撃判定
-		IsRightWeaponCollision(BODY_UPPER),	// 右手の武器の攻撃判定
-	};
-	for (int nCntSword = 0; nCntSword < player::NUM_SWORD; nCntSword++)
-	{ // 剣の数分繰り返す
-
-		CSword *pSword = GetSword(nCntSword);	// 剣の情報
-
-		// 剣の攻撃判定を設定
-		pSword->SetEnableAttack(bColl[nCntSword]);
-
-		// 剣の更新
-		pSword->Update();
+			// レッスンカウンター加算
+			pTutorialManager->AddLessonCounter();
+		}
 	}
 
-	// 影の更新
-	GetShadow()->Update();
-#endif
+	// カメラの過去向きを保存
+	m_oldCamRot = pCamera->GetRotation();
+
+	// プレイヤーの更新
+	CPlayer::Update();
 }
 
 //============================================================
@@ -161,50 +151,81 @@ void CPlayerTutorial::Draw(CShader * /*pShader*/)
 //============================================================
 void CPlayerTutorial::UpdateNormal(int *pLowMotion, int *pUpMotion)
 {
-	// TODO：デバッグカウンター加算
-	if (GET_INPUTKEY->IsPress(DIK_0))
-	{
-		// レッスンカウンター加算
-		CSceneTutorial::GetTutorialManager()->AddLessonCounter();
-	}
-
-	// 変数を宣言
-	D3DXVECTOR3 posPlayer = GetVec3Position();	// プレイヤー位置
-	D3DXVECTOR3 rotPlayer = GetVec3Rotation();	// プレイヤー向き
-
 	// ポインタを宣言
+	CTutorialManager *pTutorialManager = CSceneTutorial::GetTutorialManager();	// チュートリアルマネージャー情報
 	CStage *pStage = CScene::GetStage();				// ステージ情報
 	if (pStage == nullptr) { assert(false); return; }	// ステージ非使用中
+
+	// 変数を宣言
+	D3DXVECTOR3 posPlayer = GetVec3Position();		// プレイヤー位置
+	D3DXVECTOR3 rotPlayer = GetVec3Rotation();		// プレイヤー向き
+	int nLesson = pTutorialManager->GetLesson();	// レッスン番号
 
 	// 重力の更新
 	UpdateGravity();
 
-	if (CSceneTutorial::GetTutorialManager()->GetLesson() >= CTutorialManager::LESSON_04)
+	if (nLesson >= CTutorialManager::LESSON_04)
 	{ // レッスン04：攻撃操作の挑戦中、またはクリア済みの場合
 
 		// 攻撃操作
-		UpdateAttack(posPlayer, rotPlayer);
+		if (UpdateAttack(posPlayer, rotPlayer))
+		{ // 攻撃していた場合
+
+			if (nLesson == CTutorialManager::LESSON_04)
+			{ // レッスン04：ジャンプ操作に挑戦中の場合
+
+				// レッスンカウンター加算
+				pTutorialManager->AddLessonCounter();
+			}
+		}
 	}
 
-	if (CSceneTutorial::GetTutorialManager()->GetLesson() >= CTutorialManager::LESSON_03)
+	if (nLesson >= CTutorialManager::LESSON_03)
 	{ // レッスン03：回避操作の挑戦中、またはクリア済みの場合
 
 		// 回避操作
-		UpdateDodge(rotPlayer);
+		if (UpdateDodge(rotPlayer))
+		{ // 回避していた場合
+
+			if (nLesson == CTutorialManager::LESSON_03)
+			{ // レッスン03：ジャンプ操作に挑戦中の場合
+
+				// レッスンカウンター加算
+				pTutorialManager->AddLessonCounter();
+			}
+		}
 	}
 
-	if (CSceneTutorial::GetTutorialManager()->GetLesson() >= CTutorialManager::LESSON_01)
+	if (nLesson >= CTutorialManager::LESSON_01)
 	{ // レッスン01：移動・カメラ操作の挑戦中、またはクリア済みの場合
 
 		// 移動操作・目標向き設定
-		UpdateMove(pLowMotion, pUpMotion);
+		if (UpdateMove(pLowMotion, pUpMotion))
+		{ // 移動していた場合
+
+			if (nLesson == CTutorialManager::LESSON_01)
+			{ // レッスン01：移動・カメラ操作に挑戦中の場合
+
+				// レッスンカウンター加算
+				pTutorialManager->AddLessonCounter();
+			}
+		}
 	}
 
-	if (CSceneTutorial::GetTutorialManager()->GetLesson() >= CTutorialManager::LESSON_02)
+	if (nLesson >= CTutorialManager::LESSON_02)
 	{ // レッスン02：ジャンプ操作の挑戦中、またはクリア済みの場合
 
 		// ジャンプ操作
-		UpdateJump(pLowMotion, pUpMotion);
+		if (UpdateJump(pLowMotion, pUpMotion))
+		{ // ジャンプしていた場合
+
+			if (nLesson == CTutorialManager::LESSON_02)
+			{ // レッスン02：ジャンプ操作に挑戦中の場合
+
+				// レッスンカウンター加算
+				pTutorialManager->AddLessonCounter();
+			}
+		}
 	}
 
 	// 位置更新

@@ -46,18 +46,18 @@ namespace
 	const char *CONT_TEX_FILE[] =	// 操作方法テクスチャファイル
 	{
 		nullptr,							// レッスン00：テクスチャなし
-		nullptr,							// レッスン01：テクスチャなし
-		"data\\TEXTURE\\control000.png",	// レッスン02：ジャンプ	操作方法のテクスチャ
-		"data\\TEXTURE\\control001.png",	// レッスン03：回避		操作方法のテクスチャ
-		"data\\TEXTURE\\control002.png",	// レッスン04：攻撃		操作方法のテクスチャ
+		"data\\TEXTURE\\control000.png",	// レッスン01：移動・カメラ	操作方法のテクスチャ
+		"data\\TEXTURE\\control001.png",	// レッスン02：ジャンプ		操作方法のテクスチャ
+		"data\\TEXTURE\\control002.png",	// レッスン03：回避			操作方法のテクスチャ
+		"data\\TEXTURE\\control003.png",	// レッスン04：攻撃			操作方法のテクスチャ
 	};
 	const int NEXT_LESSON[] =		// レッスン移行カウント
 	{
 		0,		// レッスンなし
-		240,	// レッスン01：移動・カメラ	終了カウント
-		240,	// レッスン02：ジャンプ		終了カウント
-		240,	// レッスン03：回避			終了カウント
-		240,	// レッスン04：攻撃			終了カウント
+		320,	// レッスン01：移動・カメラ	終了カウント
+		6,		// レッスン02：ジャンプ		終了カウント
+		4,		// レッスン03：回避			終了カウント
+		20,		// レッスン04：攻撃			終了カウント
 	};
 	const int NEXT_LESSON_WAIT[] =	// 次レッスン余韻カウント
 	{
@@ -564,9 +564,6 @@ int CTutorialManager::GetNextLessonCounter(const int nID)
 //============================================================
 void CTutorialManager::SetEnableProgressionDraw(const bool bDraw)
 {
-	//--------------------------------------------------------
-	//	引数の描画状況を設定
-	//--------------------------------------------------------
 	// レッスン管理カウンターの描画状況を設定
 	m_pCounterLesson->SetEnableDraw(bDraw);
 
@@ -576,26 +573,11 @@ void CTutorialManager::SetEnableProgressionDraw(const bool bDraw)
 	// 小説明表示の描画状況を設定
 	m_pGuide->SetEnableDraw(bDraw);
 
-	//--------------------------------------------------------
-	//	描画状況を状況に応じて変更して設定
-	//--------------------------------------------------------
-	// 変数を宣言
-	bool bDrawControl = bDraw;	// 操作方法の表示状況
-
-	if (m_nLesson != LESSON_02	// レッスン02：前後加速
-	&&  m_nLesson != LESSON_03	// レッスン03：左右加速
-	&&  m_nLesson != LESSON_04)	// レッスン04：攻撃
-	{ // 上記のレッスンのいずれでもない場合
-
-		// 操作方法を表示しない状態にする
-		bDrawControl = false;
-	}
-
 	// 操作方法表示の背景描画状況を設定
-	m_pControlBG->SetEnableDraw(bDrawControl);
+	m_pControlBG->SetEnableDraw(bDraw);
 
 	// 操作方法表示の描画状況を設定
-	m_pControl->SetEnableDraw(bDrawControl);
+	m_pControl->SetEnableDraw(bDraw);
 }
 
 //============================================================

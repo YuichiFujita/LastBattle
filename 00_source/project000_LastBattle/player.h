@@ -194,18 +194,18 @@ protected:
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
 
-	void UpdateAttack	// 攻撃操作の更新
+	bool UpdateAttack	// 攻撃操作の更新
 	( // 引数
 		const D3DXVECTOR3& rPos,	// プレイヤー位置
 		const D3DXVECTOR3& rRot		// プレイヤー向き
 	);
-	void UpdateLandAttack(void);	// 地上攻撃操作の更新
-	void UpdateSkyAttack(void);		// 空中攻撃操作の更新
-	void UpdateRideAttack(void);	// 騎乗攻撃操作の更新
-	void UpdateRide(const D3DXVECTOR3& rPos);			// 騎乗操作の更新
-	void UpdateDodge(const D3DXVECTOR3& rRot);			// 回避操作の更新
-	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
-	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
+	bool UpdateLandAttack(void);	// 地上攻撃操作の更新
+	bool UpdateSkyAttack(void);		// 空中攻撃操作の更新
+	bool UpdateRideAttack(void);	// 騎乗攻撃操作の更新
+	bool UpdateRide(const D3DXVECTOR3& rPos);			// 騎乗操作の更新
+	bool UpdateDodge(const D3DXVECTOR3& rRot);			// 回避操作の更新
+	bool UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
+	bool UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
 	void UpdateCollEnemy(D3DXVECTOR3 *pPos);			// 敵との当たり判定の更新
 
 private:

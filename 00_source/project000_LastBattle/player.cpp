@@ -2085,27 +2085,28 @@ void CPlayer::UpdateDeath(int *pLowMotion, int *pUpMotion)
 //============================================================
 //	攻撃操作の更新処理
 //============================================================
-void CPlayer::UpdateAttack
+bool CPlayer::UpdateAttack
 (
 	const D3DXVECTOR3& rPos,	// プレイヤー位置
 	const D3DXVECTOR3& rRot		// プレイヤー向き
 )
 {
-	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
+	if (m_dodge.bDodge)	{ return false; }	// 回避中の場合抜ける
 
+	bool bInput = false;	// 入力情報
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_X))
 	{
 		if (!m_jump.bJump)
 		{ // ジャンプしていない場合
 
 			// 地上攻撃操作の更新
-			UpdateLandAttack();
+			bInput = UpdateLandAttack();
 		}
 		else
 		{ // ジャンプしている場合
 
 			// 空中攻撃操作の更新
-			UpdateSkyAttack();
+			bInput = UpdateSkyAttack();
 		}
 
 		// 目標向きを敵方向にする
@@ -2116,19 +2117,26 @@ void CPlayer::UpdateAttack
 			LOOK_REV	// 向き補正係数
 		);
 	}
+
+	// 入力情報を返す
+	return bInput;
 }
 
 //============================================================
 //	地上攻撃操作の更新処理
 //============================================================
-void CPlayer::UpdateLandAttack(void)
+bool CPlayer::UpdateLandAttack(void)
 {
+	bool bInput = false;	// 入力情報
 	if (!IsAttack())
 	{ // 攻撃中ではない場合
 
 		// 攻撃モーションを指定
 		SetMotion(BODY_LOWER, L_MOTION_ATTACK_00);
 		SetMotion(BODY_UPPER, U_MOTION_ATTACK_00);
+
+		// 入力中にする
+		bInput = true;
 	}
 	else
 	{ // 攻撃中の場合
@@ -2141,18 +2149,29 @@ void CPlayer::UpdateLandAttack(void)
 			if (nWholeFrame < ATTACK_BUFFER_FRAME)
 			{ // 先行入力が可能な場合
 
+				if (!m_attack.bInput)
+				{ // 先行入力されていない場合
+
+					// 入力中にする
+					bInput = true;
+				}
+
 				// 先行入力を受け付ける
 				m_attack.bInput = true;
 			}
 		}
 	}
+
+	// 入力情報を返す
+	return bInput;
 }
 
 //============================================================
 //	空中攻撃操作の更新処理
 //============================================================
-void CPlayer::UpdateSkyAttack(void)
+bool CPlayer::UpdateSkyAttack(void)
 {
+	bool bInput = false;	// 入力情報
 	if (!IsAttack())
 	{ // 攻撃中ではない場合
 
@@ -2172,6 +2191,9 @@ void CPlayer::UpdateSkyAttack(void)
 			// 上移動量を加える
 			m_move.y += 4.0f;
 		}
+
+		// 入力中にする
+		bInput = true;
 	}
 	else
 	{ // 攻撃中の場合
@@ -2184,21 +2206,32 @@ void CPlayer::UpdateSkyAttack(void)
 			if (nWholeFrame < ATTACK_BUFFER_FRAME)
 			{ // 先行入力が可能な場合
 
+				if (!m_attack.bInput)
+				{ // 先行入力されていない場合
+
+					// 入力中にする
+					bInput = true;
+				}
+
 				// 先行入力を受け付ける
 				m_attack.bInput = true;
 			}
 		}
 	}
+
+	// 入力情報を返す
+	return bInput;
 }
 
 //============================================================
 //	騎乗攻撃操作の更新処理
 //============================================================
-void CPlayer::UpdateRideAttack(void)
+bool CPlayer::UpdateRideAttack(void)
 {
 	// ボスが旋回中ではない場合抜ける
-	if (CScene::GetBoss()->GetState() == CEnemyBossDragon::STATE_RIDE_ROTATE)
+	if (CScene::GetBoss()->GetState() == CEnemyBossDragon::STATE_RIDE_ROTATE) { return false; }
 
+	bool bInput = false;	// 入力情報
 	if (!m_pPlayControl->IsDisp())
 	{ // 操作表示がされていない場合
 
@@ -2218,6 +2251,9 @@ void CPlayer::UpdateRideAttack(void)
 				SetMotion(BODY_LOWER, L_MOTION_RIDE_ATTACK_00);
 				SetMotion(BODY_UPPER, U_MOTION_RIDE_ATTACK_00);
 			}
+
+			// 入力中にする
+			bInput = true;
 		}
 		else
 		{ // 攻撃中の場合
@@ -2227,18 +2263,29 @@ void CPlayer::UpdateRideAttack(void)
 			if (nWholeFrame < ATTACK_BUFFER_FRAME)
 			{ // 先行入力が可能な場合
 
+				if (!m_attack.bInput)
+				{ // 先行入力されていない場合
+
+					// 入力中にする
+					bInput = true;
+				}
+
 				// 先行入力を受け付ける
 				m_attack.bInput = true;
 			}
 		}
 	}
+
+	// 入力情報を返す
+	return bInput;
 }
 
 //============================================================
 //	騎乗操作の更新処理
 //============================================================
-void CPlayer::UpdateRide(const D3DXVECTOR3& rPos)
+bool CPlayer::UpdateRide(const D3DXVECTOR3& rPos)
 {
+	bool bInput = false;	// 入力情報
 	CEnemy *pBoss = CScene::GetBoss();	// ボス情報
 	if (pBoss->IsRideOK(rPos))
 	{ // ボスへの騎乗が可能な場合
@@ -2259,6 +2306,9 @@ void CPlayer::UpdateRide(const D3DXVECTOR3& rPos)
 			// プレイヤーを騎乗状態にする
 			SetRide();
 
+			// 入力中にする
+			bInput = true;
+
 			// ボスをライド飛び上がり状態にする
 			pBoss->SetState(CEnemy::STATE_RIDE_FLYUP);
 		}
@@ -2273,15 +2323,19 @@ void CPlayer::UpdateRide(const D3DXVECTOR3& rPos)
 			m_pPlayControl->SetHide(false);
 		}
 	}
+
+	// 入力情報を返す
+	return bInput;
 }
 
 //============================================================
 //	回避操作の更新処理
 //============================================================
-void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
+bool CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
 {
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド
 	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ
+	bool bInput = false;	// 入力情報
 
 	if (m_dodge.bDodge)
 	{ // 回避中の場合
@@ -2302,7 +2356,7 @@ void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
 	else
 	{ // 回避中ではない場合
 
-		if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
+		if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return false; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
 
 		if (m_dodge.nWaitCounter > 0)
 		{ // クールタイムが残っている場合
@@ -2348,6 +2402,9 @@ void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
 				// 回避中にする
 				m_dodge.bDodge = true;
 
+				// 入力中にする
+				bInput = true;
+
 				// クールタイムを設定
 				m_dodge.nWaitCounter = DODGE_WAIT_FRAME;
 
@@ -2364,18 +2421,22 @@ void CPlayer::UpdateDodge(const D3DXVECTOR3& rRot)
 		// ブラーの状態を設定
 		m_apBlur[nCntBlur]->SetState((m_dodge.bDodge) ? CBlur::STATE_NORMAL : CBlur::STATE_VANISH);
 	}
+
+	// 入力情報を返す
+	return bInput;
 }
 
 //============================================================
 //	移動操作・目標向きの更新処理
 //============================================================
-void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
+bool CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 {
-	if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
-	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
+	if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return false; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
+	if (m_dodge.bDodge)	{ return false; }	// 回避中の場合抜ける
 
 	CInputPad *pPad  = GET_INPUTPAD;				// パッド
 	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ
+	bool bInput = false;	// 入力情報
 
 	float fLTilt = pPad->GetPressLStickTilt();	// スティックの傾き量
 	if (pad::DEAD_ZONE < fLTilt)
@@ -2391,20 +2452,27 @@ void CPlayer::UpdateMove(int *pLowMotion, int *pUpMotion)
 		// 目標向きを設定
 		m_destRot.y = atan2f(-m_move.x, -m_move.z);
 
+		// 入力中にする
+		bInput = true;
+
 		// 上下に移動モーションを設定
 		*pLowMotion = L_MOTION_MOVE;
 		*pUpMotion  = U_MOTION_MOVE;
 	}
+
+	// 入力情報を返す
+	return bInput;
 }
 
 //============================================================
 //	ジャンプ操作の更新処理
 //============================================================
-void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
+bool CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 {
-	if (m_dodge.bDodge)	{ return; }	// 回避中の場合抜ける
-	if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
+	if (m_dodge.bDodge)	{ return false; }	// 回避中の場合抜ける
+	if (IsAttack() && !IsMotionCancel(BODY_LOWER)) { return false; }	// 攻撃中且つモーションがキャンセルできない場合抜ける
 
+	bool bInput = false;	// 入力情報
 	if (GET_INPUTPAD->IsTrigger(CInputPad::KEY_A))
 	{
 		if (!m_jump.bJump)
@@ -2418,6 +2486,9 @@ void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 
 			// プレス入力中にする
 			m_jump.bInputPress = true;
+
+			// 入力中にする
+			bInput = true;
 
 			// 上下にジャンプモーションを設定
 			*pLowMotion = L_MOTION_JUMP;
@@ -2451,6 +2522,9 @@ void CPlayer::UpdateJump(int *pLowMotion, int *pUpMotion)
 		// プレス入力を解除
 		m_jump.bInputPress = false;
 	}
+
+	// 入力情報を返す
+	return bInput;
 }
 
 //============================================================
