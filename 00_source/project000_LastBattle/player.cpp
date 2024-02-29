@@ -124,7 +124,10 @@ namespace
 	const D3DXVECTOR3 RIDE_POS_OFFSET	= D3DXVECTOR3(0.0f, 55.0f, 26.0f);		// ボスライド時のオフセット位置
 	const D3DXVECTOR3 RIDE_ROT_OFFSET	= D3DXVECTOR3(0.8f, 0.0f, 0.0f);		// ボスライド時のオフセット向き
 
+	const CCamera::SSwing HIT_SWING = CCamera::SSwing(8.0f, 1.8f, 0.14f);	// ヒット時のカメラ揺れ
+
 	const int SPAWN_SWING_MOTION_KEY = 2;	// スポーンモーションの剣を振る際のモーションキー
+	const int SPAWN_APPEAL_MOTION_KEY = 6;	// スポーンモーションの剣を構える際のモーションキー
 
 	// プレイ操作の情報
 	namespace playInfo
@@ -144,7 +147,7 @@ namespace
 		const D3DXVECTOR3	OFFSET_FRAME = D3DXVECTOR3(-0.4f, -13.0f, 0.0f);		// フレームオフセット
 		const D3DXCOLOR		COL_FRONT	 = D3DXCOLOR(0.98f, 0.98f, 0.02f, 1.0f);	// 表ゲージ色
 		const D3DXCOLOR		COL_BACK	 = D3DXCOLOR(0.03f, 0.03f, 0.008f, 1.0f);	// 裏ゲージ色
-		const int	MAX_LIFE		= 250;	// 最大表示値
+		const int	MAX_LIFE		= 200;	// 最大表示値
 		const int	CHANGE_FRAME	= 40;	// 表示値変動フレーム
 	}
 
@@ -788,6 +791,9 @@ bool CPlayer::HitKnockBack(const int nDamage, const D3DXVECTOR3& rVecKnock)
 	// 体力にダメージを与える
 	m_pLife->AddNum(-nDamage);
 
+	// カメラ揺れを設定
+	GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, HIT_SWING);
+
 	if (m_pLife->GetNum() > 0)
 	{ // 体力が残っている場合
 
@@ -831,6 +837,9 @@ bool CPlayer::HitKnockBack(const int nDamage, const D3DXVECTOR3& rVecKnock)
 			// リザルト画面に遷移させる
 			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_FAILED);
 		}
+
+		// プレイヤー死亡音の再生
+		PLAY_SOUND(CSound::LABEL_SE_PLAYER_DEATH);
 	}
 
 	return true;
@@ -848,6 +857,9 @@ bool CPlayer::Hit(const int nDamage)
 
 	// 体力にダメージを与える
 	m_pLife->AddNum(-nDamage);
+
+	// カメラ揺れを設定
+	GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, HIT_SWING);
 
 	if (m_pLife->GetNum() > 0)
 	{ // 体力が残っている場合
@@ -870,6 +882,9 @@ bool CPlayer::Hit(const int nDamage)
 			// リザルト画面に遷移させる
 			CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_FAILED);
 		}
+
+		// プレイヤー死亡音の再生
+		PLAY_SOUND(CSound::LABEL_SE_PLAYER_DEATH);
 	}
 
 	return true;
@@ -1803,6 +1818,11 @@ void CPlayer::UpdateSpawn(void)
 		// 剣の風切り音の再生
 		PLAY_SOUND(CSound::LABEL_SE_SWORD_SWING_000);
 	}
+	else if (GetMotionKey(BODY_LOWER) == SPAWN_APPEAL_MOTION_KEY && GetMotionKeyCounter(BODY_LOWER) == 0)
+	{
+		// 剣のアピール音の再生
+		PLAY_SOUND(CSound::LABEL_SE_SWORD_APPEAL);
+	}
 
 	if (IsMotionCancel(BODY_LOWER))
 	{ // モーションがキャンセルできる場合
@@ -2602,7 +2622,7 @@ bool CPlayer::UpdateLanding(D3DXVECTOR3 *pPos)
 			SetMotion(BODY_UPPER, U_MOTION_LAND);
 
 			// 着地音の再生
-			PLAY_SOUND(CSound::LABEL_SE_LAND);
+			PLAY_SOUND(CSound::LABEL_SE_LAND_S);
 		}
 	}
 

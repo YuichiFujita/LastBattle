@@ -110,13 +110,13 @@ namespace
 			const CRenderState::EBlend BLEND = CRenderState::BLEND_ADD;	// 爆発の炎のαブレンド
 			const D3DXCOLOR COL = D3DXCOLOR(1.0f, 0.38f, 0.23f, 1.0f);	// 爆発の炎の色
 
-			const float	POSGAP		= 10.0f;	// 爆発の炎の位置ずれ量
-			const float	MOVE		= 2.54f;	// 爆発の炎の移動量
-			const int	SPAWN		= 52;		// 爆発の炎の生成数
-			const int	EFF_LIFE	= 36;		// 爆発の炎の寿命
+			const float	POSGAP		= 20.0f;	// 爆発の炎の位置ずれ量
+			const float	MOVE		= 3.94f;	// 爆発の炎の移動量
+			const int	SPAWN		= 62;		// 爆発の炎の生成数
+			const int	EFF_LIFE	= 58;		// 爆発の炎の寿命
 			const int	RAND_LIFE	= 12;		// 爆発の炎のランダム寿命加算量の最大値
-			const float	SIZE		= 3.57f;	// 爆発の炎の大きさ
-			const float	SUB_SIZE	= -7.0f;	// 爆発の炎の半径の減算量
+			const float	SIZE		= 6.57f;	// 爆発の炎の大きさ
+			const float	SUB_SIZE	= -14.0f;	// 爆発の炎の半径の減算量
 		}
 
 		namespace smoke
@@ -124,13 +124,13 @@ namespace
 			const CRenderState::EBlend BLEND = CRenderState::BLEND_NORMAL;	// 爆発の煙のαブレンド
 			const D3DXCOLOR COL = D3DXCOLOR(0.2f, 0.2f, 0.2f, 1.0f);		// 爆発の煙の色
 
-			const float	POSGAP		= 8.0f;		// 爆発の煙の位置ずれ量
-			const float	MOVE		= 0.9f;		// 爆発の煙の移動量
-			const int	SPAWN		= 72;		// 爆発の煙の生成数
-			const int	EFF_LIFE	= 96;		// 爆発の煙の寿命
+			const float	POSGAP		= 10.0f;	// 爆発の煙の位置ずれ量
+			const float	MOVE		= 1.4f;		// 爆発の煙の移動量
+			const int	SPAWN		= 82;		// 爆発の煙の生成数
+			const int	EFF_LIFE	= 146;		// 爆発の煙の寿命
 			const int	RAND_LIFE	= 18;		// 爆発の煙のランダム寿命加算量の最大値
-			const float	SIZE		= 70.0f;	// 爆発の煙の大きさ
-			const float	SUB_SIZE	= -2.5f;	// 爆発の煙の半径の減算量
+			const float	SIZE		= 100.0f;	// 爆発の煙の大きさ
+			const float	SUB_SIZE	= -5.5f;	// 爆発の煙の半径の減算量
 		}
 	}
 

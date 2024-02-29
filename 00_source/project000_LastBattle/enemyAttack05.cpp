@@ -9,6 +9,8 @@
 //************************************************************
 #include "enemyAttack05.h"
 #include "enemyBossDragon.h"
+#include "manager.h"
+#include "sound.h"
 #include "player.h"
 #include "stage.h"
 #include "multiModel.h"
@@ -307,6 +309,9 @@ void CEnemyAttack05::UpdateAttack(void)
 		// Žè‚ÌƒTƒCƒY‚ðŠg‘å
 		pBoss->GetMultiModel(CEnemyBossDragon::MODEL_ARM_UL)->SetVec3Scaling(VEC3_ALL(SCALE_LEFT_ARM));
 		pBoss->GetMultiModel(CEnemyBossDragon::MODEL_HAND_L)->SetVec3Scaling(VEC3_ALL(SCALE_LEFT_HAND));
+
+		// ‚Ð‚Á‚©‚«‰¹‚ÌÄ¶
+		PLAY_SOUND(CSound::LABEL_SE_CLAW);
 	}
 
 	// UŒ‚”»’è

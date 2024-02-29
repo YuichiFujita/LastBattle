@@ -28,6 +28,7 @@
 #include "cinemaScope.h"
 #include "player.h"
 #include "collision.h"
+#include "particle3D.h"
 
 //************************************************************
 //	定数宣言
@@ -78,6 +79,7 @@ namespace
 	const CCamera::SSwing LAND_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 着地のカメラ揺れ
 	const CCamera::SSwing HOWL_SWING	= CCamera::SSwing(14.0f, 2.0f, 0.09f);	// 咆哮のカメラ揺れ
 	const CCamera::SSwing RIDE_SWING	= CCamera::SSwing(9.5f, 2.0f, 0.09f);	// 飛び上がり前の咆哮のカメラ揺れ
+	const CCamera::SSwing DEATH_SWING	= CCamera::SSwing(16.5f, 2.0f, 0.2f);	// 死亡時のカメラ揺れ
 	const int	KNOCK_LIFE		= 800;			// ノックバックする体力
 	const int	BLEND_FRAME		= 16;			// モーションのブレンドフレーム
 	const int	LAND_MOTION_KEY	= 9;			// モーションの着地の瞬間キー
@@ -101,10 +103,11 @@ namespace
 	const float	FLASH_INITALPHA_DEATH_MULTI	= 0.35f;	// 死亡初めのフラッシュ開始透明度
 	const float	FLASH_SUBALPHA_DEATH_MULTI	= 0.02f;	// 死亡後連続するフラッシュ透明度減算量
 
-	const float	DEATH_CANERA_DIS = 800.0f;	// 死亡カメラの距離
+	const float	DEATH_CANERA_DIS = 900.0f;	// 死亡カメラの距離
 	const D3DXVECTOR3 DEATH_CAMERA_OFFSET	= D3DXVECTOR3(35.0f, 136.0f, 0.0f);		// 死亡カメラの位置オフセット
 	const CCamera::SSwing DEATH_START_SWING	= CCamera::SSwing(10.0f, 1.5f, 0.12f);	// 死亡初めのカメラ揺れ
 	const CCamera::SSwing DEATH_MULTI_SWING	= CCamera::SSwing(8.6f, 1.5f, 0.24f);	// 死亡後連続するカメラ揺れ
+	const D3DXVECTOR3 EXP_OFFSET = D3DXVECTOR3(0.0f, 140.0f, 0.0f);	// 爆発位置オフセット
 
 	const float	RIDE_ROTATE_DIS  = 2400.0f;	// 旋回時のステージ中央から離れる距離
 	const float	RIDE_ROTATE_POSY = 1200.0f;	// 旋回時のY座標
@@ -155,7 +158,7 @@ namespace
 // ランダム攻撃のON/OFF
 #if 1
 #define RANDOM_ATTACK_ON	// ランダム攻撃
-#define ATTACK (CEnemyAttack::ATTACK_05)
+#define ATTACK (CEnemyAttack::ATTACK_06)
 #endif
 
 //************************************************************
@@ -263,6 +266,9 @@ HRESULT CEnemyBossDragon::Init(void)
 
 	// なにもしない状態にする
 	SetState(STATE_NONE);
+
+	// 待機モーションを設定
+	SetMotion(MOTION_IDOL);
 
 	// 自動描画をOFFにする
 	SetEnableDraw(false);
@@ -377,6 +383,26 @@ bool CEnemyBossDragon::Hit(const int nDamage)
 	}
 
 	return true;
+}
+
+//============================================================
+//	更新状況の設定処理
+//============================================================
+void CEnemyBossDragon::SetEnableUpdate(const bool bUpdate)
+{
+	// 引数の更新状況を設定
+	CObject::SetEnableUpdate(bUpdate);		// 自身
+	m_pShadow->SetEnableUpdate(bUpdate);	// 影
+}
+
+//============================================================
+//	描画状況の設定処理
+//============================================================
+void CEnemyBossDragon::SetEnableDraw(const bool bDraw)
+{
+	// 引数の描画状況を設定
+	CObject::SetEnableDraw(bDraw);		// 自身
+	m_pShadow->SetEnableDraw(bDraw);	// 影
 }
 
 //============================================================
@@ -655,14 +681,47 @@ void CEnemyBossDragon::UpdateMotion(void)
 
 	switch (GetMotionType())
 	{ // モーションごとの処理
-	case MOTION_HOWL:			// 咆哮モーション
 	case MOTION_IDOL:			// 待機モーション
-	case MOTION_FLY_IDOL:		// 空中待機モーション
 	case MOTION_KNOCK:			// ノックバックモーション
 	case MOTION_STAN:			// スタンモーション
 	case MOTION_SHAKE_OFF:		// 空中振り下ろしモーション
-	case MOTION_HOWL_FLYUP:		// 咆哮飛び上がりモーション
 	case MOTION_DEATH:			// 死亡モーション
+		break;
+
+	case MOTION_HOWL:			// 咆哮モーション
+
+		if (GetMotionKey() == 2 && GetMotionKeyCounter() == 0
+		||  GetMotionKey() == 5 && GetMotionKeyCounter() == 0)
+		{
+			// 羽ばたき音の再生
+			PLAY_SOUND(CSound::LABEL_SE_WING);
+		}
+		else if (GetMotionKey() == 9 && GetMotionKeyCounter() == 0)
+		{
+			// 着地音の再生
+			PLAY_SOUND(CSound::LABEL_SE_LAND_B);
+		}
+
+		break;
+
+	case MOTION_FLY_IDOL:		// 空中待機モーション
+
+		if (GetMotionKey() == 2 && GetMotionKeyCounter() == 0)
+		{
+			// 羽ばたき音の再生
+			PLAY_SOUND(CSound::LABEL_SE_WING);
+		}
+
+		break;
+
+	case MOTION_HOWL_FLYUP:		// 咆哮飛び上がりモーション
+
+		if (GetMotionKey() == 7 && GetMotionKeyCounter() == 0)
+		{
+			// 羽ばたき音の再生
+			PLAY_SOUND(CSound::LABEL_SE_WING);
+		}
+
 		break;
 
 	case MOTION_PUNCH_GROUND:	// 地面殴りモーション
@@ -728,6 +787,18 @@ void CEnemyBossDragon::UpdateMotion(void)
 		break;
 
 	case MOTION_COME_DOWN:		// 上空復帰モーション
+
+		if (GetMotionKey() == 2 && GetMotionKeyCounter() == 0
+		||  GetMotionKey() == 5 && GetMotionKeyCounter() == 0)
+		{
+			// 羽ばたき音の再生
+			PLAY_SOUND(CSound::LABEL_SE_WING);
+		}
+		else if (GetMotionKey() == 9 && GetMotionKeyCounter() == 0)
+		{
+			// 着地音の再生
+			PLAY_SOUND(CSound::LABEL_SE_LAND_B);
+		}
 
 		if (IsMotionFinish())
 		{ // モーションが終了していた場合
@@ -1035,6 +1106,9 @@ void CEnemyBossDragon::SetDeath(void)
 
 	// ランキングに設定
 	CRankingManager::Set(pTimer->Get());
+
+	// 最終攻撃音の再生
+	PLAY_SOUND(CSound::LABEL_SE_LAST_ATTACK);
 }
 
 //============================================================
@@ -1307,12 +1381,36 @@ void CEnemyBossDragon::UpdateDeath(void)
 
 			// カメラ揺れを設定
 			pCamera->SetSwing(CCamera::TYPE_MAIN, DEATH_MULTI_SWING);
+
+			// ノイズ音の再生
+			PLAY_SOUND(CSound::LABEL_SE_NOISE);
 		}
 		else
 		{ // 設定したフラッシュ回数に達した場合
 
-			if (IsMotionFinish())
+			if (GetMotionKey() == 4 && GetMotionKeyCounter() == 0)
+			{
+				// 着地音の再生
+				PLAY_SOUND(CSound::LABEL_SE_LAND_B);
+			}
+			else if (IsMotionFinish())
 			{ // モーションが終了した場合
+
+				if (IsDraw())
+				{ // 自動描画がONの場合
+
+					// 爆発の生成
+					CParticle3D::Create(CParticle3D::TYPE_BIG_EXPLOSION, GetVec3Position() + EXP_OFFSET);
+
+					// 自動描画をOFFにする
+					SetEnableDraw(false);
+
+					// カメラ揺れを設定
+					GET_MANAGER->GetCamera()->SetSwing(CCamera::TYPE_MAIN, DEATH_SWING);
+
+					// 爆発音の再生
+					PLAY_SOUND(CSound::LABEL_SE_EXPLOSION);
+				}
 
 				// リザルト画面に遷移させる
 				CSceneGame::GetGameManager()->TransitionResult(CRetentionManager::WIN_CLEAR);

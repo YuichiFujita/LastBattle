@@ -30,13 +30,21 @@ namespace
 		{ "data\\SE\\sword_swing002.wav", 0 },	// 剣の風切り音02
 		{ "data\\SE\\hit000.wav", 0 },			// プレイヤーのヒット音
 		{ "data\\SE\\hit001.wav", 0 },			// 剣のヒット音
+		{ "data\\SE\\death000.wav", 0 },		// プレイヤーの死亡音
+		{ "data\\SE\\swordAppeal000.wav", 0 },	// 剣のアピール音
+		{ "data\\SE\\lastAttack000.wav", 0 },	// 最終攻撃音
 		{ "data\\SE\\walk000.wav", 0 },			// 足音
-		{ "data\\SE\\land000.wav", 0 },			// 着地音
+		{ "data\\SE\\land000.wav", 0 },			// 着地音 (小)
+		{ "data\\SE\\land001.wav", 0 },			// 着地音 (大)
 		{ "data\\SE\\action000.wav", 0 },		// プレイヤーのアクション音
 		{ "data\\SE\\dragon_roar000.wav", 0 },	// ドラゴン咆哮 (長)
 		{ "data\\SE\\dragon_roar001.wav", 0 },	// ドラゴン咆哮 (短)
 		{ "data\\SE\\wing000.wav", 0 },			// 羽ばたき音
 		{ "data\\SE\\teleport000.wav", 0 },		// テレポート音
+		{ "data\\SE\\punch000.wav", 0 },		// パンチ音
+		{ "data\\SE\\claw000.wav", 0 },			// ひっかき音
+		{ "data\\SE\\noise000.wav", 0 },		// ノイズ音
+		{ "data\\SE\\explosion000.wav", 0 },	// 爆発音
 		{ "data\\SE\\fire000.wav", 0 },			// 炎音
 		{ "data\\SE\\thunder000.wav", 0 },		// 雷音
 		{ "data\\SE\\warning000.wav", 0 },		// 雷警告音

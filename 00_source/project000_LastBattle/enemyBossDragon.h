@@ -141,6 +141,8 @@ public:
 	void Update(void) override;		// 更新
 	void Draw(CShader *pShader = nullptr) override;			// 描画
 	bool Hit(const int nDamage) override;					// ヒット
+	void SetEnableUpdate(const bool bUpdate) override;		// 更新状況設定
+	void SetEnableDraw(const bool bDraw) override;			// 描画状況設定
 	int  GetWaistModelID(void) const override;				// 腰モデルのインデックス取得
 	int  GetHeadModelID(void) const override;				// 頭モデルのインデックス取得
 	bool IsRideOK(const D3DXVECTOR3& rPos) const override;	// ライド可能か取得

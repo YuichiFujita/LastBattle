@@ -10,6 +10,7 @@
 #include "enemyAttack00.h"
 #include "enemyBossDragon.h"
 #include "manager.h"
+#include "sound.h"
 #include "camera.h"
 #include "stage.h"
 #include "player.h"
@@ -331,6 +332,9 @@ void CEnemyAttack00::UpdateWave(void)
 			impact::little::MAX_RADIUS		// 半径の最大成長量
 		);
 
+		// パンチ音の再生
+		PLAY_SOUND(CSound::LABEL_SE_PUNCH);
+
 		break;
 	}
 	case ATK_2ND_MOTION_KEY:	// 殴り二回目：左手
@@ -362,6 +366,9 @@ void CEnemyAttack00::UpdateWave(void)
 			impact::little::OUTER_PLUSY,	// 外周のY座標加算量
 			impact::little::MAX_RADIUS		// 半径の最大成長量
 		);
+
+		// パンチ音の再生
+		PLAY_SOUND(CSound::LABEL_SE_PUNCH);
 
 		break;
 	}
@@ -395,6 +402,9 @@ void CEnemyAttack00::UpdateWave(void)
 			impact::big::OUTER_PLUSY,	// 外周のY座標加算量
 			impact::big::MAX_RADIUS		// 半径の最大成長量
 		);
+
+		// パンチ音の再生
+		PLAY_SOUND(CSound::LABEL_SE_PUNCH);
 
 		break;
 	}
