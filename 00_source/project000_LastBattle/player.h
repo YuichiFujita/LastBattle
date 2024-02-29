@@ -172,6 +172,9 @@ public:
 	void SetRideEnd(void);	// ライド終了設定
 
 protected:
+	// 仮想関数
+	virtual void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
+
 	// オーバーライド関数
 	void SetMotion	// モーション設定
 	( // 引数
@@ -181,6 +184,8 @@ protected:
 	) override;
 
 	// メンバ関数
+	CSword *GetSword(const int nSword);		// 剣の取得
+	CShadow *GetShadow(void);				// 影の取得
 	void UpdateOldPosition(void);			// 過去位置の更新
 	void UpdateGravity(void);				// 重力の更新
 	bool UpdateLanding(D3DXVECTOR3 *pPos);	// 着地状況の更新
@@ -188,8 +193,20 @@ protected:
 	void UpdateRotation(D3DXVECTOR3 *pRot);	// 向きの更新
 	bool UpdateFadeOut(const float fAdd);	// フェードアウト状態時の更新
 	bool UpdateFadeIn(const float fSub);	// フェードイン状態時の更新
-	CSword *GetSword(const int nSword);		// 剣の取得
-	CShadow *GetShadow(void);				// 影の取得
+
+	void UpdateAttack	// 攻撃操作の更新
+	( // 引数
+		const D3DXVECTOR3& rPos,	// プレイヤー位置
+		const D3DXVECTOR3& rRot		// プレイヤー向き
+	);
+	void UpdateLandAttack(void);	// 地上攻撃操作の更新
+	void UpdateSkyAttack(void);		// 空中攻撃操作の更新
+	void UpdateRideAttack(void);	// 騎乗攻撃操作の更新
+	void UpdateRide(const D3DXVECTOR3& rPos);			// 騎乗操作の更新
+	void UpdateDodge(const D3DXVECTOR3& rRot);			// 回避操作の更新
+	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
+	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
+	void UpdateCollEnemy(D3DXVECTOR3 *pPos);			// 敵との当たり判定の更新
 
 private:
 	// 先行入力構造体
@@ -274,25 +291,10 @@ private:
 	void UpdateSpawn(void);		// スポーン状態時の更新
 	void UpdateKnock(void);		// ノックバック状態時の更新
 	void UpdateRideEnd(void);	// ライド終了状態時の更新
-	void UpdateNormal(int *pLowMotion, int *pUpMotion);	// 通常状態時の更新
 	void UpdateRide(int *pLowMotion, int *pUpMotion);	// ライド状態時の更新
 	void UpdateDamage(int *pLowMotion, int *pUpMotion);	// ダメージ状態時の更新
 	void UpdateInvuln(int *pLowMotion, int *pUpMotion);	// 無敵状態時の更新
 	void UpdateDeath(int *pLowMotion, int *pUpMotion);	// 死亡状態時の更新
-
-	void UpdateAttack	// 攻撃操作の更新
-	( // 引数
-		const D3DXVECTOR3& rPos,	// プレイヤー位置
-		const D3DXVECTOR3& rRot		// プレイヤー向き
-	);
-	void UpdateLandAttack(void);	// 地上攻撃操作の更新
-	void UpdateSkyAttack(void);		// 空中攻撃操作の更新
-	void UpdateRideAttack(void);	// 騎乗攻撃操作の更新
-	void UpdateRide(const D3DXVECTOR3& rPos);			// 騎乗操作の更新
-	void UpdateDodge(const D3DXVECTOR3& rRot);			// 回避操作の更新
-	void UpdateMove(int *pLowMotion, int *pUpMotion);	// 移動操作・目標向きの更新
-	void UpdateJump(int *pLowMotion, int *pUpMotion);	// ジャンプ操作の更新
-	void UpdateCollEnemy(D3DXVECTOR3 *pPos);			// 敵との当たり判定の更新
 
 	// 静的メンバ変数
 	static CListManager<CPlayer> *m_pList;			// オブジェクトリスト

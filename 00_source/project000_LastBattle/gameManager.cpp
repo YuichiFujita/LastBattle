@@ -333,6 +333,7 @@ void CGameManager::EndStart(void)
 {
 	CPlayer  *pPlayer = CScene::GetPlayer();		// プレイヤー情報
 	CEnemy   *pBoss   = CScene::GetBoss();			// ボス情報
+	CCamera  *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
 	CTimerUI *pTimer  = CSceneGame::GetTimerUI();	// タイマーマネージャーの情報
 	CCinemaScope *pScope = CSceneGame::GetCinemaScope();	// シネマスコープの情報
 
@@ -350,8 +351,8 @@ void CGameManager::EndStart(void)
 	pScope->SetScopeOut();
 
 	// カメラを追従状態に設定
-	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);
-	GET_MANAGER->GetCamera()->SetDestFollow();	// カメラ目標位置の初期化
+	pCamera->SetState(CCamera::STATE_FOLLOW);
+	pCamera->SetDestFollow();	// カメラ目標位置の初期化
 
 	// ボスの名前モデルの終了
 	SAFE_UNINIT(m_pBossName);

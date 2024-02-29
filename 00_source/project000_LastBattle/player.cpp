@@ -9,6 +9,7 @@
 //************************************************************
 #include "player.h"
 #include "playerTitle.h"
+#include "playerTutorial.h"
 #include "manager.h"
 #include "sceneGame.h"
 #include "gameManager.h"
@@ -416,7 +417,7 @@ void CPlayer::Update(void)
 			return;
 		}
 		else
-		{ // 演出状態の場合
+		{ // 演出状態ではない場合
 
 			// 影の自動更新をONにする
 			m_pShadow->SetEnableUpdate(true);
@@ -690,23 +691,20 @@ CPlayer *CPlayer::Create(CScene::EMode mode)
 	// プレイヤーの生成
 	switch (mode)
 	{ // モードごとの処理
-	case CScene::MODE_RESULT:
-	case CScene::MODE_RANKING:
-		break;
-
 	case CScene::MODE_TITLE:
-
-		// メモリ確保
-		pPlayer = new CPlayerTitle;	// プレイヤータイトル
-
+		pPlayer = new CPlayerTitle;		// プレイヤータイトル
 		break;
 
 	case CScene::MODE_TUTORIAL:
+		pPlayer = new CPlayerTutorial;	// プレイヤーチュートリアル
+		break;
+
 	case CScene::MODE_GAME:
-
-		// メモリ確保
 		pPlayer = new CPlayer;	// プレイヤー
+		break;
 
+	case CScene::MODE_RESULT:
+	case CScene::MODE_RANKING:
 		break;
 
 	default:	// 例外処理

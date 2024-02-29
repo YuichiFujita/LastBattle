@@ -67,16 +67,10 @@ HRESULT CSceneTutorial::Init(void)
 	//--------------------------------------------------------
 	//	初期設定
 	//--------------------------------------------------------
-	CListManager<CPlayer> *pList = CPlayer::GetList();				// プレイヤーリスト
-	if (pList == nullptr)		 { assert(false); return E_FAIL; }	// リスト未使用
-	if (pList->GetNumAll() != 1) { assert(false); return E_FAIL; }	// プレイヤーが1人じゃない
-	auto player = pList->GetList().front();							// プレイヤー情報
-
-	// カメラを設定
-	GET_MANAGER->GetCamera()->SetState(CCamera::STATE_FOLLOW);	// カメラを追従状態に設定
-
-	// プレイヤーを出現させる
-	player->SetSpawn();
+	// カメラを追従状態に設定
+	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+	pCamera->SetState(CCamera::STATE_FOLLOW);		// カメラを追従状態に設定
+	pCamera->SetDestFollow();						// カメラ目標位置の初期化
 
 	// BGMの再生
 	PLAY_SOUND(CSound::LABEL_BGM_TUTORIAL);
