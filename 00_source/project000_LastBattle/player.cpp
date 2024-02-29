@@ -2229,7 +2229,7 @@ bool CPlayer::UpdateSkyAttack(void)
 bool CPlayer::UpdateRideAttack(void)
 {
 	// ボスが旋回中ではない場合抜ける
-	if (CScene::GetBoss()->GetState() == CEnemyBossDragon::STATE_RIDE_ROTATE) { return false; }
+	if (CScene::GetBoss()->GetState() != CEnemyBossDragon::STATE_RIDE_ROTATE) { return false; }
 
 	bool bInput = false;	// 入力情報
 	if (!m_pPlayControl->IsDisp())
@@ -2244,13 +2244,9 @@ bool CPlayer::UpdateRideAttack(void)
 		if (!IsAttack())
 		{ // 攻撃中ではない場合
 
-			if (GetMotionType(BODY_UPPER) != U_MOTION_RIDE_ATTACK_00)
-			{ // 初撃のモーションではない場合
-
-				// 攻撃モーションを指定
-				SetMotion(BODY_LOWER, L_MOTION_RIDE_ATTACK_00);
-				SetMotion(BODY_UPPER, U_MOTION_RIDE_ATTACK_00);
-			}
+			// 攻撃モーションを指定
+			SetMotion(BODY_LOWER, L_MOTION_RIDE_ATTACK_00);
+			SetMotion(BODY_UPPER, U_MOTION_RIDE_ATTACK_00);
 
 			// 入力中にする
 			bInput = true;

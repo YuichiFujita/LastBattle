@@ -16,7 +16,6 @@
 #include "gauge2D.h"
 #include "object2D.h"
 #include "player.h"
-#include "enemy.h"
 
 //************************************************************
 //	定数宣言
@@ -27,14 +26,6 @@ namespace
 	{
 		"data\\TEXTURE\\tutorial000.png",	// 操作方法表示のテクスチャ
 	};
-	const char *LESSON_TEX_FILE[] =	// レッスンテクスチャファイル
-	{
-		nullptr,						// レッスン00：テクスチャなし
-		"data\\TEXTURE\\lesson000.png",	// レッスン01：移動・カメラ	説明テクスチャ
-		"data\\TEXTURE\\lesson001.png",	// レッスン02：ジャンプ		説明テクスチャ
-		"data\\TEXTURE\\lesson002.png",	// レッスン03：回避			説明テクスチャ
-		"data\\TEXTURE\\lesson003.png",	// レッスン04：攻撃			説明テクスチャ
-	};
 	const char *GUIDE_TEX_FILE[] =	// 小説明テクスチャファイル
 	{
 		nullptr,						// レッスン00：テクスチャなし
@@ -42,6 +33,7 @@ namespace
 		"data\\TEXTURE\\guide001.png",	// レッスン02：ジャンプ		小説明のテクスチャ
 		"data\\TEXTURE\\guide002.png",	// レッスン03：回避			小説明のテクスチャ
 		"data\\TEXTURE\\guide003.png",	// レッスン04：攻撃			小説明のテクスチャ
+		"data\\TEXTURE\\guide004.png",	// レッスン05：終了			小説明のテクスチャ
 	};
 	const char *CONT_TEX_FILE[] =	// 操作方法テクスチャファイル
 	{
@@ -50,26 +42,29 @@ namespace
 		"data\\TEXTURE\\control001.png",	// レッスン02：ジャンプ		操作方法のテクスチャ
 		"data\\TEXTURE\\control002.png",	// レッスン03：回避			操作方法のテクスチャ
 		"data\\TEXTURE\\control003.png",	// レッスン04：攻撃			操作方法のテクスチャ
+		"data\\TEXTURE\\control004.png",	// レッスン05：終了			操作方法のテクスチャ
 	};
 	const int NEXT_LESSON[] =		// レッスン移行カウント
 	{
 		0,		// レッスンなし
 		320,	// レッスン01：移動・カメラ	終了カウント
-		6,		// レッスン02：ジャンプ		終了カウント
-		4,		// レッスン03：回避			終了カウント
-		20,		// レッスン04：攻撃			終了カウント
+		5,		// レッスン02：ジャンプ		終了カウント
+		3,		// レッスン03：回避			終了カウント
+		12,		// レッスン04：攻撃			終了カウント
+		0,		// レッスン05：終了			終了カウント
 	};
 	const int NEXT_LESSON_WAIT[] =	// 次レッスン余韻カウント
 	{
 		0,		// レッスンなし
-		90,		// レッスン01：移動・カメラ	終了時の余韻カウント
-		90,		// レッスン02：ジャンプ		終了時の余韻カウント
-		90,		// レッスン03：回避			終了時の余韻カウント
-		90,		// レッスン04：攻撃			終了時の余韻カウント
+		40,		// レッスン01：移動・カメラ	終了時の余韻カウント
+		40,		// レッスン02：ジャンプ		終了時の余韻カウント
+		40,		// レッスン03：回避			終了時の余韻カウント
+		40,		// レッスン04：攻撃			終了時の余韻カウント
+		0,		// レッスン05：終了			終了時の余韻カウント
 	};
 
 	const int PRIORITY			= 6;	// チュートリアルの優先順位
-	const int TITLE_WAIT_CNT	= 30;	// タイトル遷移の余韻フレーム
+	const int TITLE_WAIT_CNT	= 20;	// タイトル遷移の余韻フレーム
 
 	const D3DXVECTOR3 POS_GUIDE		= D3DXVECTOR3(1020.0f, 585.0f, 0.0f);	// 小説明表示の位置
 	const D3DXVECTOR3 POS_CONTROL	= D3DXVECTOR3(260.0f, 585.0f, 0.0f);	// 操作方法表示の位置
@@ -101,7 +96,6 @@ namespace
 //	スタティックアサート
 //************************************************************
 static_assert(NUM_ARRAY(TEXTURE_FILE)		== CTutorialManager::TEXTURE_MAX,	"ERROR : Texture Count Mismatch");
-static_assert(NUM_ARRAY(LESSON_TEX_FILE)	== CTutorialManager::LESSON_MAX,	"ERROR : Lesson Count Mismatch");
 static_assert(NUM_ARRAY(GUIDE_TEX_FILE)		== CTutorialManager::LESSON_MAX,	"ERROR : Lesson Count Mismatch");
 static_assert(NUM_ARRAY(CONT_TEX_FILE)		== CTutorialManager::LESSON_MAX,	"ERROR : Lesson Count Mismatch");
 static_assert(NUM_ARRAY(NEXT_LESSON)		== CTutorialManager::LESSON_MAX,	"ERROR : Lesson Count Mismatch");
@@ -115,17 +109,12 @@ static_assert(NUM_ARRAY(NEXT_LESSON_WAIT)	== CTutorialManager::LESSON_MAX,	"ERRO
 //============================================================
 CTutorialManager::CTutorialManager() :
 	m_pCounterLesson	(nullptr),		// レッスン管理カウンターの情報
-	m_pFade				(nullptr),		// フェードの情報
-	m_pExplain			(nullptr),		// 説明表示の情報
-	m_pClose			(nullptr),		// 説明終了表示の情報
 	m_pGuide			(nullptr),		// 小説明表示の情報
 	m_pGuideBG			(nullptr),		// 小説明表示の背景情報
 	m_pControl			(nullptr),		// 操作方法表示の情報
 	m_pControlBG		(nullptr),		// 操作方法表示の背景情報
 	m_state				(STATE_NONE),	// 状態
 	m_nLesson			(0),			// レッスン
-	m_fScale			(0.0f),			// ポリゴン拡大率
-	m_fSinRot			(0.0f),			// ポリゴン点滅向き
 	m_nCounterState		(0)				// 状態管理カウンター
 {
 
@@ -145,19 +134,14 @@ CTutorialManager::~CTutorialManager()
 HRESULT CTutorialManager::Init(void)
 {
 	// メンバ変数を初期化
-	m_pCounterLesson	= nullptr;		// レッスン管理カウンターの情報
-	m_pFade				= nullptr;		// フェードの情報
-	m_pExplain			= nullptr;		// 説明表示の情報
-	m_pClose			= nullptr;		// 説明終了表示の情報
-	m_pGuide			= nullptr;		// 小説明表示の情報
-	m_pGuideBG			= nullptr;		// 小説明表示の背景情報
-	m_pControl			= nullptr;		// 操作方法表示の情報
-	m_pControlBG		= nullptr;		// 操作方法表示の背景情報
-	m_state				= STATE_FADEIN;	// 状態
-	m_nLesson			= LESSON_NONE;	// レッスン
-	m_fScale			= 0.0f;			// ポリゴン拡大率
-	m_fSinRot			= -HALF_PI;		// ポリゴン点滅向き
-	m_nCounterState		= 0;			// 状態管理カウンター
+	m_pCounterLesson	= nullptr;			// レッスン管理カウンターの情報
+	m_pGuide			= nullptr;			// 小説明表示の情報
+	m_pGuideBG			= nullptr;			// 小説明表示の背景情報
+	m_pControl			= nullptr;			// 操作方法表示の情報
+	m_pControlBG		= nullptr;			// 操作方法表示の背景情報
+	m_state				= STATE_NEXTWAIT;	// 状態
+	m_nLesson			= LESSON_NONE;		// レッスン
+	m_nCounterState		= 0;				// 状態管理カウンター
 
 	//--------------------------------------------------------
 	//	レッスン管理カウンターの生成・設定
@@ -267,82 +251,6 @@ HRESULT CTutorialManager::Init(void)
 	// 優先順位を設定
 	m_pControl->SetPriority(PRIORITY);
 
-	//--------------------------------------------------------
-	//	フェードの生成・設定
-	//--------------------------------------------------------
-	// フェードの生成
-	m_pFade = CObject2D::Create
-	( // 引数
-		SCREEN_CENT,	// 位置
-		SCREEN_SIZE,	// 大きさ
-		VEC3_ZERO,		// 向き
-		COL_FADE_MIN	// 色
-	);
-	if (m_pFade == nullptr)
-	{ // 生成に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// 優先順位を設定
-	m_pFade->SetPriority(PRIORITY);
-
-	//--------------------------------------------------------
-	//	選択背景の生成・設定
-	//--------------------------------------------------------
-	// 選択背景の生成
-	m_pExplain = CObject2D::Create
-	( // 引数
-		POS_EXPLAIN,	// 位置
-		SIZE_EXPLAIN * SET_SCALE	// 大きさ
-	);
-	if (m_pExplain == nullptr)
-	{ // 生成に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// 優先順位を設定
-	m_pExplain->SetPriority(PRIORITY);
-
-	// 描画を停止
-	m_pExplain->SetEnableDraw(false);
-
-	//--------------------------------------------------------
-	//	説明終了表示の生成・設定
-	//--------------------------------------------------------
-	// 説明終了表示の生成
-	m_pClose = CObject2D::Create
-	( // 引数
-		POS_CLOSE,	// 位置
-		SIZE_CLOSE,	// 大きさ
-		VEC3_ZERO,	// 向き
-		XCOL_AWHITE	// 色
-	);
-	if (m_pClose == nullptr)
-	{ // 生成に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
-	// テクスチャを登録・割当
-	m_pClose->BindTexture(TEXTURE_FILE[TEXTURE_CONTROL]);
-
-	// 優先順位を設定
-	m_pClose->SetPriority(PRIORITY);
-
-	// 進行状態時に表示するUIの描画を停止
-	SetEnableProgressionDraw(false);
-
-	// 次レッスンへの移行
-	NextLesson();
-
 	// 成功を返す
 	return S_OK;
 }
@@ -363,15 +271,6 @@ void CTutorialManager::Uninit(void)
 
 	// 操作方法表示の終了
 	SAFE_UNINIT(m_pControl);
-
-	// フェードの終了
-	SAFE_UNINIT(m_pFade);
-
-	// 選択背景の終了
-	SAFE_UNINIT(m_pExplain);
-
-	// 説明終了の終了
-	SAFE_UNINIT(m_pClose);
 }
 
 //============================================================
@@ -382,49 +281,27 @@ void CTutorialManager::Update(void)
 	switch (m_state)
 	{ // 状態ごとの処理
 	case STATE_NONE:		// 何もしない状態
-
-		// 無し
-
-		break;
-
-	case STATE_FADEIN:		// フェードイン状態
-
-		// フェードインの更新
-		UpdateFadeIn();
-
-		break;
-
-	case STATE_EXPLAIN:		// 説明表示状態
-
-		// 説明表示の更新
-		UpdateExplain();
-
-		break;
-
-	case STATE_FADEWAIT:	// フェード待機状態
-
-		// フェード待機の更新
-		UpdateFadeWait();
-
-		break;
-
-	case STATE_FADEOUT:		// フェードアウト状態
-
-		// フェードアウトの更新
-		UpdateFadeOut();
-
-		break;
-
-	case STATE_PROGRESSION:	// 進行状態
-
-		// 無し
-
 		break;
 
 	case STATE_NEXTWAIT:	// 次レッスン待機状態
 
 		// 次レッスン待機の更新
 		UpdateNextWait();
+
+		break;
+
+	case STATE_PROGRESSION:	// 進行状態
+
+		if (m_nLesson == CTutorialManager::LESSON_05)
+		{ // レッスン05：レッスンが終了している場合
+
+			if (GET_INPUTKEY->IsTrigger(DIK_RETURN)
+			||  GET_INPUTPAD->IsTrigger(CInputPad::KEY_START))
+			{
+				// レッスンカウンター加算
+				AddLessonCounter();
+			}
+		}
 
 		break;
 
@@ -451,15 +328,6 @@ void CTutorialManager::Update(void)
 
 	// 操作方法表示の更新
 	m_pControl->Update();
-
-	// フェードの更新
-	m_pFade->Update();
-
-	// 選択背景の更新
-	m_pExplain->Update();
-
-	// 説明終了の更新
-	m_pClose->Update();
 }
 
 //============================================================
@@ -472,7 +340,6 @@ void CTutorialManager::AddLessonCounter(void)
 
 		// レッスンカウンターを加算
 		m_pCounterLesson->AddNum(1);
-
 		if (m_pCounterLesson->GetNum() >= NEXT_LESSON[m_nLesson])
 		{ // レッスンを次に進めるカウントまで到達した場合
 
@@ -564,9 +431,9 @@ int CTutorialManager::GetNextLessonCounter(const int nID)
 //============================================================
 void CTutorialManager::SetEnableProgressionDraw(const bool bDraw)
 {
-	// レッスン管理カウンターの描画状況を設定
-	m_pCounterLesson->SetEnableDraw(bDraw);
-
+	//--------------------------------------------------------
+	//	引数の描画状況を設定
+	//--------------------------------------------------------
 	// 小説明表示の背景描画状況を設定
 	m_pGuideBG->SetEnableDraw(bDraw);
 
@@ -578,173 +445,20 @@ void CTutorialManager::SetEnableProgressionDraw(const bool bDraw)
 
 	// 操作方法表示の描画状況を設定
 	m_pControl->SetEnableDraw(bDraw);
-}
 
-//============================================================
-//	フェードインの更新処理
-//============================================================
-void CTutorialManager::UpdateFadeIn(void)
-{
-	// 変数を宣言
-	D3DXCOLOR colFade = m_pFade->GetColor();	// フェードの色
+	//--------------------------------------------------------
+	//	描画状況を状況に応じて変更して設定
+	//--------------------------------------------------------
+	bool bDrawControl = bDraw;	// 操作方法の表示状況
+	if (m_nLesson == LESSON_05)
+	{ // 最後のレッスンの場合
 
-	if (colFade.a < COL_FADE_MAX.a)
-	{ // 透明量が設定値未満の場合
-
-		// 透明度を加算
-		colFade.a += FADE_LEVEL;
-	}
-	else
-	{ // 透明量が設定値以上の場合
-
-		// 透明度を補正
-		colFade.a = COL_FADE_MAX.a;
-
-		// 説明表示の描画を再開
-		m_pExplain->SetEnableDraw(true);
-
-		// 説明表示の初期ポリゴン拡大率を設定
-		m_fScale = SET_SCALE;
-
-		// 状態を設定
-		m_state = STATE_EXPLAIN;	// 説明表示状態
-
-		// 便箋めくり音の再生
-		//PLAY_SOUND(CSound::LABEL_SE_PAPER);	// TODO
+		// 操作方法を表示しない状態にする
+		bDrawControl = false;
 	}
 
-	// 透明度を反映
-	m_pFade->SetColor(colFade);
-}
-
-//============================================================
-//	説明表示の更新処理
-//============================================================
-void CTutorialManager::UpdateExplain(void)
-{
-	if (m_fScale < 1.0f)
-	{ // 拡大率が最小値未満の場合
-
-		// 拡大率を加算
-		m_fScale += ADD_SCALE;
-
-		// 説明表示の大きさを設定
-		m_pExplain->SetVec3Sizing(SIZE_EXPLAIN * m_fScale);
-	}
-	else
-	{ // 拡大率が最小値以下の場合
-
-		// 説明表示の大きさを設定
-		m_pExplain->SetVec3Sizing(SIZE_EXPLAIN);
-
-		// 状態を設定
-		m_state = STATE_FADEWAIT;	// フェード待機状態
-	}
-}
-
-//============================================================
-//	フェード待機の更新処理
-//============================================================
-void CTutorialManager::UpdateFadeWait(void)
-{
-	// 変数を宣言
-	D3DXCOLOR colControl = m_pClose->GetColor();	// 説明終了表示の色
-
-	// ポインタを宣言
-	CInputKeyboard	*pKeyboard	= GET_INPUTKEY;	// キーボード
-	CInputPad		*pPad		= GET_INPUTPAD;	// パッド
-
-	if (pKeyboard->IsTrigger(DIK_RETURN)
-	||  pKeyboard->IsTrigger(DIK_SPACE)
-	||  pPad->IsTrigger(CInputPad::KEY_A)
-	||  pPad->IsTrigger(CInputPad::KEY_B)
-	||  pPad->IsTrigger(CInputPad::KEY_X)
-	||  pPad->IsTrigger(CInputPad::KEY_Y)
-	||  pPad->IsTrigger(CInputPad::KEY_START))
-	{
-		// ポリゴン点滅向きを初期化
-		m_fSinRot = -HALF_PI;
-
-		// 説明表示の初期ポリゴン拡大率を設定
-		m_fScale = SET_SCALE;
-
-		// 説明表示の大きさを設定
-		m_pExplain->SetVec3Sizing(SIZE_EXPLAIN * m_fScale);
-
-		// 説明表示の描画を停止
-		m_pExplain->SetEnableDraw(false);
-
-		// 状態を設定
-		m_state = STATE_FADEOUT;	// フェードアウト状態
-	}
-
-	// 説明終了表示の点滅向きを加算
-	m_fSinRot += ADD_ROT;
-	useful::NormalizeRot(m_fSinRot);	// 向きを補正
-
-	// 説明終了表示のα値を変更
-	colControl.a = (1.0f / 2.0f) * (sinf(m_fSinRot) + 1.0f);
-
-	// 説明終了表示の色を反映
-	m_pClose->SetColor(colControl);
-}
-
-//============================================================
-//	フェードアウトの更新処理
-//============================================================
-void CTutorialManager::UpdateFadeOut(void)
-{
-	// 変数を宣言
-	D3DXCOLOR colFade = m_pFade->GetColor();	// フェードの色
-
-	if (colFade.a > COL_FADE_MIN.a)
-	{ // 透明量が設定値より大きい場合
-
-		// 透明度を減算
-		colFade.a -= FADE_LEVEL;
-	}
-	else
-	{ // 透明量が設定値以下の場合
-
-		// 透明度を補正
-		colFade.a = COL_FADE_MIN.a;
-
-
-		// TODO：必要なら処理を考える
-#if 0
-		// プレイヤーを再出現させる
-		CScene::GetPlayer()->SetRespawn(PLAY_SPAWN_POS);
-
-		switch (m_nLesson)
-		{ // レッスンごとの処理
-		case LESSON_05:	// レッスン05：マナ回復
-
-			// マナの回復をできるように変更
-			CScene::GetPlayer()->SetEnableHealMana(true);
-
-			// マナを空にする
-			CScene::GetPlayer()->SetMana(0);
-
-			break;
-
-		case LESSON_06:	// レッスン06：敵への攻撃
-
-			// 敵ランダム生成
-			CEnemy::RandomSpawn(NEXT_LESSON[LESSON_06], CEnemy::TYPE_HUMAN);
-
-			break;
-		}
-#endif
-
-		// 進行状態時に表示するUIの描画を再開
-		SetEnableProgressionDraw(true);
-
-		// 状態を設定
-		m_state = STATE_PROGRESSION;	// 進行状態
-	}
-
-	// 透明度を反映
-	m_pFade->SetColor(colFade);
+	// レッスン管理カウンターの描画状況を設定
+	m_pCounterLesson->SetEnableDraw(bDrawControl);
 }
 
 //============================================================
@@ -766,9 +480,6 @@ void CTutorialManager::UpdateNextWait(void)
 
 		// 次レッスンへの移行
 		NextLesson();
-
-		// 進行状態時に表示するUIの描画を停止
-		SetEnableProgressionDraw(false);
 	}
 }
 
@@ -783,6 +494,25 @@ void CTutorialManager::NextLesson(void)
 	// レッスンを次に進める
 	m_nLesson++;
 
+	// 進行状態時に表示するUIの描画を再開
+	SetEnableProgressionDraw(true);
+
+	if (m_nLesson < LESSON_MAX)
+	{ // レッスンがまだある場合
+
+		// 状態を設定
+		m_state = STATE_PROGRESSION;	// 進行状態
+	}
+	else
+	{ // レッスンがもうない場合
+
+		// 状態を設定
+		m_state = STATE_END;	// 終了状態
+
+		// 関数を抜ける
+		return;
+	}
+
 	// レッスンカウンターの最大値を設定
 	m_pCounterLesson->SetMaxNum(NEXT_LESSON[m_nLesson]);
 
@@ -792,28 +522,9 @@ void CTutorialManager::NextLesson(void)
 	//--------------------------------------------------------
 	//	レッスン表示を更新
 	//--------------------------------------------------------
-	// レッスン説明テクスチャを登録・割当
-	m_pExplain->BindTexture(LESSON_TEX_FILE[m_nLesson]);
-
 	// レッスン小説明テクスチャを登録・割当
 	m_pGuide->BindTexture(GUIDE_TEX_FILE[m_nLesson]);
 
 	// レッスン操作方法テクスチャを登録・割当
 	m_pControl->BindTexture(CONT_TEX_FILE[m_nLesson]);
-
-	//--------------------------------------------------------
-	//	状態を更新
-	//--------------------------------------------------------
-	if (m_nLesson < LESSON_MAX)
-	{ // レッスンがまだある場合
-
-		// 状態を設定
-		m_state = STATE_FADEIN;	// フェードイン状態
-	}
-	else
-	{ // レッスンがもうない場合
-
-		// 状態を設定
-		m_state = STATE_END;	// 終了状態
-	}
 }

@@ -39,12 +39,8 @@ public:
 	enum EState
 	{
 		STATE_NONE = 0,		// 何もしない状態
-		STATE_FADEIN,		// フェードイン状態
-		STATE_EXPLAIN,		// 説明表示状態
-		STATE_FADEWAIT,		// フェード待機状態
-		STATE_FADEOUT,		// フェードアウト状態
-		STATE_PROGRESSION,	// 進行状態
 		STATE_NEXTWAIT,		// 次レッスン待機状態
+		STATE_PROGRESSION,	// 進行状態
 		STATE_END,			// 終了状態
 		STATE_MAX			// この列挙型の総数
 	};
@@ -57,6 +53,7 @@ public:
 		LESSON_02,			// レッスン02：ジャンプ
 		LESSON_03,			// レッスン03：回避
 		LESSON_04,			// レッスン04：攻撃
+		LESSON_05,			// レッスン05：終了
 		LESSON_MAX			// この列挙型の総数
 	};
 
@@ -82,19 +79,11 @@ public:
 private:
 	// メンバ関数
 	void SetEnableProgressionDraw(const bool bDraw);	// 進行状態時に表示するUIの描画状況設定
-
-	void UpdateFadeIn(void);	// フェードイン
-	void UpdateExplain(void);	// 説明表示
-	void UpdateFadeWait(void);	// フェード待機
-	void UpdateFadeOut(void);	// フェードアウト
 	void UpdateNextWait(void);	// 次レッスン待機
 	void NextLesson(void);		// 次レッスンへの移行
 
 	// メンバ変数
 	CGauge2D *m_pCounterLesson;	// レッスン管理カウンターの情報
-	CObject2D *m_pFade;			// フェードの情報
-	CObject2D *m_pExplain;		// 説明表示の情報
-	CObject2D *m_pClose;		// 説明終了表示の情報
 	CObject2D *m_pGuide;		// 小説明表示の情報
 	CObject2D *m_pGuideBG;		// 小説明表示の背景情報
 	CObject2D *m_pControl;		// 操作方法表示の情報
@@ -102,8 +91,6 @@ private:
 	EState m_state;				// 状態
 	int m_nCounterState;		// 状態管理カウンター
 	int m_nLesson;				// レッスン
-	float m_fScale;				// ポリゴン拡大率
-	float m_fSinRot;			// ポリゴン点滅向き
 };
 
 #endif	// _TUTORIAL_MANAGER_H_

@@ -67,11 +67,6 @@ HRESULT CSceneTutorial::Init(void)
 	//--------------------------------------------------------
 	//	初期設定
 	//--------------------------------------------------------
-	// カメラを追従状態に設定
-	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
-	pCamera->SetState(CCamera::STATE_FOLLOW);		// カメラを追従状態に設定
-	pCamera->SetDestFollow();						// カメラ目標位置の初期化
-
 	// BGMの再生
 	PLAY_SOUND(CSound::LABEL_BGM_TUTORIAL);
 

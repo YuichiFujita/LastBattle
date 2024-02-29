@@ -72,6 +72,14 @@ HRESULT CPlayerTutorial::Init(void)
 	SetEnableUpdate(true);
 	SetEnableDraw(true);
 
+	// カメラを追従状態に設定
+	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+	pCamera->SetState(CCamera::STATE_FOLLOW);		// カメラを追従状態に設定
+	pCamera->SetDestFollow();						// カメラ目標位置の初期化
+
+	// カメラの過去向きを保存
+	m_oldCamRot = pCamera->GetRotation();
+
 	// 成功を返す
 	return S_OK;
 }
@@ -90,32 +98,11 @@ void CPlayerTutorial::Uninit(void)
 //============================================================
 void CPlayerTutorial::Update(void)
 {
-	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
-	CTutorialManager *pTutorialManager = CSceneTutorial::GetTutorialManager();	// チュートリアルマネージャー情報
-
-	if (GET_MANAGER->GetMode() == CScene::MODE_TUTORIAL)
-	{ // チュートリアル画面の場合
-
-		CTutorialManager::EState state = pTutorialManager->GetState();	// チュートリアル状態
-		if (state != CTutorialManager::STATE_PROGRESSION
-		&&  state != CTutorialManager::STATE_NEXTWAIT)
-		{ // レッスン確認状態の場合
-
-			// カメラの更新をOFFにする
-			pCamera->SetEnableUpdate(false);
-			return;
-		}
-		else
-		{ // レッスン確認状態ではない場合
-
-			// カメラの更新をONにする
-			pCamera->SetEnableUpdate(true);
-		}
-	}
-
 	// 状態が通常以外ならエラー
 	assert(GetState() == STATE_NORMAL);
 
+	CCamera *pCamera = GET_MANAGER->GetCamera();	// カメラ情報
+	CTutorialManager *pTutorialManager = CSceneTutorial::GetTutorialManager();	// チュートリアルマネージャー情報
 	if (pTutorialManager->GetLesson() == CTutorialManager::LESSON_01)
 	{ // レッスン01：移動・カメラ操作に挑戦中の場合
 
