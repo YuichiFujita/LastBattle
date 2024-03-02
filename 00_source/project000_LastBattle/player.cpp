@@ -80,6 +80,48 @@ namespace
 		D3DXVECTOR3(-5.8f, 0.0f, 0.0f),	// ‰EŒ•
 		D3DXVECTOR3(5.8f, 0.0f, 0.0f),	// ¶Œ•
 	};
+
+	const int LOWER_BLEND_MOTION[] =	// ‰º”¼gƒ‚[ƒVƒ‡ƒ“‚ÌƒuƒŒƒ“ƒhƒtƒŒ[ƒ€
+	{
+		0,	// “oêƒ‚[ƒVƒ‡ƒ“
+		10,	// ‘Ò‹@ƒ‚[ƒVƒ‡ƒ“
+		10,	// •àsƒ‚[ƒVƒ‡ƒ“
+		0,	// UŒ‚ƒ‚[ƒVƒ‡ƒ“ˆê’iŠK–Ú
+		0,	// UŒ‚ƒ‚[ƒVƒ‡ƒ““ñ’iŠK–Ú
+		0,	// UŒ‚ƒ‚[ƒVƒ‡ƒ“ŽO’iŠK–Ú
+		10,	// ‰ñ”ðƒ‚[ƒVƒ‡ƒ“
+		0,	// ƒWƒƒƒ“ƒvƒ‚[ƒVƒ‡ƒ“
+		3,	// —Ž‰ºƒ‚[ƒVƒ‡ƒ“
+		3,	// ’…’nƒ‚[ƒVƒ‡ƒ“
+		0,	// ‹ó’†UŒ‚ƒ‚[ƒVƒ‡ƒ“ˆê’iŠK–Ú
+		0,	// ‹ó’†UŒ‚ƒ‚[ƒVƒ‡ƒ““ñ’iŠK–Ú
+		10,	// ƒ‰ƒCƒh‘Ò‹@ƒ‚[ƒVƒ‡ƒ“
+		0,	// ƒ‰ƒCƒhUŒ‚ƒ‚[ƒVƒ‡ƒ“ˆê’iŠK–Ú
+		0,	// ƒ‰ƒCƒhUŒ‚ƒ‚[ƒVƒ‡ƒ““ñ’iŠK–Ú
+		10,	// Ž€–Sƒ‚[ƒVƒ‡ƒ“
+		0,	// ƒ^ƒCƒgƒ‹UŒ‚ƒ‚[ƒVƒ‡ƒ“
+	};
+	const int UPPER_BLEND_MOTION[] =	// ã”¼gƒ‚[ƒVƒ‡ƒ“‚ÌƒuƒŒƒ“ƒhƒtƒŒ[ƒ€
+	{
+		0,	// “oêƒ‚[ƒVƒ‡ƒ“
+		10,	// ‘Ò‹@ƒ‚[ƒVƒ‡ƒ“
+		10,	// •àsƒ‚[ƒVƒ‡ƒ“
+		0,	// UŒ‚ƒ‚[ƒVƒ‡ƒ“ˆê’iŠK–Ú
+		0,	// UŒ‚ƒ‚[ƒVƒ‡ƒ““ñ’iŠK–Ú
+		0,	// UŒ‚ƒ‚[ƒVƒ‡ƒ“ŽO’iŠK–Ú
+		10,	// ‰ñ”ðƒ‚[ƒVƒ‡ƒ“
+		0,	// ƒWƒƒƒ“ƒvƒ‚[ƒVƒ‡ƒ“
+		3,	// —Ž‰ºƒ‚[ƒVƒ‡ƒ“
+		3,	// ’…’nƒ‚[ƒVƒ‡ƒ“
+		0,	// ‹ó’†UŒ‚ƒ‚[ƒVƒ‡ƒ“ˆê’iŠK–Ú
+		0,	// ‹ó’†UŒ‚ƒ‚[ƒVƒ‡ƒ““ñ’iŠK–Ú
+		10,	// ƒ‰ƒCƒh‘Ò‹@ƒ‚[ƒVƒ‡ƒ“
+		0,	// ƒ‰ƒCƒhUŒ‚ƒ‚[ƒVƒ‡ƒ“ˆê’iŠK–Ú
+		0,	// ƒ‰ƒCƒhUŒ‚ƒ‚[ƒVƒ‡ƒ““ñ’iŠK–Ú
+		10,	// Ž€–Sƒ‚[ƒVƒ‡ƒ“
+		0,	// ƒ^ƒCƒgƒ‹UŒ‚ƒ‚[ƒVƒ‡ƒ“
+	};
+
 	const D3DXVECTOR3 SPAWN_POS = D3DXVECTOR3(0.0f, 0.0f, -600.0f);	// ƒXƒ|[ƒ“ˆÊ’u
 	const D3DXVECTOR3 SPAWN_ROT = D3DXVECTOR3(0.0f, D3DX_PI, 0.0f);	// ƒXƒ|[ƒ“Œü‚«
 
@@ -147,7 +189,7 @@ namespace
 		const D3DXVECTOR3	OFFSET_FRAME = D3DXVECTOR3(-0.4f, -13.0f, 0.0f);		// ƒtƒŒ[ƒ€ƒIƒtƒZƒbƒg
 		const D3DXCOLOR		COL_FRONT	 = D3DXCOLOR(0.98f, 0.98f, 0.02f, 1.0f);	// •\ƒQ[ƒWF
 		const D3DXCOLOR		COL_BACK	 = D3DXCOLOR(0.03f, 0.03f, 0.008f, 1.0f);	// — ƒQ[ƒWF
-		const int	MAX_LIFE		= 200;	// Å‘å•\Ž¦’l
+		const int	MAX_LIFE		= 320;	// Å‘å•\Ž¦’l
 		const int	CHANGE_FRAME	= 40;	// •\Ž¦’l•Ï“®ƒtƒŒ[ƒ€
 	}
 
@@ -180,6 +222,8 @@ CPlayer::AFuncUpdateMotion CPlayer::m_aFuncUpdateMotion[] =	// ƒ‚[ƒVƒ‡ƒ“XVŠÖ
 //************************************************************
 static_assert(NUM_ARRAY(LOWER_MODEL_FILE) == CPlayer::L_MODEL_MAX, "ERROR : Model Count Mismatch");
 static_assert(NUM_ARRAY(UPPER_MODEL_FILE) == CPlayer::U_MODEL_MAX, "ERROR : Model Count Mismatch");
+static_assert(NUM_ARRAY(LOWER_BLEND_MOTION) == CPlayer::L_MOTION_MAX, "ERROR : Motion Count Mismatch");
+static_assert(NUM_ARRAY(UPPER_BLEND_MOTION) == CPlayer::U_MOTION_MAX, "ERROR : Motion Count Mismatch");
 static_assert(NUM_ARRAY(SETUP_TXT)    == CPlayer::BODY_MAX, "ERROR : Body Count Mismatch");
 static_assert(NUM_ARRAY(SWORD_OFFSET) == player::NUM_SWORD, "ERROR : Body Count Mismatch");
 
@@ -1124,16 +1168,17 @@ void CPlayer::SetRideEnd(void)
 //============================================================
 void CPlayer::SetMotion
 (
-	const EBody bodyID,		// g‘ÌƒCƒ“ƒfƒbƒNƒX
-	const int nType,		// ƒ‚[ƒVƒ‡ƒ“Ží—Þ
-	const int nBlendFrame	// ƒuƒŒƒ“ƒhƒtƒŒ[ƒ€
+	const EBody bodyID,			// g‘ÌƒCƒ“ƒfƒbƒNƒX
+	const int nType,			// ƒ‚[ƒVƒ‡ƒ“Ží—Þ
+	const int /*nBlendFrame*/	// ƒuƒŒƒ“ƒhƒtƒŒ[ƒ€
 )
 {
+	int aBlendFrame[] = { LOWER_BLEND_MOTION[nType], UPPER_BLEND_MOTION[nType] };	// ƒ‚[ƒVƒ‡ƒ“ƒuƒŒƒ“ƒhƒtƒŒ[ƒ€
 	if (bodyID > NONE_IDX && bodyID < BODY_MAX)
 	{ // ³‹KƒCƒ“ƒfƒbƒNƒX‚Ìê‡
 
 		// ˆø”ƒCƒ“ƒfƒbƒNƒX‚Ìƒ‚[ƒVƒ‡ƒ“‚ðÝ’è
-		CObjectDivChara::SetMotion(bodyID, nType, nBlendFrame);
+		CObjectDivChara::SetMotion(bodyID, nType, aBlendFrame[bodyID]);
 
 		if (bodyID == BODY_UPPER)
 		{ // ã”¼g‚Ìê‡

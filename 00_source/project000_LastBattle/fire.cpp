@@ -21,7 +21,7 @@ namespace
 	const D3DXVECTOR3 SHADOW_SIZE = D3DXVECTOR3(70.0f, 0.0f, 70.0f);	// 影の大きさ
 	const float SHADOW_MAX_ALPHA  = 0.35f;	// 影の最大透明度
 
-	const int	DMG_FIRE	= 15;		// 炎のダメージ量
+	const int	DMG_FIRE	= 30;		// 炎のダメージ量
 	const float COLL_RADIUS	= 44.0f;	// 判定の半径
 }
 
