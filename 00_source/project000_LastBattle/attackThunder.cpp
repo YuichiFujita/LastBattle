@@ -208,7 +208,7 @@ void CAttackThunder::Update(void)
 				D3DXVECTOR3 posImpact = D3DXVECTOR3(m_posOrigin.x, pStage->GetStageLimit().fField, m_posOrigin.z);
 				CWaveLand::Create
 				( // ˆø”
-					CWave::TEXTURE_NONE,	// í—Ş
+					CWave::TEXTURE_IMPACT,	// í—Ş
 					posImpact,				// ˆÊ’u
 					wave::COL,				// F
 					wave::GROW,				// ¬’·—Ê
