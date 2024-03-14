@@ -11,6 +11,11 @@
 #define _SHADER_H_
 
 //************************************************************
+//	インクルードファイル
+//************************************************************
+#include "texture.h"
+
+//************************************************************
 //	クラス定義
 //************************************************************
 // シェーダークラス
@@ -27,7 +32,7 @@ public:
 	virtual HRESULT Init(void);	// 初期化
 	virtual void Uninit(void);	// 終了
 	virtual void SetLightDirect(D3DXMATRIX *pMtxWorld, const int nLightID);	// ライト方向ベクトル設定
-	virtual void SetTexture(const LPDIRECT3DTEXTURE9 *pTexture);	// テクスチャ設定 (ポインタ)
+	virtual void SetTexture(const CTexture::STexture& rTexture);	// テクスチャ設定 (ポインタ)
 	virtual void SetTexture(const int nTextureID);					// テクスチャ設定 (インデックス)
 	virtual void SetMaterial(const D3DMATERIAL9& rMaterial);		// マテリアル設定
 	virtual void SetDiffuse(const D3DXCOLOR& rDiffuse);				// 拡散光設定

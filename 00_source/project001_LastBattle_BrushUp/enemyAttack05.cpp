@@ -336,7 +336,7 @@ void CEnemyAttack05::UpdateAttack(void)
 			// ”»’èî•ñ‚Ì—v‘f”Ô†
 			int nCntArray = 0;
 
-			for (auto coll : vector)
+			for (auto& rColl : vector)
 			{ // ”z—ñ‚Ì—v‘f”•ªŒJ‚è•Ô‚·
 
 				// “G‚Ì”»’èˆÊ’u‚ðŒvŽZ
@@ -350,7 +350,7 @@ void CEnemyAttack05::UpdateAttack(void)
 				( // ˆø”
 					posCollEnemy,	// ”»’èˆÊ’u
 					posCentPlayer,	// ”»’è–Ú•WˆÊ’u
-					coll.fRadius * scaleParts.x * SCALE_COLL_PLUS,	// ”»’è”¼Œa
+					rColl.fRadius * scaleParts.x * SCALE_COLL_PLUS,	// ”»’è”¼Œa
 					pPlayer->GetRadius()							// ”»’è–Ú•W”¼Œa
 				);
 				if (bHit)

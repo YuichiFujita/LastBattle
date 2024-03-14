@@ -17,8 +17,6 @@
 //************************************************************
 namespace
 {
-	const char *SETUP_TXT = "data\\TXT\\model.txt";	// セットアップテキスト相対パス
-
 	const D3DXVECTOR3 INIT_VTXMIN = D3DXVECTOR3( 9999.0f,  9999.0f,  9999.0f);	// モデルの最小の頂点座標の初期値
 	const D3DXVECTOR3 INIT_VTXMAX = D3DXVECTOR3(-9999.0f, -9999.0f, -9999.0f);	// モデルの最大の頂点座標の初期値
 }
@@ -36,11 +34,8 @@ int CModel::m_nNumAll = 0;	// モデルの総数
 //============================================================
 CModel::CModel()
 {
-	// モデルへのポインタをクリア
-	memset(&m_aModel[0], 0, sizeof(m_aModel));
-
-	// 全ファイル名を削除
-	m_sFileName.clear();
+	// モデル連想配列をクリア
+	m_mapModel.clear();
 }
 
 //============================================================
@@ -56,14 +51,8 @@ CModel::~CModel()
 //============================================================
 HRESULT CModel::Load(void)
 {
-	// モデルへのポインタを初期化
-	memset(&m_aModel[0], 0, sizeof(m_aModel));
-
-	// 全ファイル名を削除
-	m_sFileName.clear();
-
-	// セットアップの読込
-	LoadSetup();
+	// モデル連想配列を初期化
+	m_mapModel.clear();
 
 	// 成功を返す
 	return S_OK;
@@ -74,22 +63,21 @@ HRESULT CModel::Load(void)
 //============================================================
 void CModel::Unload(void)
 {
-	// モデルの破棄
-	for (int nCntModel = 0; nCntModel < model::MAX_NUM; nCntModel++)
-	{ // モデルの最大数分繰り返す
+	for (auto& rMap : m_mapModel)
+	{ // モデルの要素数分繰り返す
 
 		// テクスチャインデックスの破棄
-		SAFE_FREE(m_aModel[nCntModel].pTextureID);
+		SAFE_FREE(rMap.second.modelData.pTextureID);
 
 		// メッシュの破棄
-		SAFE_RELEASE(m_aModel[nCntModel].pMesh);
+		SAFE_RELEASE(rMap.second.modelData.pMesh);
 
 		// マテリアルの破棄
-		SAFE_RELEASE(m_aModel[nCntModel].pBuffMat);
+		SAFE_RELEASE(rMap.second.modelData.pBuffMat);
 	}
 
-	// 全ファイル名を削除
-	m_sFileName.clear();
+	// モデル連想配列をクリア
+	m_mapModel.clear();
 }
 
 //============================================================
@@ -98,16 +86,17 @@ void CModel::Unload(void)
 int CModel::Regist(const char *pFileName)
 {
 	// 変数を宣言
+	SMapInfo tempMapInfo;	// マップ情報
 	int nID = m_nNumAll;	// モデル読込番号
 
 	if (pFileName != nullptr)
 	{ // ポインタが使用されている場合
 
 		int nCntModel = 0;	// モデル番号
-		for (auto sFileName : m_sFileName)
-		{ // 最後尾まで繰り返す
+		for (const auto& rMap : m_mapModel)
+		{ // モデルの要素数分繰り返す
 
-			if (sFileName.compare(pFileName) == 0)
+			if (rMap.second.sFilePassName.compare(pFileName) == 0)
 			{ // 文字列が一致した場合
 
 				// すでに読み込んでいるモデルの配列番号を返す
@@ -118,26 +107,18 @@ int CModel::Regist(const char *pFileName)
 			nCntModel++;
 		}
 
-		if (m_nNumAll >= model::MAX_NUM)
-		{ // モデルオーバーの場合
+		// xファイルの読込
+		if (FAILED(LoadXFileModel(&tempMapInfo, pFileName)))
+		{ // xファイルの読込に失敗した場合
 
 			// 失敗を返す
 			assert(false);
 			return NONE_IDX;
 		}
 
-		// xファイルの読み込み
-		if (FAILED(LoadXFileModel(nID, pFileName)))
-		{ // xファイルの読み込みに失敗した場合
-
-			// 失敗を返す
-			assert(false);
-			return NONE_IDX;
-		}
-
-		// テクスチャの読み込み
-		if (FAILED(LoadTextureModel(nID)))
-		{ // テクスチャの読み込みに失敗した場合
+		// テクスチャの読込
+		if (FAILED(LoadTextureModel(&tempMapInfo)))
+		{ // テクスチャの読込に失敗した場合
 
 			// 失敗を返す
 			assert(false);
@@ -145,10 +126,19 @@ int CModel::Regist(const char *pFileName)
 		}
 
 		// 当たり判定の作成
-		SetCollisionModel(nID);
+		if (FAILED(SetCollisionModel(&tempMapInfo)))
+		{ // 当たり判定の作成に失敗した場合
 
-		// モデルのファイル名を保存
-		m_sFileName.push_back(pFileName);
+			// 失敗を返す
+			assert(false);
+			return NONE_IDX;
+		}
+
+		// ファイルパス名を保存
+		tempMapInfo.sFilePassName = pFileName;
+
+		// モデル情報を生成
+		m_mapModel.insert(std::make_pair(m_nNumAll, tempMapInfo));
 
 		// モデルの総数を加算
 		m_nNumAll++;
@@ -168,15 +158,21 @@ int CModel::Regist(const char *pFileName)
 //============================================================
 //	モデル情報取得処理
 //============================================================
-CModel::SModel *CModel::GetModel(const int nID)
+CModel::SModel *CModel::GetInfo(const int nID)
 {
-	if (nID > NONE_IDX && nID < m_nNumAll)
-	{ // 引数のインデックスが範囲内の場合
+	if (nID > NONE_IDX && nID < (int)m_mapModel.size())
+	{ // モデルがある場合
 
-		// 引数のモデルアドレスを返す
-		return &m_aModel[nID];
+		// 引数のモデル情報を返す
+		return &m_mapModel.find(nID)->second.modelData;
 	}
-	else { assert(false); return nullptr; }	// 範囲外
+	else
+	{ // モデルがない場合
+
+		// nullptrを返す
+		assert(false);
+		return nullptr;
+	}
 }
 
 //============================================================
@@ -224,49 +220,41 @@ void CModel::Release(CModel *&prModel)
 //============================================================
 //	xファイルの読み込み
 //============================================================
-HRESULT CModel::LoadXFileModel(const int nID, const char *pFileName)
+HRESULT CModel::LoadXFileModel(SMapInfo *pMapInfo, const char *pFileName)
 {
-	// 変数を宣言
-	HRESULT hr;	// 異常終了の確認用
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+	// マップ情報の指定がない場合エラー
+	if (pMapInfo == nullptr) { return E_FAIL; }
 
 	// xファイルの読み込み
+	HRESULT hr;
 	hr = D3DXLoadMeshFromX
 	( // 引数
-		pFileName,					// モデルの相対パス
-		D3DXMESH_SYSTEMMEM,			// メッシュ作成用オプション
-		pDevice,					// デバイスへのポインタ
-		nullptr,					// 隣接性データ
-		&m_aModel[nID].pBuffMat,	// マテリアルへのポインタ
-		nullptr,					// エフェクトデータ
-		&m_aModel[nID].dwNumMat,	// マテリアルの数
-		&m_aModel[nID].pMesh		// メッシュ (頂点情報) へのポインタ
+		pFileName,						// モデルの相対パス
+		D3DXMESH_SYSTEMMEM,				// メッシュ作成用オプション
+		GET_DEVICE,						// デバイスへのポインタ
+		nullptr,						// 隣接性データ
+		&pMapInfo->modelData.pBuffMat,	// マテリアルへのポインタ
+		nullptr,						// エフェクトデータ
+		&pMapInfo->modelData.dwNumMat,	// マテリアルの数
+		&pMapInfo->modelData.pMesh		// メッシュ (頂点情報) へのポインタ
 	);
-
 	if (FAILED(hr))
 	{ // xファイルの読み込みに失敗した場合
 
 		// エラーメッセージボックス
-		MessageBox(nullptr, "xファイルの読み込みに失敗！", "警告！", MB_ICONWARNING);
+		MessageBox(nullptr, "xファイルの読込に失敗！", "警告！", MB_ICONWARNING);
 
 		// 失敗を返す
 		return E_FAIL;
 	}
 
-	if (m_aModel[nID].pTextureID == nullptr)
-	{ // 使用されていない場合
-
-		// 確保したメモリのアドレスを取得
-		m_aModel[nID].pTextureID = (int*)malloc(m_aModel[nID].dwNumMat * sizeof(int*));
-	}
-
-	if (m_aModel[nID].pTextureID == nullptr)
+	// マテリアル数分メモリ確保
+	pMapInfo->modelData.pTextureID = (int*)malloc(pMapInfo->modelData.dwNumMat * sizeof(int*));
+	if (pMapInfo->modelData.pTextureID == nullptr)
 	{ // 動的確保に失敗した場合
 
 		// エラーメッセージボックス
-		MessageBox(nullptr, "動的確保に失敗！", "警告！", MB_ICONWARNING);
+		MessageBox(nullptr, "メモリの確保に失敗！", "警告！", MB_ICONWARNING);
 
 		// 失敗を返す
 		return E_FAIL;
@@ -279,29 +267,32 @@ HRESULT CModel::LoadXFileModel(const int nID, const char *pFileName)
 //============================================================
 //	テクスチャの読み込み
 //============================================================
-HRESULT CModel::LoadTextureModel(const int nID)
+HRESULT CModel::LoadTextureModel(SMapInfo *pMapInfo)
 {
+	// マップ情報の指定がない場合エラー
+	if (pMapInfo == nullptr) { return E_FAIL; }
+
 	// ポインタを宣言
 	CTexture *pTexture = GET_MANAGER->GetTexture();	// テクスチャへのポインタ
 	D3DXMATERIAL *pMat;	// マテリアルへのポインタ
 
 	// マテリアル情報に対するポインタを取得
-	pMat = (D3DXMATERIAL*)m_aModel[nID].pBuffMat->GetBufferPointer();
+	pMat = (D3DXMATERIAL*)pMapInfo->modelData.pBuffMat->GetBufferPointer();
 
-	for (int nCntMat = 0; nCntMat < (int)m_aModel[nID].dwNumMat; nCntMat++)
+	for (int nCntMat = 0; nCntMat < (int)pMapInfo->modelData.dwNumMat; nCntMat++)
 	{ // マテリアルの数分繰り返す
 
 		if (pMat[nCntMat].pTextureFilename != nullptr)
 		{ // テクスチャファイルが存在する場合
 
 			// テクスチャを登録
-			m_aModel[nID].pTextureID[nCntMat] = pTexture->Regist(pMat[nCntMat].pTextureFilename);
+			pMapInfo->modelData.pTextureID[nCntMat] = pTexture->Regist(pMat[nCntMat].pTextureFilename);
 		}
 		else
 		{ // テクスチャファイルが存在しない場合
 
 			// テクスチャを登録
-			m_aModel[nID].pTextureID[nCntMat] = NONE_IDX;	// テクスチャなし
+			pMapInfo->modelData.pTextureID[nCntMat] = NONE_IDX;	// テクスチャなし
 		}
 	}
 
@@ -312,8 +303,11 @@ HRESULT CModel::LoadTextureModel(const int nID)
 //============================================================
 //	当たり判定の作成
 //============================================================
-void CModel::SetCollisionModel(const int nID)
+HRESULT CModel::SetCollisionModel(SMapInfo *pMapInfo)
 {
+	// マップ情報の指定がない場合エラー
+	if (pMapInfo == nullptr) { return E_FAIL; }
+
 	// 変数を宣言
 	int			nNumVtx;	// モデルの頂点数
 	DWORD		dwSizeFVF;	// モデルの頂点フォーマットのサイズ
@@ -321,13 +315,13 @@ void CModel::SetCollisionModel(const int nID)
 	D3DXVECTOR3	vtx;		// モデルの頂点座標
 
 	// モデルの頂点数を取得
-	nNumVtx = m_aModel[nID].pMesh->GetNumVertices();
+	nNumVtx = pMapInfo->modelData.pMesh->GetNumVertices();
 
 	// モデルの頂点フォーマットのサイズを取得
-	dwSizeFVF = D3DXGetFVFVertexSize(m_aModel[nID].pMesh->GetFVF());
+	dwSizeFVF = D3DXGetFVFVertexSize(pMapInfo->modelData.pMesh->GetFVF());
 
 	// モデルの頂点バッファをロック
-	m_aModel[nID].pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
+	pMapInfo->modelData.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVtxBuff);
 
 	for (int nCntVtx = 0; nCntVtx < nNumVtx; nCntVtx++)
 	{ // モデルの頂点数分繰り返す
@@ -336,45 +330,45 @@ void CModel::SetCollisionModel(const int nID)
 		vtx = *(D3DXVECTOR3*)pVtxBuff;
 
 		// x頂点座標の設定
-		if (vtx.x < m_aModel[nID].vtxMin.x)
+		if (vtx.x < pMapInfo->modelData.vtxMin.x)
 		{ // 現状の x頂点座標よりも小さい場合
 
 			// x頂点情報を代入
-			m_aModel[nID].vtxMin.x = vtx.x;
+			pMapInfo->modelData.vtxMin.x = vtx.x;
 		}
-		else if (vtx.x > m_aModel[nID].vtxMax.x)
+		else if (vtx.x > pMapInfo->modelData.vtxMax.x)
 		{ // 現状の x頂点座標よりも大きい場合
 
 			// x頂点情報を代入
-			m_aModel[nID].vtxMax.x = vtx.x;
+			pMapInfo->modelData.vtxMax.x = vtx.x;
 		}
 
 		// y頂点座標の設定
-		if (vtx.y < m_aModel[nID].vtxMin.y)
+		if (vtx.y < pMapInfo->modelData.vtxMin.y)
 		{ // 現状の y頂点座標よりも小さい場合
 
 			// y頂点情報を代入
-			m_aModel[nID].vtxMin.y = vtx.y;
+			pMapInfo->modelData.vtxMin.y = vtx.y;
 		}
-		else if (vtx.y > m_aModel[nID].vtxMax.y)
+		else if (vtx.y > pMapInfo->modelData.vtxMax.y)
 		{ // 現状の y頂点座標よりも大きい場合
 
 			// y頂点情報を代入
-			m_aModel[nID].vtxMax.y = vtx.y;
+			pMapInfo->modelData.vtxMax.y = vtx.y;
 		}
 
 		// z頂点座標の設定
-		if (vtx.z < m_aModel[nID].vtxMin.z)
+		if (vtx.z < pMapInfo->modelData.vtxMin.z)
 		{ // 現状の z頂点座標よりも小さい場合
 
 			// z頂点情報を代入
-			m_aModel[nID].vtxMin.z = vtx.z;
+			pMapInfo->modelData.vtxMin.z = vtx.z;
 		}
-		else if (vtx.z > m_aModel[nID].vtxMax.z)
+		else if (vtx.z > pMapInfo->modelData.vtxMax.z)
 		{ // 現状の z頂点座標よりも大きい場合
 
 			// z頂点情報を代入
-			m_aModel[nID].vtxMax.z = vtx.z;
+			pMapInfo->modelData.vtxMax.z = vtx.z;
 		}
 
 		// 頂点フォーマットのサイズ分ポインタを進める
@@ -382,62 +376,14 @@ void CModel::SetCollisionModel(const int nID)
 	}
 
 	// モデルの頂点バッファをアンロック
-	m_aModel[nID].pMesh->UnlockVertexBuffer();
+	pMapInfo->modelData.pMesh->UnlockVertexBuffer();
 
 	// モデルサイズを求める
-	m_aModel[nID].size = m_aModel[nID].vtxMax - m_aModel[nID].vtxMin;
+	pMapInfo->modelData.size = pMapInfo->modelData.vtxMax - pMapInfo->modelData.vtxMin;
 
 	// モデルの円の当たり判定を作成
-	m_aModel[nID].fRadius = ((m_aModel[nID].size.x * 0.5f) + (m_aModel[nID].size.z * 0.5f)) * 0.5f;
-}
+	pMapInfo->modelData.fRadius = ((pMapInfo->modelData.size.x * 0.5f) + (pMapInfo->modelData.size.z * 0.5f)) * 0.5f;
 
-//============================================================
-//	セットアップ処理
-//============================================================
-void CModel::LoadSetup(void)
-{
-	// 変数を宣言
-	int nEnd = 0;	// テキスト読み込み終了の確認用
-
-	// 変数配列を宣言
-	char aString[MAX_STRING];	// テキストの文字列の代入用
-
-	// ポインタを宣言
-	FILE *pFile;	// ファイルポインタ
-
-	// ファイルを読み込み形式で開く
-	pFile = fopen(SETUP_TXT, "r");
-
-	if (pFile != nullptr)
-	{ // ファイルが開けた場合
-
-		do
-		{ // 読み込んだ文字列が EOF ではない場合ループ
-
-			// ファイルから文字列を読み込む
-			nEnd = fscanf(pFile, "%s", &aString[0]);	// テキストを読み込みきったら EOF を返す
-
-			if (strcmp(&aString[0], "FILENAME") == 0)
-			{ // 読み込んだ文字列が FILENAME の場合
-
-				// = を読み込む (不要)
-				fscanf(pFile, "%s", &aString[0]);
-
-				// ファイルパスを読み込む
-				fscanf(pFile, "%s", &aString[0]);
-
-				// モデルを登録
-				Regist(&aString[0]);
-			}
-		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
-		
-		// ファイルを閉じる
-		fclose(pFile);
-	}
-	else
-	{ // ファイルが開けなかった場合
-
-		// エラーメッセージボックス
-		MessageBox(nullptr, "モデルセットアップファイルの読み込みに失敗！", "警告！", MB_ICONWARNING);
-	}
+	// 成功を返す
+	return S_OK;
 }

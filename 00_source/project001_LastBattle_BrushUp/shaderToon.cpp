@@ -193,12 +193,12 @@ void CToonShader::SetLightDirect(D3DXMATRIX *pMtxWorld, const int nLightID)
 //============================================================
 //	テクスチャの設定処理 (ポインタ)
 //============================================================
-void CToonShader::SetTexture(const LPDIRECT3DTEXTURE9 *pTexture)
+void CToonShader::SetTexture(const CTexture::STexture& rTexture)
 {
 	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
 
 	// エフェクトにテクスチャの使用状況を設定
-	if (pTexture == nullptr)
+	if (rTexture.pTexture == nullptr)
 	{ // テクスチャが使用されていない場合
 
 		GetEffect()->SetBool(m_pUseTexture, false);
@@ -379,7 +379,7 @@ void CToonShader::SetToonMapTexture(const ETexture texture)
 		CTexture *pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
 
 		// エフェクトにトゥーンマップ用テクスチャを設定
-		GetEffect()->SetTexture(m_pTextureToon, pTexture->GetTexture(pTexture->Regist(TEXTURE_FILE[texture])));
+		GetEffect()->SetTexture(m_pTextureToon, pTexture->GetPtr(pTexture->Regist(TEXTURE_FILE[texture])));
 	}
 	else { assert(false); }	// 範囲外
 }

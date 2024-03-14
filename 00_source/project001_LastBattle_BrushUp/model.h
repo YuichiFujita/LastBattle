@@ -13,16 +13,8 @@
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include <vector>
+#include <map>
 #include <string>
-
-//************************************************************
-//	定数宣言
-//************************************************************
-namespace model
-{
-	const int MAX_NUM = 256;	// モデルの最大数
-}
 
 //************************************************************
 //	クラス定義
@@ -50,9 +42,16 @@ public:
 		int				*pTextureID;	// テクスチャインデックス
 	};
 
+	// マップ情報構造体
+	struct SMapInfo
+	{
+		SModel modelData;			// モデル情報
+		std::string sFilePassName;	// ファイルパス名
+	};
+
 	// メンバ関数
 	int Regist(const char *pFileName);	// モデル登録
-	SModel *GetModel(const int nID);	// モデル情報取得
+	SModel *GetInfo(const int nID);		// モデル情報取得
 
 	// 静的メンバ関数
 	static CModel *Create(void);			// 生成
@@ -60,16 +59,14 @@ public:
 
 private:
 	// メンバ関数
-	HRESULT Load(void);		// モデル生成
-	void Unload(void);		// モデル破棄
-	void LoadSetup(void);	// セットアップ
-	HRESULT LoadXFileModel(const int nID, const char *pFileName);	// xファイルの読み込み
-	HRESULT LoadTextureModel(const int nID);	// テクスチャの読み込み
-	void SetCollisionModel(const int nID);		// 当たり判定の作成
+	HRESULT Load(void);	// モデル生成
+	void Unload(void);	// モデル破棄
+	HRESULT LoadXFileModel(SMapInfo *pMapInfo, const char *pFileName);	// xファイルの読込
+	HRESULT LoadTextureModel(SMapInfo *pMapInfo);	// テクスチャの読込
+	HRESULT SetCollisionModel(SMapInfo *pMapInfo);	// 当たり判定の作成
 
 	// メンバ変数
-	SModel m_aModel[model::MAX_NUM];		// モデルへのポインタ
-	std::vector<std::string> m_sFileName;	// 読み込んだテクスチャファイル名
+	std::map<int, SMapInfo> m_mapModel;	// モデル連想配列
 
 	// 静的メンバ変数
 	static int m_nNumAll;	// モデルの総数

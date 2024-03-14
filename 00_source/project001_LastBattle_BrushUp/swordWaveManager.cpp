@@ -72,24 +72,24 @@ void CSwordWaveManager::Update(void)
 	CPlayer *pPlayer = CScene::GetPlayer();	// プレイヤー情報
 	assert(pPlayer != nullptr);
 
-	for (auto spawn : m_spawnTiming)
+	for (const auto& rSpawn : m_spawnTiming)
 	{ // 全要素分繰り返す
 
 		// 生成タイミングではない場合次に移行
-		if (spawn.nMotion != pPlayer->GetMotionType(CPlayer::BODY_LOWER))		  { continue; }
-		if (spawn.nFrame  != pPlayer->GetMotionWholeCounter(CPlayer::BODY_LOWER)) { continue; }
+		if (rSpawn.nMotion != pPlayer->GetMotionType(CPlayer::BODY_LOWER))			{ continue; }
+		if (rSpawn.nFrame  != pPlayer->GetMotionWholeCounter(CPlayer::BODY_LOWER))	{ continue; }
 
 		D3DXMATRIX  mtxPlayer = pPlayer->CalcMtxWorld();	// プレイヤーマトリックス
 		D3DXMATRIX  mtxSpawn, mtxOffset;	// 生成位置・オフセットマトリックス
 		D3DXVECTOR3 posSpawn, rotSpawn;		// 生成位置・向き
 
 		// 生成位置を設定
-		D3DXMatrixTranslation(&mtxOffset, spawn.posOffset.x, spawn.posOffset.y, spawn.posOffset.z);	// オフセットマトリックスを作成
+		D3DXMatrixTranslation(&mtxOffset, rSpawn.posOffset.x, rSpawn.posOffset.y, rSpawn.posOffset.z);	// オフセットマトリックスを作成
 		D3DXMatrixMultiply(&mtxSpawn, &mtxOffset, &mtxPlayer);	// プレイヤーマトリックスと掛け合わせる
 		posSpawn = useful::GetMatrixPosition(mtxSpawn);			// 生成ワールド座標を取得
 
 		// 生成向きを設定
-		rotSpawn = pPlayer->GetVec3Rotation() + spawn.rotOffset;
+		rotSpawn = pPlayer->GetVec3Rotation() + rSpawn.rotOffset;
 		useful::Vec3NormalizeRot(rotSpawn);	// 向き正規化
 
 		// 剣波動の生成

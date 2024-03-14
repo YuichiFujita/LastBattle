@@ -195,17 +195,17 @@ void CSwordWave::CollisionEnemy(void)
 	if (pList->GetNumAll() <= 0) { return; }	// 敵が存在しない
 
 	std::list<CEnemy*> list = pList->GetList();	// 敵リスト
-	for (auto enemy : list)
+	for (const auto& rEnemy : list)
 	{ // リストのすべてを繰り返す
 
-		int nNumParts = enemy->GetNumModel();	// パーツ数
+		int nNumParts = rEnemy->GetNumModel();	// パーツ数
 		for (int nCntColl = 0; nCntColl < nNumParts; nCntColl++)
 		{ // パーツ数分繰り返す
 
 			int nCntArray = 0;	// 判定情報の要素番号
-			CCollSphere *pColl = enemy->GetCollision(nCntColl);				// 円判定情報
+			CCollSphere *pColl = rEnemy->GetCollision(nCntColl);			// 円判定情報
 			std::vector<CCollSphere::SInfo> vector = pColl->GetVector();	// 円判定配列
-			for (auto coll : vector)
+			for (const auto& rColl : vector)
 			{ // 配列の要素数分繰り返す
 
 				// 敵の判定位置を計算
@@ -220,13 +220,13 @@ void CSwordWave::CollisionEnemy(void)
 					GetVec3Position(),	// 判定位置
 					posCollEnemy,		// 判定目標位置
 					GetHoleRadius() + GetThickness(),	// 判定半径
-					coll.fRadius						// 判定目標半径
+					rColl.fRadius						// 判定目標半径
 				);
 				if (bHit)
 				{ // 攻撃が当たった場合
 
 					// 敵のヒット処理
-					if (enemy->Hit(DMG_WAVE))
+					if (rEnemy->Hit(DMG_WAVE))
 					{ // 敵に攻撃できた場合
 
 						// 剣ヒット音の再生

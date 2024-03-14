@@ -12,14 +12,6 @@
 #include "renderer.h"
 
 //************************************************************
-//	定数宣言
-//************************************************************
-namespace
-{
-	const char *SETUP_TXT = "data\\TXT\\texture.txt";	// セットアップテキスト相対パス
-}
-
-//************************************************************
 //	静的メンバ変数宣言
 //************************************************************
 int CTexture::m_nNumAll = 0;	// テクスチャの総数
@@ -32,11 +24,8 @@ int CTexture::m_nNumAll = 0;	// テクスチャの総数
 //============================================================
 CTexture::CTexture()
 {
-	// テクスチャへのポインタをクリア
-	memset(&m_apTexture[0], 0, sizeof(m_apTexture));
-
-	// 全ファイル名を削除
-	m_sFileName.clear();
+	// テクスチャ連想配列をクリア
+	m_mapTexture.clear();
 }
 
 //============================================================
@@ -52,19 +41,8 @@ CTexture::~CTexture()
 //============================================================
 HRESULT CTexture::Load(void)
 {
-	// テクスチャへのポインタを初期化
-	for (int nCntTexture = 0; nCntTexture < texture::MAX_NUM; nCntTexture++)
-	{ // テクスチャの最大数分繰り返す
-
-		// nullを代入
-		m_apTexture[nCntTexture] = nullptr;
-	}
-
-	// 全ファイル名を削除
-	m_sFileName.clear();
-
-	// セットアップの読込
-	LoadSetup();
+	// テクスチャ連想配列を初期化
+	m_mapTexture.clear();
 
 	// 成功を返す
 	return S_OK;
@@ -75,16 +53,15 @@ HRESULT CTexture::Load(void)
 //============================================================
 void CTexture::Unload(void)
 {
-	// テクスチャの破棄
-	for (int nCntTexture = 0; nCntTexture < texture::MAX_NUM; nCntTexture++)
-	{ // テクスチャの最大数分繰り返す
+	for (auto& rMap : m_mapTexture)
+	{ // テクスチャの要素数分繰り返す
 
 		// テクスチャの破棄
-		SAFE_RELEASE(m_apTexture[nCntTexture]);
+		SAFE_RELEASE(rMap.second.textureData.pTexture);
 	}
 
-	// 全ファイル名を削除
-	m_sFileName.clear();
+	// テクスチャ連想配列をクリア
+	m_mapTexture.clear();
 }
 
 //============================================================
@@ -93,31 +70,24 @@ void CTexture::Unload(void)
 int CTexture::Regist(const SInfo info)
 {
 	// 変数を宣言
-	HRESULT hr;				// 異常終了の確認用
+	HRESULT  hr;			// 異常終了の確認用
+	SMapInfo tempMapInfo;	// マップ情報
 	int nID = m_nNumAll;	// テクスチャ読込番号
 
 	// ポインタを宣言
 	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
-	if (m_nNumAll >= texture::MAX_NUM)
-	{ // テクスチャオーバーの場合
-
-		// 失敗を返す
-		assert(false);
-		return NONE_IDX;
-	}
-
 	// 空のテクスチャを生成
 	hr = D3DXCreateTexture
 	( // 引数
-		pDevice,			// Direct3Dデバイス
-		info.Width,			// テクスチャ横幅
-		info.Height,		// テクスチャ縦幅
-		info.MipLevels,		// ミップマップレベル
-		info.Usage,			// 性質・確保オプション
-		info.Format,		// ピクセルフォーマット
-		info.Pool,			// 格納メモリ
-		&m_apTexture[nID]	// テクスチャへのポインタ
+		pDevice,		// Direct3Dデバイス
+		info.Width,		// テクスチャ横幅
+		info.Height,	// テクスチャ縦幅
+		info.MipLevels,	// ミップマップレベル
+		info.Usage,		// 性質・確保オプション
+		info.Format,	// ピクセルフォーマット
+		info.Pool,		// 格納メモリ
+		&tempMapInfo.textureData.pTexture	// テクスチャへのポインタ
 	);
 	if (FAILED(hr))
 	{ // テクスチャの生成に失敗した場合
@@ -127,8 +97,11 @@ int CTexture::Regist(const SInfo info)
 		return NONE_IDX;
 	}
 
-	// テクスチャファイル名なしを保存
-	m_sFileName.push_back(NONE_STRING);
+	// ファイルパス名を保存
+	tempMapInfo.sFilePassName = NONE_STRING;	// 読込ではないのでパス無し
+
+	// テクスチャ情報を保存
+	m_mapTexture.insert(std::make_pair(m_nNumAll, tempMapInfo));
 
 	// テクスチャの総数を加算
 	m_nNumAll++;
@@ -143,6 +116,7 @@ int CTexture::Regist(const SInfo info)
 int CTexture::Regist(const char *pFileName)
 {
 	// 変数を宣言
+	SMapInfo tempMapInfo;	// マップ情報
 	int nID = m_nNumAll;	// テクスチャ読込番号
 
 	// ポインタを宣言
@@ -152,10 +126,10 @@ int CTexture::Regist(const char *pFileName)
 	{ // ポインタが使用されている場合
 
 		int nCntTexture = 0;	// テクスチャ番号
-		for (auto sFileName : m_sFileName)
-		{ // 最後尾まで繰り返す
+		for (const auto& rMap : m_mapTexture)
+		{ // テクスチャの要素数分繰り返す
 
-			if (sFileName.compare(pFileName) == 0)
+			if (rMap.second.sFilePassName.compare(pFileName) == 0)
 			{ // 文字列が一致した場合
 
 				// すでに読み込んでいるテクスチャの配列番号を返す
@@ -166,16 +140,8 @@ int CTexture::Regist(const char *pFileName)
 			nCntTexture++;
 		}
 
-		if (m_nNumAll >= texture::MAX_NUM)
-		{ // テクスチャオーバーの場合
-
-			// 失敗を返す
-			assert(false);
-			return NONE_IDX;
-		}
-
 		// テクスチャの読み込み
-		if (FAILED(D3DXCreateTextureFromFile(pDevice, pFileName, &m_apTexture[nID])))
+		if (FAILED(D3DXCreateTextureFromFile(pDevice, pFileName, &tempMapInfo.textureData.pTexture)))
 		{ // テクスチャの読み込みに失敗した場合
 
 			// 失敗を返す
@@ -183,8 +149,11 @@ int CTexture::Regist(const char *pFileName)
 			return NONE_IDX;
 		}
 
-		// テクスチャのファイル名を保存
-		m_sFileName.push_back(pFileName);
+		// ファイルパス名を保存
+		tempMapInfo.sFilePassName = pFileName;
+
+		// テクスチャ情報を保存
+		m_mapTexture.insert(std::make_pair(m_nNumAll, tempMapInfo));
 
 		// テクスチャの総数を加算
 		m_nNumAll++;
@@ -203,13 +172,59 @@ int CTexture::Regist(const char *pFileName)
 //============================================================
 //	テクスチャ情報の取得処理
 //============================================================
-LPDIRECT3DTEXTURE9 CTexture::GetTexture(int nID)
+CTexture::STexture CTexture::GetInfo(const int nID)
+{
+	int nArray = (int)m_mapTexture.size();	// 配列要素数
+	if (nID > NONE_IDX && nID < nArray)
+	{ // テクスチャがある場合
+
+		// 引数のテクスチャ情報を返す
+		return m_mapTexture.find(nID)->second.textureData;
+	}
+	else
+	{ // テクスチャがない場合
+
+		// インデックスエラー
+		assert(false);
+
+		if (nArray > 0)
+		{ // テクスチャ生成がされている場合
+
+			// 先頭テクスチャを返す
+			return m_mapTexture.find(0)->second.textureData;
+		}
+		else
+		{ // テクスチャが一つもない場合
+
+			// 空のテクスチャ情報を返す
+			STexture tempTexture;
+			memset(&tempTexture, 0, sizeof(tempTexture));
+			return tempTexture;
+		}
+	}
+}
+
+//============================================================
+//	テクスチャポインタの取得処理
+//============================================================
+LPDIRECT3DTEXTURE9 CTexture::GetPtr(const int nID)
 {
 	if (nID >= 0 && nID < m_nNumAll)
 	{ // 引数のインデックスが範囲内の場合
 
-		// 引数のテクスチャポインタを返す
-		return m_apTexture[nID];
+		if (nID > NONE_IDX && nID < (int)m_mapTexture.size())
+		{ // テクスチャがある場合
+
+			// 引数のテクスチャポインタを返す
+			return m_mapTexture.find(nID)->second.textureData.pTexture;
+		}
+		else
+		{ // テクスチャがない場合
+
+			// nullptrを返す
+			assert(false);
+			return nullptr;
+		}
 	}
 	else if (nID == NONE_IDX)
 	{ // 引数のインデックスが -1の場合
@@ -266,55 +281,4 @@ void CTexture::Release(CTexture *&prTexture)
 
 	// メモリ開放
 	SAFE_DELETE(prTexture);
-}
-
-//============================================================
-//	セットアップ処理
-//============================================================
-void CTexture::LoadSetup(void)
-{
-	// 変数を宣言
-	int nEnd = 0;	// テキスト読み込み終了の確認用
-
-	// 変数配列を宣言
-	char aString[MAX_STRING];	// テキストの文字列の代入用
-
-	// ポインタを宣言
-	FILE *pFile;	// ファイルポインタ
-
-	// ファイルを読み込み形式で開く
-	pFile = fopen(SETUP_TXT, "r");
-
-	if (pFile != nullptr)
-	{ // ファイルが開けた場合
-
-		do
-		{ // 読み込んだ文字列が EOF ではない場合ループ
-
-			// ファイルから文字列を読み込む
-			nEnd = fscanf(pFile, "%s", &aString[0]);	// テキストを読み込みきったら EOF を返す
-
-			if (strcmp(&aString[0], "FILENAME") == 0)
-			{ // 読み込んだ文字列が FILENAME の場合
-
-				// = を読み込む (不要)
-				fscanf(pFile, "%s", &aString[0]);
-
-				// ファイルパスを読み込む
-				fscanf(pFile, "%s", &aString[0]);
-
-				// テクスチャを登録
-				Regist(&aString[0]);
-			}
-		} while (nEnd != EOF);	// 読み込んだ文字列が EOF ではない場合ループ
-		
-		// ファイルを閉じる
-		fclose(pFile);
-	}
-	else
-	{ // ファイルが開けなかった場合
-
-		// エラーメッセージボックス
-		MessageBox(nullptr, "テクスチャセットアップファイルの読み込みに失敗！", "警告！", MB_ICONWARNING);
-	}
 }

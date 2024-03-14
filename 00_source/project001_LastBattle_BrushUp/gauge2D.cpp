@@ -182,7 +182,7 @@ void CGauge2D::Draw(CShader * /*pShader*/)
 			{ // ˜g‚ð•\Ž¦‚·‚éê‡
 
 				// ƒeƒNƒXƒ`ƒƒ‚ÌÝ’è
-				pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_aTextureID[nCntGauge]));
+				pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_aTextureID[nCntGauge]));
 
 				// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
 				pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntGauge * 4, 2);
@@ -192,7 +192,7 @@ void CGauge2D::Draw(CShader * /*pShader*/)
 		{ // •`‰æ‚·‚éŽlŠpŒ`ƒ|ƒŠƒSƒ“‚ª˜gˆÈŠO‚Ìê‡
 
 			// ƒeƒNƒXƒ`ƒƒ‚ÌÝ’è
-			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_aTextureID[nCntGauge]));
+			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_aTextureID[nCntGauge]));
 
 			// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
 			pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, nCntGauge * 4, 2);

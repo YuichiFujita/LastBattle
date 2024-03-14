@@ -803,7 +803,7 @@ void CObjectMeshCube::DrawNormal(void)
 	case TEXSTATE_ONE:		// 同一テクスチャ
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_meshCube.texID.All));
+		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_meshCube.texID.All));
 
 		// ポリゴンの描画
 		pDevice->DrawIndexedPrimitive
@@ -833,7 +833,7 @@ void CObjectMeshCube::DrawNormal(void)
 		{ // 面の総数分繰り返す
 
 			// テクスチャの設定
-			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(aTexType[nCntFace]));
+			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(aTexType[nCntFace]));
 
 			// ポリゴンの描画
 			pDevice->DrawIndexedPrimitive
@@ -923,7 +923,7 @@ void CObjectMeshCube::DrawShader(CShader *pShader)
 	case TEXSTATE_ONE:		// 同一テクスチャ
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_meshCube.texID.All));
+		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_meshCube.texID.All));
 
 		// テクスチャを設定
 		pShader->SetTexture(m_meshCube.texID.All);
@@ -959,7 +959,7 @@ void CObjectMeshCube::DrawShader(CShader *pShader)
 		{ // 面の総数分繰り返す
 
 			// テクスチャの設定
-			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(aTexType[nCntFace]));
+			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(aTexType[nCntFace]));
 
 			// テクスチャを設定
 			pShader->SetTexture(aTexType[nCntFace]);

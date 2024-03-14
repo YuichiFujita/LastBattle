@@ -40,7 +40,7 @@ public:
 	void Uninit(void) override;		// 終了
 
 	void SetLightDirect(D3DXMATRIX *pMtxWorld, const int nLightID) override;	// ライト方向ベクトル設定
-	void SetTexture(const LPDIRECT3DTEXTURE9 *pTexture) override;	// テクスチャ設定 (ポインタ)
+	void SetTexture(const CTexture::STexture& rTexture) override;	// テクスチャ設定 (ポインタ)
 	void SetTexture(const int nTextureID) override;					// テクスチャ設定 (インデックス)
 	void SetMaterial(const D3DMATERIAL9& rMaterial) override;		// マテリアル設定
 	void SetDiffuse(const D3DXCOLOR& rDiffuse) override;			// 拡散光設定

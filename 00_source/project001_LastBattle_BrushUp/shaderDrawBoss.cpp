@@ -199,12 +199,12 @@ void CDrawBossShader::SetLightDirect(D3DXMATRIX *pMtxWorld, const int nLightID)
 //============================================================
 //	テクスチャの設定処理 (ポインタ)
 //============================================================
-void CDrawBossShader::SetTexture(const LPDIRECT3DTEXTURE9 *pTexture)
+void CDrawBossShader::SetTexture(const CTexture::STexture& rTexture)
 {
 	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
 
 	// エフェクトにテクスチャの使用状況を設定
-	if (pTexture == nullptr)
+	if (rTexture.pTexture == nullptr)
 	{ // テクスチャが使用されていない場合
 
 		GetEffect()->SetBool(m_pUseTexture, false);
@@ -385,7 +385,7 @@ void CDrawBossShader::SetToonMapTexture(const ETexture texture)
 		CTexture *pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
 
 		// エフェクトにトゥーンマップ用テクスチャを設定
-		GetEffect()->SetTexture(m_pTextureToon, pTexture->GetTexture(pTexture->Regist(TEXTURE_FILE[texture])));
+		GetEffect()->SetTexture(m_pTextureToon, pTexture->GetPtr(pTexture->Regist(TEXTURE_FILE[texture])));
 	}
 	else { assert(false); }	// 範囲外
 }
@@ -395,14 +395,9 @@ void CDrawBossShader::SetToonMapTexture(const ETexture texture)
 //============================================================
 void CDrawBossShader::SetCropTexture(const int nTextureID)
 {
-	if (nTextureID > NONE_IDX && nTextureID < texture::MAX_NUM)
-	{ // インデックスが範囲内の場合
+	if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
+	CTexture *pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
 
-		if (!IsEffectOK()) { assert(false); return; }	// エフェクト未使用
-		CTexture *pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
-
-		// エフェクトに切り抜き用テクスチャを設定
-		GetEffect()->SetTexture(m_pTextureCrop, pTexture->GetTexture(nTextureID));
-	}
-	else { assert(false); }	// 範囲外
+	// エフェクトに切り抜き用テクスチャを設定
+	GetEffect()->SetTexture(m_pTextureCrop, pTexture->GetPtr(nTextureID));
 }

@@ -162,7 +162,7 @@ void CObjectModel::BindModel(const int nModelID)
 		m_nModelID = nModelID;
 
 		// モデルを割り当て
-		m_modelData = *pModel->GetModel(nModelID);
+		m_modelData = *pModel->GetInfo(nModelID);
 
 		// 元マテリアルの設定
 		if (FAILED(SetOriginMaterial(m_modelData.pBuffMat, (int)m_modelData.dwNumMat)))
@@ -186,7 +186,7 @@ void CObjectModel::BindModel(const char *pModelPass)
 		m_nModelID = pModel->Regist(pModelPass);
 
 		// モデルを割り当て
-		m_modelData = *pModel->GetModel(m_nModelID);
+		m_modelData = *pModel->GetInfo(m_nModelID);
 
 		// 元マテリアルの設定
 		if (FAILED(SetOriginMaterial(m_modelData.pBuffMat, (int)m_modelData.dwNumMat)))
@@ -571,7 +571,7 @@ void CObjectModel::DrawNormal(void)
 		pDevice->SetMaterial(&m_pMat[nCntMat].MatD3D);
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_modelData.pTextureID[nCntMat]));
+		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_modelData.pTextureID[nCntMat]));
 
 		if (m_scale != VEC3_ONE)
 		{ // 拡大率が変更されている場合
@@ -613,7 +613,7 @@ void CObjectModel::DrawShader(CShader *pShader)
 		pDevice->SetMaterial(&m_pMat[nCntMat].MatD3D);
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_modelData.pTextureID[nCntMat]));
+		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_modelData.pTextureID[nCntMat]));
 
 		// マテリアルを設定
 		pShader->SetMaterial(m_pMat[nCntMat].MatD3D);

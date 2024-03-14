@@ -691,7 +691,7 @@ void CObjectMeshDome::DrawNormal(void)
 	//	”¼‹…ƒ|ƒŠƒSƒ“‚Ì•`‰æ
 	//--------------------------------------------------------
 	// ƒeƒNƒXƒ`ƒƒ‚ÌÝ’è
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
 
 	// ”¼‹…ƒ|ƒŠƒSƒ“‚Ì•`‰æ
 	pDevice->DrawIndexedPrimitive
@@ -753,7 +753,7 @@ void CObjectMeshDome::DrawShader(CShader *pShader)
 	pShader->CommitChanges();
 
 	// ƒeƒNƒXƒ`ƒƒ‚ÌÝ’è
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetTexture(m_nTextureID));
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
 
 	// ”¼‹…ƒ|ƒŠƒSƒ“‚Ì•`‰æ
 	pDevice->DrawIndexedPrimitive

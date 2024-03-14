@@ -1771,7 +1771,7 @@ void CPlayer::SetDestLookEnemy
 
 		float fMinLength = 0.0f;	// 一番プレイヤーに近い距離
 		std::list<CEnemy*> list = pList->GetList();	// 敵リスト
-		for (auto enemy : list)
+		for (const auto& rEnemy : list)
 		{ // リストのすべてを繰り返す
 
 			// XZ平面の円の当たり判定
@@ -1779,7 +1779,7 @@ void CPlayer::SetDestLookEnemy
 			bool bHit = collision::Circle2D
 			( // 引数
 				rPosPlayer,					// 判定位置
-				enemy->GetVec3Position(),	// 判定目標位置
+				rEnemy->GetVec3Position(),	// 判定目標位置
 				LOOK_RADIUS,	// 判定半径
 				0.0f,			// 判定目標半径
 				&fLength		// 判定目標との距離
@@ -1791,7 +1791,7 @@ void CPlayer::SetDestLookEnemy
 				{ // 近い敵が設定されていない場合
 
 					// 初期情報を保存
-					pEnemy = enemy;			// 一番プレイヤーに近い敵
+					pEnemy = rEnemy;		// 一番プレイヤーに近い敵
 					fMinLength = fLength;	// 一番プレイヤーに近い距離
 				}
 				else
@@ -1801,7 +1801,7 @@ void CPlayer::SetDestLookEnemy
 					{ // 設定中の敵よりさらに近い場合
 
 						// 情報を保存
-						pEnemy = enemy;			// 一番プレイヤーに近い敵
+						pEnemy = rEnemy;		// 一番プレイヤーに近い敵
 						fMinLength = fLength;	// 一番プレイヤーに近い距離
 					}
 				}
@@ -2712,17 +2712,17 @@ void CPlayer::UpdateCollEnemy(D3DXVECTOR3 *pPos)
 	D3DXVECTOR3 heightPlayer = D3DXVECTOR3(0.0f, HEIGHT, 0.0f);	// プレイヤーの縦幅
 	D3DXVECTOR3 posPlayerCent = *pPos + heightPlayer * 0.5f;	// プレイヤーの中心位置
 	std::list<CEnemy*> list = pList->GetList();	// 敵リスト
-	for (auto enemy : list)
+	for (const auto& rEnemy : list)
 	{ // リストのすべてを繰り返す
 
-		float fRadiusEnemy = enemy->GetStatusInfo().fCollRadius;	// 敵の半径
-		int   nHeadID = enemy->GetHeadModelID();					// 敵の頭モデルインデックス
-		int   nWaistID = enemy->GetWaistModelID();					// 敵の腰モデルインデックス
-		D3DXMATRIX  mtxEnemyHead = enemy->GetMultiModel(nHeadID)->GetMtxWorld();	// 敵の頭のワールドマトリックス
+		float fRadiusEnemy = rEnemy->GetStatusInfo().fCollRadius;	// 敵の半径
+		int   nHeadID = rEnemy->GetHeadModelID();					// 敵の頭モデルインデックス
+		int   nWaistID = rEnemy->GetWaistModelID();					// 敵の腰モデルインデックス
+		D3DXMATRIX  mtxEnemyHead = rEnemy->GetMultiModel(nHeadID)->GetMtxWorld();	// 敵の頭のワールドマトリックス
 		D3DXVECTOR3 posEnemyHead = useful::GetMatrixPosition(mtxEnemyHead);			// 敵の頭の位置
-		D3DXMATRIX  mtxEnemyWaist = enemy->GetMultiModel(nWaistID)->GetMtxWorld();	// 敵の腰のワールドマトリックス
+		D3DXMATRIX  mtxEnemyWaist = rEnemy->GetMultiModel(nWaistID)->GetMtxWorld();	// 敵の腰のワールドマトリックス
 		D3DXVECTOR3 posEnemyWaist = useful::GetMatrixPosition(mtxEnemyWaist);		// 敵の腰の位置
-		D3DXVECTOR3 posEnemyOrigin = enemy->GetVec3Position();						// 敵の原点位置
+		D3DXVECTOR3 posEnemyOrigin = rEnemy->GetVec3Position();						// 敵の原点位置
 
 		float fHeightEnemy = posEnemyHead.y - posEnemyOrigin.y;	// 敵の縦幅
 		D3DXVECTOR3 posEnemyCent = D3DXVECTOR3	// 敵の中心位置

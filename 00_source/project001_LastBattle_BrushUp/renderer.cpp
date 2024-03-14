@@ -348,7 +348,7 @@ HRESULT CRenderer::CreateRenderTexture(void)
 	}
 
 	// スクリーン描画サーフェイスの取得
-	hr = pTexture->GetTexture(m_nScreenTexID)->GetSurfaceLevel
+	hr = pTexture->GetPtr(m_nScreenTexID)->GetSurfaceLevel
 	( // 引数
 		0,				// ミップマップレベル
 		&m_pSurScreen	// スクリーン描画サーフェイスへのポインタ
@@ -362,7 +362,7 @@ HRESULT CRenderer::CreateRenderTexture(void)
 	}
 
 	// 切り抜きサーフェイスの取得
-	hr = pTexture->GetTexture(m_nCropTexID)->GetSurfaceLevel
+	hr = pTexture->GetPtr(m_nCropTexID)->GetSurfaceLevel
 	( // 引数
 		0,			// ミップマップレベル
 		&m_pSurCrop	// 切り抜きサーフェイスへのポインタ
@@ -532,11 +532,11 @@ void CRenderer::DrawCrop(void)
 	{ // 魔法陣リストマネージャーが使用中の場合
 
 		std::list<CMagicCircle*> list = pListManager->GetList();	// 魔法陣リストの情報
-		for (auto pMagicCircle : list)
+		for (const auto& prMagicCircle : list)
 		{ // 要素数分繰り返す
 
 			// 魔法陣の切り抜き描画
-			pMagicCircle->DrawCrop();
+			prMagicCircle->DrawCrop();
 		}
 	}
 }

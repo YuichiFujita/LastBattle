@@ -74,7 +74,7 @@ void CShader::SetLightDirect(D3DXMATRIX * /*pMtxWorld*/, const int /*nLightID*/)
 //============================================================
 //	テクスチャの設定処理 (ポインタ)
 //============================================================
-void CShader::SetTexture(const LPDIRECT3DTEXTURE9 * /*pTexture*/)
+void CShader::SetTexture(const CTexture::STexture& /*rTexture*/)
 {
 
 }

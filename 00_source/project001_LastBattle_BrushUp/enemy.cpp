@@ -145,11 +145,11 @@ HRESULT CEnemy::Init(void)
 		// ”»’èî•ñ‚Ìİ’è
 		CCollSphere *pColl = GetCollision(nCntEnemy);	// ‰~”»’èî•ñ
 		std::vector<CCollSphere::SInfo> vector = m_aCollInfo[m_type].apInfo[nCntEnemy]->GetVector();	// ‰~”»’è”z—ñ
-		for (auto info : vector)
+		for (const auto& rInfo : vector)
 		{ // ”z—ñ‚Ì—v‘f”•ªŒJ‚è•Ô‚·
 
 			// ”»’è‚ğ’Ç‰Á
-			pColl->AddColl(info.offset, info.fRadius);
+			pColl->AddColl(rInfo.offset, rInfo.fRadius);
 		}
 	}
 

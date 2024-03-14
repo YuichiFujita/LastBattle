@@ -13,16 +13,8 @@
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include <vector>
+#include <map>
 #include <string>
-
-//************************************************************
-//	定数宣言
-//************************************************************
-namespace texture
-{
-	const int MAX_NUM = 256;	// テクスチャの最大数
-}
 
 //************************************************************
 //	クラス定義
@@ -37,7 +29,7 @@ public:
 	// デストラクタ
 	~CTexture();
 
-	// テクスチャ情報構造体
+	// テクスチャ生成情報構造体
 	struct SInfo
 	{
 	public:
@@ -58,10 +50,24 @@ public:
 		D3DPOOL		Pool;		// 格納メモリ
 	};
 
+	// テクスチャ構造体
+	struct STexture
+	{
+		LPDIRECT3DTEXTURE9 pTexture;	// テクスチャへのポインタ
+	};
+
+	// マップ情報構造体
+	struct SMapInfo
+	{
+		STexture textureData;		// テクスチャ情報
+		std::string sFilePassName;	// ファイルパス名
+	};
+
 	// メンバ関数
-	int Regist(const SInfo info);					// テクスチャ登録 (生成)
-	int Regist(const char *pFileName);				// テクスチャ登録 (パス)
-	LPDIRECT3DTEXTURE9 GetTexture(const int nID);	// テクスチャ情報取得
+	int Regist(const SInfo info);				// テクスチャ登録 (生成)
+	int Regist(const char *pFileName);			// テクスチャ登録 (パス)
+	STexture GetInfo(const int nID);			// テクスチャ情報取得
+	LPDIRECT3DTEXTURE9 GetPtr(const int nID);	// テクスチャポインタ取得
 
 	// 静的メンバ関数
 	static CTexture *Create(void);				// 生成
@@ -69,13 +75,11 @@ public:
 
 private:
 	// メンバ関数
-	HRESULT Load(void);		// テクスチャ生成
-	void Unload(void);		// テクスチャ破棄
-	void LoadSetup(void);	// セットアップ
+	HRESULT Load(void);	// テクスチャ生成
+	void Unload(void);	// テクスチャ破棄
 
 	// メンバ変数
-	LPDIRECT3DTEXTURE9 m_apTexture[texture::MAX_NUM];	// テクスチャへのポインタ
-	std::vector<std::string> m_sFileName;				// 読み込んだテクスチャファイル名
+	std::map<int, SMapInfo> m_mapTexture;	// テクスチャ連想配列
 
 	// 静的メンバ変数
 	static int m_nNumAll;	// テクスチャの総数
