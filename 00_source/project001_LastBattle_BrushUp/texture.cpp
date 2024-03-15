@@ -1,35 +1,46 @@
-//============================================================
+﻿//============================================================
 //
-//	�e�N�X�`������ [texture.cpp]
-//	Author�F���c�E��
+//	テクスチャ処理 [texture.cpp]
+//	Author：藤田勇一
 //
 //============================================================
 //************************************************************
-//	�C���N���[�h�t�@�C��
+//	インクルードファイル
 //************************************************************
 #include "texture.h"
 #include "manager.h"
 #include "renderer.h"
 
 //************************************************************
-//	�ÓI�����o�ϐ��錾
+//	定数宣言
 //************************************************************
-int CTexture::m_nNumAll = 0;	// �e�N�X�`���̑���
+namespace
+{
+	const char *LOAD_FOLDER = "data\\TEXTURE";	// テクスチャフォルダ相対パス
+
+	const D3DXVECTOR3 INIT_VTXMIN = D3DXVECTOR3( 9999.0f,  9999.0f,  9999.0f);	// モデルの最小の頂点座標の初期値
+	const D3DXVECTOR3 INIT_VTXMAX = D3DXVECTOR3(-9999.0f, -9999.0f, -9999.0f);	// モデルの最大の頂点座標の初期値
+}
 
 //************************************************************
-//	�e�N���X [CTexture] �̃����o�֐�
+//	静的メンバ変数宣言
+//************************************************************
+int CTexture::m_nNumAll = 0;	// テクスチャの総数
+
+//************************************************************
+//	親クラス [CTexture] のメンバ関数
 //************************************************************
 //============================================================
-//	�R���X�g���N�^
+//	コンストラクタ
 //============================================================
 CTexture::CTexture()
 {
-	// �e�N�X�`���A�z�z����N���A
+	// テクスチャ連想配列をクリア
 	m_mapTexture.clear();
 }
 
 //============================================================
-//	�f�X�g���N�^
+//	デストラクタ
 //============================================================
 CTexture::~CTexture()
 {
@@ -37,166 +48,169 @@ CTexture::~CTexture()
 }
 
 //============================================================
-//	�e�N�X�`����������
+//	テクスチャ生成処理
 //============================================================
 HRESULT CTexture::Load(void)
 {
-	// �e�N�X�`���A�z�z���������
+	// テクスチャ連想配列を初期化
 	m_mapTexture.clear();
 
-	// ������Ԃ�
+	// テクスチャの全読込
+	LoadAll(LOAD_FOLDER);
+
+	// 成功を返す
 	return S_OK;
 }
 
 //============================================================
-//	�e�N�X�`���j������
+//	テクスチャ破棄処理
 //============================================================
 void CTexture::Unload(void)
 {
 	for (auto& rMap : m_mapTexture)
-	{ // �e�N�X�`���̗v�f�����J��Ԃ�
+	{ // テクスチャの要素数分繰り返す
 
-		// �e�N�X�`���̔j��
+		// テクスチャの破棄
 		SAFE_RELEASE(rMap.second.textureData.pTexture);
 	}
 
-	// �e�N�X�`���A�z�z����N���A
+	// テクスチャ連想配列をクリア
 	m_mapTexture.clear();
 }
 
 //============================================================
-//	�e�N�X�`���o�^���� (����)
+//	テクスチャ登録処理 (生成)
 //============================================================
 int CTexture::Regist(const SInfo info)
 {
-	// �ϐ���錾
-	HRESULT  hr;			// �ُ�I���̊m�F�p
-	SMapInfo tempMapInfo;	// �}�b�v���
-	int nID = m_nNumAll;	// �e�N�X�`���Ǎ��ԍ�
+	// 変数を宣言
+	HRESULT  hr;			// 異常終了の確認用
+	SMapInfo tempMapInfo;	// マップ情報
+	int nID = m_nNumAll;	// テクスチャ読込番号
 
-	// �|�C���^��錾
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// �f�o�C�X�̃|�C���^
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
-	// ��̃e�N�X�`���𐶐�
+	// 空のテクスチャを生成
 	hr = D3DXCreateTexture
-	( // ����
-		pDevice,		// Direct3D�f�o�C�X
-		info.Width,		// �e�N�X�`������
-		info.Height,	// �e�N�X�`���c��
-		info.MipLevels,	// �~�b�v�}�b�v���x��
-		info.Usage,		// �����E�m�ۃI�v�V����
-		info.Format,	// �s�N�Z���t�H�[�}�b�g
-		info.Pool,		// �i�[������
-		&tempMapInfo.textureData.pTexture	// �e�N�X�`���ւ̃|�C���^
+	( // 引数
+		pDevice,		// Direct3Dデバイス
+		info.Width,		// テクスチャ横幅
+		info.Height,	// テクスチャ縦幅
+		info.MipLevels,	// ミップマップレベル
+		info.Usage,		// 性質・確保オプション
+		info.Format,	// ピクセルフォーマット
+		info.Pool,		// 格納メモリ
+		&tempMapInfo.textureData.pTexture	// テクスチャへのポインタ
 	);
 	if (FAILED(hr))
-	{ // �e�N�X�`���̐����Ɏ��s�����ꍇ
+	{ // テクスチャの生成に失敗した場合
 
-		// ���s��Ԃ�
+		// 失敗を返す
 		assert(false);
 		return NONE_IDX;
 	}
 
-	// �t�@�C���p�X����ۑ�
-	tempMapInfo.sFilePassName = NONE_STRING;	// �Ǎ��ł͂Ȃ��̂Ńp�X����
+	// ファイルパス名を保存
+	tempMapInfo.sFilePassName = NONE_STRING;	// 読込ではないのでパス無し
 
-	// �e�N�X�`������ۑ�
+	// テクスチャ情報を保存
 	m_mapTexture.insert(std::make_pair(m_nNumAll, tempMapInfo));
 
-	// �e�N�X�`���̑��������Z
+	// テクスチャの総数を加算
 	m_nNumAll++;
 
-	// �ǂݍ��񂾃e�N�X�`���̔z��ԍ���Ԃ�
+	// 読み込んだテクスチャの配列番号を返す
 	return nID;
 }
 
 //============================================================
-//	�e�N�X�`���o�^���� (�p�X)
+//	テクスチャ登録処理 (パス)
 //============================================================
 int CTexture::Regist(const char *pFileName)
 {
-	// �ϐ���錾
-	SMapInfo tempMapInfo;	// �}�b�v���
-	int nID = m_nNumAll;	// �e�N�X�`���Ǎ��ԍ�
+	// 変数を宣言
+	SMapInfo tempMapInfo;	// マップ情報
+	int nID = m_nNumAll;	// テクスチャ読込番号
 
-	// �|�C���^��錾
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// �f�o�C�X�̃|�C���^
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	if (pFileName != nullptr)
-	{ // �|�C���^���g�p����Ă���ꍇ
+	{ // ポインタが使用されている場合
 
-		int nCntTexture = 0;	// �e�N�X�`���ԍ�
+		int nCntTexture = 0;	// テクスチャ番号
 		for (const auto& rMap : m_mapTexture)
-		{ // �e�N�X�`���̗v�f�����J��Ԃ�
+		{ // テクスチャの要素数分繰り返す
 
 			if (rMap.second.sFilePassName.compare(pFileName) == 0)
-			{ // �����񂪈�v�����ꍇ
+			{ // 文字列が一致した場合
 
-				// ���łɓǂݍ���ł���e�N�X�`���̔z��ԍ���Ԃ�
+				// すでに読み込んでいるテクスチャの配列番号を返す
 				return nCntTexture;
 			}
 
-			// ���̃e�N�X�`���ԍ��ɂ���
+			// 次のテクスチャ番号にする
 			nCntTexture++;
 		}
 
-		// �e�N�X�`���̓ǂݍ���
+		// テクスチャの読み込み
 		if (FAILED(D3DXCreateTextureFromFile(pDevice, pFileName, &tempMapInfo.textureData.pTexture)))
-		{ // �e�N�X�`���̓ǂݍ��݂Ɏ��s�����ꍇ
+		{ // テクスチャの読み込みに失敗した場合
 
-			// ���s��Ԃ�
+			// 失敗を返す
 			assert(false);
 			return NONE_IDX;
 		}
 
-		// �t�@�C���p�X����ۑ�
+		// ファイルパス名を保存
 		tempMapInfo.sFilePassName = pFileName;
 
-		// �e�N�X�`������ۑ�
+		// テクスチャ情報を保存
 		m_mapTexture.insert(std::make_pair(m_nNumAll, tempMapInfo));
 
-		// �e�N�X�`���̑��������Z
+		// テクスチャの総数を加算
 		m_nNumAll++;
 
-		// �ǂݍ��񂾃e�N�X�`���̔z��ԍ���Ԃ�
+		// 読み込んだテクスチャの配列番号を返す
 		return nID;
 	}
 	else
-	{ // �|�C���^���g�p����Ă��Ȃ��ꍇ
+	{ // ポインタが使用されていない場合
 
-		// �e�N�X�`����g�p��Ԃ�
+		// テクスチャ非使用を返す
 		return NONE_IDX;
 	}
 }
 
 //============================================================
-//	�e�N�X�`�����̎擾����
+//	テクスチャ情報の取得処理
 //============================================================
 CTexture::STexture CTexture::GetInfo(const int nID)
 {
-	int nArray = (int)m_mapTexture.size();	// �z��v�f��
+	int nArray = (int)m_mapTexture.size();	// 配列要素数
 	if (nID > NONE_IDX && nID < nArray)
-	{ // �e�N�X�`��������ꍇ
+	{ // テクスチャがある場合
 
-		// �����̃e�N�X�`������Ԃ�
+		// 引数のテクスチャ情報を返す
 		return m_mapTexture.find(nID)->second.textureData;
 	}
 	else
-	{ // �e�N�X�`�����Ȃ��ꍇ
+	{ // テクスチャがない場合
 
-		// �C���f�b�N�X�G���[
+		// インデックスエラー
 		assert(false);
 
 		if (nArray > 0)
-		{ // �e�N�X�`������������Ă���ꍇ
+		{ // テクスチャ生成がされている場合
 
-			// �擪�e�N�X�`����Ԃ�
+			// 先頭テクスチャを返す
 			return m_mapTexture.find(0)->second.textureData;
 		}
 		else
-		{ // �e�N�X�`��������Ȃ��ꍇ
+		{ // テクスチャが一つもない場合
 
-			// ��̃e�N�X�`������Ԃ�
+			// 空のテクスチャ情報を返す
 			STexture tempTexture;
 			memset(&tempTexture, 0, sizeof(tempTexture));
 			return tempTexture;
@@ -205,80 +219,134 @@ CTexture::STexture CTexture::GetInfo(const int nID)
 }
 
 //============================================================
-//	�e�N�X�`���|�C���^�̎擾����
+//	テクスチャポインタの取得処理
 //============================================================
 LPDIRECT3DTEXTURE9 CTexture::GetPtr(const int nID)
 {
 	if (nID >= 0 && nID < m_nNumAll)
-	{ // �����̃C���f�b�N�X���͈͓��̏ꍇ
+	{ // 引数のインデックスが範囲内の場合
 
 		if (nID > NONE_IDX && nID < (int)m_mapTexture.size())
-		{ // �e�N�X�`��������ꍇ
+		{ // テクスチャがある場合
 
-			// �����̃e�N�X�`���|�C���^��Ԃ�
+			// 引数のテクスチャポインタを返す
 			return m_mapTexture.find(nID)->second.textureData.pTexture;
 		}
 		else
-		{ // �e�N�X�`�����Ȃ��ꍇ
+		{ // テクスチャがない場合
 
-			// nullptr��Ԃ�
+			// nullptrを返す
 			assert(false);
 			return nullptr;
 		}
 	}
 	else if (nID == NONE_IDX)
-	{ // �����̃C���f�b�N�X�� -1�̏ꍇ
+	{ // 引数のインデックスが -1の場合
 
-		// nullptr��Ԃ�
+		// nullptrを返す
 		return nullptr;
 	}
 	else
-	{ // �����̃C���f�b�N�X���g�p�s�̏ꍇ
+	{ // 引数のインデックスが使用不可の場合
 
-		// nullptr��Ԃ�
+		// nullptrを返す
 		assert(false);
 		return nullptr;
 	}
 }
 
 //============================================================
-//	��������
+//	生成処理
 //============================================================
 CTexture *CTexture::Create(void)
 {
-	// �e�N�X�`���̐���
+	// テクスチャの生成
 	CTexture *pTexture = new CTexture;
 	if (pTexture == nullptr)
-	{ // �����Ɏ��s�����ꍇ
+	{ // 生成に失敗した場合
 
 		return nullptr;
 	}
 	else
-	{ // �����ɐ��������ꍇ
+	{ // 生成に成功した場合
 
-		// �e�N�X�`���̓Ǎ�
+		// テクスチャの読込
 		if (FAILED(pTexture->Load()))
-		{ // �e�N�X�`���Ǎ��Ɏ��s�����ꍇ
+		{ // テクスチャ読込に失敗した場合
 
-			// �e�N�X�`���̔j��
+			// テクスチャの破棄
 			SAFE_DELETE(pTexture);
 			return nullptr;
 		}
 
-		// �m�ۂ����A�h���X��Ԃ�
+		// 確保したアドレスを返す
 		return pTexture;
 	}
 }
 
 //============================================================
-//	�j������
+//	破棄処理
 //============================================================
 void CTexture::Release(CTexture *&prTexture)
 {
-	// �e�N�X�`���̔j��
+	// テクスチャの破棄
 	assert(prTexture != nullptr);
 	prTexture->Unload();
 
-	// �������J��
+	// メモリ開放
 	SAFE_DELETE(prTexture);
+}
+
+//============================================================
+//	テクスチャ全読込処理
+//============================================================
+HRESULT CTexture::LoadAll(std::string sFolderPath)
+{
+	// 変数を宣言
+	HANDLE hFile;	// 検索ハンドル
+	WIN32_FIND_DATA findFileData;	// ファイル情報
+
+	// 引数パスのディレクトリを取得
+	std::string sAllLoadPath = sFolderPath + "\\*.*";	// 全読込パス
+	hFile = FindFirstFile(sAllLoadPath.c_str(), &findFileData);
+	if (INVALID_HANDLE_VALUE == hFile)
+	{ // ハンドルが無効の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	do
+	{ // ファイル内の情報全てを読み込む
+
+		// 現在のディレクトリ、親ディレクトリの場合次のループに移行
+		if (strcmp(findFileData.cFileName, ".") == 0)	{ continue; }
+		if (strcmp(findFileData.cFileName, "..") == 0)	{ continue; }
+
+		// ファイル名を相対パスに変換
+		std::string sFullPath = sFolderPath;	// 現在の相対パスを設定
+		sFullPath += "\\";						// パス区切り文字を追加
+		sFullPath += findFileData.cFileName;	// ファイル名を追加
+
+		if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{ // ディレクトリだった場合
+
+			// 新たなディレクトリを全読込
+			LoadAll(sFullPath);
+		}
+		else
+		{ // ファイルだった場合
+
+			// テクスチャを登録
+			Regist(sFullPath.c_str());
+		}
+
+	} while (FindNextFile(hFile, &findFileData));	// 次のファイルを検索
+
+	// 検索ハンドルを閉じる
+	FindClose(hFile);
+
+	// 成功を返す
+	return S_OK;
 }

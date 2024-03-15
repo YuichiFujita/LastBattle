@@ -11,12 +11,6 @@
 #define _MODEL_H_
 
 //************************************************************
-//	インクルードファイル
-//************************************************************
-#include <map>
-#include <string>
-
-//************************************************************
 //	クラス定義
 //************************************************************
 // モデルクラス
@@ -64,6 +58,7 @@ private:
 	HRESULT LoadXFileModel(SMapInfo *pMapInfo, const char *pFileName);	// xファイルの読込
 	HRESULT LoadTextureModel(SMapInfo *pMapInfo);	// テクスチャの読込
 	HRESULT SetCollisionModel(SMapInfo *pMapInfo);	// 当たり判定の作成
+	HRESULT LoadAll(std::string sFolderPath);		// モデル全読込
 
 	// メンバ変数
 	std::map<int, SMapInfo> m_mapModel;	// モデル連想配列

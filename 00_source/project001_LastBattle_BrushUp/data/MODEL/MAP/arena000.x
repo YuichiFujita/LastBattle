@@ -2730,7 +2730,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "data\\MODEL\\TEXTURE\\arena000.jpg";
+    "data\\TEXTURE\\MODEL\\arena000.jpg";
    }
   }
  }

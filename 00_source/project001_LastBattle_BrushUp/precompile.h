@@ -30,7 +30,12 @@
 
 // メモリリーク出力用マクロ
 #define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>		// メモリリーク検出に必要
+#include <crtdbg.h>	// メモリリーク検出に必要
+
+#include <string>
+#include <vector>
+#include <list>
+#include <map>
 
 #include "useful.h"			// 便利関数使用に必要
 #include "listManager.h"	// リスト管理に必要

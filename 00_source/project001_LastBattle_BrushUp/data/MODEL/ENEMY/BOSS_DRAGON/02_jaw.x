@@ -801,7 +801,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "data\\MODEL\\TEXTURE\\dragonBoss000.png";
+    "data\\TEXTURE\\MODEL\\dragonBoss000.png";
    }
   }
  }

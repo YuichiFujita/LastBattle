@@ -17,6 +17,8 @@
 //************************************************************
 namespace
 {
+	const char *LOAD_FOLDER = "data\\MODEL";	// モデルフォルダ相対パス
+
 	const D3DXVECTOR3 INIT_VTXMIN = D3DXVECTOR3( 9999.0f,  9999.0f,  9999.0f);	// モデルの最小の頂点座標の初期値
 	const D3DXVECTOR3 INIT_VTXMAX = D3DXVECTOR3(-9999.0f, -9999.0f, -9999.0f);	// モデルの最大の頂点座標の初期値
 }
@@ -53,6 +55,9 @@ HRESULT CModel::Load(void)
 {
 	// モデル連想配列を初期化
 	m_mapModel.clear();
+
+	// モデルの全読込
+	LoadAll(LOAD_FOLDER);
 
 	// 成功を返す
 	return S_OK;
@@ -383,6 +388,60 @@ HRESULT CModel::SetCollisionModel(SMapInfo *pMapInfo)
 
 	// モデルの円の当たり判定を作成
 	pMapInfo->modelData.fRadius = ((pMapInfo->modelData.size.x * 0.5f) + (pMapInfo->modelData.size.z * 0.5f)) * 0.5f;
+
+	// 成功を返す
+	return S_OK;
+}
+
+//============================================================
+//	モデル全読込処理
+//============================================================
+HRESULT CModel::LoadAll(std::string sFolderPath)
+{
+	// 変数を宣言
+	HANDLE hFile;	// 検索ハンドル
+	WIN32_FIND_DATA findFileData;	// ファイル情報
+
+	// 引数パスのディレクトリを取得
+	std::string sAllLoadPath = sFolderPath + "\\*.*";	// 全読込パス
+	hFile = FindFirstFile(sAllLoadPath.c_str(), &findFileData);
+	if (INVALID_HANDLE_VALUE == hFile)
+	{ // ハンドルが無効の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	do
+	{ // ファイル内の情報全てを読み込む
+
+		// 現在のディレクトリ、親ディレクトリの場合次のループに移行
+		if (strcmp(findFileData.cFileName, ".") == 0)	{ continue; }
+		if (strcmp(findFileData.cFileName, "..") == 0)	{ continue; }
+
+		// ファイル名を相対パスに変換
+		std::string sFullPath = sFolderPath;	// 現在の相対パスを設定
+		sFullPath += "\\";						// パス区切り文字を追加
+		sFullPath += findFileData.cFileName;	// ファイル名を追加
+
+		if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+		{ // ディレクトリだった場合
+
+			// 新たなディレクトリを全読込
+			LoadAll(sFullPath);
+		}
+		else
+		{ // ファイルだった場合
+
+			// モデルを登録
+			Regist(sFullPath.c_str());
+		}
+
+	} while (FindNextFile(hFile, &findFileData));	// 次のファイルを検索
+
+	// 検索ハンドルを閉じる
+	FindClose(hFile);
 
 	// 成功を返す
 	return S_OK;
