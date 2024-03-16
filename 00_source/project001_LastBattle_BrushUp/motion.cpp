@@ -160,7 +160,7 @@ void CMotion::UpdateMotion(void)
 		// 位置・向きの差分を求める
 		D3DXVECTOR3 diffPos = m_info.aMotionInfo[nType].aKeyInfo[nNextKey].aKey[nCntKey].pos - m_info.aMotionInfo[nType].aKeyInfo[nKey].aKey[nCntKey].pos;
 		D3DXVECTOR3 diffRot = m_info.aMotionInfo[nType].aKeyInfo[nNextKey].aKey[nCntKey].rot - m_info.aMotionInfo[nType].aKeyInfo[nKey].aKey[nCntKey].rot;
-		useful::Vec3NormalizeRot(diffRot);	// 差分向きの正規化
+		useful::NormalizeRot(diffRot);	// 差分向きの正規化
 
 		// 現在のパーツの位置・向きを更新
 		float fRate = (float)m_info.nKeyCounter / (float)m_info.aMotionInfo[nType].aKeyInfo[nKey].nFrame;	// キーフレーム割合
@@ -230,7 +230,7 @@ void CMotion::UpdateBlend(void)
 		// 位置・向きの差分を求める
 		D3DXVECTOR3 diffPos = m_info.aMotionInfo[m_info.nType].aKeyInfo[0].aKey[nCntKey].pos - m_blend.aKey[nCntKey].pos;
 		D3DXVECTOR3 diffRot = m_info.aMotionInfo[m_info.nType].aKeyInfo[0].aKey[nCntKey].rot - m_blend.aKey[nCntKey].rot;
-		useful::Vec3NormalizeRot(diffRot);	// 差分向きの正規化
+		useful::NormalizeRot(diffRot);	// 差分向きの正規化
 
 		// 現在のパーツの位置・向きを更新
 		float fRate = (float)m_blend.nWholeCounter / (float)m_blend.nFrame;	// キーフレーム割合

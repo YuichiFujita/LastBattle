@@ -222,7 +222,7 @@ void CObjectModel::SetVec3Rotation(const D3DXVECTOR3& rRot)
 	m_rot = rRot;
 
 	// å¸Ç´ÇÃê≥ãKâª
-	useful::Vec3NormalizeRot(m_rot);
+	useful::NormalizeRot(m_rot);
 }
 
 //============================================================

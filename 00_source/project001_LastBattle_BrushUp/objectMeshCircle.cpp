@@ -231,7 +231,7 @@ void CObjectMeshCircle::SetVec3Rotation(const D3DXVECTOR3& rRot)
 	m_meshCircle.rot = rRot;
 
 	// å¸Ç´ÇÃê≥ãKâª
-	useful::Vec3NormalizeRot(m_meshCircle.rot);
+	useful::NormalizeRot(m_meshCircle.rot);
 }
 
 //============================================================

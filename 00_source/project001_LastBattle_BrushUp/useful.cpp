@@ -8,6 +8,7 @@
 //	インクルードファイル
 //************************************************************
 #include "useful.h"
+#include <regex>
 
 //************************************************************
 //	通常関数
@@ -72,6 +73,48 @@ void useful::NormalizeNormal
 
 	// 法線を正規化
 	D3DXVec3Normalize(&rNor, &rNor);
+}
+
+//============================================================
+//	文字列内の連続文字の置換
+//============================================================
+void useful::ReplaceConsecChar
+(
+	std::string *pDestStr,		// 置き換えを行う文字列
+	const char cRepChar,		// 検出する文字
+	const std::string& rRepStr,	// 置き換える文字列
+	const int nRepStrLength		// 置き換える文字列の長さ (通常はstringのsize)
+
+)
+{
+	// TODO：ここ綺麗に
+
+	int nFindID = 0;
+	while (1)
+	{ // 区切り文字が見つかった場合
+
+		int nSlashID = pDestStr->find(cRepChar, nFindID);
+		if ((size_t)nSlashID == std::string::npos)
+		{
+			break;
+		}
+
+		std::string str = *pDestStr;
+		str.erase(0, nSlashID);
+
+		int nCnt = 0;
+		for (char cChar : str)
+		{
+			if (cChar != cRepChar)
+			{
+				pDestStr->replace(nSlashID, nCnt, rRepStr);
+				nFindID = nSlashID + nRepStrLength;
+				break;
+			}
+
+			nCnt++;
+		}
+	}
 }
 
 //============================================================
@@ -174,12 +217,98 @@ void useful::NormalizeRot(float& rRot)
 //============================================================
 //	三軸向きの正規化
 //============================================================
-void useful::Vec3NormalizeRot(D3DXVECTOR3& rRot)
+void useful::NormalizeRot(D3DXVECTOR3& rRot)
 {
 	// 全ての向きを正規化
 	NormalizeRot(rRot.x);
 	NormalizeRot(rRot.y);
 	NormalizeRot(rRot.z);
+}
+
+//============================================================
+//	パス区切りの標準化
+//============================================================
+void useful::StandardizePathPart(std::string *pPath)
+{
+#if 0
+	{
+		int nFindID = 0;
+		while (1)
+		{ // 区切り文字が見つかった場合
+
+			int nSlashID = pPath->find('/', nFindID);
+			if ((size_t)nSlashID == std::string::npos)
+			{
+				break;
+			}
+
+			std::string str = *pPath;
+			str.erase(0, nSlashID);
+
+			int nCnt = 0;
+			for (char chara : str)
+			{
+				if (chara != '/')
+				{
+					pPath->replace(nSlashID, nCnt, "\\");
+					nFindID = nSlashID + nCnt;
+					break;
+				}
+
+				nCnt++;
+			}
+		}
+	}
+
+	{
+		int nFindID = 0;
+		while (1)
+		{ // 区切り文字が見つかった場合
+
+			int nSlashID = pPath->find('\\', nFindID);
+			if ((size_t)nSlashID == std::string::npos)
+			{
+				break;
+			}
+
+			std::string str = *pPath;
+			str.erase(0, nSlashID);
+
+			int nCnt = 0;
+			for (char chara : str)
+			{
+				if (chara != '\\')
+				{
+					pPath->replace(nSlashID, nCnt, "\\");
+					nFindID = nSlashID + nCnt;
+					break;
+				}
+
+				nCnt++;
+			}
+		}
+	}
+#else
+	// TODO：ここ綺麗に
+
+	// 文字列内の連続文字の置換
+	ReplaceConsecChar
+	(
+		pPath,	// 置き換えを行う文字列
+		'/',	// 検出する文字
+		"\\",	// 置き換える文字列
+		1		// 置き換える文字列の長さ (通常文字と違い\は二つで一文字となる)
+	);
+
+	// 文字列内の連続文字の置換
+	ReplaceConsecChar
+	(
+		pPath,	// 置き換えを行う文字列
+		'\\',	// 検出する文字
+		"\\",	// 置き換える文字列
+		1		// 置き換える文字列の長さ (通常文字と違い\は二つで一文字となる)
+	);
+#endif
 }
 
 //============================================================
@@ -254,7 +383,7 @@ D3DXVECTOR3 useful::GetMatrixRotation(const D3DXMATRIX& rMtx)
 }
 
 //============================================================
-//	マトリックスの拡大率取得取得
+//	マトリックスの拡大率取得
 //============================================================
 D3DXVECTOR3 useful::GetMatrixScaling(const D3DXMATRIX& rMtx)
 {

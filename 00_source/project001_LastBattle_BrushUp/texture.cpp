@@ -127,60 +127,51 @@ int CTexture::Regist(const SInfo info)
 //============================================================
 //	テクスチャ登録処理 (パス)
 //============================================================
-int CTexture::Regist(const char *pFileName)
+int CTexture::Regist(std::string sFilePass)
 {
 	// 変数を宣言
 	SMapInfo tempMapInfo;	// マップ情報
 	int nID = m_nNumAll;	// テクスチャ読込番号
 
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+	// ファイルパスを標準化
+	useful::StandardizePathPart(&sFilePass);
 
-	if (pFileName != nullptr)
-	{ // ポインタが使用されている場合
+	// 既に読み込んでいないかを確認
+	int nCntTexture = 0;
+	for (const auto& rMap : m_mapTexture)
+	{ // テクスチャの要素数分繰り返す
 
-		int nCntTexture = 0;	// テクスチャ番号
-		for (const auto& rMap : m_mapTexture)
-		{ // テクスチャの要素数分繰り返す
+		if (rMap.second.sFilePassName.compare(sFilePass) == 0)
+		{ // 文字列が一致した場合
 
-			if (rMap.second.sFilePassName.compare(pFileName) == 0)
-			{ // 文字列が一致した場合
-
-				// すでに読み込んでいるテクスチャの配列番号を返す
-				return nCntTexture;
-			}
-
-			// 次のテクスチャ番号にする
-			nCntTexture++;
+			// すでに読み込んでいるテクスチャの配列番号を返す
+			return nCntTexture;
 		}
 
-		// テクスチャの読み込み
-		if (FAILED(D3DXCreateTextureFromFile(pDevice, pFileName, &tempMapInfo.textureData.pTexture)))
-		{ // テクスチャの読み込みに失敗した場合
-
-			// 失敗を返す
-			assert(false);
-			return NONE_IDX;
-		}
-
-		// ファイルパス名を保存
-		tempMapInfo.sFilePassName = pFileName;
-
-		// テクスチャ情報を保存
-		m_mapTexture.insert(std::make_pair(m_nNumAll, tempMapInfo));
-
-		// テクスチャの総数を加算
-		m_nNumAll++;
-
-		// 読み込んだテクスチャの配列番号を返す
-		return nID;
+		// 次のテクスチャ番号にする
+		nCntTexture++;
 	}
-	else
-	{ // ポインタが使用されていない場合
 
-		// テクスチャ非使用を返す
+	// テクスチャの読込
+	if (FAILED(D3DXCreateTextureFromFile(GET_DEVICE, sFilePass.c_str(), &tempMapInfo.textureData.pTexture)))
+	{ // テクスチャの読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
 		return NONE_IDX;
 	}
+
+	// ファイルパス名を保存
+	tempMapInfo.sFilePassName = sFilePass;
+
+	// テクスチャ情報を保存
+	m_mapTexture.insert(std::make_pair(m_nNumAll, tempMapInfo));
+
+	// テクスチャの総数を加算
+	m_nNumAll++;
+
+	// 読み込んだテクスチャの配列番号を返す
+	return nID;
 }
 
 //============================================================
@@ -339,6 +330,7 @@ HRESULT CTexture::LoadAll(std::string sFolderPath)
 		{ // ファイルだった場合
 
 			// テクスチャを登録
+			useful::StandardizePathPart(&sFullPath);
 			Regist(sFullPath.c_str());
 		}
 

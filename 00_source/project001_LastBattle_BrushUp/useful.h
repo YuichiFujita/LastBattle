@@ -154,6 +154,14 @@ namespace useful
 		const D3DXVECTOR3& rPosRight,	// 右位置
 		D3DXVECTOR3& rNor				// 法線
 	);
+	void ReplaceConsecChar	// 文字列内の連続文字の置換
+	( // 引数
+		std::string *pDestStr,		// 置き換えを行う文字列
+		const char cRepChar,		// 検出する文字
+		const std::string& rRepStr,	// 置き換える文字列
+		const int nRepStrLength		// 置き換える文字列の長さ (通常はstringのsize)
+	);
+
 	D3DXVECTOR2 CalcPosParabola		// 経過時間・X移動量・重力から放物線の位置を求める処理
 	( // 引数
 		const float fGravity,		// 重力
@@ -177,7 +185,8 @@ namespace useful
 
 	float RandomRot(void);			// ランダム向き取得
 	void NormalizeRot(float& rRot);	// 向きの正規化
-	void Vec3NormalizeRot(D3DXVECTOR3& rRot);		// 三軸向きの正規化
+	void NormalizeRot(D3DXVECTOR3& rRot);			// 三軸向きの正規化
+	void StandardizePathPart(std::string *pPath);	// パス区切りの標準化
 	void VecToRot(const D3DXVECTOR3& rVec, float *pPhi, float *pTheta);		// ベクトルの向き変換
 	void RotToVec(const float fPhi, const float fTheta, D3DXVECTOR3 *pVec);	// 向きのベクトル変換
 	D3DXVECTOR3 GetMatrixPosition(const D3DXMATRIX& rMtx);	// マトリックス位置取得
@@ -185,7 +194,7 @@ namespace useful
 	D3DXVECTOR3 GetMatrixScaling(const D3DXMATRIX& rMtx);	// マトリックス拡大率取得
 
 	// テンプレート関数
-	template<class T> bool LimitNum	// 値の範囲内制限
+	template<class T> bool LimitNum		// 値の範囲内制限
 	( // 引数
 		T& rNum,		// 制限数値
 		const T min,	// 最小範囲
@@ -207,18 +216,18 @@ namespace useful
 		const T min,	// 最小範囲
 		const T max		// 最大範囲
 	);
-	template<class T> T RateToValue	// 割合の値変換
+	template<class T> T RateToValue		// 割合の値変換
 	( // 引数
 		const float fRate,	// 値化する数値
 		const T min,		// 最小範囲
 		const T max			// 最大範囲
 	);
-	template<class T> void SortNum	// 値のソート
+	template<class T> void SortNum		// 値のソート
 	( // 引数
 		T *pSortNum,		// ソート配列
 		const int nMaxKeep	// 配列サイズ
 	);
-	template<class T> void Shuffle	// シャッフル
+	template<class T> void Shuffle		// シャッフル
 	(
 		T *pShuffleData,		// シャッフル配列
 		const int nMaxShuffle	// 配列サイズ

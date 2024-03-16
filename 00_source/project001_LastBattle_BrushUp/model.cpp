@@ -88,32 +88,33 @@ void CModel::Unload(void)
 //============================================================
 //	モデル登録処理
 //============================================================
-int CModel::Regist(const char *pFileName)
+int CModel::Regist(std::string sFilePass)
 {
 	// 変数を宣言
 	SMapInfo tempMapInfo;	// マップ情報
 	int nID = m_nNumAll;	// モデル読込番号
 
-	if (pFileName != nullptr)
-	{ // ポインタが使用されている場合
+	// ファイルパスを標準化
+	useful::StandardizePathPart(&sFilePass);
 
-		int nCntModel = 0;	// モデル番号
-		for (const auto& rMap : m_mapModel)
-		{ // モデルの要素数分繰り返す
+	// 既に読み込んでいないかを確認
+	int nCntModel = 0;
+	for (const auto& rMap : m_mapModel)
+	{ // モデルの要素数分繰り返す
 
-			if (rMap.second.sFilePassName.compare(pFileName) == 0)
-			{ // 文字列が一致した場合
+		if (rMap.second.sFilePassName.compare(sFilePass) == 0)
+		{ // 文字列が一致した場合
 
-				// すでに読み込んでいるモデルの配列番号を返す
-				return nCntModel;
-			}
-
-			// 次のモデル番号にする
-			nCntModel++;
+			// すでに読み込んでいるモデルの配列番号を返す
+			return nCntModel;
 		}
 
-		// xファイルの読込
-		if (FAILED(LoadXFileModel(&tempMapInfo, pFileName)))
+		// 次のモデル番号にする
+		nCntModel++;
+	}
+
+	// xファイルの読込
+	if (FAILED(LoadXFileModel(&tempMapInfo, sFilePass)))
 		{ // xファイルの読込に失敗した場合
 
 			// 失敗を返す
@@ -121,8 +122,8 @@ int CModel::Regist(const char *pFileName)
 			return NONE_IDX;
 		}
 
-		// テクスチャの読込
-		if (FAILED(LoadTextureModel(&tempMapInfo)))
+	// テクスチャの読込
+	if (FAILED(LoadTextureModel(&tempMapInfo)))
 		{ // テクスチャの読込に失敗した場合
 
 			// 失敗を返す
@@ -130,8 +131,8 @@ int CModel::Regist(const char *pFileName)
 			return NONE_IDX;
 		}
 
-		// 当たり判定の作成
-		if (FAILED(SetCollisionModel(&tempMapInfo)))
+	// 当たり判定の作成
+	if (FAILED(SetCollisionModel(&tempMapInfo)))
 		{ // 当たり判定の作成に失敗した場合
 
 			// 失敗を返す
@@ -139,25 +140,17 @@ int CModel::Regist(const char *pFileName)
 			return NONE_IDX;
 		}
 
-		// ファイルパス名を保存
-		tempMapInfo.sFilePassName = pFileName;
+	// ファイルパス名を保存
+	tempMapInfo.sFilePassName = sFilePass;
 
-		// モデル情報を生成
-		m_mapModel.insert(std::make_pair(m_nNumAll, tempMapInfo));
+	// モデル情報を生成
+	m_mapModel.insert(std::make_pair(m_nNumAll, tempMapInfo));
 
-		// モデルの総数を加算
-		m_nNumAll++;
+	// モデルの総数を加算
+	m_nNumAll++;
 
-		// 読み込んだモデルの配列番号を返す
-		return nID;
-	}
-	else
-	{ // ポインタが使用されていない場合
-
-		// 失敗を返す
-		assert(false);
-		return NONE_IDX;
-	}
+	// 読み込んだモデルの配列番号を返す
+	return nID;
 }
 
 //============================================================
@@ -225,16 +218,16 @@ void CModel::Release(CModel *&prModel)
 //============================================================
 //	xファイルの読み込み
 //============================================================
-HRESULT CModel::LoadXFileModel(SMapInfo *pMapInfo, const char *pFileName)
+HRESULT CModel::LoadXFileModel(SMapInfo *pMapInfo, std::string sFilePass)
 {
 	// マップ情報の指定がない場合エラー
 	if (pMapInfo == nullptr) { return E_FAIL; }
 
-	// xファイルの読み込み
+	// xファイルの読込
 	HRESULT hr;
 	hr = D3DXLoadMeshFromX
 	( // 引数
-		pFileName,						// モデルの相対パス
+		sFilePass.c_str(),				// モデルの相対パス
 		D3DXMESH_SYSTEMMEM,				// メッシュ作成用オプション
 		GET_DEVICE,						// デバイスへのポインタ
 		nullptr,						// 隣接性データ
@@ -244,7 +237,7 @@ HRESULT CModel::LoadXFileModel(SMapInfo *pMapInfo, const char *pFileName)
 		&pMapInfo->modelData.pMesh		// メッシュ (頂点情報) へのポインタ
 	);
 	if (FAILED(hr))
-	{ // xファイルの読み込みに失敗した場合
+	{ // xファイルの読込に失敗した場合
 
 		// エラーメッセージボックス
 		MessageBox(nullptr, "xファイルの読込に失敗！", "警告！", MB_ICONWARNING);

@@ -222,7 +222,7 @@ void CObjectMeshWall::SetVec3Rotation(const D3DXVECTOR3& rRot)
 	m_meshWall.rot = rRot;
 
 	// å¸Ç´ÇÃê≥ãKâª
-	useful::Vec3NormalizeRot(m_meshWall.rot);
+	useful::NormalizeRot(m_meshWall.rot);
 }
 
 //============================================================

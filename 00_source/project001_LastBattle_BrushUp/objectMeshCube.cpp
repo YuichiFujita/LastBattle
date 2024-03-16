@@ -244,7 +244,7 @@ void CObjectMeshCube::SetVec3Rotation(const D3DXVECTOR3& rRot)
 	m_meshCube.rot = rRot;
 
 	// å¸Ç´ÇÃê≥ãKâª
-	useful::Vec3NormalizeRot(m_meshCube.rot);
+	useful::NormalizeRot(m_meshCube.rot);
 }
 
 //============================================================

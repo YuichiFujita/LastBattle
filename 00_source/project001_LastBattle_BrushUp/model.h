@@ -44,7 +44,7 @@ public:
 	};
 
 	// メンバ関数
-	int Regist(const char *pFileName);	// モデル登録
+	int Regist(std::string sFilePass);	// モデル登録
 	SModel *GetInfo(const int nID);		// モデル情報取得
 
 	// 静的メンバ関数
@@ -55,7 +55,7 @@ private:
 	// メンバ関数
 	HRESULT Load(void);	// モデル生成
 	void Unload(void);	// モデル破棄
-	HRESULT LoadXFileModel(SMapInfo *pMapInfo, const char *pFileName);	// xファイルの読込
+	HRESULT LoadXFileModel(SMapInfo *pMapInfo, std::string sFilePass);	// xファイルの読込
 	HRESULT LoadTextureModel(SMapInfo *pMapInfo);	// テクスチャの読込
 	HRESULT SetCollisionModel(SMapInfo *pMapInfo);	// 当たり判定の作成
 	HRESULT LoadAll(std::string sFolderPath);		// モデル全読込

@@ -248,7 +248,7 @@ void CObjectMeshField::SetVec3Rotation(const D3DXVECTOR3& rRot)
 	m_meshField.rot = rRot;
 
 	// å¸Ç´ÇÃê≥ãKâª
-	useful::Vec3NormalizeRot(m_meshField.rot);
+	useful::NormalizeRot(m_meshField.rot);
 }
 
 //============================================================

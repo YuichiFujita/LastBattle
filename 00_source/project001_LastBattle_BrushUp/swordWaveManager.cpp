@@ -90,7 +90,7 @@ void CSwordWaveManager::Update(void)
 
 		// ¶¬Œü‚«‚ğİ’è
 		rotSpawn = pPlayer->GetVec3Rotation() + rSpawn.rotOffset;
-		useful::Vec3NormalizeRot(rotSpawn);	// Œü‚«³‹K‰»
+		useful::NormalizeRot(rotSpawn);	// Œü‚«³‹K‰»
 
 		// Œ•”g“®‚Ì¶¬
 		CSwordWave::Create

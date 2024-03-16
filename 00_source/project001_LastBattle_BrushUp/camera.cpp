@@ -396,8 +396,8 @@ void CCamera::SetDestTitleWait(void)
 	// 現在向きの更新
 	m_aCamera[TYPE_MAIN].rot.x = m_aCamera[TYPE_MAIN].destRot.x = title::INIT_ROT.x;
 	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.y = title::INIT_ROT.y;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
 
 	//--------------------------------------------------------
 	//	距離の更新
@@ -444,8 +444,8 @@ void CCamera::SetDestRotate(void)
 	// 現在向きの更新
 	m_aCamera[TYPE_MAIN].rot.x = m_aCamera[TYPE_MAIN].destRot.x = rotate::INIT_ROT.x;
 	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.y = rotate::INIT_ROT.y;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
 
 	//--------------------------------------------------------
 	//	距離の更新
@@ -487,8 +487,8 @@ void CCamera::SetDestFollow(void)
 	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.y = player->GetVec3Rotation().y + D3DX_PI;
 
 	// 向きを正規化
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].destRot);
 
 	//----------------------------------------------------
 	//	距離の更新
@@ -535,8 +535,8 @@ void CCamera::SetDestRide(void)
 	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.x = atan2f(posCenter.x - posBoss.x, posCenter.z - posBoss.z) - ride::SUB_ROTY;
 
 	// 向きを正規化
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].destRot);
 
 	//--------------------------------------------------------
 	//	距離の更新
@@ -572,8 +572,8 @@ void CCamera::SetDestLookPlayer(void)
 	// 現在向きの更新
 	m_aCamera[TYPE_MAIN].rot.x = m_aCamera[TYPE_MAIN].destRot.x = lookPlayer::INIT_ROT.x;
 	m_aCamera[TYPE_MAIN].rot.y = m_aCamera[TYPE_MAIN].destRot.y = lookPlayer::INIT_ROT.y;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);		// 現在向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].destRot);	// 目標向きを正規化
 
 	//--------------------------------------------------------
 	//	距離の更新
@@ -833,7 +833,7 @@ void CCamera::TitleWait(void)
 	// 現在向きの更新
 	m_aCamera[TYPE_MAIN].rot.x =  title::INIT_ROT.x;
 	m_aCamera[TYPE_MAIN].rot.y += title::ADD_ROTY;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
 
 	//--------------------------------------------------------
 	//	距離の更新
@@ -899,7 +899,7 @@ void CCamera::Rotate(void)
 	// 現在向きの更新
 	m_aCamera[TYPE_MAIN].rot.x = rotate::INIT_ROT.x;
 	m_aCamera[TYPE_MAIN].rot.y += rotate::ADD_ROTY;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
 
 	//--------------------------------------------------------
 	//	距離の更新
@@ -991,11 +991,11 @@ void CCamera::Follow(void)
 
 			// 差分向きを計算
 			diffRot = m_aCamera[TYPE_MAIN].destRot - m_aCamera[TYPE_MAIN].rot;
-			useful::Vec3NormalizeRot(diffRot);	// 差分向きを正規化
+			useful::NormalizeRot(diffRot);	// 差分向きを正規化
 
 			// 現在向きの更新
 			m_aCamera[TYPE_MAIN].rot += diffRot * follow::REV_ROT;
-			useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+			useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
 		}
 	}
 
@@ -1057,7 +1057,7 @@ void CCamera::Ride(void)
 	// 現在向きの更新
 	m_aCamera[TYPE_MAIN].rot.x = ride::INIT_ROT.x;
 	m_aCamera[TYPE_MAIN].rot.y = atan2f(posCenter.x - posBoss.x, posCenter.z - posBoss.z) - ride::SUB_ROTY;
-	useful::Vec3NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
+	useful::NormalizeRot(m_aCamera[TYPE_MAIN].rot);	// 現在向きを正規化
 
 	//--------------------------------------------------------
 	//	距離の更新

@@ -453,7 +453,7 @@ void CObjectTornado::SetDirectionRotation(const D3DXVECTOR3& rRot)
 	m_tornado.direRot = rRot;
 
 	// ê¨í∑å¸Ç´ÇÃê≥ãKâª
-	useful::Vec3NormalizeRot(m_tornado.direRot);
+	useful::NormalizeRot(m_tornado.direRot);
 }
 
 //============================================================

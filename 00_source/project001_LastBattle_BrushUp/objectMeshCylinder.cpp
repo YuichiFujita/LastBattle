@@ -242,7 +242,7 @@ void CObjectMeshCylinder::SetVec3Rotation(const D3DXVECTOR3& rRot)
 	m_meshCylinder.rot = rRot;
 
 	// Œü‚«‚Ì³‹K‰»
-	useful::Vec3NormalizeRot(m_meshCylinder.rot);
+	useful::NormalizeRot(m_meshCylinder.rot);
 }
 
 //============================================================

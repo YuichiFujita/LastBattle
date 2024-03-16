@@ -314,7 +314,7 @@ void CObject3D::SetVec3Rotation(const D3DXVECTOR3& rRot)
 	m_rot = rRot;
 
 	// Œü‚«‚Ì³‹K‰»
-	useful::Vec3NormalizeRot(m_rot);
+	useful::NormalizeRot(m_rot);
 
 	// ’¸“_î•ñ‚Ìİ’è
 	SetVtx();

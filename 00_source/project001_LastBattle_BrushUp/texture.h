@@ -59,7 +59,7 @@ public:
 
 	// メンバ関数
 	int Regist(const SInfo info);				// テクスチャ登録 (生成)
-	int Regist(const char *pFileName);			// テクスチャ登録 (パス)
+	int Regist(std::string sFilePass);			// テクスチャ登録 (パス)
 	STexture GetInfo(const int nID);			// テクスチャ情報取得
 	LPDIRECT3DTEXTURE9 GetPtr(const int nID);	// テクスチャポインタ取得
 
