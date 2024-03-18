@@ -87,32 +87,38 @@ void useful::ReplaceConsecChar
 
 )
 {
-	// TODO：ここ綺麗に
-
-	int nFindID = 0;
+	int nStartID = 0;	// 文字検出の開始インデックス
 	while (1)
 	{ // 区切り文字が見つかった場合
 
-		int nSlashID = pDestStr->find(cRepChar, nFindID);
-		if ((size_t)nSlashID == std::string::npos)
-		{
-			break;
-		}
+		// 文字列内から引数の文字を検出
+		int nFindID = pDestStr->find(cRepChar, nStartID);	// 検出インデックス
 
-		std::string str = *pDestStr;
-		str.erase(0, nSlashID);
+		// 引数の文字が検出されなかった場合ループを抜ける
+		if ((size_t)nFindID == std::string::npos) { break; }
 
-		int nCnt = 0;
-		for (char cChar : str)
-		{
+		// 置き換えの先頭まで文字列を削除する
+		std::string sFindStr = *pDestStr;	// 置き換え文字列を代入
+		sFindStr.erase(0, nFindID);			// 検出インデックスまで文字列削除
+
+		int nCntConsec = 0;	// 文字連続カウンター
+		for (char cChar : sFindStr)
+		{ // 文字列の長さ分繰り返す
+
 			if (cChar != cRepChar)
-			{
-				pDestStr->replace(nSlashID, nCnt, rRepStr);
-				nFindID = nSlashID + nRepStrLength;
+			{ // 検出文字と別の文字になった場合
+
+				// 連続文字をすべて削除し、置き換え文字列を代入
+				pDestStr->replace(nFindID, nCntConsec, rRepStr);
+
+				// 文字検出の開始インデックスを設定
+				nStartID = nFindID + nRepStrLength;
+
 				break;
 			}
 
-			nCnt++;
+			// 文字連続数を加算
+			nCntConsec++;
 		}
 	}
 }
@@ -204,13 +210,13 @@ void useful::NormalizeRot(float& rRot)
 	{ // 向きが 3.14 を超えた場合
 
 		// 向きの正規化
-		rRot -= D3DX_PI * 2;
+		rRot -= D3DX_PI * 2.0f;
 	}
 	else if (rRot < -D3DX_PI)
 	{ // 向きが -3.14 を超えた場合
 
 		// 向きの正規化
-		rRot += D3DX_PI * 2;
+		rRot += D3DX_PI * 2.0f;
 	}
 }
 
@@ -230,85 +236,23 @@ void useful::NormalizeRot(D3DXVECTOR3& rRot)
 //============================================================
 void useful::StandardizePathPart(std::string *pPath)
 {
-#if 0
-	{
-		int nFindID = 0;
-		while (1)
-		{ // 区切り文字が見つかった場合
-
-			int nSlashID = pPath->find('/', nFindID);
-			if ((size_t)nSlashID == std::string::npos)
-			{
-				break;
-			}
-
-			std::string str = *pPath;
-			str.erase(0, nSlashID);
-
-			int nCnt = 0;
-			for (char chara : str)
-			{
-				if (chara != '/')
-				{
-					pPath->replace(nSlashID, nCnt, "\\");
-					nFindID = nSlashID + nCnt;
-					break;
-				}
-
-				nCnt++;
-			}
-		}
-	}
-
-	{
-		int nFindID = 0;
-		while (1)
-		{ // 区切り文字が見つかった場合
-
-			int nSlashID = pPath->find('\\', nFindID);
-			if ((size_t)nSlashID == std::string::npos)
-			{
-				break;
-			}
-
-			std::string str = *pPath;
-			str.erase(0, nSlashID);
-
-			int nCnt = 0;
-			for (char chara : str)
-			{
-				if (chara != '\\')
-				{
-					pPath->replace(nSlashID, nCnt, "\\");
-					nFindID = nSlashID + nCnt;
-					break;
-				}
-
-				nCnt++;
-			}
-		}
-	}
-#else
-	// TODO：ここ綺麗に
-
-	// 文字列内の連続文字の置換
+	// スラッシュを置換
 	ReplaceConsecChar
-	(
+	( // 引数
 		pPath,	// 置き換えを行う文字列
 		'/',	// 検出する文字
 		"\\",	// 置き換える文字列
 		1		// 置き換える文字列の長さ (通常文字と違い\は二つで一文字となる)
 	);
 
-	// 文字列内の連続文字の置換
+	// バックスラッシュを置換
 	ReplaceConsecChar
-	(
+	( // 引数
 		pPath,	// 置き換えを行う文字列
 		'\\',	// 検出する文字
 		"\\",	// 置き換える文字列
 		1		// 置き換える文字列の長さ (通常文字と違い\は二つで一文字となる)
 	);
-#endif
 }
 
 //============================================================
