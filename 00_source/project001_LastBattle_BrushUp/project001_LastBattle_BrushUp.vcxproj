@@ -192,6 +192,7 @@
     <ClCompile Include="light.cpp" />
     <ClCompile Include="liquid.cpp" />
     <ClCompile Include="listManager.cpp" />
+    <ClCompile Include="loading.cpp" />
     <ClCompile Include="magicCircle.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="manager.cpp" />
@@ -315,6 +316,7 @@
     <ClInclude Include="light.h" />
     <ClInclude Include="liquid.h" />
     <ClInclude Include="listManager.h" />
+    <ClInclude Include="loading.h" />
     <ClInclude Include="magicCircle.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="manager.h" />

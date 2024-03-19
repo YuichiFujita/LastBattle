@@ -49,24 +49,30 @@ CModel::~CModel()
 }
 
 //============================================================
-//	モデル生成処理
+//	モデル初期化処理
 //============================================================
-HRESULT CModel::Load(void)
+HRESULT CModel::Init(void)
 {
 	// モデル連想配列を初期化
 	m_mapModel.clear();
 
-	// モデルの全読込
-	LoadAll(LOAD_FOLDER);
+	// モデル全読込
+	if (FAILED(LoadAll()))
+	{ // 読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// 成功を返す
 	return S_OK;
 }
 
 //============================================================
-//	モデル破棄処理
+//	モデル終了処理
 //============================================================
-void CModel::Unload(void)
+void CModel::Uninit(void)
 {
 	for (auto& rMap : m_mapModel)
 	{ // モデルの要素数分繰り返す
@@ -83,6 +89,24 @@ void CModel::Unload(void)
 
 	// モデル連想配列をクリア
 	m_mapModel.clear();
+}
+
+//============================================================
+//	モデル全読込処理
+//============================================================
+HRESULT CModel::LoadAll(void)
+{
+	// モデルの全読込
+	if (FAILED(SearchFolderAll(LOAD_FOLDER)))
+	{ // 読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 成功を返す
+	return S_OK;
 }
 
 //============================================================
@@ -188,9 +212,9 @@ CModel *CModel::Create(void)
 	else
 	{ // 生成に成功した場合
 
-		// モデルの読込
-		if (FAILED(pModel->Load()))
-		{ // モデル読込に失敗した場合
+		// モデルの初期化
+		if (FAILED(pModel->Init()))
+		{ // モデル初期化に失敗した場合
 
 			// モデルの破棄
 			SAFE_DELETE(pModel);
@@ -207,9 +231,9 @@ CModel *CModel::Create(void)
 //============================================================
 void CModel::Release(CModel *&prModel)
 {
-	// モデルの破棄
+	// モデルの終了
 	assert(prModel != nullptr);
-	prModel->Unload();
+	prModel->Uninit();
 
 	// メモリ開放
 	SAFE_DELETE(prModel);
@@ -387,9 +411,9 @@ HRESULT CModel::SetCollisionModel(SMapInfo *pMapInfo)
 }
 
 //============================================================
-//	モデル全読込処理
+//	フォルダ全検索処理
 //============================================================
-HRESULT CModel::LoadAll(std::string sFolderPath)
+HRESULT CModel::SearchFolderAll(std::string sFolderPath)
 {
 	// 変数を宣言
 	HANDLE hFile;	// 検索ハンドル
@@ -421,8 +445,8 @@ HRESULT CModel::LoadAll(std::string sFolderPath)
 		if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{ // ディレクトリだった場合
 
-			// 新たなディレクトリを全読込
-			LoadAll(sFullPath);
+			// 新たなディレクトリを全検索
+			SearchFolderAll(sFullPath);
 		}
 		else
 		{ // ファイルだった場合

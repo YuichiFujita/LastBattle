@@ -48,24 +48,30 @@ CTexture::~CTexture()
 }
 
 //============================================================
-//	テクスチャ生成処理
+//	テクスチャ初期化処理
 //============================================================
-HRESULT CTexture::Load(void)
+HRESULT CTexture::Init(void)
 {
 	// テクスチャ連想配列を初期化
 	m_mapTexture.clear();
 
-	// テクスチャの全読込
-	LoadAll(LOAD_FOLDER);
+	// テクスチャ全読込
+	if (FAILED(LoadAll()))
+	{ // 読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// 成功を返す
 	return S_OK;
 }
 
 //============================================================
-//	テクスチャ破棄処理
+//	テクスチャ終了処理
 //============================================================
-void CTexture::Unload(void)
+void CTexture::Uninit(void)
 {
 	for (auto& rMap : m_mapTexture)
 	{ // テクスチャの要素数分繰り返す
@@ -76,6 +82,24 @@ void CTexture::Unload(void)
 
 	// テクスチャ連想配列をクリア
 	m_mapTexture.clear();
+}
+
+//============================================================
+//	テクスチャ全読込処理
+//============================================================
+HRESULT CTexture::LoadAll(void)
+{
+	// テクスチャの全読込
+	if (FAILED(SearchFolderAll(LOAD_FOLDER)))
+	{ // 読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 成功を返す
+	return S_OK;
 }
 
 //============================================================
@@ -261,9 +285,9 @@ CTexture *CTexture::Create(void)
 	else
 	{ // 生成に成功した場合
 
-		// テクスチャの読込
-		if (FAILED(pTexture->Load()))
-		{ // テクスチャ読込に失敗した場合
+		// テクスチャの初期化
+		if (FAILED(pTexture->Init()))
+		{ // テクスチャ初期化に失敗した場合
 
 			// テクスチャの破棄
 			SAFE_DELETE(pTexture);
@@ -280,18 +304,18 @@ CTexture *CTexture::Create(void)
 //============================================================
 void CTexture::Release(CTexture *&prTexture)
 {
-	// テクスチャの破棄
+	// テクスチャの終了
 	assert(prTexture != nullptr);
-	prTexture->Unload();
+	prTexture->Uninit();
 
 	// メモリ開放
 	SAFE_DELETE(prTexture);
 }
 
 //============================================================
-//	テクスチャ全読込処理
+//	フォルダ全検索処理
 //============================================================
-HRESULT CTexture::LoadAll(std::string sFolderPath)
+HRESULT CTexture::SearchFolderAll(std::string sFolderPath)
 {
 	// 変数を宣言
 	HANDLE hFile;	// 検索ハンドル
@@ -323,14 +347,13 @@ HRESULT CTexture::LoadAll(std::string sFolderPath)
 		if (findFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 		{ // ディレクトリだった場合
 
-			// 新たなディレクトリを全読込
-			LoadAll(sFullPath);
+			// 新たなディレクトリを全検索
+			SearchFolderAll(sFullPath);
 		}
 		else
 		{ // ファイルだった場合
 
 			// テクスチャを登録
-			useful::StandardizePathPart(&sFullPath);
 			Regist(sFullPath.c_str());
 		}
 

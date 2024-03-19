@@ -44,6 +44,9 @@ public:
 	};
 
 	// メンバ関数
+	HRESULT Init(void);		// モデル初期化
+	void Uninit(void);		// モデル終了
+	HRESULT LoadAll(void);	// モデル全読込
 	int Regist(std::string sFilePass);	// モデル登録
 	SModel *GetInfo(const int nID);		// モデル情報取得
 
@@ -53,12 +56,10 @@ public:
 
 private:
 	// メンバ関数
-	HRESULT Load(void);	// モデル生成
-	void Unload(void);	// モデル破棄
 	HRESULT LoadXFileModel(SMapInfo *pMapInfo, std::string sFilePass);	// xファイルの読込
-	HRESULT LoadTextureModel(SMapInfo *pMapInfo);	// テクスチャの読込
-	HRESULT SetCollisionModel(SMapInfo *pMapInfo);	// 当たり判定の作成
-	HRESULT LoadAll(std::string sFolderPath);		// モデル全読込
+	HRESULT LoadTextureModel(SMapInfo *pMapInfo);		// テクスチャの読込
+	HRESULT SetCollisionModel(SMapInfo *pMapInfo);		// 当たり判定の作成
+	HRESULT SearchFolderAll(std::string sFolderPath);	// フォルダ全検索
 
 	// メンバ変数
 	std::map<int, SMapInfo> m_mapModel;	// モデル連想配列

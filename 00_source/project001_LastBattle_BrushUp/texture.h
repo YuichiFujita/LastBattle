@@ -58,6 +58,9 @@ public:
 	};
 
 	// メンバ関数
+	HRESULT Init(void);		// テクスチャ初期化
+	void Uninit(void);		// テクスチャ終了
+	HRESULT LoadAll(void);	// テクスチャ全読込
 	int Regist(const SInfo info);				// テクスチャ登録 (生成)
 	int Regist(std::string sFilePass);			// テクスチャ登録 (パス)
 	STexture GetInfo(const int nID);			// テクスチャ情報取得
@@ -69,9 +72,7 @@ public:
 
 private:
 	// メンバ関数
-	HRESULT Load(void);	// テクスチャ生成
-	void Unload(void);	// テクスチャ破棄
-	HRESULT LoadAll(std::string sFolderPath);	// テクスチャ全読込
+	HRESULT SearchFolderAll(std::string sFolderPath);	// フォルダ全検索
 
 	// メンバ変数
 	std::map<int, SMapInfo> m_mapTexture;	// テクスチャ連想配列
