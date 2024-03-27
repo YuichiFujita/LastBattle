@@ -258,8 +258,11 @@ CGauge2D *CGauge2D::Create
 			return nullptr;
 		}
 
-		// テクスチャを登録・割当
-		pGauge2D->BindTexture(POLYGON_FRAME, GET_MANAGER->GetTexture()->Regist(pPassTex));
+		if (pPassTex != nullptr)
+		{
+			// テクスチャを登録・割当
+			pGauge2D->BindTexture(POLYGON_FRAME, GET_MANAGER->GetTexture()->Regist(pPassTex));
+		}
 
 		// ゲージ最大値を設定
 		pGauge2D->SetMaxNum(nMax);

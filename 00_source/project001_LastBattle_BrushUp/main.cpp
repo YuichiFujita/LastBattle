@@ -9,6 +9,7 @@
 //************************************************************
 #include "main.h"
 #include "manager.h"
+#include "loading.h"
 #include "resource.h"
 #include "debug.h"
 
@@ -120,6 +121,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hInstancePrev*/, LPSTR /*lpC
 		// 例外を返す
 		return -1;
 	}
+
+	// TODO：マネージャー管轄の情報読込
+	CLoading *pLoading = pManager->GetLoading();
+
+	// TODO：ここはマクロで渡せるようにしよう
+	pLoading->Set([pManager](bool *pFuncEnd) -> HRESULT { if (FAILED(pManager->Load(pFuncEnd))) { return E_FAIL; } return S_OK; });
 
 	// メッセージループ
 	while (1)

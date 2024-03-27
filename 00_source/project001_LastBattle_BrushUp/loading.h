@@ -11,11 +11,6 @@
 #define _LOADING_H_
 
 //************************************************************
-//	インクルードファイル
-//************************************************************
-#include <thread>
-
-//************************************************************
 //	前方宣言
 //************************************************************
 class CAnim2D;	// アニメーション2Dクラス
@@ -42,26 +37,24 @@ public:
 	// デストラクタ
 	~CLoading();
 
-	// 初期化関数ポインタ型エイリアス定義
-	typedef HRESULT(*AFuncInit)(void);
-
 	// メンバ関数
 	HRESULT Init(void);	// 初期化
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
-	void Set(AFuncInit *pFuncInit);	// ロード設定
-	ELoading GetState(void) const;	// ロード状態取得
+	void Draw(void);	// 描画
+	void Set(std::function<HRESULT(bool*)> funcLoad);	// ロード開始設定
+	ELoading GetState(void) const { return m_state; }	// ロード状態取得
 
 	// 静的メンバ関数
 	static CLoading *Create(void);				// 生成
 	static void Release(CLoading *&pLoading);	// 破棄
 
-	std::thread m_funcInit;	// 初期化処理スレッド
-
 private:
 	// メンバ変数
+	std::thread m_funcLoad;	// 読込処理スレッド
 	CAnim2D *m_pLoad;		// ロード画面情報
-	ELoading m_stateLoad;	// ロード状態
+	ELoading m_state;		// ロード状態
+	bool m_bEnd;			// ロード終了状況
 };
 
 #endif	// _LOADING_H_

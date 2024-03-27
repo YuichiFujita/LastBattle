@@ -9,6 +9,7 @@
 //************************************************************
 #include "fade.h"
 #include "manager.h"
+#include "loading.h"
 #include "object2D.h"
 
 //************************************************************
@@ -70,7 +71,7 @@ HRESULT CFade::Init(void)
 		SCREEN_CENT,	// 位置
 		SCREEN_SIZE,	// 大きさ
 		VEC3_ZERO,		// 向き
-		XCOL_WHITE		// 色
+		XCOL_BLACK		// 色
 	);
 	if (m_pObject2D == nullptr)
 	{ // 生成に失敗した場合
@@ -130,6 +131,9 @@ void CFade::Update(void)
 			break;
 
 		case FADE_IN:	// フェードイン状態
+
+			// TODO
+			if (GET_MANAGER->GetLoading()->GetState() != CLoading::LOAD_NONE) { break; }
 
 			// α値を減算
 			colFade.a -= FADE_LEVEL;

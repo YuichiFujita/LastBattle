@@ -15,6 +15,7 @@
 #include "camera.h"
 #include "light.h"
 #include "fade.h"
+#include "loading.h"
 #include "texture.h"
 #include "model.h"
 #include "shader.h"
@@ -44,6 +45,7 @@ CManager::CManager() :
 	m_pTexture		(nullptr),	// テクスチャインスタンス
 	m_pModel		(nullptr),	// モデルインスタンス
 	m_pFade			(nullptr),	// フェードインスタンス
+	m_pLoading		(nullptr),	// ローディングインスタンス
 	m_pScene		(nullptr),	// シーンインスタンス
 	m_pRetention	(nullptr),	// データ保存マネージャー
 	m_pDebugProc	(nullptr),	// デバッグ表示
@@ -80,6 +82,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	m_pTexture		= nullptr;	// テクスチャインスタンス
 	m_pModel		= nullptr;	// モデルインスタンス
 	m_pFade			= nullptr;	// フェードインスタンス
+	m_pLoading		= nullptr;	// ローディングインスタンス
 	m_pScene		= nullptr;	// シーンインスタンス
 	m_pRetention	= nullptr;	// データ保存マネージャー
 	m_pDebugProc	= nullptr;	// デバッグ表示
@@ -229,6 +232,16 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
+	// ローディングの生成
+	m_pLoading = CLoading::Create();
+	if (m_pLoading == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
 	//--------------------------------------------------------
 	//	デバッグ用
 	//--------------------------------------------------------
@@ -257,6 +270,42 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 }
 
 //============================================================
+//	読込処理
+//============================================================
+HRESULT CManager::Load(bool *pFuncEnd)
+{
+	// 例外処理
+	assert(pFuncEnd != nullptr);	// フラグアドレスが指定なし
+	assert(!(*pFuncEnd));			// フラグが既にオン
+
+	// テクスチャの全読込
+	assert(m_pTexture != nullptr);
+	if (FAILED(m_pTexture->LoadAll()))
+	{ // 全読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// モデルの全読込
+	assert(m_pModel != nullptr);
+	if (FAILED(m_pModel->LoadAll()))
+	{ // 全読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 処理の終了フラグをONにする
+	*pFuncEnd = true;
+
+	// 成功を返す
+	return S_OK;
+}
+
+//============================================================
 //	終了処理
 //============================================================
 void CManager::Uninit(void)
@@ -269,6 +318,12 @@ void CManager::Uninit(void)
 
 	// デバッグの破棄
 	SAFE_REF_RELEASE(m_pDebug);
+
+	//--------------------------------------------------------
+	//	スレッドの破棄
+	//--------------------------------------------------------
+	// ローディングの破棄
+	SAFE_REF_RELEASE(m_pLoading);
 
 	//--------------------------------------------------------
 	//	情報の破棄
@@ -355,6 +410,10 @@ void CManager::Update(void)
 	// フェードの更新
 	assert(m_pFade != nullptr);
 	m_pFade->Update();
+
+	// ローディングの更新
+	assert(m_pLoading != nullptr);
+	m_pLoading->Update();
 
 	// シーンの更新
 	assert(m_pScene != nullptr);
@@ -470,6 +529,8 @@ HRESULT CManager::SetMode(const CScene::EMode mode)
 		assert(false);
 		return E_FAIL;
 	}
+
+	// TODO：ここに各シーンのLOAD処理追加
 
 	// 成功を返す
 	return S_OK;
@@ -617,6 +678,18 @@ CFade *CManager::GetFade(void)
 
 	// フェードのポインタを返す
 	return m_pFade;
+}
+
+//============================================================
+//	ローディング取得処理
+//============================================================
+CLoading *CManager::GetLoading(void)
+{
+	// インスタンス未使用
+	assert(m_pLoading != nullptr);
+
+	// ローディングのポインタを返す
+	return m_pLoading;
 }
 
 //============================================================

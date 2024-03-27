@@ -10,11 +10,13 @@
 #include "renderer.h"
 #include "object.h"
 #include "manager.h"
+#include "loading.h"
 #include "renderState.h"
 #include "camera.h"
 #include "texture.h"
 #include "screen.h"
 #include "debug.h"
+#include "debugproc.h"
 
 #include "enemy.h"
 #include "magicCircle.h"
@@ -186,6 +188,12 @@ void CRenderer::Update(void)
 //============================================================
 void CRenderer::Draw(void)
 {
+	// ポインタを宣言
+	CManager	*pManager	= GET_MANAGER;				// マネージャー
+	CCamera		*pCamera	= pManager->GetCamera();	// カメラ
+	CLoading	*pLoading	= pManager->GetLoading();	// ローディング
+	CDebugProc	*pDebugProc	= pManager->GetDebugProc();	// デバッグプロック
+
 	// 変数を宣言
 	D3DVIEWPORT9 viewportDef;	// カメラのビューポート保存用
 	HRESULT hr;	// 異常終了の確認用
@@ -212,7 +220,8 @@ void CRenderer::Draw(void)
 		m_pD3DDevice->GetViewport(&viewportDef);
 
 		// カメラの設定
-		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
+		assert(pCamera != nullptr);
+		pCamera->SetCamera(CCamera::TYPE_MAIN);
 
 		// 切り抜きの描画
 		DrawCrop();
@@ -247,7 +256,8 @@ void CRenderer::Draw(void)
 		m_pD3DDevice->GetViewport(&viewportDef);
 
 		// カメラの設定
-		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
+		assert(pCamera != nullptr);
+		pCamera->SetCamera(CCamera::TYPE_MAIN);
 
 		// オブジェクトの全描画
 		CObject::DrawAll();
@@ -282,13 +292,20 @@ void CRenderer::Draw(void)
 		m_pD3DDevice->GetViewport(&viewportDef);
 
 		// カメラの設定
-		GET_MANAGER->GetCamera()->SetCamera(CCamera::TYPE_MAIN);
-		
+		assert(pCamera != nullptr);
+		pCamera->SetCamera(CCamera::TYPE_MAIN);
+
 		// スクリーン描画ポリゴンの描画
+		assert(m_pDrawScreen != nullptr);
 		m_pDrawScreen->Draw();
 
+		// ローディングの描画
+		assert(pLoading != nullptr);
+		pLoading->Draw();
+
 		// デバッグ表示の描画
-		GET_MANAGER->GetDebugProc()->Draw();
+		assert(pDebugProc != nullptr);
+		pDebugProc->Draw();
 
 		// ビューポートを元に戻す
 		m_pD3DDevice->SetViewport(&viewportDef);
@@ -463,7 +480,7 @@ HRESULT CRenderer::CreateDevice(HWND hWnd, D3DPRESENT_PARAMETERS d3dpp)
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
 		hWnd,
-		D3DCREATE_HARDWARE_VERTEXPROCESSING,
+		D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
 		&d3dpp,
 		&m_pD3DDevice
 	);
@@ -480,7 +497,7 @@ HRESULT CRenderer::CreateDevice(HWND hWnd, D3DPRESENT_PARAMETERS d3dpp)
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
 		hWnd,
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
 		&d3dpp,
 		&m_pD3DDevice
 	);
@@ -497,7 +514,7 @@ HRESULT CRenderer::CreateDevice(HWND hWnd, D3DPRESENT_PARAMETERS d3dpp)
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_REF,
 		hWnd,
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_MULTITHREADED,
 		&d3dpp,
 		&m_pD3DDevice
 	);

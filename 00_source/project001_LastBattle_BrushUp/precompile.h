@@ -32,7 +32,9 @@
 #define _CRTDBG_MAP_ALLOC
 #include <crtdbg.h>	// メモリリーク検出に必要
 
+#include <thread>
 #include <string>
+#include <functional>
 #include <vector>
 #include <list>
 #include <map>

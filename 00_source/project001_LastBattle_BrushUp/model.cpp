@@ -56,15 +56,6 @@ HRESULT CModel::Init(void)
 	// モデル連想配列を初期化
 	m_mapModel.clear();
 
-	// モデル全読込
-	if (FAILED(LoadAll()))
-	{ // 読込に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return E_FAIL;
-	}
-
 	// 成功を返す
 	return S_OK;
 }

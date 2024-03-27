@@ -83,40 +83,39 @@ void CAnim2D::Uninit(void)
 //============================================================
 void CAnim2D::Update(void)
 {
-	if (m_bStop == false)
-	{ // 再生状態の場合
+	// 停止中の場合抜ける
+	if (m_bStop) { return; }
 
-		if (m_nCntChange > 0)
-		{ // 変更カウントが 0より大きい場合
+	if (m_nCntChange > 0)
+	{ // 変更カウントが 0より大きい場合
 
-			// カウンターを加算
-			m_nCounter++;
+		// カウンターを加算
+		m_nCounter++;
 
-			if (m_nCounter % m_nCntChange == 0)
-			{ // カウンターが変更カウントになった場合
+		if (m_nCounter % m_nCntChange == 0)
+		{ // カウンターが変更カウントになった場合
 
-				// カウンターを初期化
-				m_nCounter = 0;
+			// カウンターを初期化
+			m_nCounter = 0;
 
-				if (m_bPlayBack == false)
-				{ // 通常再生の場合
+			if (!m_bPlayBack)
+			{ // 通常再生の場合
 
-					// パターンを加算
-					m_nPattern = (m_nPattern + 1) % m_nMaxPtrn;
-				}
-				else
-				{ // 逆再生の場合
+				// パターンを加算
+				m_nPattern = (m_nPattern + 1) % m_nMaxPtrn;
+			}
+			else
+			{ // 逆再生の場合
 
-					// パターンを減算
-					m_nPattern = (m_nPattern + (m_nMaxPtrn - 1)) % m_nMaxPtrn;
-				}
+				// パターンを減算
+				m_nPattern = (m_nPattern + (m_nMaxPtrn - 1)) % m_nMaxPtrn;
+			}
 
-				if (m_nPattern == 0)
-				{ // パターン数が一枚目の場合
+			if (m_nPattern == 0)
+			{ // パターン数が一枚目の場合
 
-					// 繰り返し数を加算
-					m_nNumLoop++;
-				}
+				// 繰り返し数を加算
+				m_nNumLoop++;
 			}
 		}
 	}
@@ -302,6 +301,13 @@ void CAnim2D::SetEnableStop(const bool bStop)
 {
 	// 引数の停止状況を代入
 	m_bStop = bStop;
+
+	if (m_bStop)
+	{ // 停止された場合
+
+		// 繰り返し数を初期化
+		m_nNumLoop = 0;
+	}
 }
 
 //============================================================
@@ -311,13 +317,4 @@ void CAnim2D::SetEnablePlayBack(const bool bPlayBack)
 {
 	// 引数の逆再生状況を代入
 	m_bPlayBack = bPlayBack;
-}
-
-//============================================================
-//	パターン繰り返し数の取得処理
-//============================================================
-int CAnim2D::GetLoopAnimation(void) const
-{
-	// パターン繰り返し数を返す
-	return m_nNumLoop;
 }

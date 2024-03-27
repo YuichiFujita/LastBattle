@@ -29,6 +29,7 @@ class CLight;				// ライトクラス
 class CTexture;				// テクスチャクラス
 class CModel;				// モデルクラス
 class CFade;				// フェードクラス
+class CLoading;				// ローディングクラス
 class CRetentionManager;	// データ保存マネージャークラス
 class CDebugProc;			// デバッグ表示クラス
 class CDebug;				// デバッグクラス
@@ -48,6 +49,7 @@ public:
 
 	// メンバ関数
 	HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow);	// 初期化
+	HRESULT Load(bool *pFuncEnd);	// 読込
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
 	void Draw(void);	// 描画
@@ -73,6 +75,7 @@ public:
 	CTexture			*GetTexture(void);		// テクスチャ取得
 	CModel				*GetModel(void);		// モデル取得
 	CFade				*GetFade(void);			// フェード取得
+	CLoading			*GetLoading(void);		// ローディング取得
 	CScene				*GetScene(void);		// シーン取得
 	CRetentionManager	*GetRetention(void);	// データ保存マネージャー取得
 	CDebugProc			*GetDebugProc(void);	// デバッグ表示取得
@@ -94,6 +97,7 @@ private:
 	CTexture			*m_pTexture;	// テクスチャインスタンス
 	CModel				*m_pModel;		// モデルインスタンス
 	CFade				*m_pFade;		// フェードインスタンス
+	CLoading			*m_pLoading;	// ローディングインスタンス
 	CScene				*m_pScene;		// シーンインスタンス
 	CRetentionManager	*m_pRetention;	// データ保存マネージャー
 	CDebugProc			*m_pDebugProc;	// デバッグ表示

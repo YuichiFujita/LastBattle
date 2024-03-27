@@ -315,8 +315,11 @@ CGauge3D *CGauge3D::Create
 			return nullptr;
 		}
 
-		// テクスチャを登録・割当
-		pGauge3D->BindTexture(POLYGON_FRAME, GET_MANAGER->GetTexture()->Regist(pPassTex));
+		if (pPassTex != nullptr)
+		{
+			// テクスチャを登録・割当
+			pGauge3D->BindTexture(POLYGON_FRAME, GET_MANAGER->GetTexture()->Regist(pPassTex));
+		}
 
 		// ゲージ表示オブジェクトを設定
 		pGauge3D->SetGaugeObject(pObject);
