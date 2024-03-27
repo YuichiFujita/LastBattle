@@ -174,15 +174,6 @@ CScene *CScene::Create(EMode mode)
 	else
 	{ // 生成に成功した場合
 
-		// シーンの初期化
-		if (FAILED(pScene->Init()))
-		{ // 初期化に失敗した場合
-
-			// プレイヤーの破棄
-			SAFE_DELETE(pScene);
-			return nullptr;
-		}
-
 		// 確保したアドレスを返す
 		return pScene;
 	}

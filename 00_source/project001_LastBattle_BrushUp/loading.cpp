@@ -170,6 +170,9 @@ void CLoading::Update(void)
 				// ロードのアニメーションを停止
 				m_pLoad->SetEnableStop(true);
 
+				// 関数情報を切り離す
+				m_funcLoad.detach();
+
 				// ロードの表示終了状態にする
 				m_state = LOAD_FADEIN;
 			}

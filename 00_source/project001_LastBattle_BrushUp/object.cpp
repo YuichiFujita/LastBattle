@@ -9,6 +9,7 @@
 //************************************************************
 #include "object.h"
 #include "manager.h"
+#include "loading.h"
 
 //************************************************************
 //	静的メンバ変数宣言
@@ -785,6 +786,13 @@ void CObject::UpdateAll(void)
 //============================================================
 void CObject::DrawAll(void)
 {
+	// ポインタを宣言
+	CLoading *pLoading = GET_MANAGER->GetLoading();	// ローディング
+
+	// ロード中の場合抜ける
+	assert(pLoading != nullptr);
+	if (pLoading->GetState() != CLoading::LOAD_NONE) { return; }
+
 	for (int nCntDim = 0; nCntDim < DIM_MAX; nCntDim++)
 	{ // 次元の総数分繰り返す
 

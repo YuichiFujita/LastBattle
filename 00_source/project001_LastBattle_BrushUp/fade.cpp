@@ -9,6 +9,7 @@
 //************************************************************
 #include "fade.h"
 #include "manager.h"
+#include "renderer.h"
 #include "loading.h"
 #include "object2D.h"
 
@@ -83,6 +84,9 @@ HRESULT CFade::Init(void)
 
 	// 優先順位の設定
 	m_pObject2D->SetPriority(PRIORITY);
+
+	// ラベル指定なしに設定
+	m_pObject2D->SetLabel(CObject::LABEL_NONE);
 
 	// モードの設定
 	GET_MANAGER->SetMode(m_modeNext);
@@ -178,6 +182,25 @@ void CFade::Update(void)
 		// オブジェクト2Dの更新
 		m_pObject2D->Update();
 	}
+}
+
+//============================================================
+//	描画処理
+//============================================================
+void CFade::Draw(void)
+{
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// サンプラーステートを設定
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);	// U方向のラッピングを無効化
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);	// V方向のラッピングを無効化
+
+	// オブジェクト2Dの描画
+	m_pObject2D->Draw();
+
+	// サンプラーステートを設定
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);	// U方向のラッピングを有効化
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);	// V方向のラッピングを有効化
 }
 
 //============================================================

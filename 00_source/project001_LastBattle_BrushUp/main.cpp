@@ -122,11 +122,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hInstancePrev*/, LPSTR /*lpC
 		return -1;
 	}
 
-	// TODO：マネージャー管轄の情報読込
-	CLoading *pLoading = pManager->GetLoading();
+	// ラムダ式の作成
+	auto func = [pManager](bool *pFuncEnd) -> HRESULT
+	{
+		if (FAILED(pManager->Load(pFuncEnd)))
+		{ // 読込に失敗した場合
 
-	// TODO：ここはマクロで渡せるようにしよう
-	pLoading->Set([pManager](bool *pFuncEnd) -> HRESULT { if (FAILED(pManager->Load(pFuncEnd))) { return E_FAIL; } return S_OK; });
+			return E_FAIL;
+		}
+
+		return S_OK;
+	};
+
+	// 実行する読込関数を渡しロード開始
+	CLoading *pLoading = pManager->GetLoading();
+	assert(pLoading != nullptr);
+	pLoading->Set(func);
 
 	// メッセージループ
 	while (1)

@@ -222,9 +222,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-	// フェードの生成・シーンの設定
-	m_pFade = CFade::Create();
-	if (m_pFade == nullptr)
+	// ローディングの生成
+	m_pLoading = CLoading::Create();
+	if (m_pLoading == nullptr)
 	{ // 非使用中の場合
 
 		// 失敗を返す
@@ -232,9 +232,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-	// ローディングの生成
-	m_pLoading = CLoading::Create();
-	if (m_pLoading == nullptr)
+	// フェードの生成・シーンの設定
+	m_pFade = CFade::Create();
+	if (m_pFade == nullptr)
 	{ // 非使用中の場合
 
 		// 失敗を返す
@@ -407,13 +407,13 @@ void CManager::Update(void)
 	assert(m_pKeyboard != nullptr);
 	m_pKeyboard->Update();
 
-	// フェードの更新
-	assert(m_pFade != nullptr);
-	m_pFade->Update();
-
 	// ローディングの更新
 	assert(m_pLoading != nullptr);
 	m_pLoading->Update();
+
+	// フェードの更新
+	assert(m_pFade != nullptr);
+	m_pFade->Update();
 
 	if (m_pLoading->GetState() == CLoading::LOAD_NONE)
 	{ // ロードしていない場合
@@ -534,7 +534,23 @@ HRESULT CManager::SetMode(const CScene::EMode mode)
 		return E_FAIL;
 	}
 
-	// TODO：ここに各シーンのLOAD処理追加
+	// ラムダ式の作成
+	CScene *pScene = m_pScene;
+	auto func = [pScene](bool *pFuncEnd) -> HRESULT
+	{
+		if (FAILED(pScene->Init()))
+		{ // 初期化に失敗した場合
+
+			return E_FAIL;
+		}
+
+		*pFuncEnd = true;	// TODO
+		return S_OK;
+	};
+
+	// 実行する初期化関数を渡しロード開始
+	assert(m_pLoading != nullptr);
+	m_pLoading->Set(func);
 
 	// 成功を返す
 	return S_OK;
