@@ -108,9 +108,7 @@ void CFade::Update(void)
 	if (m_fade != FADE_NONE)
 	{ // 何もしない状態ではない場合
 
-		// 変数を宣言
 		D3DXCOLOR colFade = m_pObject2D->GetColor();	// フェード色
-
 		switch (m_fade)
 		{ // フェード状態ごとの処理
 		case FADE_WAIT:	// フェード余韻状態
@@ -132,20 +130,20 @@ void CFade::Update(void)
 
 		case FADE_IN:	// フェードイン状態
 
-			// TODO
-			if (GET_MANAGER->GetLoading()->GetState() != CLoading::LOAD_NONE) { break; }
+			if (GET_MANAGER->GetLoading()->GetState() == CLoading::LOAD_NONE)
+			{ // ロードしていない場合
 
-			// α値を減算
-			colFade.a -= FADE_LEVEL;
+				// α値を減算
+				colFade.a -= FADE_LEVEL;
+				if (colFade.a <= 0.0f)
+				{ // α値が 0.0fを下回った場合
 
-			if (colFade.a <= 0.0f)
-			{ // α値が 0.0fを下回った場合
+					// α値を補正
+					colFade.a = 0.0f;
 
-				// α値を補正
-				colFade.a = 0.0f;
-
-				// フェード状態を設定
-				m_fade = FADE_NONE;	// 何もしない状態
+					// フェード状態を設定
+					m_fade = FADE_NONE;	// 何もしない状態
+				}
 			}
 
 			break;
@@ -154,7 +152,6 @@ void CFade::Update(void)
 
 			// α値を加算
 			colFade.a += FADE_LEVEL;
-
 			if (colFade.a >= 1.0f)
 			{ // α値が 1.0f を上回った場合
 

@@ -18,7 +18,12 @@
 //************************************************************
 namespace
 {
-	const int PRIORITY = 7;	// ローディングの優先順位
+	const char* TEXTURE_FILE = "data\\TEXTURE\\loading000.tga";	// ロード画面テクスチャ
+
+	const POSGRID2 PTRN = POSGRID2(12, 4);	// テクスチャ分割数
+	const int	PRIORITY	= 7;			// ローディングの優先順位
+	const int	ANIM_WAIT	= 2;			// アニメーションの変更フレーム
+	const float	FADE_LEVEL	= 0.05f;		// フェードのα値の加減量
 
 #ifdef _DEBUG
 
@@ -26,7 +31,7 @@ namespace
 
 #else	// NDEBUG
 
-	const int MIN_LOAD = 3;	// 最低ロード繰り返し数
+	const int MIN_LOAD = 2;	// 最低ロード繰り返し数
 
 #endif	// _DEBUG
 }
@@ -38,8 +43,9 @@ namespace
 //	コンストラクタ
 //============================================================
 CLoading::CLoading() :
-	m_pLoad		(nullptr),	// ロード画面情報
-	m_state	(LOAD_NONE)	// ロード状態
+	m_pLoad	(nullptr),		// ロード画面情報
+	m_state	(LOAD_NONE),	// ロード状態
+	m_bEnd	(false)			// ロード終了状況
 {
 
 }
@@ -58,16 +64,19 @@ CLoading::~CLoading()
 HRESULT CLoading::Init(void)
 {
 	// メンバ変数を初期化
-	m_pLoad = nullptr;			// ロード画面情報
-	m_state = LOAD_NONE;	// ロード状態
+	m_pLoad	= nullptr;		// ロード画面情報
+	m_state	= LOAD_NONE;	// ロード状態
+	m_bEnd	= false;		// ロード終了状況
 
 	// ロード画面の生成
 	m_pLoad = CAnim2D::Create
 	( // 引数
-		12,
-		4,
+		PTRN.x,			// テクスチャ横分割数
+		PTRN.y,			// テクスチャ縦分割数
 		SCREEN_CENT,	// 位置
-		SCREEN_SIZE		// 大きさ
+		SCREEN_SIZE,	// 大きさ
+		VEC3_ZERO,		// 向き
+		XCOL_AWHITE		// 色
 	);
 	if (m_pLoad == nullptr)
 	{ // 生成に失敗した場合
@@ -77,24 +86,20 @@ HRESULT CLoading::Init(void)
 		return E_FAIL;
 	}
 
+	// テクスチャを登録・割当
+	m_pLoad->BindTexture(TEXTURE_FILE);
+
 	// 優先順位の設定
 	m_pLoad->SetPriority(PRIORITY);
 
-	// テクスチャを登録・割当
-	m_pLoad->BindTexture("data\\TEXTURE\\loading001.tga");
-
-	// ラベルをエフェクトにする
-	m_pLoad->SetLabel(CObject::LABEL_EFFECT);
-
-	// 変更フレームを設定
-	m_pLoad->SetCounter(2);
-
-	// ラベルをスクリーンに設定
+	// ラベル指定なしに設定
 	m_pLoad->SetLabel(CObject::LABEL_NONE);
 
-	// 自動更新・自動描画をOFFにする
-	m_pLoad->SetEnableUpdate(false);
-	m_pLoad->SetEnableDraw(false);
+	// 変更フレームの設定
+	m_pLoad->SetCounter(ANIM_WAIT);
+
+	// ロードのアニメーションを停止
+	m_pLoad->SetEnableStop(true);
 
 	// 成功を返す
 	return S_OK;
@@ -106,12 +111,14 @@ HRESULT CLoading::Init(void)
 void CLoading::Uninit(void)
 {
 	if (m_funcLoad.joinable())
-	{
-		m_funcLoad.join();
-		//m_funcLoad.detach();	// TODO：デタッチしても処理は続く。故に破棄しても
-	}
+	{ // 読込関数の処理が終了していないい場合
 
-	// TODO：ほんとは使わない画像読み込みもあるからちゃんと後で消して！
+		// 処理終了を待機
+		m_funcLoad.join();
+		
+		// ここを消すとメインスレッドで
+		// 情報の破棄後に読込を行いメモリ破壊する
+	}
 
 	// ロード画面の終了
 	SAFE_UNINIT(m_pLoad);
@@ -125,29 +132,63 @@ void CLoading::Update(void)
 	if (m_state != LOAD_NONE)
 	{ // 何もしない状態ではない場合
 
+		D3DXCOLOR colLoad = m_pLoad->GetColor();	// フェード色
 		switch (m_state)
 		{ // ロード状態ごとの処理
+		case LOAD_FADEOUT:	// ロードの表示開始状態
+
+			// α値を加算
+			colLoad.a += FADE_LEVEL;
+			if (colLoad.a >= 1.0f)
+			{ // α値が 1.0f を上回った場合
+
+				// α値を補正
+				colLoad.a = 1.0f;
+
+				// ロードのアニメーションを再生
+				m_pLoad->SetEnableStop(false);
+
+				// ロード更新状態にする
+				m_state = LOAD_UPDATE;
+			}
+
+			break;
+
 		case LOAD_UPDATE:	// ロード更新状態
 
 			if (m_bEnd)
 			{ // 初期化処理が終了した場合
 
-				// ロードが終わった場合
+#ifdef NDEBUG
+				// ロードのキリが悪い場合抜ける
 				if (m_pLoad->GetPattern() != 0) { break; }
+#endif	// NDEBUG
+
+				// 最低ロード回数未満の場合抜ける
 				if (m_pLoad->GetLoopAnimation() < MIN_LOAD) { break; }
 
-				// ロード画面を非表示
-				m_pLoad->SetEnableDraw(false);
+				// ロードのアニメーションを停止
+				m_pLoad->SetEnableStop(true);
 
-				// ロード終了状態にする
-				m_state = LOAD_END;
+				// ロードの表示終了状態にする
+				m_state = LOAD_FADEIN;
 			}
 
 			break;
 
-		case LOAD_END:	// ロード終了状態
+		case LOAD_FADEIN:	// ロードの表示終了状態
 
-			m_state = LOAD_NONE;
+			// α値を減算
+			colLoad.a -= FADE_LEVEL;
+			if (colLoad.a <= 0.0f)
+			{ // α値が 0.0fを下回った場合
+
+				// α値を補正
+				colLoad.a = 0.0f;
+
+				// 何もしない状態にする
+				m_state = LOAD_NONE;
+			}
 
 			break;
 
@@ -156,12 +197,11 @@ void CLoading::Update(void)
 			break;
 		}
 
-		if (!m_pLoad->IsUpdate())
-		{ // 自動更新がONの場合
+		// 色の更新
+		m_pLoad->SetColor(colLoad);
 
-			// ロード画面の更新
-			m_pLoad->Update();
-		}
+		// ロード画面の更新
+		m_pLoad->Update();
 	}
 }
 
@@ -170,9 +210,6 @@ void CLoading::Update(void)
 //============================================================
 void CLoading::Draw(void)
 {
-	// 自動描画がOFFの場合抜ける
-	if (!m_pLoad->IsDraw()) { return; }
-
 	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// サンプラーステートを設定
@@ -195,18 +232,17 @@ void CLoading::Set(std::function<HRESULT(bool*)> funcLoad)
 	if (m_state == LOAD_NONE)
 	{ // ローディングが行われていない場合
 
-		// ロード情報を初期化
+		// ロード未完了にする
 		m_bEnd = false;
 
 		// スレッドに引数の関数を設定
 		m_funcLoad = std::thread(funcLoad, &m_bEnd);
 
-		// ロード画面を表示
-		m_pLoad->SetEnableDraw(true);
+		// ロード画面のパターンを先頭にする
 		m_pLoad->SetPattern(0);
 
-		// ロード更新状態にする
-		m_state = LOAD_UPDATE;
+		// ロードの表示開始状態にする
+		m_state = LOAD_FADEOUT;
 	}
 }
 

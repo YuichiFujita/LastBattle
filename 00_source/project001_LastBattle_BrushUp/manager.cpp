@@ -415,9 +415,13 @@ void CManager::Update(void)
 	assert(m_pLoading != nullptr);
 	m_pLoading->Update();
 
-	// シーンの更新
-	assert(m_pScene != nullptr);
-	m_pScene->Update();
+	if (m_pLoading->GetState() == CLoading::LOAD_NONE)
+	{ // ロードしていない場合
+
+		// シーンの更新
+		assert(m_pScene != nullptr);
+		m_pScene->Update();
+	}
 
 	// デバッグ表示の更新
 	assert(m_pDebugProc != nullptr);

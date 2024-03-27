@@ -25,9 +25,10 @@ public:
 	// ローディング状態列挙
 	enum ELoading
 	{
-		LOAD_NONE = 0,	// 何もしていない状態
+		LOAD_NONE = 0,	// 何もしない状態
+		LOAD_FADEOUT,	// ロードの表示開始状態
 		LOAD_UPDATE,	// ロード更新状態
-		LOAD_END,		// ロード終了状態
+		LOAD_FADEIN,	// ロードの表示終了状態
 		LOAD_MAX		// この列挙型の総数
 	};
 
