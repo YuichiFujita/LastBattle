@@ -28,6 +28,7 @@ public:
 		LOAD_NONE = 0,	// 何もしない状態
 		LOAD_FADEOUT,	// ロードの表示開始状態
 		LOAD_UPDATE,	// ロード更新状態
+		LOAD_WAIT,		// ロード待機状態
 		LOAD_FADEIN,	// ロードの表示終了状態
 		LOAD_MAX		// この列挙型の総数
 	};
@@ -43,7 +44,7 @@ public:
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
 	void Draw(void);	// 描画
-	void Set(std::function<HRESULT(bool*)> funcLoad);	// ロード開始設定
+	HRESULT Set(std::function<HRESULT(bool*)> func);	// ロード開始設定
 	ELoading GetState(void) const { return m_state; }	// ロード状態取得
 
 	// 静的メンバ関数
@@ -52,10 +53,12 @@ public:
 
 private:
 	// メンバ変数
-	std::thread m_funcLoad;	// 読込処理スレッド
-	CAnim2D *m_pLoad;		// ロード画面情報
-	ELoading m_state;		// ロード状態
-	bool m_bEnd;			// ロード終了状況
+	std::promise<HRESULT> *m_pPromise;	// プロミス
+	std::future<HRESULT> *m_pFuture;	// フューチャー
+	std::thread m_func;	// スレッド
+	CAnim2D *m_pLoad;	// ロード画面情報
+	ELoading m_state;	// ロード状態
+	bool m_bEnd;		// ロード終了状況
 };
 
 #endif	// _LOADING_H_

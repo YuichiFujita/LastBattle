@@ -71,22 +71,24 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//--------------------------------------------------------
 	//	メンバ変数を初期化
 	//--------------------------------------------------------
-	m_pTime			= nullptr;	// タイムインスタンス
-	m_pRenderer		= nullptr;	// レンダラーインスタンス
-	m_pKeyboard		= nullptr;	// キーボードインスタンス
-	m_pMouse		= nullptr;	// マウスインスタンス
-	m_pPad			= nullptr;	// パッドインスタンス
-	m_pSound		= nullptr;	// サウンドインスタンス
-	m_pCamera		= nullptr;	// カメラインスタンス
-	m_pLight		= nullptr;	// ライトインスタンス
-	m_pTexture		= nullptr;	// テクスチャインスタンス
-	m_pModel		= nullptr;	// モデルインスタンス
-	m_pFade			= nullptr;	// フェードインスタンス
-	m_pLoading		= nullptr;	// ローディングインスタンス
-	m_pScene		= nullptr;	// シーンインスタンス
-	m_pRetention	= nullptr;	// データ保存マネージャー
-	m_pDebugProc	= nullptr;	// デバッグ表示
-	m_pDebug		= nullptr;	// デバッグ
+	m_hInstance		= hInstance;	// インスタンスハンドル
+	m_hWnd			= hWnd;			// ウインドウハンドル
+	m_pTime			= nullptr;		// タイムインスタンス
+	m_pRenderer		= nullptr;		// レンダラーインスタンス
+	m_pKeyboard		= nullptr;		// キーボードインスタンス
+	m_pMouse		= nullptr;		// マウスインスタンス
+	m_pPad			= nullptr;		// パッドインスタンス
+	m_pSound		= nullptr;		// サウンドインスタンス
+	m_pCamera		= nullptr;		// カメラインスタンス
+	m_pLight		= nullptr;		// ライトインスタンス
+	m_pTexture		= nullptr;		// テクスチャインスタンス
+	m_pModel		= nullptr;		// モデルインスタンス
+	m_pFade			= nullptr;		// フェードインスタンス
+	m_pLoading		= nullptr;		// ローディングインスタンス
+	m_pScene		= nullptr;		// シーンインスタンス
+	m_pRetention	= nullptr;		// データ保存マネージャー
+	m_pDebugProc	= nullptr;		// デバッグ表示
+	m_pDebug		= nullptr;		// デバッグ
 
 	//--------------------------------------------------------
 	//	システムの生成
@@ -272,12 +274,8 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 //============================================================
 //	読込処理
 //============================================================
-HRESULT CManager::Load(bool *pFuncEnd)
+HRESULT CManager::Load(void)
 {
-	// 例外処理
-	assert(pFuncEnd != nullptr);	// フラグアドレスが指定なし
-	assert(!(*pFuncEnd));			// フラグが既にオン
-
 	// テクスチャの全読込
 	assert(m_pTexture != nullptr);
 	if (FAILED(m_pTexture->LoadAll()))
@@ -297,9 +295,6 @@ HRESULT CManager::Load(bool *pFuncEnd)
 		assert(false);
 		return E_FAIL;
 	}
-
-	// 処理の終了フラグをONにする
-	*pFuncEnd = true;
 
 	// 成功を返す
 	return S_OK;
@@ -497,6 +492,15 @@ void CManager::Release(CManager *&prManager)
 }
 
 //============================================================
+//	ウインドウ破棄処理
+//============================================================
+void CManager::ReleaseWindow(void)
+{
+	// ウインドウを破棄する
+	DestroyWindow(m_pManager->m_hWnd);	// WM_DESTROYメッセージを送る
+}
+
+//============================================================
 //	シーンの設定処理
 //============================================================
 void CManager::SetScene(const CScene::EMode mode, const int nWait)
@@ -535,22 +539,34 @@ HRESULT CManager::SetMode(const CScene::EMode mode)
 	}
 
 	// ラムダ式の作成
-	CScene *pScene = m_pScene;
+	CScene *pScene = m_pScene;	// ラムダ式の作成用
 	auto func = [pScene](bool *pFuncEnd) -> HRESULT
 	{
+		// 例外処理
+		assert(pFuncEnd != nullptr);	// フラグアドレスが指定なし
+		assert(!(*pFuncEnd));			// フラグが既にオン
+
+		// シーンの初期化
 		if (FAILED(pScene->Init()))
 		{ // 初期化に失敗した場合
 
+			*pFuncEnd = true;	// 処理の終了を設定
 			return E_FAIL;
 		}
 
-		*pFuncEnd = true;	// TODO
+		*pFuncEnd = true;	// 処理の終了を設定
 		return S_OK;
 	};
 
 	// 実行する初期化関数を渡しロード開始
 	assert(m_pLoading != nullptr);
-	m_pLoading->Set(func);
+	if (FAILED(m_pLoading->Set(func)))
+	{ // ローディング開始に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// 成功を返す
 	return S_OK;

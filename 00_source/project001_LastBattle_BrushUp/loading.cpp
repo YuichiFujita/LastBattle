@@ -43,9 +43,11 @@ namespace
 //	コンストラクタ
 //============================================================
 CLoading::CLoading() :
-	m_pLoad	(nullptr),		// ロード画面情報
-	m_state	(LOAD_NONE),	// ロード状態
-	m_bEnd	(false)			// ロード終了状況
+	m_pPromise	(nullptr),		// プロミス
+	m_pFuture	(nullptr),		// フューチャー
+	m_pLoad		(nullptr),		// ロード画面情報
+	m_state		(LOAD_NONE),	// ロード状態
+	m_bEnd		(false)			// ロード終了状況
 {
 
 }
@@ -64,9 +66,11 @@ CLoading::~CLoading()
 HRESULT CLoading::Init(void)
 {
 	// メンバ変数を初期化
-	m_pLoad	= nullptr;		// ロード画面情報
-	m_state	= LOAD_NONE;	// ロード状態
-	m_bEnd	= false;		// ロード終了状況
+	m_pPromise	= nullptr;		// プロミス
+	m_pFuture	= nullptr;		// フューチャー
+	m_pLoad		= nullptr;		// ロード画面情報
+	m_state		= LOAD_NONE;	// ロード状態
+	m_bEnd		= false;		// ロード終了状況
 
 	// ロード画面の生成
 	m_pLoad = CAnim2D::Create
@@ -110,15 +114,21 @@ HRESULT CLoading::Init(void)
 //============================================================
 void CLoading::Uninit(void)
 {
-	if (m_funcLoad.joinable())
+	if (m_func.joinable())
 	{ // 読込関数の処理が終了していないい場合
 
 		// 処理終了を待機
-		m_funcLoad.join();
+		m_func.join();
 		
 		// ここを消すとメインスレッドで
 		// 情報の破棄後に読込を行いメモリ破壊する
 	}
+
+	// プロミスオブジェクトの破棄
+	SAFE_DELETE(m_pPromise);
+
+	// フューチャーオブジェクトの破棄
+	SAFE_DELETE(m_pFuture);
 
 	// ロード画面の終了
 	SAFE_UNINIT(m_pLoad);
@@ -159,23 +169,49 @@ void CLoading::Update(void)
 			if (m_bEnd)
 			{ // 初期化処理が終了した場合
 
+				if (SUCCEEDED(m_pFuture->get()))
+				{ // 関数の処理が成功した場合
+
+					// ロード待機状態にする
+					m_state = LOAD_WAIT;
+
+					// プロミスオブジェクトの破棄
+					SAFE_DELETE(m_pPromise);
+
+					// フューチャーオブジェクトの破棄
+					SAFE_DELETE(m_pFuture);
+				}
+				else
+				{ // 関数の処理が失敗した場合
+
+					// エラーメッセージボックス
+					MessageBox(nullptr, "ローディングに失敗！", "警告！", MB_ICONWARNING);
+
+					// ウインドウを破棄する
+					CManager::ReleaseWindow();
+				}
+			}
+
+			break;
+
+		case LOAD_WAIT:		// ロード待機状態
+
 #ifdef NDEBUG
-				// ロードのキリが悪い場合抜ける
-				if (m_pLoad->GetPattern() != 0) { break; }
+			// ロードのキリが悪い場合抜ける
+			if (m_pLoad->GetPattern() != 0) { break; }
 #endif	// NDEBUG
 
-				// 最低ロード回数未満の場合抜ける
-				if (m_pLoad->GetLoopAnimation() < MIN_LOAD) { break; }
+			// 最低ロード回数未満の場合抜ける
+			if (m_pLoad->GetLoopAnimation() < MIN_LOAD) { break; }
 
-				// ロードのアニメーションを停止
-				m_pLoad->SetEnableStop(true);
+			// ロードのアニメーションを停止
+			m_pLoad->SetEnableStop(true);
 
-				// 関数情報を切り離す
-				m_funcLoad.detach();
+			// 関数情報を切り離す
+			m_func.detach();
 
-				// ロードの表示終了状態にする
-				m_state = LOAD_FADEIN;
-			}
+			// ロードの表示終了状態にする
+			m_state = LOAD_FADEIN;
 
 			break;
 
@@ -230,7 +266,7 @@ void CLoading::Draw(void)
 //============================================================
 //	ロード開始設定処理
 //============================================================
-void CLoading::Set(std::function<HRESULT(bool*)> funcLoad)
+HRESULT CLoading::Set(std::function<HRESULT(bool*)> func)
 {
 	if (m_state == LOAD_NONE)
 	{ // ローディングが行われていない場合
@@ -238,15 +274,46 @@ void CLoading::Set(std::function<HRESULT(bool*)> funcLoad)
 		// ロード未完了にする
 		m_bEnd = false;
 
+		if (m_pPromise == nullptr)
+		{
+			// プロミスの生成
+			m_pPromise = new std::promise<HRESULT>;
+		}
+		else { assert(false); return E_FAIL; }
+
+		if (m_pFuture == nullptr)
+		{
+			// フューチャーの生成
+			m_pFuture = new std::future<HRESULT>;
+		}
+		else { assert(false); return E_FAIL; }
+
+		// 生成したプロミスからフューチャーを取得
+		*m_pFuture = m_pPromise->get_future();
+
+		// 返り値の取得できるラムダ関数を作成
+		auto funcLambda = [func, this](bool *pEnd)
+		{
+			// 引数の関数を呼び出し
+			HRESULT hr = func(pEnd);
+
+			// 返り値をプロミスに格納
+			m_pPromise->set_value(hr);
+		};
+
 		// スレッドに引数の関数を設定
-		m_funcLoad = std::thread(funcLoad, &m_bEnd);
+		m_func = std::thread(funcLambda, &m_bEnd);
 
 		// ロード画面のパターンを先頭にする
 		m_pLoad->SetPattern(0);
 
 		// ロードの表示開始状態にする
 		m_state = LOAD_FADEOUT;
+
+		// 成功を返す
+		return S_OK;
 	}
+	else { assert(false); return E_FAIL; }	// ローディングできない場合エラー
 }
 
 //============================================================

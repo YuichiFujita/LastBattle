@@ -88,8 +88,14 @@ HRESULT CFade::Init(void)
 	// ラベル指定なしに設定
 	m_pObject2D->SetLabel(CObject::LABEL_NONE);
 
-	// モードの設定
-	GET_MANAGER->SetMode(m_modeNext);
+	// 初期モードの設定
+	if (FAILED(GET_MANAGER->SetMode(m_modeNext)))
+	{ // モードの設定に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
 
 	// 成功を返す
 	return S_OK;
@@ -166,7 +172,12 @@ void CFade::Update(void)
 				m_fade = FADE_IN;	// フェードイン状態
 
 				// モードの設定
-				GET_MANAGER->SetMode(m_modeNext);
+				if (FAILED(GET_MANAGER->SetMode(m_modeNext)))
+				{ // モードの設定に失敗した場合
+
+					// ウインドウを破棄する
+					CManager::ReleaseWindow();
+				}
 			}
 
 			break;

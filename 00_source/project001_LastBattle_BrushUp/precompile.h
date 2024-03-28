@@ -24,25 +24,27 @@
 
 // ビルド時の警告対処用マクロ
 #define  DIRECTINPUT_VERSION	(0x0800)
-#include <dinput.h>		// 入力処理に必要
-#include <Xinput.h>		// パッド使用に必要
-#include <xaudio2.h>	// サウンド処理に必要
+#include <dinput.h>		// 入力処理
+
+#include <Xinput.h>		// パッド
+#include <xaudio2.h>	// サウンド
 
 // メモリリーク出力用マクロ
 #define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>	// メモリリーク検出に必要
+#include <crtdbg.h>		// メモリリーク検出に必要
 
-#include <thread>
-#include <string>
-#include <functional>
-#include <vector>
-#include <list>
-#include <map>
+#include <functional>	// 関数ポインタ
+#include <string>		// 文字列
+#include <thread>		// スレッド
+#include <future>		// スレッド返り値取得
+#include <vector>		// 動的配列
+#include <list>			// リスト構造
+#include <map>			// 連想配列
 
-#include "useful.h"			// 便利関数使用に必要
-#include "listManager.h"	// リスト管理に必要
-#include "input.h"			// 入力検知に必要
-#include "debugproc.h"		// デバッグ表示に必要
+#include "useful.h"			// 便利関数
+#include "listManager.h"	// リスト管理
+#include "input.h"			// 入力検知
+#include "debugproc.h"		// デバッグ表示
 
 //************************************************************
 //	メモリリークのソース表示 ON/OFF

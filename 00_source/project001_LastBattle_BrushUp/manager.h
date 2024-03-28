@@ -49,7 +49,7 @@ public:
 
 	// メンバ関数
 	HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow);	// 初期化
-	HRESULT Load(bool *pFuncEnd);	// 読込
+	HRESULT Load(void);	// 読込
 	void Uninit(void);	// 終了
 	void Update(void);	// 更新
 	void Draw(void);	// 描画
@@ -58,6 +58,7 @@ public:
 	static CManager *Create(HINSTANCE hInstance, HWND hWnd, BOOL bWindow);	// 生成
 	static CManager *GetInstance(void);			// 取得
 	static void Release(CManager *&prManager);	// 破棄
+	static void ReleaseWindow(void);			// ウインドウ破棄
 
 	// メンバ関数
 	void SetScene(const CScene::EMode mode, const int nWait = 0);	// シーン設定
@@ -86,6 +87,8 @@ private:
 	static CManager *m_pManager;	// マネージャー
 
 	// メンバ変数
+	HINSTANCE			m_hInstance;	// インスタンスハンドル
+	HWND				m_hWnd;			// ウインドウハンドル
 	CTime				*m_pTime;		// タイムインスタンス
 	CRenderer			*m_pRenderer;	// レンダラーインスタンス
 	CInputKeyboard		*m_pKeyboard;	// キーボードインスタンス

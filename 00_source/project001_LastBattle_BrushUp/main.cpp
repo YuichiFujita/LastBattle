@@ -119,25 +119,45 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE /*hInstancePrev*/, LPSTR /*lpC
 	{ // 非使用中の場合
 
 		// 例外を返す
+		assert(false);
 		return -1;
 	}
 
 	// ラムダ式の作成
 	auto func = [pManager](bool *pFuncEnd) -> HRESULT
 	{
-		if (FAILED(pManager->Load(pFuncEnd)))
+		// 例外処理
+		assert(pFuncEnd != nullptr);	// フラグアドレスが指定なし
+		assert(!(*pFuncEnd));			// フラグが既にオン
+
+		// マネージャーの読込
+		if (FAILED(pManager->Load()))
 		{ // 読込に失敗した場合
 
+			*pFuncEnd = true;	// 処理の終了を設定
 			return E_FAIL;
 		}
 
+		*pFuncEnd = true;	// 処理の終了を設定
 		return S_OK;
 	};
 
+	// TODO：ローディングの関数一つ問題解決し次第修正
+#if 0
 	// 実行する読込関数を渡しロード開始
 	CLoading *pLoading = pManager->GetLoading();
 	assert(pLoading != nullptr);
-	pLoading->Set(func);
+	if (FAILED(pLoading->Set(func)))
+	{ // ローディング開始に失敗した場合
+
+		// マネージャーの破棄
+		SAFE_REF_RELEASE(pManager);
+
+		// 例外を返す
+		assert(false);
+		return -1;
+	}
+#endif
 
 	// メッセージループ
 	while (1)
