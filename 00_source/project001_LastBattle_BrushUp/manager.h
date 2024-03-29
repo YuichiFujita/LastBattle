@@ -62,6 +62,7 @@ public:
 
 	// メンバ関数
 	void SetScene(const CScene::EMode mode, const int nWait = 0);	// シーン設定
+	HRESULT InitMode(const CScene::EMode mode);	// モード初期化
 	HRESULT SetMode(const CScene::EMode mode);	// モード設定
 	CScene::EMode GetMode(void);				// モード取得
 

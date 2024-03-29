@@ -88,8 +88,8 @@ HRESULT CFade::Init(void)
 	// ラベル指定なしに設定
 	m_pObject2D->SetLabel(CObject::LABEL_NONE);
 
-	// 初期モードの設定
-	if (FAILED(GET_MANAGER->SetMode(m_modeNext)))
+	// モードの初期化
+	if (FAILED(GET_MANAGER->InitMode(m_modeNext)))
 	{ // モードの設定に失敗した場合
 
 		// 失敗を返す

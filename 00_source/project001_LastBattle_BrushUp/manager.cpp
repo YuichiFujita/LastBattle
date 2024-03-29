@@ -513,6 +513,63 @@ void CManager::SetScene(const CScene::EMode mode, const int nWait)
 }
 
 //============================================================
+//	モードの初期化処理
+//============================================================
+HRESULT CManager::InitMode(const CScene::EMode mode)
+{
+	// シーンの生成
+	assert(m_pScene == nullptr);
+	m_pScene = CScene::Create(mode);
+	if (m_pScene == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// ラムダ式の作成
+	auto func = [this](bool *pFuncEnd) -> HRESULT
+	{
+		// 例外処理
+		assert(pFuncEnd != nullptr);	// フラグアドレスが指定なし
+		assert(!(*pFuncEnd));			// フラグが既にオン
+
+		// マネージャーの読込
+		if (FAILED(m_pManager->Load()))
+		{ // 読込に失敗した場合
+
+			*pFuncEnd = true;	// 処理の終了を設定
+			return E_FAIL;
+		}
+
+		// シーンの初期化
+		if (FAILED(m_pScene->Init()))
+		{ // 初期化に失敗した場合
+
+			*pFuncEnd = true;	// 処理の終了を設定
+			return E_FAIL;
+		}
+
+		*pFuncEnd = true;	// 処理の終了を設定
+		return S_OK;
+	};
+
+	// 実行する初期化関数を渡しロード開始
+	assert(m_pLoading != nullptr);
+	if (FAILED(m_pLoading->Set(func)))
+	{ // ローディング開始に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 成功を返す
+	return S_OK;
+}
+
+//============================================================
 //	モードの設定処理
 //============================================================
 HRESULT CManager::SetMode(const CScene::EMode mode)
@@ -539,15 +596,14 @@ HRESULT CManager::SetMode(const CScene::EMode mode)
 	}
 
 	// ラムダ式の作成
-	CScene *pScene = m_pScene;	// ラムダ式の作成用
-	auto func = [pScene](bool *pFuncEnd) -> HRESULT
+	auto func = [this](bool *pFuncEnd) -> HRESULT
 	{
 		// 例外処理
 		assert(pFuncEnd != nullptr);	// フラグアドレスが指定なし
 		assert(!(*pFuncEnd));			// フラグが既にオン
 
 		// シーンの初期化
-		if (FAILED(pScene->Init()))
+		if (FAILED(m_pScene->Init()))
 		{ // 初期化に失敗した場合
 
 			*pFuncEnd = true;	// 処理の終了を設定
