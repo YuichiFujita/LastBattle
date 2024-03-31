@@ -48,6 +48,8 @@ public:
 	struct STexture
 	{
 		LPDIRECT3DTEXTURE9 pTexture;	// テクスチャへのポインタ
+		D3DXIMAGE_INFO *pStatus;		// テクスチャステータスへのポインタ
+		D3DXVECTOR2 aspect;				// アスペクト比
 	};
 
 	// マップ情報構造体

@@ -8,6 +8,8 @@
 //	インクルードファイル
 //************************************************************
 #include "useful.h"
+#include "manager.h"
+#include "texture.h"
 #include <regex>
 
 //************************************************************
@@ -276,6 +278,30 @@ void useful::RotToVec(const float fPhi, const float fTheta, D3DXVECTOR3 *pVec)
 	pVec->x = sinf(fTheta) * cosf(fPhi);
 	pVec->y = sinf(fTheta) * sinf(fPhi);
 	pVec->z = cosf(fTheta);
+}
+
+//============================================================
+//	縦幅からテクスチャのアスペクト比を考慮した横幅の取得処理
+//============================================================
+float useful::GetTexWidthFromAspect(const float fHeight, const int nTexID)
+{
+	// テクスチャアスペクト比を取得
+	D3DXVECTOR2 aspect = GET_MANAGER->GetTexture()->GetInfo(nTexID).aspect;
+
+	// アスペクト比から計算した横幅を返す
+	return fHeight * aspect.x;
+}
+
+//============================================================
+//	横幅からテクスチャのアスペクト比を考慮した縦幅の取得処理
+//============================================================
+float useful::GetTexHeightFromAspect(const float fWidth, const int nTexID)
+{
+	// テクスチャアスペクト比を取得
+	D3DXVECTOR2 aspect = GET_MANAGER->GetTexture()->GetInfo(nTexID).aspect;
+
+	// アスペクト比から計算した縦幅を返す
+	return fWidth * aspect.y;
 }
 
 //============================================================
