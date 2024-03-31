@@ -1,25 +1,25 @@
 //============================================================
 //
-//	タイム処理 [time.cpp]
+//	デルタタイム処理 [deltaTime.cpp]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	インクルードファイル
 //************************************************************
-#include "time.h"
+#include "deltaTime.h"
 #include "manager.h"
 
 //************************************************************
-//	親クラス [CTime] のメンバ関数
+//	親クラス [CDeltaTime] のメンバ関数
 //************************************************************
 //============================================================
 //	コンストラクタ
 //============================================================
-CTime::CTime() :
+CDeltaTime::CDeltaTime() :
 	m_dwOldTime	(0),	// 前回の処理開始時刻
 	m_dwCurTime	(0),	// 今回の処理開始時刻
-	m_fTime		(0)		// 処理の経過時間
+	m_fTime		(0.0f)	// 処理の経過時間
 {
 
 }
@@ -27,7 +27,7 @@ CTime::CTime() :
 //============================================================
 //	デストラクタ
 //============================================================
-CTime::~CTime()
+CDeltaTime::~CDeltaTime()
 {
 
 }
@@ -35,12 +35,12 @@ CTime::~CTime()
 //============================================================
 //	初期化処理
 //============================================================
-HRESULT CTime::Init(void)
+HRESULT CDeltaTime::Init(void)
 {
 	// メンバ変数を初期化
 	m_dwOldTime	= timeGetTime();	// 前回の処理開始時刻
 	m_dwCurTime	= timeGetTime();	// 今回の処理開始時刻
-	m_fTime		= 0;				// 処理の経過時間
+	m_fTime		= 0.0f;				// 処理の経過時間
 
 	// 成功を返す
 	return S_OK;
@@ -49,7 +49,7 @@ HRESULT CTime::Init(void)
 //============================================================
 //	終了処理
 //============================================================
-void CTime::Uninit(void)
+void CDeltaTime::Uninit(void)
 {
 
 }
@@ -57,10 +57,10 @@ void CTime::Uninit(void)
 //============================================================
 //	更新処理
 //============================================================
-void CTime::Update(void)
+void CDeltaTime::Update(void)
 {
 	// 変数を宣言
-	DWORD dwDiffTime = 0;	// 処理開始時刻の差分
+	DWORD dwDiffDeltaTime = 0;	// 処理開始時刻の差分
 
 	// 前フレームの開始時刻を保存
 	m_dwOldTime = m_dwCurTime;
@@ -69,20 +69,20 @@ void CTime::Update(void)
 	m_dwCurTime = timeGetTime();
 
 	// 処理開始時刻の差分を計算
-	dwDiffTime = m_dwCurTime - m_dwOldTime;
+	dwDiffDeltaTime = m_dwCurTime - m_dwOldTime;
 
 	// 経過時間を計算
-	m_fTime = dwDiffTime * 0.001f;
+	m_fTime = dwDiffDeltaTime * 0.001f;
 }
 
 //============================================================
 //	生成処理
 //============================================================
-CTime *CTime::Create(void)
+CDeltaTime *CDeltaTime::Create(void)
 {
-	// タイムの生成
-	CTime *pTime = new CTime;
-	if (pTime == nullptr)
+	// デルタタイムの生成
+	CDeltaTime *pDeltaTime = new CDeltaTime;
+	if (pDeltaTime == nullptr)
 	{ // 生成に失敗した場合
 
 		return nullptr;
@@ -90,29 +90,29 @@ CTime *CTime::Create(void)
 	else
 	{ // 生成に成功した場合
 
-		// タイムの初期化
-		if (FAILED(pTime->Init()))
+		// デルタタイムの初期化
+		if (FAILED(pDeltaTime->Init()))
 		{ // 初期化に失敗した場合
 
-			// タイムの破棄
-			SAFE_DELETE(pTime);
+			// デルタタイムの破棄
+			SAFE_DELETE(pDeltaTime);
 			return nullptr;
 		}
 
 		// 確保したアドレスを返す
-		return pTime;
+		return pDeltaTime;
 	}
 }
 
 //============================================================
 //	破棄処理
 //============================================================
-void CTime::Release(CTime *&prTime)
+void CDeltaTime::Release(CDeltaTime *&prDeltaTime)
 {
-	// タイムの終了
-	assert(prTime != nullptr);
-	prTime->Uninit();
+	// デルタタイムの終了
+	assert(prDeltaTime != nullptr);
+	prDeltaTime->Uninit();
 
 	// メモリ開放
-	SAFE_DELETE(prTime);
+	SAFE_DELETE(prDeltaTime);
 }

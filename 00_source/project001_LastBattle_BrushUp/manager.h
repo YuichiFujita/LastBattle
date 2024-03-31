@@ -18,7 +18,7 @@
 //************************************************************
 //	前方宣言
 //************************************************************
-class CTime;				// タイムクラス
+class CDeltaTime;			// デルタタイムクラス
 class CRenderer;			// レンダラークラス
 class CInputKeyboard;		// キーボードクラス
 class CInputMouse;			// マウスクラス
@@ -66,7 +66,7 @@ public:
 	HRESULT SetMode(const CScene::EMode mode);	// モード設定
 	CScene::EMode GetMode(void);				// モード取得
 
-	CTime				*GetTime(void);			// タイム取得
+	CDeltaTime			*GetDeltaTime(void);	// デルタタイム取得
 	CRenderer			*GetRenderer(void);		// レンダラー取得
 	CInputKeyboard		*GetKeyboard(void);		// キーボード取得
 	CInputMouse			*GetMouse(void);		// マウス取得
@@ -90,7 +90,7 @@ private:
 	// メンバ変数
 	HINSTANCE			m_hInstance;	// インスタンスハンドル
 	HWND				m_hWnd;			// ウインドウハンドル
-	CTime				*m_pTime;		// タイムインスタンス
+	CDeltaTime			*m_pDeltaTime;	// デルタタイムインスタンス
 	CRenderer			*m_pRenderer;	// レンダラーインスタンス
 	CInputKeyboard		*m_pKeyboard;	// キーボードインスタンス
 	CInputMouse			*m_pMouse;		// マウスインスタンス

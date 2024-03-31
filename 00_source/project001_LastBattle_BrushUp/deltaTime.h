@@ -1,27 +1,27 @@
 //============================================================
 //
-//	タイムヘッダー [time.h]
+//	デルタタイムヘッダー [deltaTime.h]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	二重インクルード防止
 //************************************************************
-#ifndef _TIME_H_
-#define _TIME_H_
+#ifndef _DELTATIME_H_
+#define _DELTATIME_H_
 
 //************************************************************
 //	クラス定義
 //************************************************************
-// タイムクラス
-class CTime
+// デルタタイムクラス
+class CDeltaTime
 {
 public:
 	// コンストラクタ
-	CTime();
+	CDeltaTime();
 
 	// デストラクタ
-	~CTime();
+	~CDeltaTime();
 
 	// メンバ関数
 	HRESULT Init(void);	// 初期化
@@ -29,8 +29,8 @@ public:
 	void Update(void);	// 更新
 
 	// 静的メンバ関数
-	static CTime *Create(void);				// 生成
-	static void Release(CTime *&prTime);	// 破棄
+	static CDeltaTime *Create(void);				// 生成
+	static void Release(CDeltaTime *&prDeltaTime);	// 破棄
 
 private:
 	// メンバ変数
@@ -39,4 +39,4 @@ private:
 	float m_fTime;		// 処理の経過時間
 };
 
-#endif	// _TIME_H_
+#endif	// _DELTATIME_H_

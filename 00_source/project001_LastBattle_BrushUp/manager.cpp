@@ -9,7 +9,7 @@
 //************************************************************
 #include "manager.h"
 #include "object.h"
-#include "time.h"
+#include "deltaTime.h"
 #include "renderer.h"
 #include "sound.h"
 #include "camera.h"
@@ -34,7 +34,7 @@ CManager *CManager::m_pManager = nullptr;	// マネージャーオブジェクト
 //	コンストラクタ
 //============================================================
 CManager::CManager() :
-	m_pTime			(nullptr),	// タイムインスタンス
+	m_pDeltaTime	(nullptr),	// デルタタイムインスタンス
 	m_pRenderer		(nullptr),	// レンダラーインスタンス
 	m_pKeyboard		(nullptr),	// キーボードインスタンス
 	m_pMouse		(nullptr),	// マウスインスタンス
@@ -73,7 +73,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//--------------------------------------------------------
 	m_hInstance		= hInstance;	// インスタンスハンドル
 	m_hWnd			= hWnd;			// ウインドウハンドル
-	m_pTime			= nullptr;		// タイムインスタンス
+	m_pDeltaTime	= nullptr;		// デルタタイムインスタンス
 	m_pRenderer		= nullptr;		// レンダラーインスタンス
 	m_pKeyboard		= nullptr;		// キーボードインスタンス
 	m_pMouse		= nullptr;		// マウスインスタンス
@@ -93,9 +93,9 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//--------------------------------------------------------
 	//	システムの生成
 	//--------------------------------------------------------
-	// タイムの生成
-	m_pTime = CTime::Create();
-	if (m_pTime == nullptr)
+	// デルタタイムの生成
+	m_pDeltaTime = CDeltaTime::Create();
+	if (m_pDeltaTime == nullptr)
 	{ // 非使用中の場合
 
 		// 失敗を返す
@@ -365,8 +365,8 @@ void CManager::Uninit(void)
 	// レンダラーの破棄
 	SAFE_REF_RELEASE(m_pRenderer);
 
-	// タイムの破棄
-	SAFE_REF_RELEASE(m_pTime);
+	// デルタタイムの破棄
+	SAFE_REF_RELEASE(m_pDeltaTime);
 
 	// オブジェクトの全破棄
 	CObject::ReleaseAll();
@@ -386,9 +386,9 @@ void CManager::Update(void)
 	m_pDebug->DrawDebugControl();
 	m_pDebug->DrawDebugData();
 
-	// タイムの更新
-	assert(m_pTime != nullptr);
-	m_pTime->Update();
+	// デルタタイムの更新
+	assert(m_pDeltaTime != nullptr);
+	m_pDeltaTime->Update();
 
 	// パッドの更新
 	assert(m_pPad != nullptr);
@@ -641,15 +641,15 @@ CScene::EMode CManager::GetMode(void)
 }
 
 //============================================================
-//	タイム取得処理
+//	デルタタイム取得処理
 //============================================================
-CTime *CManager::GetTime(void)
+CDeltaTime *CManager::GetDeltaTime(void)
 {
 	// インスタンス未使用
-	assert(m_pTime != nullptr);
+	assert(m_pDeltaTime != nullptr);
 
-	// タイムのポインタを返す
-	return m_pTime;
+	// デルタタイムのポインタを返す
+	return m_pDeltaTime;
 }
 
 //============================================================

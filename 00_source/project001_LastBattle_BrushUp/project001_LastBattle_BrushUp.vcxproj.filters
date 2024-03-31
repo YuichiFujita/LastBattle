@@ -336,9 +336,6 @@
     <ClCompile Include="thunder.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="time.cpp">
-      <Filter>ソース ファイル</Filter>
-    </ClCompile>
     <ClCompile Include="timerManager.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
@@ -370,6 +367,9 @@
       <Filter>ソース ファイル</Filter>
     </ClCompile>
     <ClCompile Include="loading.cpp">
+      <Filter>ソース ファイル</Filter>
+    </ClCompile>
+    <ClCompile Include="deltaTime.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -698,9 +698,6 @@
     <ClInclude Include="thunder.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="time.h">
-      <Filter>ヘッダー ファイル</Filter>
-    </ClInclude>
     <ClInclude Include="timerManager.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
@@ -732,6 +729,9 @@
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
     <ClInclude Include="loading.h">
+      <Filter>ヘッダー ファイル</Filter>
+    </ClInclude>
+    <ClInclude Include="deltaTime.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>
