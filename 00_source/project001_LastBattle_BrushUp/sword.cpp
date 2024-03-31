@@ -59,6 +59,7 @@ static_assert(NUM_ARRAY(MODEL_FILE) == CSword::MODEL_MAX, "ERROR : Model Count M
 //============================================================
 CSword::CSword() : CMultiModel(LABEL_NONE, DIM_3D, object::DEFAULT_PRIO),
 	m_pWaveManager	(nullptr),		// 剣波動生成マネージャー
+	m_pOrbit		(nullptr),		// 軌跡の情報
 	m_state			(STATE_NONE),	// 状態
 	m_bAttack		(false),		// 攻撃状況
 	m_nCounterState	(0)				// 状態管理カウンター
@@ -81,6 +82,7 @@ HRESULT CSword::Init(void)
 {
 	// メンバ変数を初期化
 	m_pWaveManager	= nullptr;		// 剣波動生成マネージャー
+	m_pOrbit		= nullptr;		// 軌跡の情報
 	m_state			= STATE_NONE;	// 状態
 	m_bAttack		= true;			// 攻撃状況
 	m_nCounterState	= 0;			// 状態管理カウンター

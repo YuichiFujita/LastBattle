@@ -34,6 +34,8 @@ CManager *CManager::m_pManager = nullptr;	// マネージャーオブジェクト
 //	コンストラクタ
 //============================================================
 CManager::CManager() :
+	m_hInstance		(nullptr),	// インスタンスハンドル
+	m_hWnd			(nullptr),	// ウインドウハンドル
 	m_pDeltaTime	(nullptr),	// デルタタイムインスタンス
 	m_pRenderer		(nullptr),	// レンダラーインスタンス
 	m_pKeyboard		(nullptr),	// キーボードインスタンス

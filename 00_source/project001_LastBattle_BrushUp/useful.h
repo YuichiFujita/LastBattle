@@ -395,8 +395,12 @@ template<class T> float useful::ValueToRate
 	const T max		// Å‘å”ÍˆÍ
 )
 {
+	// Š„‚é”‚ğ‹‚ß‚é
+	float fDiv = static_cast<float>(max) - static_cast<float>(min);
+	if (fDiv == 0.0f) { return 0.0f; }	// 0œZ‘Îô
+
 	// Š„‡•ÏŠ·‚µ‚½’l‚ğ•Ô‚·
-	return (static_cast<float>(num) - static_cast<float>(min)) / (static_cast<float>(max) - static_cast<float>(min));
+	return (static_cast<float>(num) - static_cast<float>(min)) / fDiv;
 }
 
 //============================================================
