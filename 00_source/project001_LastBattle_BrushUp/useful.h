@@ -32,12 +32,13 @@
 #define NUM_ARRAY(a)	(sizeof((a)) / sizeof((a)[0]))	// 配列の要素数計算
 
 // メモリ開放マクロ
-#define SAFE_UNINIT(p)		if ((p) != nullptr) { (p)->Uninit();	(p) = nullptr; }	// Uninit関数の破棄マクロ
-#define SAFE_FREE(p)		if ((p) != nullptr) { free((p));		(p) = nullptr; }	// free関数の破棄マクロ
-#define SAFE_RELEASE(p)		if ((p) != nullptr) { (p)->Release();	(p) = nullptr; }	// Release関数の破棄マクロ
-#define SAFE_REF_RELEASE(p)	if ((p) != nullptr) { (p)->Release((p)); }					// 参照ポインタ付きRelease関数の破棄マクロ
-#define SAFE_DELETE(p)		if ((p) != nullptr) { delete	(p);	(p) = nullptr; }	// 配列を使用しないdeleteを使用する破棄マクロ
-#define SAFE_DEL_ARRAY(p)	if ((p) != nullptr) { delete[]	(p);	(p) = nullptr; }	// 配列を使用したdelete[]を使用する破棄マクロ
+#define SAFE_UNINIT(p)		if ((p) != nullptr) { (p)->Uninit();		(p) = nullptr; }	// Uninit関数の破棄マクロ
+#define SAFE_FREE(p)		if ((p) != nullptr) { free((p));			(p) = nullptr; }	// free関数の破棄マクロ
+#define SAFE_RELEASE(p)		if ((p) != nullptr) { (p)->Release();		(p) = nullptr; }	// Release関数の破棄マクロ
+#define SAFE_DEL_OBJECT(p)	if ((p) != nullptr) { DeleteObject((p));	(p) = nullptr; }	// DeleteObject関数の破棄マクロ
+#define SAFE_REF_RELEASE(p)	if ((p) != nullptr) { (p)->Release((p)); }						// 参照ポインタ付きRelease関数の破棄マクロ
+#define SAFE_DELETE(p)		if ((p) != nullptr) { delete	(p);		(p) = nullptr; }	// 配列を使用しないdeleteを使用する破棄マクロ
+#define SAFE_DEL_ARRAY(p)	if ((p) != nullptr) { delete[]	(p);		(p) = nullptr; }	// 配列を使用したdelete[]を使用する破棄マクロ
 
 // マネージャー関係
 #define GET_MANAGER		(CManager::GetInstance())					// マネージャーインスタンス取得
@@ -196,6 +197,7 @@ namespace useful
 	D3DXVECTOR3 GetMatrixScaling(const D3DXMATRIX& rMtx);	// マトリックス拡大率取得
 
 	// テンプレート関数
+	template<class T> T *ZeroClear(T *pClear);	// ゼロクリア
 	template<class T> bool LimitNum		// 値の範囲内制限
 	( // 引数
 		T& rNum,		// 制限数値
@@ -204,13 +206,13 @@ namespace useful
 	);
 	template<class T> bool LimitMinNum	// 値の最小値制限
 	( // 引数
-		T& rNum,	// 制限数値
-		const T min	// 最小範囲
+		T& rNum,		// 制限数値
+		const T min		// 最小範囲
 	);
 	template<class T> bool LimitMaxNum	// 値の最大値制限
 	( // 引数
-		T& rNum,	// 制限数値
-		const T max	// 最大範囲
+		T& rNum,		// 制限数値
+		const T max		// 最大範囲
 	);
 	template<class T> float ValueToRate	// 値の割合変換
 	( // 引数
@@ -306,6 +308,18 @@ namespace material
 //************************************************************
 //	便利関数空間
 //************************************************************
+//============================================================
+//	ゼロクリア
+//============================================================
+template<class T> T *useful::ZeroClear(T *pClear)
+{
+	// 引数情報をゼロクリア
+	memset(pClear, 0, sizeof(*pClear));
+
+	// クリア後のアドレスを返す
+	return pClear;
+}
+
 //============================================================
 //	値の範囲内制限処理
 //============================================================

@@ -28,6 +28,7 @@ class CCamera;				// カメラクラス
 class CLight;				// ライトクラス
 class CTexture;				// テクスチャクラス
 class CModel;				// モデルクラス
+class CFont;				// フォントクラス
 class CFade;				// フェードクラス
 class CLoading;				// ローディングクラス
 class CRetentionManager;	// データ保存マネージャークラス
@@ -76,6 +77,7 @@ public:
 	CLight				*GetLight(void);		// ライト取得
 	CTexture			*GetTexture(void);		// テクスチャ取得
 	CModel				*GetModel(void);		// モデル取得
+	CFont				*GetFont(void);			// フォント取得
 	CFade				*GetFade(void);			// フェード取得
 	CLoading			*GetLoading(void);		// ローディング取得
 	CScene				*GetScene(void);		// シーン取得
@@ -100,6 +102,7 @@ private:
 	CLight				*m_pLight;		// ライトインスタンス
 	CTexture			*m_pTexture;	// テクスチャインスタンス
 	CModel				*m_pModel;		// モデルインスタンス
+	CFont				*m_pFont;		// フォントインスタンス
 	CFade				*m_pFade;		// フェードインスタンス
 	CLoading			*m_pLoading;	// ローディングインスタンス
 	CScene				*m_pScene;		// シーンインスタンス

@@ -18,6 +18,7 @@
 #include "loading.h"
 #include "texture.h"
 #include "model.h"
+#include "font.h"
 #include "shader.h"
 #include "retentionManager.h"
 #include "debug.h"
@@ -46,6 +47,7 @@ CManager::CManager() :
 	m_pLight		(nullptr),	// ライトインスタンス
 	m_pTexture		(nullptr),	// テクスチャインスタンス
 	m_pModel		(nullptr),	// モデルインスタンス
+	m_pFont			(nullptr),	// フォントインスタンス
 	m_pFade			(nullptr),	// フェードインスタンス
 	m_pLoading		(nullptr),	// ローディングインスタンス
 	m_pScene		(nullptr),	// シーンインスタンス
@@ -85,6 +87,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	m_pLight		= nullptr;		// ライトインスタンス
 	m_pTexture		= nullptr;		// テクスチャインスタンス
 	m_pModel		= nullptr;		// モデルインスタンス
+	m_pFont			= nullptr;		// フォントインスタンス
 	m_pFade			= nullptr;		// フェードインスタンス
 	m_pLoading		= nullptr;		// ローディングインスタンス
 	m_pScene		= nullptr;		// シーンインスタンス
@@ -188,7 +191,7 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	//--------------------------------------------------------
 	//	情報の読込・設定
 	//--------------------------------------------------------
-	// テクスチャの生成・読込
+	// テクスチャの生成
 	m_pTexture = CTexture::Create();
 	if (m_pTexture == nullptr)
 	{ // 非使用中の場合
@@ -198,9 +201,19 @@ HRESULT CManager::Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-	// モデルの生成・読込
+	// モデルの生成
 	m_pModel = CModel::Create();
 	if (m_pModel == nullptr)
+	{ // 非使用中の場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// フォントの生成
+	m_pFont = CFont::Create();
+	if (m_pFont == nullptr)
 	{ // 非使用中の場合
 
 		// 失敗を返す
@@ -298,6 +311,19 @@ HRESULT CManager::Load(void)
 		return E_FAIL;
 	}
 
+	// TODO：フォント全読込
+#if 0
+	// フォントの全読込
+	assert(m_pFont != nullptr);
+	if (FAILED(m_pFont->LoadAll()))
+	{ // 全読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+#endif
+
 	// 成功を返す
 	return S_OK;
 }
@@ -330,6 +356,9 @@ void CManager::Uninit(void)
 
 	// モデルの破棄
 	SAFE_REF_RELEASE(m_pModel);
+
+	// フォントの破棄
+	SAFE_REF_RELEASE(m_pFont);
 
 	// シェーダーの破棄
 	CShader::Release();
@@ -760,6 +789,18 @@ CModel *CManager::GetModel(void)
 
 	// モデルのポインタを返す
 	return m_pModel;
+}
+
+//============================================================
+//	フォント取得処理
+//============================================================
+CFont *CManager::GetFont(void)
+{
+	// インスタンス未使用
+	assert(m_pFont != nullptr);
+
+	// フォントのポインタを返す
+	return m_pFont;
 }
 
 //============================================================

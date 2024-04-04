@@ -184,6 +184,8 @@
     <ClCompile Include="field.cpp" />
     <ClCompile Include="fire.cpp" />
     <ClCompile Include="flash.cpp" />
+    <ClCompile Include="font.cpp" />
+    <ClCompile Include="fontChar.cpp" />
     <ClCompile Include="gameManager.cpp" />
     <ClCompile Include="gauge2D.cpp" />
     <ClCompile Include="gauge3D.cpp" />
@@ -308,6 +310,8 @@
     <ClInclude Include="field.h" />
     <ClInclude Include="fire.h" />
     <ClInclude Include="flash.h" />
+    <ClInclude Include="font.h" />
+    <ClInclude Include="fontChar.h" />
     <ClInclude Include="gameManager.h" />
     <ClInclude Include="gauge2D.h" />
     <ClInclude Include="gauge3D.h" />
