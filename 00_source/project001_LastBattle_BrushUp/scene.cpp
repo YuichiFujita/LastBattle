@@ -22,6 +22,15 @@
 #include "player.h"
 #include "enemy.h"
 
+// TODO：文字
+#include "object2D.h"
+#include "font.h"
+#include "object2D.h"
+#include "font2D.h"
+
+// TODO：スキンメッシュ
+#include "objectSkinMesh3D.h"
+
 //************************************************************
 //	定数宣言
 //************************************************************
@@ -88,6 +97,165 @@ HRESULT CScene::Init(void)
 
 	// プレイヤーの生成
 	CPlayer::Create(m_mode);
+
+#if 1
+#if 0
+	// フォント2Dの生成
+	CFont2D *pCharA = CFont2D::Create
+	( // 引数
+		GET_MANAGER->GetFont()->RegistName("わんぱくルイカ").pFontChar,
+		L'h',
+		D3DXVECTOR3(150.0f, 150.0f, 0.0f)
+	);
+
+	// フォント2Dの生成
+	CFont2D *pCharB = CFont2D::Create
+	( // 引数
+		GET_MANAGER->GetFont()->RegistName("わんぱくルイカ").pFontChar,
+		L'i',
+		D3DXVECTOR3(pCharA->GetVec3Position().x + pCharA->GetNext() * 0.17f, 150.0f, 0.0f)
+	);
+
+	// フォント2Dの生成
+	CFont2D *pCharC = CFont2D::Create
+	( // 引数
+		GET_MANAGER->GetFont()->RegistName("わんぱくルイカ").pFontChar,
+		L'j',
+		D3DXVECTOR3(pCharB->GetVec3Position().x + pCharB->GetNext() * 0.17f, 150.0f, 0.0f)
+	);
+
+	// フォント2Dの生成
+	CFont2D *pCharD = CFont2D::Create
+	( // 引数
+		GET_MANAGER->GetFont()->RegistName("わんぱくルイカ").pFontChar,
+		L'k',
+		D3DXVECTOR3(pCharC->GetVec3Position().x + pCharC->GetNext() * 0.17f, 150.0f, 0.0f)
+	);
+#else
+#if 1
+	for (int nHeight = 0; nHeight < 8; nHeight++)
+	{
+		float fNext = 150.0f;
+		for (int nWidth = 0; nWidth < 16; nWidth++)
+		{
+			// フォント2Dの生成
+			CFont2D *p = CFont2D::Create
+			( // 引数
+				GET_MANAGER->GetFont()->RegistName("わんぱくルイカ").pFontChar,
+				L'a' + nWidth + (nHeight * 16),
+				D3DXVECTOR3(fNext - ((float)GET_MANAGER->GetFont()->RegistChar(L'a' + nWidth + (nHeight * 16), "わんぱくルイカ").glyph.gmptGlyphOrigin.x * 0.17f), 150.0f + (nHeight * 100.0f), 0.0f)
+			);
+			if (p == nullptr)
+			{ // 生成に失敗した場合
+
+				// 失敗を返す
+				assert(false);
+				return E_FAIL;
+			}
+
+			// 優先順位の設定
+			p->SetPriority(7);
+
+			// ラベルの設定
+			p->SetLabel(CObject::LABEL_EFFECT);
+
+			// 次の位置までの空白量を加算
+			fNext = (p->GetVec3Position().x/* - p->GetVec3Sizing().x * 0.5f*/ + p->GetNext() * 0.17f);
+		}
+	}
+#else
+#if 1
+	for (int i = 0; i < 300; i++)
+	{
+		// フォント2Dの生成
+		CFont2D *p = CFont2D::Create
+		( // 引数
+			GET_MANAGER->GetFont()->RegistName("Times New Roman").pFontChar,
+			L'a' + i,
+			D3DXVECTOR3(1255.0f - ((i % 25) * 50.0f), 25.0f + ((i / 25) * 50.0f), 0.0f),	// 位置
+			1.0f,		// 大きさ
+			VEC3_ZERO,	// 向き
+			XCOL_WHITE	// 色
+		);
+		if (p == nullptr)
+		{ // 生成に失敗した場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+
+		// 文字テクスチャを割当
+		//p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'あ' + i, "わんぱくルイカ").nTexID);
+		//p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'a' + i, "Times New Roman").nTexID);
+
+		// 優先順位の設定
+		p->SetPriority(7);
+
+		// ラベルの設定
+		p->SetLabel(CObject::LABEL_EFFECT);
+	}
+#else
+	for (int i = 0; i < 300; i++)
+	{
+		// オブジェクト2Dの生成
+		CObject2D *p = CObject2D::Create
+		( // 引数
+			D3DXVECTOR3(1255.0f - ((i % 25) * 50.0f), 25.0f + ((i / 25) * 50.0f), 0.0f),	// 位置
+			D3DXVECTOR3(50.0f, 50.0f, 0.0f),	// 大きさ
+			VEC3_ZERO,	// 向き
+			XCOL_WHITE	// 色
+		);
+		if (p == nullptr)
+		{ // 生成に失敗した場合
+
+			// 失敗を返す
+			assert(false);
+			return E_FAIL;
+		}
+
+		// 文字テクスチャを割当
+		//p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'あ' + i, "わんぱくルイカ").nTexID);
+		p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'a' + i, "Times New Roman").nTexID);
+
+		// 優先順位の設定
+		p->SetPriority(7);
+
+		// ラベルの設定
+		p->SetLabel(CObject::LABEL_EFFECT);
+	}
+
+#if 0
+	// オブジェクト2Dの生成
+	CObject2D *p = CObject2D::Create
+	( // 引数
+		D3DXVECTOR3(1255.0f, 25.0f, 0.0f),	// 位置
+		D3DXVECTOR3(50.0f, 50.0f, 0.0f),	// 大きさ
+		VEC3_ZERO,	// 向き
+		XCOL_BLACK	// 色
+	);
+	if (p == nullptr)
+	{ // 生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 文字テクスチャを割当
+	//p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'あ', "わんぱくルイカ").nTexID);
+	p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'あ', "わんぱくルイカ", true).nTexID);
+
+	// 優先順位の設定
+	p->SetPriority(7);
+
+	// ラベルの設定
+	p->SetLabel(CObject::LABEL_EFFECT);
+#endif
+#endif
+#endif
+#endif
+#endif
 
 	// 成功を返す
 	return S_OK;

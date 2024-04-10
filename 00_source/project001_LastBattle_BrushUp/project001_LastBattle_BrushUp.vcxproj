@@ -223,6 +223,7 @@
     <ClCompile Include="objectMeshTube.cpp" />
     <ClCompile Include="objectMeshWall.cpp" />
     <ClCompile Include="objectModel.cpp" />
+    <ClCompile Include="objectSkinMesh3D.cpp" />
     <ClCompile Include="objectTornado.cpp" />
     <ClCompile Include="orbit.cpp" />
     <ClCompile Include="particle2D.cpp" />
@@ -350,6 +351,7 @@
     <ClInclude Include="objectMeshTube.h" />
     <ClInclude Include="objectMeshWall.h" />
     <ClInclude Include="objectModel.h" />
+    <ClInclude Include="objectSkinMesh3D.h" />
     <ClInclude Include="objectTornado.h" />
     <ClInclude Include="orbit.h" />
     <ClInclude Include="particle2D.h" />
