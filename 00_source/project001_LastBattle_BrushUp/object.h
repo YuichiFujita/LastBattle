@@ -117,8 +117,10 @@ public:
 	// 仮想関数
 	virtual void BindTexture(const int nTextureID);		// テクスチャ割当 (インデックス)
 	virtual void BindTexture(const char *pTexturePass);	// テクスチャ割当 (パス)
+	virtual int GetTextureIndex(void) const;			// テクスチャインデックス取得
 	virtual void BindModel(const int nModelID);			// モデル割当 (インデックス)
 	virtual void BindModel(const char *pModelPass);		// モデル割当 (パス)
+	virtual int GetModelIndex(void) const;				// モデルインデックス取得
 	virtual void SetIndex(const int nIndex);			// インデックス設定
 	virtual int GetIndex(void) const;					// インデックス取得
 	virtual void SetState(const int nState);			// 状態設定

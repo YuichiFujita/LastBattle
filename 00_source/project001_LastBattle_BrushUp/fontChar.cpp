@@ -180,8 +180,8 @@ void CFontChar::Release(CFontChar *&prFontChar)
 BYTE *CFontChar::CreateBitMap(SChar *pChar, HDC pDC, const UINT uChar)
 {
 	// ビットマップのサイズを取得
-	DWORD dwSize = GetGlyphOutlineW(pDC, uChar, FORMAT_BITMAP, &pChar->info, 0, nullptr, &INIT_MATRIX);
-	if (dwSize == GDI_ERROR)
+	DWORD dwGlyphSize = GetGlyphOutlineW(pDC, uChar, FORMAT_BITMAP, &pChar->glyph, 0, nullptr, &INIT_MATRIX);
+	if (dwGlyphSize == GDI_ERROR)
 	{ // 取得に失敗した場合
 
 		// 失敗を返す
@@ -190,7 +190,7 @@ BYTE *CFontChar::CreateBitMap(SChar *pChar, HDC pDC, const UINT uChar)
 	}
 
 	// ビットマップのサイズ分メモリ確保
-	BYTE *pBitMap = new BYTE[dwSize];
+	BYTE *pBitMap = new BYTE[dwGlyphSize];
 	if (pBitMap == nullptr)
 	{ // 生成に失敗した場合
 
@@ -200,7 +200,33 @@ BYTE *CFontChar::CreateBitMap(SChar *pChar, HDC pDC, const UINT uChar)
 	}
 
 	// ビットマップ内の情報を取得
-	GetGlyphOutlineW(pDC, uChar, FORMAT_BITMAP, &pChar->info, dwSize, pBitMap, &INIT_MATRIX);
+	dwGlyphSize = GetGlyphOutlineW(pDC, uChar, FORMAT_BITMAP, &pChar->glyph, dwGlyphSize, pBitMap, &INIT_MATRIX);
+	if (dwGlyphSize == GDI_ERROR)
+	{ // 取得に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return nullptr;
+	}
+
+	// フォントアウトラインの情報を取得
+	DWORD dwOutLineSize = GetOutlineTextMetrics(pDC, sizeof(OUTLINETEXTMETRIC), &pChar->outline);
+	if (dwOutLineSize == GDI_ERROR)
+	{ // 取得に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return nullptr;
+	}
+
+	// フォントテキストの情報を取得
+	if (!GetTextMetrics(pDC, &pChar->text))
+	{ // 取得に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return nullptr;
+	}
 
 	// 確保したビットマップを返す
 	return pBitMap;
@@ -216,8 +242,8 @@ HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 	D3DLOCKED_RECT lockRect;		// テクスチャピクセル情報
 
 	// 空のテクスチャを生成・テクスチャインデックスを保存
-	int nWidth = (pChar->info.gmBlackBoxX + 3) / 4 * 4;	// テクスチャ横幅
-	int nHeight = pChar->info.gmBlackBoxY;				// テクスチャ縦幅
+	int nWidth = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4;	// テクスチャ横幅
+	int nHeight = pChar->glyph.gmBlackBoxY;					// テクスチャ縦幅
 	pChar->nTexID = pTexture->Regist(CTexture::SInfo
 	( // 引数
 		nWidth,				// テクスチャ横幅

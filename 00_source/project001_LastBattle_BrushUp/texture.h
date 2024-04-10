@@ -48,7 +48,7 @@ public:
 	struct STexture
 	{
 		LPDIRECT3DTEXTURE9 pTexture;	// テクスチャへのポインタ
-		D3DXIMAGE_INFO *pStatus;		// テクスチャステータスへのポインタ
+		D3DXIMAGE_INFO status;			// テクスチャステータスへのポインタ
 		D3DXVECTOR2 aspect;				// アスペクト比
 	};
 

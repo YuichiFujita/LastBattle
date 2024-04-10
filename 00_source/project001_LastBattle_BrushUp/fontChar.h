@@ -29,8 +29,10 @@ public:
 		// コンストラクタ
 		SChar() { memset(this, 0, sizeof(*this)); }
 
-		GLYPHMETRICS info;	// 文字の情報
-		int nTexID;			// フォントテクスチャインデックス
+		GLYPHMETRICS glyph;			// フォントグリフの情報
+		OUTLINETEXTMETRIC outline;	// フォントアウトラインの情報
+		TEXTMETRIC text;			// フォントテキストの情報
+		int nTexID;					// フォントテクスチャインデックス
 	};
 
 	// メンバ関数

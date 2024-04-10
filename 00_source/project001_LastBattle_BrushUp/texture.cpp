@@ -69,9 +69,6 @@ void CTexture::Uninit(void)
 
 		// テクスチャの破棄
 		SAFE_RELEASE(rMap.second.textureData.pTexture);
-
-		// テクスチャステータスの破棄
-		SAFE_DELETE(rMap.second.textureData.pStatus);
 	}
 
 	// テクスチャ連想配列をクリア
@@ -108,7 +105,6 @@ int CTexture::Regist(const SInfo info)
 
 	// マップ情報のポインタを初期化
 	tempMapInfo.textureData.pTexture = nullptr;	// テクスチャへのポインタ
-	tempMapInfo.textureData.pStatus = nullptr;	// テクスチャステータスへのポインタ
 
 	// 空のテクスチャを生成
 	hr = D3DXCreateTexture
@@ -129,6 +125,16 @@ int CTexture::Regist(const SInfo info)
 		assert(false);
 		return NONE_IDX;
 	}
+
+	// テクスチャステータスを設定
+	D3DXIMAGE_INFO *pStatus = &tempMapInfo.textureData.status;	// ステータス情報
+	pStatus->Width			 = info.Width;						// テクスチャ横幅
+	pStatus->Height			 = info.Height;						// テクスチャ縦幅
+	pStatus->Depth			 = 1;								// テクスチャ深度
+	pStatus->MipLevels		 = info.MipLevels;					// ミップマップレベル
+	pStatus->Format			 = info.Format;						// ピクセルフォーマット
+	pStatus->ResourceType	 = D3DRTYPE_TEXTURE;				// リソース種類
+	pStatus->ImageFileFormat = (D3DXIMAGE_FILEFORMAT)NONE_IDX;	// ファイル形式 (作成のため無し)
 
 	// ファイルパス名を保存
 	tempMapInfo.sFilePassName = NONE_STRING;	// 読込ではないのでパス無し
@@ -159,7 +165,6 @@ int CTexture::Regist(std::string sFilePass)
 
 	// マップ情報のポインタを初期化
 	tempMapInfo.textureData.pTexture = nullptr;	// テクスチャへのポインタ
-	tempMapInfo.textureData.pStatus = nullptr;	// テクスチャステータスへのポインタ
 
 	// ファイルパスを標準化
 	useful::StandardizePathPart(&sFilePass);
@@ -180,16 +185,6 @@ int CTexture::Regist(std::string sFilePass)
 		nCntTexture++;
 	}
 
-	// テクスチャステータスのメモリ確保
-	tempMapInfo.textureData.pStatus = new D3DXIMAGE_INFO;
-	if (tempMapInfo.textureData.pStatus == nullptr)
-	{ // 確保に失敗した場合
-
-		// 失敗を返す
-		assert(false);
-		return NONE_IDX;
-	}
-
 	// テクスチャの読込
 	hr = D3DXCreateTextureFromFileEx
 	( // 引数
@@ -204,7 +199,7 @@ int CTexture::Regist(std::string sFilePass)
 		D3DX_DEFAULT,		// フィルタ
 		D3DX_DEFAULT,		// ミップマップフィルタ
 		0,					// カラーキー
-		tempMapInfo.textureData.pStatus,	// テクスチャステータスへのポインタ
+		&tempMapInfo.textureData.status,	// テクスチャステータスへのポインタ
 		nullptr,							// テクスチャパレットへのポインタ
 		&tempMapInfo.textureData.pTexture	// テクスチャへのポインタ
 	);
@@ -220,7 +215,7 @@ int CTexture::Regist(std::string sFilePass)
 	tempMapInfo.sFilePassName = sFilePass;
 
 	// アスペクト比を計算
-	D3DXIMAGE_INFO status = *tempMapInfo.textureData.pStatus;	// テクスチャステータス
+	D3DXIMAGE_INFO status = tempMapInfo.textureData.status;	// テクスチャステータス
 	tempMapInfo.textureData.aspect.x = (float)status.Width / (float)status.Height;
 	tempMapInfo.textureData.aspect.y = (float)status.Height / (float)status.Width;
 
