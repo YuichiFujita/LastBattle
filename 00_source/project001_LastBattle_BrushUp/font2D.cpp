@@ -16,7 +16,7 @@
 //************************************************************
 namespace
 {
-	const float REV_SCALE = 0.17f;	// 大きさの補正係数
+	const float REV_SCALE = 1.0f;	// 大きさの補正係数
 }
 
 //************************************************************
@@ -154,6 +154,11 @@ void CFont2D::SetFontChar
 	const UINT uChar		// 指定文字
 )
 {
+	if (uChar == L'o')
+	{
+		int a = 0;
+	}
+
 	// フォント文字の取得
 	m_infoChar = pFontChar->Regist(uChar);
 
@@ -167,9 +172,9 @@ void CFont2D::SetFontChar
 void CFont2D::SetVec3Position(const D3DXVECTOR3& rPos)
 {
 	D3DXVECTOR3 pos = rPos;
-	float fBaseLine = (float)m_infoChar.text.tmHeight - (float)m_infoChar.text.tmAscent;
-	float fLineDown = (float)m_infoChar.glyph.gmptGlyphOrigin.y - (float)m_infoChar.glyph.gmBlackBoxY;
-	float fDown = /*fBaseLine*/ - fLineDown;
+	//float fBaseLine = (float)m_infoChar.text.tmHeight - (float)m_infoChar.text.tmAscent;
+	//float fLineDown = (float)m_infoChar.glyph.gmptGlyphOrigin.y - (float)m_infoChar.glyph.gmBlackBoxY;
+	//float fDown = /*fBaseLine*/ - fLineDown;
 
 	//static int n = 0;
 	//if (n < 16)
@@ -177,7 +182,7 @@ void CFont2D::SetVec3Position(const D3DXVECTOR3& rPos)
 
 		// TODO：位置動かすのどうにか
 		//pos.x -= ((float)m_infoChar.glyph.gmptGlyphOrigin.x * REV_SCALE);
-		pos.y += (fBaseLine - (float)m_infoChar.glyph.gmptGlyphOrigin.y) * REV_SCALE * 0.5f;
+		//pos.y += ((float)m_infoChar.text.tmDescent - (float)m_infoChar.glyph.gmptGlyphOrigin.y) * REV_SCALE * 0.5f;
 
 		// 位置の設定
 		CObject2D::SetVec3Position(pos);
