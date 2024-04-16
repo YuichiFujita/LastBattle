@@ -1,11 +1,11 @@
-//============================================================
+ï»¿//============================================================
 //
-//	ƒV[ƒ“ˆ— [scene.cpp]
-//	AuthorF“¡“c—Eˆê
+//	ã‚·ãƒ¼ãƒ³å‡¦ç† [scene.cpp]
+//	Authorï¼šè—¤ç”°å‹‡ä¸€
 //
 //============================================================
 //************************************************************
-//	ƒCƒ“ƒNƒ‹[ƒhƒtƒ@ƒCƒ‹
+//	ã‚¤ãƒ³ã‚¯ãƒ«ãƒ¼ãƒ‰ãƒ•ã‚¡ã‚¤ãƒ«
 //************************************************************
 #include "scene.h"
 #include "manager.h"
@@ -22,38 +22,35 @@
 #include "player.h"
 #include "enemy.h"
 
-// TODOF•¶š
-#include "object2D.h"
+// TODO
+#include "manager.h"
 #include "font.h"
-#include "object2D.h"
+#include "fontChar.h"
 #include "font2D.h"
 
-// TODOFƒXƒLƒ“ƒƒbƒVƒ…
-#include "objectSkinMesh3D.h"
-
 //************************************************************
-//	’è”éŒ¾
+//	å®šæ•°å®£è¨€
 //************************************************************
 namespace
 {
-	// ƒ{ƒX‚Ìî•ñ
+	// ãƒœã‚¹ã®æƒ…å ±
 	namespace boss
 	{
-		const D3DXVECTOR3 SPAWN_POS = D3DXVECTOR3(0.0f, 0.0f, 600.0f);	// ƒXƒ|[ƒ“ˆÊ’u
-		const D3DXVECTOR3 SPAWN_ROT = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ƒXƒ|[ƒ“Œü‚«
+		const D3DXVECTOR3 SPAWN_POS = D3DXVECTOR3(0.0f, 0.0f, 600.0f);	// ã‚¹ãƒãƒ¼ãƒ³ä½ç½®
+		const D3DXVECTOR3 SPAWN_ROT = D3DXVECTOR3(0.0f, 0.0f, 0.0f);	// ã‚¹ãƒãƒ¼ãƒ³å‘ã
 	}
 }
 
 //************************************************************
-//	Ã“Iƒƒ“ƒo•Ï”éŒ¾
+//	é™çš„ãƒ¡ãƒ³ãƒå¤‰æ•°å®£è¨€
 //************************************************************
-CStage *CScene::m_pStage = nullptr;	// ƒXƒe[ƒW‚Ìî•ñ
+CStage *CScene::m_pStage = nullptr;	// ã‚¹ãƒ†ãƒ¼ã‚¸ã®æƒ…å ±
 
 //************************************************************
-//	eƒNƒ‰ƒX [CScene] ‚Ìƒƒ“ƒoŠÖ”
+//	è¦ªã‚¯ãƒ©ã‚¹ [CScene] ã®ãƒ¡ãƒ³ãƒé–¢æ•°
 //************************************************************
 //============================================================
-//	ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+//	ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================
 CScene::CScene(const EMode mode) : m_mode(mode)
 {
@@ -61,7 +58,7 @@ CScene::CScene(const EMode mode) : m_mode(mode)
 }
 
 //============================================================
-//	ƒfƒXƒgƒ‰ƒNƒ^
+//	ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 //============================================================
 CScene::~CScene()
 {
@@ -69,246 +66,253 @@ CScene::~CScene()
 }
 
 //============================================================
-//	‰Šú‰»ˆ—
+//	åˆæœŸåŒ–å‡¦ç†
 //============================================================
 HRESULT CScene::Init(void)
 {
-	// ƒXƒe[ƒW‚Ì¶¬
+	// ã‚¹ãƒ†ãƒ¼ã‚¸ã®ç”Ÿæˆ
 	m_pStage = CStage::Create(m_mode);
 	if (m_pStage == nullptr)
-	{ // ”ñg—p’†‚Ìê‡
+	{ // éä½¿ç”¨ä¸­ã®å ´åˆ
 
-		// ¸”s‚ğ•Ô‚·
+		// å¤±æ•—ã‚’è¿”ã™
 		assert(false);
 		return E_FAIL;
 	}
 
 	if (m_mode == MODE_GAME)
-	{ // ƒQ[ƒ€‰æ–Ê‚Ìê‡
+	{ // ã‚²ãƒ¼ãƒ ç”»é¢ã®å ´åˆ
 
-		// ƒ{ƒX‚Ì¶¬
+		// ãƒœã‚¹ã®ç”Ÿæˆ
 		CEnemy::Create
-		( // ˆø”
-			CEnemy::TYPE_BOSS_DRAGON,	// í—Ş
-			boss::SPAWN_POS,			// ˆÊ’u
-			boss::SPAWN_ROT				// Œü‚«
+		( // å¼•æ•°
+			CEnemy::TYPE_BOSS_DRAGON,	// ç¨®é¡
+			boss::SPAWN_POS,			// ä½ç½®
+			boss::SPAWN_ROT				// å‘ã
 		);
 	}
 
-	// ƒvƒŒƒCƒ„[‚Ì¶¬
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ç”Ÿæˆ
 	CPlayer::Create(m_mode);
 
 #if 1
-#if 0
-	// ƒtƒHƒ“ƒg2D‚Ì¶¬
-	CFont2D *pCharA = CFont2D::Create
-	( // ˆø”
-		GET_MANAGER->GetFont()->RegistName("‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").pFontChar,
-		L'h',
-		D3DXVECTOR3(150.0f, 150.0f, 0.0f)
-	);
-
-	// ƒtƒHƒ“ƒg2D‚Ì¶¬
-	CFont2D *pCharB = CFont2D::Create
-	( // ˆø”
-		GET_MANAGER->GetFont()->RegistName("‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").pFontChar,
-		L'i',
-		D3DXVECTOR3(pCharA->GetVec3Position().x + pCharA->GetNext() * 0.17f, 150.0f, 0.0f)
-	);
-
-	// ƒtƒHƒ“ƒg2D‚Ì¶¬
-	CFont2D *pCharC = CFont2D::Create
-	( // ˆø”
-		GET_MANAGER->GetFont()->RegistName("‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").pFontChar,
-		L'j',
-		D3DXVECTOR3(pCharB->GetVec3Position().x + pCharB->GetNext() * 0.17f, 150.0f, 0.0f)
-	);
-
-	// ƒtƒHƒ“ƒg2D‚Ì¶¬
-	CFont2D *pCharD = CFont2D::Create
-	( // ˆø”
-		GET_MANAGER->GetFont()->RegistName("‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").pFontChar,
-		L'k',
-		D3DXVECTOR3(pCharC->GetVec3Position().x + pCharC->GetNext() * 0.17f, 150.0f, 0.0f)
-	);
-#else
-#if 1
-	for (int nHeight = 0; nHeight < 8; nHeight++)
+	UINT aChar[] =
 	{
-		float fNext = 150.0f;
-		for (int nWidth = 0; nWidth < 16; nWidth++)
+		 L'H',
+		 L'a',
+		 L'l',
+		 L'l',
+		 L'o',
+		 L'W',
+		 L'o',
+		 L'r',
+		 L'l',
+		 L'd',
+		 L'ï¼',
+		 L'ã¾',
+		 L'ã¿',
+		 L'ã‚€',
+		 L'ã‚',
+		 L'ã‚‚',
+		 L'|',
+		 L'ã“',
+		 L'ã‚“',
+		 L'ã«',
+		 L'ã¡',
+		 L'ã¯',
+		 L'ï¼',
+		 L'å† ',
+		 L'å©š',
+		 L'è‘¬',
+		 L'ç¥­',
+		 L'ï¼Ÿ',
+	};
+	CFont *pFont = GET_MANAGER->GetFont();
+
+	for (int nHeight = 0; nHeight < 10; nHeight++)
+	{
+		float fPosX = 50.0f;
+		int nWMax = 26;
+		//int nWMax = NUM_ARRAY(aChar);
+		for (int nWidth = 0; nWidth < nWMax; nWidth++)
 		{
-			// ƒtƒHƒ“ƒg2D‚Ì¶¬
+			//CFontChar *pFontChar = pFont->RegistName("ï¼­ï¼³ ï¼°æ˜æœ").pFontChar;
+			//CFontChar *pFontChar = pFont->RegistName("ï¼­ï¼³ ï¼°ã‚´ã‚·ãƒƒã‚¯").pFontChar;
+			//CFontChar *pFontChar = pFont->RegistName("ã‚ã‚“ã±ããƒ«ã‚¤ã‚«").pFontChar;
+			CFontChar *pFontChar = pFont->RegistName("é›¶ã‚´ã‚·ãƒƒã‚¯").pFontChar;
+			//CFontChar *pFontChar = pFont->RegistName("JFãƒ‰ãƒƒãƒˆK14-2004").pFontChar;
+			//CFontChar *pFontChar = pFont->RegistName("BIZ UDPã‚´ã‚·ãƒƒã‚¯").pFontChar;
+			//CFontChar *pFontChar = pFont->RegistName("HGPå‰µè‹±è§’ï¾ï¾Ÿï½¯ï¾Œï¾Ÿä½“").pFontChar;
+			UINT uChar = L'a' + nWidth + (nHeight * nWMax);
+			//UINT uChar = L'ã‚' + nWidth + (nHeight * nWMax);
+			//UINT uChar = aChar[nWidth + (nHeight * nWMax)];
+			//D3DXVECTOR3 pos = D3DXVECTOR3(40.0f + (nWidth * 60.0f), 50.0f + (nHeight * 100.0f), 0.0f);
+			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 50.0f + (nHeight * 60.0f), 0.0f);
+
+#if 0
+			// ãƒ•ã‚©ãƒ³ãƒˆ2Dã®ç”Ÿæˆ
 			CFont2D *p = CFont2D::Create
-			( // ˆø”
-				GET_MANAGER->GetFont()->RegistName("‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").pFontChar,
-				L'a' + nWidth + (nHeight * 16),
-				D3DXVECTOR3(fNext - ((float)GET_MANAGER->GetFont()->RegistChar(L'a' + nWidth + (nHeight * 16), "‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").glyph.gmptGlyphOrigin.x * 0.17f), 150.0f + (nHeight * 100.0f), 0.0f)
+			( // å¼•æ•°
+				pFontChar,
+				uChar,
+				pos,
+				1.0f,
+				VEC3_ZERO,
+				XCOL_CYAN
 			);
 			if (p == nullptr)
-			{ // ¶¬‚É¸”s‚µ‚½ê‡
+			{ // ç”Ÿæˆã«å¤±æ•—ã—ãŸå ´åˆ
 
-				// ¸”s‚ğ•Ô‚·
+				// å¤±æ•—ã‚’è¿”ã™
 				assert(false);
 				return E_FAIL;
 			}
 
-			// —Dæ‡ˆÊ‚Ìİ’è
+			D3DXVECTOR3 oold = p->GetVec3Position();
+			oold.x += p->GetVec3Sizing().x * 0.5f + 1.0f;
+			p->SetVec3Position(oold);
+
+			// ãƒ†ã‚¯ã‚¹ãƒãƒ£ã‚’å‰ãŒã™
+			p->BindTexture(NONE_IDX);
+
+			// å„ªå…ˆé †ä½ã®è¨­å®š
 			p->SetPriority(7);
 
-			// ƒ‰ƒxƒ‹‚Ìİ’è
+			// ãƒ©ãƒ™ãƒ«ã®è¨­å®š
+			p->SetLabel(CObject::LABEL_EFFECT);
+#endif
+
+			// ãƒ•ã‚©ãƒ³ãƒˆ2Dã®ç”Ÿæˆ
+			CFont2D *ppsx = CFont2D::Create
+			( // å¼•æ•°
+				pFontChar,
+				uChar,
+				pos,
+				1.0f,
+				VEC3_ZERO,
+				XCOL_WHITE
+			);
+			if (ppsx == nullptr)
+			{ // ç”Ÿæˆã«å¤±æ•—ã—ãŸå ´åˆ
+
+				// å¤±æ•—ã‚’è¿”ã™
+				assert(false);
+				return E_FAIL;
+			}
+
+			D3DXVECTOR3 old = ppsx->GetVec3Position();
+			old.x += ppsx->GetVec3Sizing().x * 0.5f + 1.0f;
+			ppsx->SetVec3Position(old);
+
+			// å„ªå…ˆé †ä½ã®è¨­å®š
+			ppsx->SetPriority(7);
+
+			// ãƒ©ãƒ™ãƒ«ã®è¨­å®š
+			ppsx->SetLabel(CObject::LABEL_EFFECT);
+
+			// æ¬¡ã®ä½ç½®è¨­å®šç”¨ã«åŸç‚¹ã‚’ä¿å­˜
+			fPosX = ppsx->GetVec3Position().x - (ppsx->GetVec3Sizing().x * 0.5f + 1.0f) + ppsx->GetNext();
+		}
+	}
+#else
+	for (int nHeight = 0; nHeight < 1; nHeight++)
+	{
+		for (int nWidth = 0; nWidth < 64; nWidth++)
+		{
+			float REV_SCALE = 1.0f;
+
+			CFont *pFont = GET_MANAGER->GetFont();
+			UINT uChar = L'a' + nWidth + (nHeight * 1);
+			CFontChar::SChar infoChar = pFont->RegistChar(uChar, "ï¼­ï¼³ ï¼°æ˜æœ");
+			float fNextSpace = ((float)infoChar.glyph.gmptGlyphOrigin.x * REV_SCALE);
+
+			// ãƒ•ã‚©ãƒ³ãƒˆ2Dã®ç”Ÿæˆ
+			CFont2D *p = CFont2D::Create
+			( // å¼•æ•°
+				pFont->RegistName("ï¼­ï¼³ ï¼°æ˜æœ").pFontChar,
+				uChar,
+				D3DXVECTOR3(50.0f + (nWidth * 50.0f), 200.0f + (nHeight * 200.0f), 0.0f)
+			);
+			if (p == nullptr)
+			{ // ç”Ÿæˆã«å¤±æ•—ã—ãŸå ´åˆ
+
+				// å¤±æ•—ã‚’è¿”ã™
+				assert(false);
+				return E_FAIL;
+			}
+
+			//D3DXVECTOR3 pos = p->GetVec3Position();
+			////pos.x += fabsf(p->GetVec3Sizing().x - fSizeGap);
+			//pos.x -= ((float)infoChar.glyph.gmptGlyphOrigin.x * REV_SCALE);
+			//pos.y += ((float)(infoChar.text.tmHeight - infoChar.text.tmDescent - infoChar.glyph.gmptGlyphOrigin.y)) * REV_SCALE * 0.5f;
+			//p->SetVec3Position(pos);
+
+			// å„ªå…ˆé †ä½ã®è¨­å®š
+			p->SetPriority(7);
+
+			// ãƒ©ãƒ™ãƒ«ã®è¨­å®š
 			p->SetLabel(CObject::LABEL_EFFECT);
 
-			// Ÿ‚ÌˆÊ’u‚Ü‚Å‚Ì‹ó”’—Ê‚ğ‰ÁZ
-			fNext = (p->GetVec3Position().x/* - p->GetVec3Sizing().x * 0.5f*/ + p->GetNext() * 0.17f);
+			//fSizeGap = p->GetVec3Sizing().x;
+
+			//// æ¬¡ã®ä½ç½®ã¾ã§ã®ç©ºç™½é‡ã‚’åŠ ç®—
+			//fNext = (p->GetVec3Position().x/* - p->GetVec3Sizing().x * 0.5f*/ + p->GetNext() * REV_SCALE);
 		}
 	}
-#else
-#if 1
-	for (int i = 0; i < 300; i++)
-	{
-		// ƒtƒHƒ“ƒg2D‚Ì¶¬
-		CFont2D *p = CFont2D::Create
-		( // ˆø”
-			GET_MANAGER->GetFont()->RegistName("Times New Roman").pFontChar,
-			L'a' + i,
-			D3DXVECTOR3(1255.0f - ((i % 25) * 50.0f), 25.0f + ((i / 25) * 50.0f), 0.0f),	// ˆÊ’u
-			1.0f,		// ‘å‚«‚³
-			VEC3_ZERO,	// Œü‚«
-			XCOL_WHITE	// F
-		);
-		if (p == nullptr)
-		{ // ¶¬‚É¸”s‚µ‚½ê‡
-
-			// ¸”s‚ğ•Ô‚·
-			assert(false);
-			return E_FAIL;
-		}
-
-		// •¶šƒeƒNƒXƒ`ƒƒ‚ğŠ„“–
-		//p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'‚ ' + i, "‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").nTexID);
-		//p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'a' + i, "Times New Roman").nTexID);
-
-		// —Dæ‡ˆÊ‚Ìİ’è
-		p->SetPriority(7);
-
-		// ƒ‰ƒxƒ‹‚Ìİ’è
-		p->SetLabel(CObject::LABEL_EFFECT);
-	}
-#else
-	for (int i = 0; i < 300; i++)
-	{
-		// ƒIƒuƒWƒFƒNƒg2D‚Ì¶¬
-		CObject2D *p = CObject2D::Create
-		( // ˆø”
-			D3DXVECTOR3(1255.0f - ((i % 25) * 50.0f), 25.0f + ((i / 25) * 50.0f), 0.0f),	// ˆÊ’u
-			D3DXVECTOR3(50.0f, 50.0f, 0.0f),	// ‘å‚«‚³
-			VEC3_ZERO,	// Œü‚«
-			XCOL_WHITE	// F
-		);
-		if (p == nullptr)
-		{ // ¶¬‚É¸”s‚µ‚½ê‡
-
-			// ¸”s‚ğ•Ô‚·
-			assert(false);
-			return E_FAIL;
-		}
-
-		// •¶šƒeƒNƒXƒ`ƒƒ‚ğŠ„“–
-		//p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'‚ ' + i, "‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").nTexID);
-		p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'a' + i, "Times New Roman").nTexID);
-
-		// —Dæ‡ˆÊ‚Ìİ’è
-		p->SetPriority(7);
-
-		// ƒ‰ƒxƒ‹‚Ìİ’è
-		p->SetLabel(CObject::LABEL_EFFECT);
-	}
-
-#if 0
-	// ƒIƒuƒWƒFƒNƒg2D‚Ì¶¬
-	CObject2D *p = CObject2D::Create
-	( // ˆø”
-		D3DXVECTOR3(1255.0f, 25.0f, 0.0f),	// ˆÊ’u
-		D3DXVECTOR3(50.0f, 50.0f, 0.0f),	// ‘å‚«‚³
-		VEC3_ZERO,	// Œü‚«
-		XCOL_BLACK	// F
-	);
-	if (p == nullptr)
-	{ // ¶¬‚É¸”s‚µ‚½ê‡
-
-		// ¸”s‚ğ•Ô‚·
-		assert(false);
-		return E_FAIL;
-	}
-
-	// •¶šƒeƒNƒXƒ`ƒƒ‚ğŠ„“–
-	//p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'‚ ', "‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ").nTexID);
-	p->BindTexture(GET_MANAGER->GetFont()->RegistChar(L'‚ ', "‚í‚ñ‚Ï‚­ƒ‹ƒCƒJ", true).nTexID);
-
-	// —Dæ‡ˆÊ‚Ìİ’è
-	p->SetPriority(7);
-
-	// ƒ‰ƒxƒ‹‚Ìİ’è
-	p->SetLabel(CObject::LABEL_EFFECT);
-#endif
-#endif
-#endif
-#endif
 #endif
 
-	// ¬Œ÷‚ğ•Ô‚·
+	// æˆåŠŸã‚’è¿”ã™
 	return S_OK;
 }
 
 //============================================================
-//	I—¹ˆ—
+//	çµ‚äº†å‡¦ç†
 //============================================================
 void CScene::Uninit(void)
 {
-	// ƒXƒe[ƒW‚Ì”jŠü
+	// ã‚¹ãƒ†ãƒ¼ã‚¸ã®ç ´æ£„
 	SAFE_REF_RELEASE(m_pStage);
 }
 
 //============================================================
-//	XVˆ—
+//	æ›´æ–°å‡¦ç†
 //============================================================
 void CScene::Update(void)
 {
-	// ƒ|ƒCƒ“ƒ^‚ğéŒ¾
-	CManager	*pManager	= GET_MANAGER;				// ƒ}ƒl[ƒWƒƒ[
-	CLight		*pLight		= pManager->GetLight();		// ƒ‰ƒCƒg
-	CCamera		*pCamera	= pManager->GetCamera();	// ƒJƒƒ‰
-	CRenderer	*pRenderer	= pManager->GetRenderer();	// ƒŒƒ“ƒ_ƒ‰[
+	// ãƒã‚¤ãƒ³ã‚¿ã‚’å®£è¨€
+	CManager	*pManager	= GET_MANAGER;				// ãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼
+	CLight		*pLight		= pManager->GetLight();		// ãƒ©ã‚¤ãƒˆ
+	CCamera		*pCamera	= pManager->GetCamera();	// ã‚«ãƒ¡ãƒ©
+	CRenderer	*pRenderer	= pManager->GetRenderer();	// ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼
 
-	// ƒXƒe[ƒW‚ÌXV
+	// ã‚¹ãƒ†ãƒ¼ã‚¸ã®æ›´æ–°
 	assert(m_pStage != nullptr);
 	m_pStage->Update();
 
-	// ƒ‰ƒCƒg‚ÌXV
+	// ãƒ©ã‚¤ãƒˆã®æ›´æ–°
 	assert(pLight != nullptr);
 	pLight->Update();
 
-	// ƒJƒƒ‰‚ÌXV
+	// ã‚«ãƒ¡ãƒ©ã®æ›´æ–°
 	assert(pCamera != nullptr);
 	pCamera->Update();
 
-	// ƒŒƒ“ƒ_ƒ‰[‚ÌXV
+	// ãƒ¬ãƒ³ãƒ€ãƒ©ãƒ¼ã®æ›´æ–°
 	assert(pRenderer != nullptr);
 	pRenderer->Update();
 }
 
 //============================================================
-//	¶¬ˆ—
+//	ç”Ÿæˆå‡¦ç†
 //============================================================
 CScene *CScene::Create(EMode mode)
 {
-	// ƒ|ƒCƒ“ƒ^‚ğéŒ¾
-	CScene *pScene = nullptr;	// ƒV[ƒ“î•ñ
+	// ãƒã‚¤ãƒ³ã‚¿ã‚’å®£è¨€
+	CScene *pScene = nullptr;	// ã‚·ãƒ¼ãƒ³æƒ…å ±
 
-	// ƒV[ƒ“‚Ì¶¬
+	// ã‚·ãƒ¼ãƒ³ã®ç”Ÿæˆ
 	switch (mode)
-	{ // ƒ‚[ƒh‚²‚Æ‚Ìˆ—
+	{ // ãƒ¢ãƒ¼ãƒ‰ã”ã¨ã®å‡¦ç†
 	case MODE_TITLE:
 		pScene = new CSceneTitle(mode);
 		break;
@@ -329,79 +333,79 @@ CScene *CScene::Create(EMode mode)
 		pScene = new CSceneRanking(mode);
 		break;
 
-	default:	// —áŠOˆ—
+	default:	// ä¾‹å¤–å‡¦ç†
 		assert(false);
 		break;
 	}
 
 	if (pScene == nullptr)
-	{ // ¶¬‚É¸”s‚µ‚½ê‡
+	{ // ç”Ÿæˆã«å¤±æ•—ã—ãŸå ´åˆ
 
 		return nullptr;
 	}
 	else
-	{ // ¶¬‚É¬Œ÷‚µ‚½ê‡
+	{ // ç”Ÿæˆã«æˆåŠŸã—ãŸå ´åˆ
 
-		// Šm•Û‚µ‚½ƒAƒhƒŒƒX‚ğ•Ô‚·
+		// ç¢ºä¿ã—ãŸã‚¢ãƒ‰ãƒ¬ã‚¹ã‚’è¿”ã™
 		return pScene;
 	}
 }
 
 //============================================================
-//	”jŠüˆ—
+//	ç ´æ£„å‡¦ç†
 //============================================================
 void CScene::Release(CScene *&prScene)
 {
-	// ƒV[ƒ“‚ÌI—¹
+	// ã‚·ãƒ¼ãƒ³ã®çµ‚äº†
 	assert(prScene != nullptr);
 	prScene->Uninit();
 
-	// ƒƒ‚ƒŠŠJ•ú
+	// ãƒ¡ãƒ¢ãƒªé–‹æ”¾
 	SAFE_DELETE(prScene);
 }
 
 //============================================================
-//	ƒXƒe[ƒWæ“¾ˆ—
+//	ã‚¹ãƒ†ãƒ¼ã‚¸å–å¾—å‡¦ç†
 //============================================================
 CStage *CScene::GetStage(void)
 {
-	// ƒCƒ“ƒXƒ^ƒ“ƒX–¢g—p
+	// ã‚¤ãƒ³ã‚¹ã‚¿ãƒ³ã‚¹æœªä½¿ç”¨
 	assert(m_pStage != nullptr);
 
-	// ƒXƒe[ƒW‚Ìƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
+	// ã‚¹ãƒ†ãƒ¼ã‚¸ã®ãƒã‚¤ãƒ³ã‚¿ã‚’è¿”ã™
 	return m_pStage;
 }
 
 //============================================================
-//	ƒvƒŒƒCƒ„[æ“¾ˆ—
+//	ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼å–å¾—å‡¦ç†
 //============================================================
 CPlayer *CScene::GetPlayer(void)
 {
-	CListManager<CPlayer> *pListManager = CPlayer::GetList();	// ƒvƒŒƒCƒ„[ƒŠƒXƒgƒ}ƒl[ƒWƒƒ[
-	if (pListManager == nullptr)		 { return nullptr; }	// ƒŠƒXƒg–¢g—p‚Ìê‡”²‚¯‚é
-	if (pListManager->GetNumAll() != 1)	 { return nullptr; }	// ƒvƒŒƒCƒ„[‚ª1l‚Å‚Í‚È‚¢ê‡”²‚¯‚é
-	CPlayer *pPlayer = pListManager->GetList().front();			// ƒvƒŒƒCƒ„[‚Ìî•ñ
+	CListManager<CPlayer> *pListManager = CPlayer::GetList();	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãƒªã‚¹ãƒˆãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼
+	if (pListManager == nullptr)		 { return nullptr; }	// ãƒªã‚¹ãƒˆæœªä½¿ç”¨ã®å ´åˆæŠœã‘ã‚‹
+	if (pListManager->GetNumAll() != 1)	 { return nullptr; }	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ãŒ1äººã§ã¯ãªã„å ´åˆæŠœã‘ã‚‹
+	CPlayer *pPlayer = pListManager->GetList().front();			// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®æƒ…å ±
 
-	// ƒvƒŒƒCƒ„[‚Ìƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
+	// ãƒ—ãƒ¬ã‚¤ãƒ¤ãƒ¼ã®ãƒã‚¤ãƒ³ã‚¿ã‚’è¿”ã™
 	return pPlayer;
 }
 
 //============================================================
-//	ƒ{ƒXæ“¾ˆ—
+//	ãƒœã‚¹å–å¾—å‡¦ç†
 //============================================================
 CEnemy *CScene::GetBoss(void)
 {
-	CListManager<CEnemy> *pListManager = CEnemy::GetList();	// “GƒŠƒXƒgƒ}ƒl[ƒWƒƒ[
-	if (pListManager == nullptr) { return nullptr; }		// ƒŠƒXƒg–¢g—p
+	CListManager<CEnemy> *pListManager = CEnemy::GetList();	// æ•µãƒªã‚¹ãƒˆãƒãƒãƒ¼ã‚¸ãƒ£ãƒ¼
+	if (pListManager == nullptr) { return nullptr; }		// ãƒªã‚¹ãƒˆæœªä½¿ç”¨
 
-	std::list<CEnemy*> listEnemy = pListManager->GetList();	// “GƒŠƒXƒg
+	std::list<CEnemy*> listEnemy = pListManager->GetList();	// æ•µãƒªã‚¹ãƒˆ
 	for (CEnemy *pEnemy : listEnemy)
-	{ // —v‘f”•ªŒJ‚è•Ô‚·
+	{ // è¦ç´ æ•°åˆ†ç¹°ã‚Šè¿”ã™
 
 		if (pEnemy->GetType() == CEnemy::TYPE_BOSS_DRAGON)
-		{ // “G‚ªƒ{ƒX‚Ìê‡
+		{ // æ•µãŒãƒœã‚¹ã®å ´åˆ
 
-			// “G‚Ìƒ|ƒCƒ“ƒ^‚ğ•Ô‚·
+			// æ•µã®ãƒã‚¤ãƒ³ã‚¿ã‚’è¿”ã™
 			return pEnemy;
 		}
 	}
@@ -410,19 +414,19 @@ CEnemy *CScene::GetBoss(void)
 }
 
 //============================================================
-//	ƒ‚[ƒh‚Ìİ’èˆ—
+//	ãƒ¢ãƒ¼ãƒ‰ã®è¨­å®šå‡¦ç†
 //============================================================
 void CScene::SetMode(const EMode mode)
 {
-	// ˆø”‚Ìƒ‚[ƒh‚ğİ’è
+	// å¼•æ•°ã®ãƒ¢ãƒ¼ãƒ‰ã‚’è¨­å®š
 	m_mode = mode;
 }
 
 //============================================================
-//	ƒ‚[ƒhæ“¾ˆ—
+//	ãƒ¢ãƒ¼ãƒ‰å–å¾—å‡¦ç†
 //============================================================
 CScene::EMode CScene::GetMode(void) const
 {
-	// Œ»İ‚Ìƒ‚[ƒh‚ğ•Ô‚·
+	// ç¾åœ¨ã®ãƒ¢ãƒ¼ãƒ‰ã‚’è¿”ã™
 	return m_mode;
 }

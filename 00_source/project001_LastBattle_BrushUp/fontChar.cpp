@@ -241,17 +241,59 @@ HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 	LPDIRECT3DTEXTURE9 pTexChar;	// 文字テクスチャ情報
 	D3DLOCKED_RECT lockRect;		// テクスチャピクセル情報
 
+	POSGRID2 leftup;
+	leftup.x = pChar->glyph.gmptGlyphOrigin.x;
+	leftup.y = pChar->text.tmAscent - pChar->glyph.gmptGlyphOrigin.y;
+	int nBitMapWidth  = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4;	// ビットマップの横幅
+	int nBitMapHeight = pChar->glyph.gmBlackBoxY;				// ビットマップの縦幅
+
+#if 0
+	//int nPlusWidth = pChar->glyph.gmptGlyphOrigin.x;
+	//useful::LimitMaxNum(nPlusWidth, 0);
+	//nPlusWidth = fabsf(nPlusWidth);
+
+	//int xxx = pChar->glyph.gmptGlyphOrigin.x + nPlusWidth + 1;
+	//int xxx = pChar->glyph.gmBlackBoxX * 0.5f;
+	int xxx = 0;
+
+	int nWidth = nBitMapWidth;
+
+	//int nWidth = (int)pChar->glyph.gmCellIncX + xxx;
+	//if (nWidth < (int)pChar->glyph.gmBlackBoxX + xxx)
+	//{
+	//	nWidth = (int)pChar->glyph.gmBlackBoxX + xxx;
+	//}
+
+	//int n = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4 + xxx;
+	//if (nWidth < n)
+	//{
+	//	nWidth = n;
+	//}
+#else
+	//int nPlusRight = 0;
+
+	//int nOrigin = pChar->glyph.gmptGlyphOrigin.x;
+	//if (nOrigin < 0) { nOrigin *= -1; nPlusRight = nOrigin; }
+	//int nLast = pChar->glyph.gmCellIncX - (nBitMapWidth + nOrigin);
+	//if (nLast < 0) { nLast = 0; }
+	//int nWidth = nBitMapWidth + nLast;
+
+	int nWidth = nBitMapWidth;
+	int nAbsOrigin = pChar->glyph.gmptGlyphOrigin.x;
+	if (nAbsOrigin < 0) { nAbsOrigin *= -1; }
+
+	int nOrigin = nAbsOrigin * 2;
+#endif
+
 	// 空のテクスチャを生成・テクスチャインデックスを保存
-	int nWidth = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4;	// テクスチャ横幅
-	int nHeight = pChar->glyph.gmBlackBoxY;					// テクスチャ縦幅
 	pChar->nTexID = pTexture->Regist(CTexture::SInfo
 	( // 引数
-		nWidth,				// テクスチャ横幅
-		nHeight,			// テクスチャ縦幅
-		1,					// ミップマップレベル
-		0,					// 性質・確保オプション
-		D3DFMT_A8R8G8B8,	// ピクセルフォーマット
-		D3DPOOL_MANAGED		// 格納メモリ
+		nWidth + nOrigin + 2,			// テクスチャ横幅
+		(int)pChar->text.tmHeight + 2,	// テクスチャ縦幅
+		1,							// ミップマップレベル
+		0,							// 性質・確保オプション
+		D3DFMT_A8R8G8B8,			// ピクセルフォーマット
+		D3DPOOL_MANAGED				// 格納メモリ
 	));
 
 	// 生成したテクスチャのポインタを取得
@@ -260,24 +302,51 @@ HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 	// テクスチャをロックし、ピクセル情報を取得
 	pTexChar->LockRect(0, &lockRect, nullptr, 0);
 
+#if 0
 	// テクスチャにフォントの見た目を書き込み
 	DWORD *pTexBuf = (DWORD*)lockRect.pBits;	// テクスチャメモリへのポインタ
-	for (int nCntHeight = 0; nCntHeight < nHeight; nCntHeight++)
+	for (int nCntHeight = leftup.y; nCntHeight < leftup.y + nBitMapHeight; nCntHeight++)
 	{ // テクスチャ縦幅分繰り返す
 
-		for (int nCntWidth = 0; nCntWidth < nWidth; nCntWidth++)
+		for (int nCntWidth = leftup.x; nCntWidth < leftup.x + pChar->glyph.gmBlackBoxX; nCntWidth++)
 		{ // テクスチャ横幅分繰り返す
 
 			// 現在のビットインデックスを計算
-			int nBitID = nWidth * nCntHeight + nCntWidth;
+			//int nBitID = nBitMapWidth * nCntHeight + nCntWidth;
+			int nBitID = nBitMapWidth * (nCntHeight - leftup.y) + (nCntWidth - pChar->glyph.gmBlackBoxX);
 
 			// ビットマップからアルファ値を計算
 			DWORD dwAlpha = pBitMap[nBitID] * 255 / MAX_GRAD;
 
 			// テクスチャの透明度を設定
-			pTexBuf[nBitID] = (dwAlpha << 24) | 0x00ffffff;
+			pTexBuf[nBitMapWidth * nCntHeight + nCntWidth] = (dwAlpha << 24) | 0x00ffffff;
 		}
 	}
+#else
+	// テクスチャにフォントの見た目を書き込み
+	DWORD *pTexBuf = (DWORD*)lockRect.pBits;	// テクスチャメモリへのポインタ
+
+	//int iOfs_x = nAbsOrigin + 1;
+	int iOfs_x = pChar->glyph.gmptGlyphOrigin.x + 1;
+	//int iOfs_x = pChar->glyph.gmptGlyphOrigin.x + nAbsOrigin + 1;
+
+	int iOfs_y = pChar->text.tmAscent - pChar->glyph.gmptGlyphOrigin.y + 1;
+	int iBmp_w = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4;
+	int iBmp_h = pChar->glyph.gmBlackBoxY;
+	int Level = 17;
+	int x, y;
+	DWORD Alpha, Color;
+	FillMemory(lockRect.pBits, lockRect.Pitch * (int)pChar->text.tmHeight + 2, 0);
+	for (y = iOfs_y; y < iOfs_y + iBmp_h; y++)
+	{
+		for (x = iOfs_x; x < iOfs_x + iBmp_w; x++)
+		{
+			Alpha = (255 * pBitMap[x - iOfs_x + iBmp_w * (y - iOfs_y)]) / (Level - 1);
+			Color = 0x00ffffff | (Alpha << 24);
+			memcpy((BYTE*)lockRect.pBits + lockRect.Pitch * y + 4 * x, &Color, sizeof(DWORD));
+		}
+	}
+#endif
 
 	// テクスチャをアンロックする
 	pTexChar->UnlockRect(0);
