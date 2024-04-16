@@ -57,7 +57,22 @@ public:
 		CFontChar *pFontChar,	// フォント文字情報
 		const UINT uChar		// 指定文字
 	);
-	float GetNext(void) { return (float)m_infoChar.glyph.gmCellIncX; }	// 次の文字までの距離取得
+
+	// 原点分のずらす距離取得
+	float GetOffset(void)
+	{
+		float fOrigin = (float)m_infoChar.glyph.gmptGlyphOrigin.x;
+		if (fOrigin < 0.0f) { fOrigin *= -1.0f; }
+		float fBlack = (float)m_infoChar.glyph.gmBlackBoxX;
+		return (fOrigin + fBlack * 0.5f);
+	}
+
+	// 次の文字までの距離取得
+	float GetNext(void)
+	{
+		float fNext = (float)m_infoChar.glyph.gmCellIncX;
+		return fNext;
+	}
 
 private:
 	// メンバ変数

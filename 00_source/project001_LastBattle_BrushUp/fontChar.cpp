@@ -282,7 +282,7 @@ HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 	int nAbsOrigin = pChar->glyph.gmptGlyphOrigin.x;
 	if (nAbsOrigin < 0) { nAbsOrigin *= -1; }
 
-	int nOrigin = nAbsOrigin * 2;
+	int nOrigin = nAbsOrigin * 4;
 #endif
 
 	// 空のテクスチャを生成・テクスチャインデックスを保存
@@ -327,8 +327,8 @@ HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 	DWORD *pTexBuf = (DWORD*)lockRect.pBits;	// テクスチャメモリへのポインタ
 
 	//int iOfs_x = nAbsOrigin + 1;
-	int iOfs_x = pChar->glyph.gmptGlyphOrigin.x + 1;
-	//int iOfs_x = pChar->glyph.gmptGlyphOrigin.x + nAbsOrigin + 1;
+	//int iOfs_x = pChar->glyph.gmptGlyphOrigin.x + 1;
+	int iOfs_x = pChar->glyph.gmptGlyphOrigin.x + nAbsOrigin + 1;
 
 	int iOfs_y = pChar->text.tmAscent - pChar->glyph.gmptGlyphOrigin.y + 1;
 	int iBmp_w = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4;

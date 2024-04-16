@@ -143,8 +143,8 @@ HRESULT CScene::Init(void)
 			//CFontChar *pFontChar = pFont->RegistName("JFドットK14-2004").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("BIZ UDPゴシック").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-			UINT uChar = L'a' + nWidth + (nHeight * nWMax);
-			//UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
+			//UINT uChar = L'a' + nWidth + (nHeight * nWMax);
+			UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
 			//UINT uChar = aChar[nWidth + (nHeight * nWMax)];
 			//D3DXVECTOR3 pos = D3DXVECTOR3(40.0f + (nWidth * 60.0f), 50.0f + (nHeight * 100.0f), 0.0f);
 			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 50.0f + (nHeight * 60.0f), 0.0f);
@@ -201,7 +201,7 @@ HRESULT CScene::Init(void)
 			}
 
 			D3DXVECTOR3 old = ppsx->GetVec3Position();
-			old.x += ppsx->GetVec3Sizing().x * 0.5f + 1.0f;
+			old.x += ppsx->GetOffset();
 			ppsx->SetVec3Position(old);
 
 			// 優先順位の設定
@@ -211,7 +211,7 @@ HRESULT CScene::Init(void)
 			ppsx->SetLabel(CObject::LABEL_EFFECT);
 
 			// 次の位置設定用に原点を保存
-			fPosX = ppsx->GetVec3Position().x - (ppsx->GetVec3Sizing().x * 0.5f + 1.0f) + ppsx->GetNext();
+			fPosX = ppsx->GetVec3Position().x - ppsx->GetOffset() + ppsx->GetNext();
 		}
 	}
 #else
