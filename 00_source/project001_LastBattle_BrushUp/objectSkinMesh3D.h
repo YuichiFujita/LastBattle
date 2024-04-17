@@ -1,4 +1,4 @@
-#if 1
+#if 0
 //============================================================
 //
 //	オブジェクトスキンメッシュ3Dヘッダー [objectSkinMesh3D.h]
@@ -33,14 +33,17 @@ public:
 	// ボーン情報構造体
 	struct SBone
 	{
-		D3DXVECTOR3 pos;	// ボーン位置
-		D3DXVECTOR3 rot;	// ボーン向き
+		D3DXVECTOR3 pos;	// ボーン位置オフセット
+		D3DXVECTOR3 rot;	// ボーン向きオフセット
+		D3DXMATRIX mtx;		// ボーンマトリックス
 		int nParentID;		// 親ボーン
 	};
 
 	// 頂点追加情報
 	struct SVtx
 	{
+		D3DXVECTOR3 pos;	// ボーン位置オフセット
+		D3DXMATRIX mtx;		// 頂点マトリックス
 		int aBoneRef[2];	// ボーン参照値
 		float aWeight[2];	// ボーン影響度
 	};
@@ -77,10 +80,9 @@ public:
 	);
 	void SetVertexInfo	// 頂点情報設定
 	( // 引数
-		const int nVtxID,	// 頂点インデックス
-		const SVtx& rVtx,	// 頂点追加情報
-		const D3DXVECTOR3& rPos,	// 位置
-		const D3DXVECTOR2& rTex		// テクスチャ座標
+		const int nVtxID,		// 頂点インデックス
+		const SVtx& rVtx,		// 頂点追加情報
+		const D3DXVECTOR2& rTex	// テクスチャ座標
 	);
 
 	CRenderState *GetRenderState(void);	// レンダーステート情報取得

@@ -1,4 +1,4 @@
-#if 1
+#if 0
 //============================================================
 //
 //	オブジェクトスキンメッシュ3D処理 [objectSkinMesh3D.cpp]
@@ -135,6 +135,7 @@ void CObjectSkinMesh3D::Draw(CShader *pShader)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
+	D3DXMATRIX mtxParent;	// 親のマトリックス
 
 	// ポインタを宣言
 	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
@@ -155,6 +156,91 @@ void CObjectSkinMesh3D::Draw(CShader *pShader)
 
 	// ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
+
+	for (int nCntBone = 0; nCntBone < m_nNumBone; nCntBone++)
+	{ // ボーン数分繰り返す
+
+		// ワールドマトリックスの初期化
+		SBone *pBone = &m_pBone[nCntBone];
+		D3DXMatrixIdentity(&pBone->mtx);
+
+		// 向きを反映
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, pBone->rot.y, pBone->rot.x, pBone->rot.z);
+		D3DXMatrixMultiply(&pBone->mtx, &pBone->mtx, &mtxRot);
+
+		// 位置を反映
+		D3DXMatrixTranslation(&mtxTrans, pBone->pos.x, pBone->pos.y, pBone->pos.z);
+		D3DXMatrixMultiply(&pBone->mtx, &pBone->mtx, &mtxTrans);
+
+		// 親マトリックスを設定
+		if (pBone->nParentID > NONE_IDX && pBone->nParentID < m_nNumBone)
+		{ // 親が存在する場合
+
+			// 親ボーンのマトリックスを設定
+			mtxParent = m_pBone[pBone->nParentID].mtx;
+		}
+		else
+		{ // 親が存在しない場合
+
+			// 親オブジェクトのマトリックスを設定
+			mtxParent = m_mtxWorld;
+		}
+
+		// ワールドマトリックスと親マトリックスを掛け合わせる
+		D3DXMatrixMultiply(&pBone->mtx, &pBone->mtx, &mtxParent);
+	}
+
+	// 頂点バッファをロックし、頂点情報へのポインタを取得
+	VERTEX_3D *pVtx;	// 頂点情報へのポインタ
+	m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+ 
+	for (int nCntVtx = 0; nCntVtx < m_nNumVtx; nCntVtx++)
+	{ // 頂点数分繰り返す
+
+		D3DXVECTOR3 posSet = VEC3_ZERO;
+
+		// ワールドマトリックスの初期化
+		SVtx *pVtxPlus = &m_pVtxPlus[nCntVtx];
+		D3DXMatrixIdentity(&pVtxPlus->mtx);
+
+		// 位置を反映
+		D3DXMatrixTranslation(&mtxTrans, pVtxPlus->pos.x, pVtxPlus->pos.y, pVtxPlus->pos.z);
+		D3DXMatrixMultiply(&pVtxPlus->mtx, &pVtxPlus->mtx, &mtxTrans);
+
+#if 1
+		for (int nCntBone = 0; nCntBone < m_nNumBone; nCntBone++)
+		{
+			// 親ボーンのマトリックスを設定
+			mtxParent = m_pBone[nCntBone].mtx;
+
+			// ワールドマトリックスと親マトリックスを掛け合わせる
+			D3DXMATRIX mtxOut;
+			D3DXMatrixMultiply(&mtxOut, &pVtxPlus->mtx, &mtxParent);
+
+			// マトリックスから位置を取得
+			posSet += useful::GetMatrixPosition(mtxOut) * pVtxPlus->aWeight[nCntBone];
+		}
+
+		// マトリックスから位置を取得
+		pVtx->pos = posSet;
+#else
+		// 親ボーンのマトリックスを設定
+		mtxParent = m_pBone[0].mtx;
+
+		// ワールドマトリックスと親マトリックスを掛け合わせる
+		D3DXMATRIX mtxOut;
+		D3DXMatrixMultiply(&mtxOut, &pVtxPlus->mtx, &mtxParent);
+
+		// マトリックスから位置を取得
+		pVtx->pos = useful::GetMatrixPosition(mtxOut);
+#endif
+
+		// 頂点データを1つ進める
+		pVtx += 1;
+	}
+
+	// 頂点バッファをアンロックする
+	m_pVtxBuff->Unlock();
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, m_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -429,25 +515,23 @@ void CObjectSkinMesh3D::SetBoneInfo
 //============================================================
 void CObjectSkinMesh3D::SetVertexInfo
 (
-	const int nVtxID,	// 頂点インデックス
-	const SVtx& rVtx,	// 頂点追加情報
-	const D3DXVECTOR3& rPos,	// 位置
-	const D3DXVECTOR2& rTex		// テクスチャ座標
+	const int nVtxID,		// 頂点インデックス
+	const SVtx& rVtx,		// 頂点追加情報
+	const D3DXVECTOR2& rTex	// テクスチャ座標
 )
 {
 	if (m_pVtxBuff != nullptr && nVtxID < m_nNumVtx)
 	{ // 頂点が生成済み且つ、頂点総数の範囲内の場合
 
-		VERTEX_3D *pVtx;	// 頂点情報へのポインタ
-
 		// 頂点バッファをロックし、頂点情報へのポインタを取得
+		VERTEX_3D *pVtx;	// 頂点情報へのポインタ
 		m_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 		// 頂点データを引数インデックスまで進める
 		pVtx += nVtxID;
 
 		// 頂点情報を設定
-		pVtx->pos = rPos;		// 頂点座標
+		pVtx->pos = VEC3_ZERO;	// 頂点座標
 		pVtx->nor = VEC3_ZERO;	// 法線ベクトル
 		pVtx->col = XCOL_WHITE;	// 頂点カラー
 		pVtx->tex = rTex;		// テクスチャ座標
@@ -662,9 +746,9 @@ void CObjectSkinMesh3D::LoadSetup(void)
 							{ // 読み込んだ文字列が POS の場合
 
 								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
-								fscanf(pFile, "%f", &pos.x);		// X座標を読み込む
-								fscanf(pFile, "%f", &pos.y);		// Y座標を読み込む
-								fscanf(pFile, "%f", &pos.z);		// Z座標を読み込む
+								fscanf(pFile, "%f", &vtx.pos.x);	// X座標を読み込む
+								fscanf(pFile, "%f", &vtx.pos.y);	// Y座標を読み込む
+								fscanf(pFile, "%f", &vtx.pos.z);	// Z座標を読み込む
 							}
 							else if (strcmp(&aString[0], "BONE_REF") == 0)
 							{ // 読み込んだ文字列が BONE_REF の場合
@@ -690,7 +774,7 @@ void CObjectSkinMesh3D::LoadSetup(void)
 						} while (strcmp(&aString[0], "END_VERTEX") != 0);	// 読み込んだ文字列が END_VERTEX ではない場合ループ
 
 						// 頂点情報の設定
-						SetVertexInfo(nVtxID, vtx, pos, tex);
+						SetVertexInfo(nVtxID, vtx, tex);
 
 						// 次のインデックスに移行
 						nVtxID++;

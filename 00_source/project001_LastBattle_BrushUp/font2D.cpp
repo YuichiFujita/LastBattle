@@ -16,7 +16,7 @@
 //************************************************************
 namespace
 {
-	const float REV_SCALE = 1.0f;	// 大きさの補正係数
+	const int PRIORITY = 6;	// フォント2Dの優先順位
 }
 
 //************************************************************
@@ -25,8 +25,10 @@ namespace
 //============================================================
 //	コンストラクタ
 //============================================================
-CFont2D::CFont2D(const CObject::ELabel label, const EDim dimension, const int nPriority) : CObject2D(label, dimension, nPriority),
-	m_fScale	(0.0f)	// 拡大率
+CFont2D::CFont2D() : CObject2D(CObject::LABEL_UI, CObject::DIM_2D, PRIORITY),
+	m_uChar			(0),	// 指定文字
+	m_fSizeRate		(0.0f),	// 縦幅の割合
+	m_fAbsOriginX	(0.0f)	// X原点オフセットの絶対値
 {
 	// メンバ変数をクリア
 	memset(&m_infoChar, 0, sizeof(m_infoChar));	// 文字情報
@@ -47,7 +49,9 @@ HRESULT CFont2D::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_infoChar, 0, sizeof(m_infoChar));	// 文字情報
-	m_fScale = 1.0f;	// 拡大率
+	m_uChar			= 0;	// 指定文字
+	m_fSizeRate		= 1.0f;	// 縦幅の割合
+	m_fAbsOriginX	= 0.0f;	// X原点オフセットの絶対値
 
 	// オブジェクト2Dの初期化
 	if (FAILED(CObject2D::Init()))
@@ -57,10 +61,6 @@ HRESULT CFont2D::Init(void)
 		assert(false);
 		return E_FAIL;
 	}
-
-	// TODO
-	SetPriority(7);
-	SetLabel(CObject::LABEL_UI);
 
 	// 成功を返す
 	return S_OK;
@@ -94,6 +94,37 @@ void CFont2D::Draw(CShader *pShader)
 }
 
 //============================================================
+//	大きさの設定処理
+//============================================================
+void CFont2D::SetVec3Sizing(const D3DXVECTOR3& /*rSize*/)
+{
+	/*
+		こっちで大きさを自由に変えられると
+		文字の比率がおかしくなるのと、
+		縦幅の割合なども変更できないため
+		大きさ変更は SetHeight を利用してね。
+	*/
+
+	assert(false);
+}
+
+//============================================================
+//	縦幅の設定処理
+//============================================================
+void CFont2D::SetHeight(const float fHeight)
+{
+	int nTexID = GetTextureIndex();	// フォントのテクスチャインデックス
+	float fTexWidth = useful::GetTexWidthFromAspect(fHeight, nTexID);			// テクスチャ横幅
+	D3DXIMAGE_INFO status = GET_MANAGER->GetTexture()->GetInfo(nTexID).status;	// テクスチャステータス
+
+	// 縦幅の増減割合を保存
+	m_fSizeRate = fHeight / (float)status.Height;
+
+	// 大きさを設定
+	CObject2D::SetVec3Sizing(D3DXVECTOR3(fTexWidth, fHeight, 0.0f));
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CFont2D *CFont2D::Create
@@ -101,7 +132,7 @@ CFont2D *CFont2D::Create
 	CFontChar *pFontChar,		// フォント文字情報
 	const UINT uChar,			// 指定文字
 	const D3DXVECTOR3& rPos,	// 位置
-	const float fScale,			// 拡大率
+	const float fHeight,		// 縦幅
 	const D3DXVECTOR3& rRot,	// 向き
 	const D3DXCOLOR& rCol		// 色
 )
@@ -134,8 +165,8 @@ CFont2D *CFont2D::Create
 		// 向きを設定
 		pFont2D->SetVec3Rotation(rRot);
 
-		// 拡大率を設定
-		pFont2D->SetScale(fScale);
+		// 縦幅を設定
+		pFont2D->SetHeight(fHeight);
 
 		// 色を設定
 		pFont2D->SetColor(rCol);
@@ -154,87 +185,36 @@ void CFont2D::SetFontChar
 	const UINT uChar		// 指定文字
 )
 {
-	if (uChar == L'o')
-	{
-		int a = 0;
-	}
-
 	// フォント文字の取得
 	m_infoChar = pFontChar->Regist(uChar);
+
+	// 指定文字を保存
+	m_uChar = uChar;
+
+	// X原点オフセットの絶対値を保存
+	m_fAbsOriginX = fabsf((float)m_infoChar.glyph.gmptGlyphOrigin.x);
 
 	// テクスチャを作成・割当
 	BindTexture(m_infoChar.nTexID);
 }
 
 //============================================================
-//	位置の設定処理
+//	原点のオフセット取得処理
 //============================================================
-void CFont2D::SetVec3Position(const D3DXVECTOR3& rPos)
+float CFont2D::GetOffset(void)
 {
-	D3DXVECTOR3 pos = rPos;
-	//float fBaseLine = (float)m_infoChar.text.tmHeight - (float)m_infoChar.text.tmAscent;
-	//float fLineDown = (float)m_infoChar.glyph.gmptGlyphOrigin.y - (float)m_infoChar.glyph.gmBlackBoxY;
-	//float fDown = /*fBaseLine*/ - fLineDown;
+	// 文字ブラックボックスの横幅
+	float fBlackBoxX = (float)m_infoChar.glyph.gmBlackBoxX;
 
-	//static int n = 0;
-	//if (n < 16)
-	{
-
-		// TODO：位置動かすのどうにか
-		//pos.x -= ((float)m_infoChar.glyph.gmptGlyphOrigin.x * REV_SCALE);
-		//pos.y += ((float)m_infoChar.text.tmDescent - (float)m_infoChar.glyph.gmptGlyphOrigin.y) * REV_SCALE * 0.5f;
-
-		// 位置の設定
-		CObject2D::SetVec3Position(pos);
-
-		//n++;
-	}
-	//else
-	//{
-	//	CObject2D::SetVec3Position(pos);
-
-	//}
+	// 文字原点のオフセットを返す
+	return (m_fAbsOriginX + fBlackBoxX * 0.5f) * m_fSizeRate;
 }
 
 //============================================================
-//	向きの設定処理
+//	次の文字までの距離取得処理
 //============================================================
-void CFont2D::SetVec3Rotation(const D3DXVECTOR3& rRot)
+float CFont2D::GetNext(void)
 {
-	// 向きの設定
-	CObject2D::SetVec3Rotation(rRot);
-}
-
-//============================================================
-//	大きさの設定処理
-//============================================================
-void CFont2D::SetVec3Sizing(const D3DXVECTOR3& /*rSize*/)
-{
-	// 大きさの設定関数は比率が変わってしまうので使用できない
-	// 大きさ変更の際は同クラスの SetHegiht を利用してください
-	assert(false);
-}
-
-//============================================================
-//	色の設定処理
-//============================================================
-void CFont2D::SetColor(const D3DXCOLOR& rCol)
-{
-	// 色の設定
-	CObject2D::SetColor(rCol);
-}
-
-//============================================================
-//	拡大率の設定処理
-//============================================================
-void CFont2D::SetScale(const float fScale)
-{
-	// テクスチャステータス情報
-	D3DXIMAGE_INFO status = GET_MANAGER->GetTexture()->GetInfo(GetTextureIndex()).status;
-
-	// 引数の拡大率を設定
-	m_fScale = fScale;
-
-	// 大きさを設定
-	CObject2D::SetVec3Sizing(D3DXVECTOR3((float)status.Width, (float)status.Height, 0.0f) * fScale * REV_SCALE);
+	// 次の文字の距離を返す
+	return (float)m_infoChar.glyph.gmCellIncX * m_fSizeRate;
 }

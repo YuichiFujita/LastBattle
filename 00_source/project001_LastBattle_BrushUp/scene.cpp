@@ -99,14 +99,14 @@ HRESULT CScene::Init(void)
 	CPlayer::Create(m_mode);
 
 	// TODO：スキンメッシュ
-#if 1
+#if 0
 	CObjectSkinMesh3D *p = CObjectSkinMesh3D::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	p->SetLabel(CObject::LABEL_EFFECT);
 	p->SetPriority(7);
 #endif
 
 	// TODO：文字表示
-#if 0
+#if 1
 	UINT aChar[] =
 	{
 		 L'H',
@@ -128,7 +128,9 @@ HRESULT CScene::Init(void)
 		 L'|',
 		 L'こ',
 		 L'ん',
+		 L' ',
 		 L'に',
+		 L'　',
 		 L'ち',
 		 L'は',
 		 L'！',
@@ -142,9 +144,9 @@ HRESULT CScene::Init(void)
 
 	for (int nHeight = 0; nHeight < 10; nHeight++)
 	{
-		float fPosX = 50.0f;
-		//int nWMax = 26;
-		int nWMax = NUM_ARRAY(aChar);
+		float fPosX = 10.0f;
+		int nWMax = 26;
+		//int nWMax = NUM_ARRAY(aChar);
 		for (int nWidth = 0; nWidth < nWMax; nWidth++)
 		{
 			//CFontChar *pFontChar = pFont->RegistName("ＭＳ Ｐ明朝").pFontChar;
@@ -154,44 +156,11 @@ HRESULT CScene::Init(void)
 			//CFontChar *pFontChar = pFont->RegistName("JFドットK14-2004").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("BIZ UDPゴシック").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-			//UINT uChar = L'a' + nWidth + (nHeight * nWMax);
+			UINT uChar = L'a' + nWidth + (nHeight * nWMax);
 			//UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
-			UINT uChar = aChar[nWidth + (nHeight * nWMax)];
+			//UINT uChar = aChar[nWidth + (nHeight * nWMax)];
 			//D3DXVECTOR3 pos = D3DXVECTOR3(40.0f + (nWidth * 60.0f), 50.0f + (nHeight * 100.0f), 0.0f);
-			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 50.0f + (nHeight * 60.0f), 0.0f);
-
-#if 0
-			// フォント2Dの生成
-			CFont2D *p = CFont2D::Create
-			( // 引数
-				pFontChar,
-				uChar,
-				pos,
-				1.0f,
-				VEC3_ZERO,
-				XCOL_CYAN
-			);
-			if (p == nullptr)
-			{ // 生成に失敗した場合
-
-				// 失敗を返す
-				assert(false);
-				return E_FAIL;
-			}
-
-			D3DXVECTOR3 oold = p->GetVec3Position();
-			oold.x += p->GetVec3Sizing().x * 0.5f + 1.0f;
-			p->SetVec3Position(oold);
-
-			// テクスチャを剝がす
-			p->BindTexture(NONE_IDX);
-
-			// 優先順位の設定
-			p->SetPriority(7);
-
-			// ラベルの設定
-			p->SetLabel(CObject::LABEL_EFFECT);
-#endif
+			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 30.0f + (nHeight * 60.0f), 0.0f);
 
 			// フォント2Dの生成
 			CFont2D *ppsx = CFont2D::Create
@@ -199,7 +168,7 @@ HRESULT CScene::Init(void)
 				pFontChar,
 				uChar,
 				pos,
-				1.0f,
+				60.0f,
 				VEC3_ZERO,
 				XCOL_WHITE
 			);

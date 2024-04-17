@@ -298,7 +298,7 @@ HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 
 	int x, y;
 	DWORD Alpha, Color;
-	FillMemory(lockRect.pBits, lockRect.Pitch * (int)pChar->text.tmHeight + 2, 0);
+	FillMemory(lockRect.pBits, lockRect.Pitch * ((int)pChar->text.tmHeight + 2), 0);
 	for (y = offsetOrigin.y; y < offsetOrigin.y + sizeBitMap.y; y++)
 	{
 		for (x = offsetOrigin.x; x < offsetOrigin.x + sizeBitMap.x; x++)

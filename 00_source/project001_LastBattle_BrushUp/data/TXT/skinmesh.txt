@@ -19,14 +19,14 @@ BONESET
 
 	BONE
 		PARENT = -1			#(êe)NULL
-		POS = 0 0 0
-		ROT = 0 0 0
+		POS = 0.00 0.00 0.00
+		ROT = 0.00 0.00 -0.40
 	END_BONE
 
 	BONE
 		PARENT = -1			#(êe)NULL
-		POS = 0 120 0
-		ROT = 0 0 0
+		POS = -60.0 120.0 0.0
+		ROT = 0.0 0.0 1.2
 	END_BONE
 END_BONESET
 
