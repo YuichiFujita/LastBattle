@@ -95,7 +95,13 @@ HRESULT CScene::Init(void)
 	// プレイヤーの生成
 	CPlayer::Create(m_mode);
 
+	// TODO：スキンメッシュ
 #if 1
+
+#endif
+
+	// TODO：文字表示
+#if 0
 	UINT aChar[] =
 	{
 		 L'H',
@@ -132,8 +138,8 @@ HRESULT CScene::Init(void)
 	for (int nHeight = 0; nHeight < 10; nHeight++)
 	{
 		float fPosX = 50.0f;
-		int nWMax = 26;
-		//int nWMax = NUM_ARRAY(aChar);
+		//int nWMax = 26;
+		int nWMax = NUM_ARRAY(aChar);
 		for (int nWidth = 0; nWidth < nWMax; nWidth++)
 		{
 			//CFontChar *pFontChar = pFont->RegistName("ＭＳ Ｐ明朝").pFontChar;
@@ -144,8 +150,8 @@ HRESULT CScene::Init(void)
 			//CFontChar *pFontChar = pFont->RegistName("BIZ UDPゴシック").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
 			//UINT uChar = L'a' + nWidth + (nHeight * nWMax);
-			UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
-			//UINT uChar = aChar[nWidth + (nHeight * nWMax)];
+			//UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
+			UINT uChar = aChar[nWidth + (nHeight * nWMax)];
 			//D3DXVECTOR3 pos = D3DXVECTOR3(40.0f + (nWidth * 60.0f), 50.0f + (nHeight * 100.0f), 0.0f);
 			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 50.0f + (nHeight * 60.0f), 0.0f);
 
@@ -212,51 +218,6 @@ HRESULT CScene::Init(void)
 
 			// 次の位置設定用に原点を保存
 			fPosX = ppsx->GetVec3Position().x - ppsx->GetOffset() + ppsx->GetNext();
-		}
-	}
-#else
-	for (int nHeight = 0; nHeight < 1; nHeight++)
-	{
-		for (int nWidth = 0; nWidth < 64; nWidth++)
-		{
-			float REV_SCALE = 1.0f;
-
-			CFont *pFont = GET_MANAGER->GetFont();
-			UINT uChar = L'a' + nWidth + (nHeight * 1);
-			CFontChar::SChar infoChar = pFont->RegistChar(uChar, "ＭＳ Ｐ明朝");
-			float fNextSpace = ((float)infoChar.glyph.gmptGlyphOrigin.x * REV_SCALE);
-
-			// フォント2Dの生成
-			CFont2D *p = CFont2D::Create
-			( // 引数
-				pFont->RegistName("ＭＳ Ｐ明朝").pFontChar,
-				uChar,
-				D3DXVECTOR3(50.0f + (nWidth * 50.0f), 200.0f + (nHeight * 200.0f), 0.0f)
-			);
-			if (p == nullptr)
-			{ // 生成に失敗した場合
-
-				// 失敗を返す
-				assert(false);
-				return E_FAIL;
-			}
-
-			//D3DXVECTOR3 pos = p->GetVec3Position();
-			////pos.x += fabsf(p->GetVec3Sizing().x - fSizeGap);
-			//pos.x -= ((float)infoChar.glyph.gmptGlyphOrigin.x * REV_SCALE);
-			//pos.y += ((float)(infoChar.text.tmHeight - infoChar.text.tmDescent - infoChar.glyph.gmptGlyphOrigin.y)) * REV_SCALE * 0.5f;
-			//p->SetVec3Position(pos);
-
-			// 優先順位の設定
-			p->SetPriority(7);
-
-			// ラベルの設定
-			p->SetLabel(CObject::LABEL_EFFECT);
-
-			//fSizeGap = p->GetVec3Sizing().x;
-
-			//// 次の位置までの空白量を加算
-			//fNext = (p->GetVec3Position().x/* - p->GetVec3Sizing().x * 0.5f*/ + p->GetNext() * REV_SCALE);
 		}
 	}
 #endif
