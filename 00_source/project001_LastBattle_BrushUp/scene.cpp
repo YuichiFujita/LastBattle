@@ -22,7 +22,10 @@
 #include "player.h"
 #include "enemy.h"
 
-// TODO
+// TODO：スキンメッシュ
+#include "objectSkinMesh3D.h"
+
+// TODO：文字表示
 #include "manager.h"
 #include "font.h"
 #include "fontChar.h"
@@ -97,7 +100,9 @@ HRESULT CScene::Init(void)
 
 	// TODO：スキンメッシュ
 #if 1
-
+	CObjectSkinMesh3D *p = CObjectSkinMesh3D::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
+	p->SetLabel(CObject::LABEL_EFFECT);
+	p->SetPriority(7);
 #endif
 
 	// TODO：文字表示

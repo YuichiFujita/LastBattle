@@ -1,4 +1,4 @@
-#if 0
+#if 1
 //============================================================
 //
 //	オブジェクトスキンメッシュ3Dヘッダー [objectSkinMesh3D.h]
@@ -39,7 +39,7 @@ public:
 	};
 
 	// 頂点追加情報
-	struct SVtxSkin
+	struct SVtx
 	{
 		int aBoneRef[2];	// ボーン参照値
 		float aWeight[2];	// ボーン影響度
@@ -77,8 +77,10 @@ public:
 	);
 	void SetVertexInfo	// 頂点情報設定
 	( // 引数
-		const VERTEX_SKIN3D& rVtx,	// 頂点情報
-		const int nVtxID			// 頂点インデックス
+		const int nVtxID,	// 頂点インデックス
+		const SVtx& rVtx,	// 頂点追加情報
+		const D3DXVECTOR3& rPos,	// 位置
+		const D3DXVECTOR2& rTex		// テクスチャ座標
 	);
 
 	CRenderState *GetRenderState(void);	// レンダーステート情報取得
@@ -102,9 +104,10 @@ private:
 	D3DXCOLOR	m_col;			// 色
 	int			m_nTextureID;	// テクスチャインデックス
 
-	SBone *m_pBone;	// ボーン情報
-	int m_nNumBone;	// ボーン数
-	int m_nNumVtx;	// 頂点数
+	SBone *m_pBone;		// ボーン情報
+	int m_nNumBone;		// ボーン数
+	SVtx *m_pVtxPlus;	// 頂点追加情報
+	int m_nNumVtx;		// 頂点数
 };
 
 #endif	// _OBJECT_SKINMESH3D_H_

@@ -1,4 +1,4 @@
-#if 0
+#if 1
 //============================================================
 //
 //	オブジェクトスキンメッシュ3D処理 [objectSkinMesh3D.cpp]
@@ -20,9 +20,6 @@
 namespace
 {
 	const char *SETUP_TXT = "data\\TXT\\skinmesh.txt";		// スキンメッシュセットアップテキスト
-
-	const int MAX_VERTEX = 6;	// 頂点数
-	const int MAX_BONE = 2;		// ボーン数
 }
 
 //************************************************************
@@ -34,6 +31,7 @@ namespace
 CObjectSkinMesh3D::CObjectSkinMesh3D(const CObject::ELabel label, const CObject::EDim dimension, const int nPriority) : CObject(label, dimension, nPriority),
 	m_pVtxBuff		(nullptr),			// 頂点バッファへのポインタ
 	m_pBone			(nullptr),			// ボーン情報
+	m_pVtxPlus		(nullptr),			// 頂点追加情報
 	m_pRenderState	(nullptr),			// レンダーステートの情報
 	m_pos			(VEC3_ZERO),		// 位置
 	m_rot			(VEC3_ZERO),		// 向き
@@ -64,6 +62,7 @@ HRESULT CObjectSkinMesh3D::Init(void)
 	D3DXMatrixIdentity(&m_mtxWorld);	// ワールドマトリックス
 	m_pVtxBuff		= nullptr;			// 頂点バッファへのポインタ
 	m_pBone			= nullptr;			// ボーン情報
+	m_pVtxPlus		= nullptr;			// 頂点追加情報
 	m_pRenderState	= nullptr;			// レンダーステートの情報
 	m_pos			= VEC3_ZERO;		// 位置
 	m_rot			= VEC3_ZERO;		// 向き
@@ -89,6 +88,10 @@ HRESULT CObjectSkinMesh3D::Init(void)
 	// ライティングをOFFにする
 	m_pRenderState->SetLighting(false);
 
+	// TODO
+	// テクスチャを設定
+	m_nTextureID = GET_MANAGER->GetTexture()->Regist("data\\TEXTURE\\player000.jpg");
+
 	// セットアップ処理
 	LoadSetup();
 
@@ -103,6 +106,9 @@ void CObjectSkinMesh3D::Uninit(void)
 {
 	// 頂点バッファの破棄
 	SAFE_RELEASE(m_pVtxBuff);
+
+	// 頂点追加情報の破棄
+	SAFE_DEL_ARRAY(m_pVtxPlus);
 
 	// ボーンの破棄
 	SAFE_DEL_ARRAY(m_pBone);
@@ -327,9 +333,6 @@ HRESULT CObjectSkinMesh3D::CreateVertex(const int nNumVtx)
 	// 頂点数が自然数ではない場合抜ける
 	if (nNumVtx <= 0) { assert(false); return E_FAIL; }
 
-	// デバイスを取得
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;
-
 	// 頂点バッファの破棄
 	SAFE_RELEASE(m_pVtxBuff);
 	if (m_pVtxBuff != nullptr)
@@ -341,16 +344,36 @@ HRESULT CObjectSkinMesh3D::CreateVertex(const int nNumVtx)
 	}
 
 	// 頂点バッファの生成
-	if (FAILED(pDevice->CreateVertexBuffer
+	if (FAILED(GET_DEVICE->CreateVertexBuffer
 	( // 引数
-		sizeof(VERTEX_3D) * MAX_VERTEX,	// 必要頂点数
-		D3DUSAGE_WRITEONLY,	// 使用方法
+		sizeof(VERTEX_3D) * nNumVtx,	// 必要頂点数
+		D3DUSAGE_WRITEONLY,		// 使用方法
 		object::FVF_VERTEX_3D,	// 頂点フォーマット
-		D3DPOOL_MANAGED,	// メモリの指定
-		&m_pVtxBuff,		// 頂点バッファへのポインタ
+		D3DPOOL_MANAGED,		// メモリの指定
+		&m_pVtxBuff,			// 頂点バッファへのポインタ
 		nullptr
 	)))
 	{ // 頂点バッファの生成に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 頂点追加情報の破棄
+	SAFE_DEL_ARRAY(m_pVtxPlus);
+	if (m_pVtxPlus != nullptr)
+	{ // 破棄に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 頂点追加情報の生成
+	m_pVtxPlus = new SVtx[nNumVtx];
+	if (m_pVtxPlus == nullptr)
+	{ // 生成に失敗した場合
 
 		// 失敗を返す
 		assert(false);
@@ -406,8 +429,10 @@ void CObjectSkinMesh3D::SetBoneInfo
 //============================================================
 void CObjectSkinMesh3D::SetVertexInfo
 (
-	const VERTEX_3D& rVtx,	// 頂点情報
-	const int nVtxID		// 頂点インデックス
+	const int nVtxID,	// 頂点インデックス
+	const SVtx& rVtx,	// 頂点追加情報
+	const D3DXVECTOR3& rPos,	// 位置
+	const D3DXVECTOR2& rTex		// テクスチャ座標
 )
 {
 	if (m_pVtxBuff != nullptr && nVtxID < m_nNumVtx)
@@ -422,7 +447,13 @@ void CObjectSkinMesh3D::SetVertexInfo
 		pVtx += nVtxID;
 
 		// 頂点情報を設定
-		*pVtx = rVtx;
+		pVtx->pos = rPos;		// 頂点座標
+		pVtx->nor = VEC3_ZERO;	// 法線ベクトル
+		pVtx->col = XCOL_WHITE;	// 頂点カラー
+		pVtx->tex = rTex;		// テクスチャ座標
+
+		// 頂点追加情報を設定
+		m_pVtxPlus[nVtxID] = rVtx;
 
 		// 頂点バッファをアンロックする
 		m_pVtxBuff->Unlock();
@@ -512,7 +543,9 @@ void CObjectSkinMesh3D::LoadSetup(void)
 	// 変数を宣言
 	D3DXVECTOR3 pos = VEC3_ZERO;	// 位置
 	D3DXVECTOR3 rot = VEC3_ZERO;	// 向き
-	VERTEX_3D vtx;		// 頂点情報
+	D3DXVECTOR2 tex = VEC2_ZERO;	// テクスチャ座標
+	SVtx vtx;	// 頂点情報
+
 	int nBoneID		= 0;	// ボーンインデックス
 	int nVtxID		= 0;	// 頂点インデックス
 	int nParentID	= 0;	// 親インデックス
@@ -619,9 +652,6 @@ void CObjectSkinMesh3D::LoadSetup(void)
 					else if (strcmp(&aString[0], "VERTEX") == 0)
 					{ // 読み込んだ文字列が VERTEX の場合
 
-						// 頂点情報をクリア
-						useful::ZeroClear(&vtx);
-
 						do
 						{ // 読み込んだ文字列が END_VERTEX ではない場合ループ
 
@@ -632,9 +662,9 @@ void CObjectSkinMesh3D::LoadSetup(void)
 							{ // 読み込んだ文字列が POS の場合
 
 								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
-								fscanf(pFile, "%f", &vtx.pos.x);	// X座標を読み込む
-								fscanf(pFile, "%f", &vtx.pos.y);	// Y座標を読み込む
-								fscanf(pFile, "%f", &vtx.pos.z);	// Z座標を読み込む
+								fscanf(pFile, "%f", &pos.x);		// X座標を読み込む
+								fscanf(pFile, "%f", &pos.y);		// Y座標を読み込む
+								fscanf(pFile, "%f", &pos.z);		// Z座標を読み込む
 							}
 							else if (strcmp(&aString[0], "BONE_REF") == 0)
 							{ // 読み込んだ文字列が BONE_REF の場合
@@ -654,13 +684,13 @@ void CObjectSkinMesh3D::LoadSetup(void)
 							{ // 読み込んだ文字列が TEX の場合
 
 								fscanf(pFile, "%s", &aString[0]);	// = を読み込む (不要)
-								fscanf(pFile, "%f", &vtx.tex.x);	// テクスチャX座標を読み込む
-								fscanf(pFile, "%f", &vtx.tex.y);	// テクスチャY座標を読み込む
+								fscanf(pFile, "%f", &tex.x);		// テクスチャX座標を読み込む
+								fscanf(pFile, "%f", &tex.y);		// テクスチャY座標を読み込む
 							}
 						} while (strcmp(&aString[0], "END_VERTEX") != 0);	// 読み込んだ文字列が END_VERTEX ではない場合ループ
 
 						// 頂点情報の設定
-						SetVertexInfo(vtx, nVtxID);
+						SetVertexInfo(nVtxID, vtx, pos, tex);
 
 						// 次のインデックスに移行
 						nVtxID++;
