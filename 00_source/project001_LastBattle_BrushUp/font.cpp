@@ -18,7 +18,7 @@ namespace
 {
 	const char *LOAD_FOLDER = "data\\FONT";	// フォントフォルダ相対パス
 	const CFont::SFont ZERO_FONT;	// フォント初期値
-	const int FONT_HEIGHT = 120;	// フォント縦幅
+	const int FONT_HEIGHT = 240;	// フォント縦幅
 }
 
 //************************************************************

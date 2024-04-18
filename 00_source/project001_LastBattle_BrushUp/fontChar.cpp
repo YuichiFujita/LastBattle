@@ -18,9 +18,11 @@
 namespace
 {
 	const MAT2 INIT_MATRIX = { { 0, 1 }, { 0, 0 }, { 0, 0 }, { 0, 1 } };	// 初期化マトリックス
+
 	const CFontChar::SChar ZERO_CHAR;				// フォント文字初期値
 	const UINT FORMAT_BITMAP = GGO_GRAY4_BITMAP;	// ビットマップのフォーマット
 	const int MAX_GRAD = 16;						// 上のビットマップの最大階調
+	const int MIN_BLACKBOX = 4;						// ブラックボックスの横幅の切り捨て値
 }
 
 //************************************************************
@@ -237,28 +239,22 @@ BYTE *CFontChar::CreateBitMap(SChar *pChar, HDC pDC, const UINT uChar)
 //============================================================
 HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 {
-	CTexture *pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
-	LPDIRECT3DTEXTURE9 pTexChar;	// 文字テクスチャ情報
-	D3DLOCKED_RECT lockRect;		// テクスチャピクセル情報
-
-	POSGRID2 sizeBitMap;	// ビットマップの大きさ
-	sizeBitMap.x = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4;	// ビットマップ横幅
-	sizeBitMap.y = pChar->glyph.gmBlackBoxY;				// ビットマップ縦幅
-
-	// 原点オフセットの絶対値
-	int nAbsOrigin = pChar->glyph.gmptGlyphOrigin.x;
-	if (nAbsOrigin < 0) { nAbsOrigin *= -1; }	// マイナスならプラスに
-
+	int nAbsOrigin = std::abs(pChar->glyph.gmptGlyphOrigin.x);	// 原点オフセットの絶対値
 	int nPlusSize = nAbsOrigin * 4;	// テクスチャ横幅の大きさ加算量
+
+	POSGRID2 sizeBlackBox;	// ブラックボックスの大きさ
+	sizeBlackBox.x = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4;	// ブラックボックス横幅
+	sizeBlackBox.y = pChar->glyph.gmBlackBoxY;					// ブラックボックス縦幅
 
 	POSGRID2 offsetOrigin;	// 原点のオフセット
 	offsetOrigin.x = pChar->glyph.gmptGlyphOrigin.x + nAbsOrigin + 1;			// 原点オフセットX
 	offsetOrigin.y = pChar->text.tmAscent - pChar->glyph.gmptGlyphOrigin.y + 1;	// 原点オフセットY
 
 	// 空のテクスチャを生成・テクスチャインデックスを保存
+	CTexture *pTexture = GET_MANAGER->GetTexture();	// テクスチャ情報
 	pChar->nTexID = pTexture->Regist(CTexture::SInfo
 	( // 引数
-		sizeBitMap.x + nPlusSize + 2,	// テクスチャ横幅
+		sizeBlackBox.x + nPlusSize + 2,	// テクスチャ横幅
 		(int)pChar->text.tmHeight + 2,	// テクスチャ縦幅
 		1,					// ミップマップレベル
 		0,					// 性質・確保オプション
@@ -266,50 +262,36 @@ HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 		D3DPOOL_MANAGED		// 格納メモリ
 	));
 
+	// ブラックボックスが小さすぎる場合書き込みを行わない
+	if (sizeBlackBox.x <= MIN_BLACKBOX) { return S_OK; }
+
 	// 生成したテクスチャのポインタを取得
-	pTexChar = pTexture->GetPtr(pChar->nTexID);
+	LPDIRECT3DTEXTURE9 pTexChar = pTexture->GetPtr(pChar->nTexID);
 
 	// テクスチャをロックし、ピクセル情報を取得
+	D3DLOCKED_RECT lockRect;
 	pTexChar->LockRect(0, &lockRect, nullptr, 0);
 
-#if 0
 	// テクスチャにフォントの見た目を書き込み
-	DWORD *pTexBuf = (DWORD*)lockRect.pBits;	// テクスチャメモリへのポインタ
-	for (int nCntHeight = leftup.y; nCntHeight < leftup.y + nBitMapHeight; nCntHeight++)
-	{ // テクスチャ縦幅分繰り返す
+	for (int nCntHeight = offsetOrigin.y; nCntHeight < offsetOrigin.y + sizeBlackBox.y; nCntHeight++)
+	{ // フォント原点からブラックボックス縦幅分繰り返す
 
-		for (int nCntWidth = leftup.x; nCntWidth < leftup.x + pChar->glyph.gmBlackBoxX; nCntWidth++)
-		{ // テクスチャ横幅分繰り返す
+		for (int nCntWidth = offsetOrigin.x; nCntWidth < offsetOrigin.x + sizeBlackBox.x; nCntWidth++)
+		{ // フォント原点からブラックボックス横幅分繰り返す
 
-			// 現在のビットインデックスを計算
-			//int nBitID = nBitMapWidth * nCntHeight + nCntWidth;
-			int nBitID = nBitMapWidth * (nCntHeight - leftup.y) + (nCntWidth - pChar->glyph.gmBlackBoxX);
+			// 現在のビットマップインデックスを計算
+			int nBitID = nCntWidth - offsetOrigin.x + sizeBlackBox.x * (nCntHeight - offsetOrigin.y);
 
-			// ビットマップからアルファ値を計算
+			// ビットマップからα値を計算
 			DWORD dwAlpha = pBitMap[nBitID] * 255 / MAX_GRAD;
 
-			// テクスチャの透明度を設定
-			pTexBuf[nBitMapWidth * nCntHeight + nCntWidth] = (dwAlpha << 24) | 0x00ffffff;
-		}
-	}
-#else
-	// テクスチャにフォントの見た目を書き込み
-	DWORD *pTexBuf = (DWORD*)lockRect.pBits;	// テクスチャメモリへのポインタ
+			// テクスチャの色を計算
+			DWORD dwColor = (dwAlpha << 24) | 0x00ffffff;
 
-	int x, y;
-	DWORD Alpha, Color;
-	FillMemory(lockRect.pBits, lockRect.Pitch * ((int)pChar->text.tmHeight + 2), 0);
-	for (y = offsetOrigin.y; y < offsetOrigin.y + sizeBitMap.y; y++)
-	{
-		for (x = offsetOrigin.x; x < offsetOrigin.x + sizeBitMap.x; x++)
-		{
-			int nID = x - offsetOrigin.x + sizeBitMap.x * (y - offsetOrigin.y);
-			Alpha = (255 * pBitMap[nID]) / MAX_GRAD;
-			Color = 0x00ffffff | (Alpha << 24);
-			memcpy((BYTE*)lockRect.pBits + lockRect.Pitch * y + 4 * x, &Color, sizeof(DWORD));
+			// テクスチャのビットに色を書き込み
+			memcpy((BYTE*)lockRect.pBits + (lockRect.Pitch * nCntHeight) + (sizeof(dwColor) * nCntWidth), &dwColor, sizeof(dwColor));
 		}
 	}
-#endif
 
 	// テクスチャをアンロックする
 	pTexChar->UnlockRect(0);

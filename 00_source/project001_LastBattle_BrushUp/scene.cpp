@@ -119,7 +119,7 @@ HRESULT CScene::Init(void)
 		 L'r',
 		 L'l',
 		 L'd',
-		 L'！',
+		 L'!',
 		 L'ま',
 		 L'み',
 		 L'む',
@@ -142,17 +142,18 @@ HRESULT CScene::Init(void)
 	};
 	CFont *pFont = GET_MANAGER->GetFont();
 
-	for (int nHeight = 0; nHeight < 10; nHeight++)
+	for (int nHeight = 0; nHeight < 13; nHeight++)
 	{
 		float fPosX = 10.0f;
 		int nWMax = 26;
 		//int nWMax = NUM_ARRAY(aChar);
+
 		for (int nWidth = 0; nWidth < nWMax; nWidth++)
 		{
-			//CFontChar *pFontChar = pFont->RegistName("ＭＳ Ｐ明朝").pFontChar;
+			CFontChar *pFontChar = pFont->RegistName("ＭＳ Ｐ明朝").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("ＭＳ Ｐゴシック").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("わんぱくルイカ").pFontChar;
-			CFontChar *pFontChar = pFont->RegistName("零ゴシック").pFontChar;
+			//CFontChar *pFontChar = pFont->RegistName("零ゴシック").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("JFドットK14-2004").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("BIZ UDPゴシック").pFontChar;
 			//CFontChar *pFontChar = pFont->RegistName("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
@@ -160,7 +161,7 @@ HRESULT CScene::Init(void)
 			//UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
 			//UINT uChar = aChar[nWidth + (nHeight * nWMax)];
 			//D3DXVECTOR3 pos = D3DXVECTOR3(40.0f + (nWidth * 60.0f), 50.0f + (nHeight * 100.0f), 0.0f);
-			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 30.0f + (nHeight * 60.0f), 0.0f);
+			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 30.0f + (nHeight * 55.0f), 0.0f);
 
 			// フォント2Dの生成
 			CFont2D *ppsx = CFont2D::Create
