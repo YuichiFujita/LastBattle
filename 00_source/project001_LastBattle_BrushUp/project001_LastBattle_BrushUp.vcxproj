@@ -263,6 +263,7 @@
     <ClCompile Include="sky.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="stage.cpp" />
+    <ClCompile Include="string2D.cpp" />
     <ClCompile Include="sword.cpp" />
     <ClCompile Include="swordWave.cpp" />
     <ClCompile Include="swordWaveManager.cpp" />
@@ -389,6 +390,7 @@
     <ClInclude Include="sky.h" />
     <ClInclude Include="sound.h" />
     <ClInclude Include="stage.h" />
+    <ClInclude Include="string2D.h" />
     <ClInclude Include="sword.h" />
     <ClInclude Include="swordWave.h" />
     <ClInclude Include="swordWaveManager.h" />

@@ -236,7 +236,6 @@ CGauge2D *CGauge2D::Create
 	const char *pPassTex,			// フレームテクスチャパス
 	const D3DXVECTOR3& rSizeFrame,	// 枠大きさ
 	const D3DXVECTOR3& rOffsetFrame	// 枠オフセット
-
 )
 {
 	// ゲージ2Dの生成

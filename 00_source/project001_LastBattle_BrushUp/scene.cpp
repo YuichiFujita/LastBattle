@@ -30,6 +30,7 @@
 #include "font.h"
 #include "fontChar.h"
 #include "char2D.h"
+#include "string2D.h"
 
 //************************************************************
 //	定数宣言
@@ -107,38 +108,26 @@ HRESULT CScene::Init(void)
 
 	// TODO：文字表示
 #if 1
+	CFont *pFont = GET_MANAGER->GetFont();
+	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
+	CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
+
+	CString2D::Create(pFontChar, "Jo:Bi:aaaあああ！！？？πα官憲誤球漢検ゴ級", D3DXVECTOR3(10.0f, 30.0f, 0.0f), 40.0f);
+#else
 	UINT aChar[] =
 	{
-		 L'H',
-		 L'a',
-		 L'l',
-		 L'l',
-		 L'o',
-		 L'W',
-		 L'o',
-		 L'r',
-		 L'l',
-		 L'd',
-		 L'!',
-		 L'ま',
-		 L'み',
-		 L'む',
-		 L'め',
-		 L'も',
-		 L'|',
-		 L'こ',
-		 L'ん',
-		 L' ',
-		 L'に',
-		 L'　',
-		 L'ち',
-		 L'は',
-		 L'！',
-		 L'冠',
-		 L'婚',
-		 L'葬',
-		 L'祭',
-		 L'？',
+		L'H', L'a', L'l', L'l', L'o', L'W', L'o', L'r', L'l', L'd', L'!',
+		L'ま', L'み', L'む', L'め', L'も', L'|',
+		L'こ', L'ん', L' ', L'に', L'　', L'ち', L'は', L'！',
+		L'冠', L'婚', L'葬', L'祭', L'？',
 	};
 	CFont *pFont = GET_MANAGER->GetFont();
 
@@ -150,15 +139,18 @@ HRESULT CScene::Init(void)
 
 		for (int nWidth = 0; nWidth < nWMax; nWidth++)
 		{
-			CFontChar *pFontChar = pFont->RegistName("ＭＳ Ｐ明朝").pFontChar;
-			//CFontChar *pFontChar = pFont->RegistName("ＭＳ Ｐゴシック").pFontChar;
-			//CFontChar *pFontChar = pFont->RegistName("わんぱくルイカ").pFontChar;
-			//CFontChar *pFontChar = pFont->RegistName("零ゴシック").pFontChar;
-			//CFontChar *pFontChar = pFont->RegistName("JFドットK14-2004").pFontChar;
-			//CFontChar *pFontChar = pFont->RegistName("BIZ UDPゴシック").pFontChar;
-			//CFontChar *pFontChar = pFont->RegistName("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-			UINT uChar = L'a' + nWidth + (nHeight * nWMax);
-			//UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
+			//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
+			//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
+			//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
+			//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
+			//CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
+			//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
+			//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
+			//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
+			CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
+
+			//UINT uChar = L'a' + nWidth + (nHeight * nWMax);
+			UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
 			//UINT uChar = aChar[nWidth + (nHeight * nWMax)];
 			//D3DXVECTOR3 pos = D3DXVECTOR3(40.0f + (nWidth * 60.0f), 50.0f + (nHeight * 100.0f), 0.0f);
 			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 30.0f + (nHeight * 55.0f), 0.0f);
@@ -184,12 +176,6 @@ HRESULT CScene::Init(void)
 			D3DXVECTOR3 old = ppsx->GetVec3Position();
 			old.x += ppsx->GetOffset();
 			ppsx->SetVec3Position(old);
-
-			// 優先順位の設定
-			ppsx->SetPriority(7);
-
-			// ラベルの設定
-			ppsx->SetLabel(CObject::LABEL_EFFECT);
 
 			// 次の位置設定用に原点を保存
 			fPosX = ppsx->GetVec3Position().x - ppsx->GetOffset() + ppsx->GetNext();

@@ -8,6 +8,7 @@
 //	インクルードファイル
 //************************************************************
 #include "font.h"
+#include <wingdi.h>
 #include "manager.h"
 #include "renderer.h"
 
@@ -31,6 +32,9 @@ CFont::CFont()
 {
 	// フォント連想配列をクリア
 	m_mapFont.clear();
+
+	// 読込済みファイルパスをクリア
+	m_vecFilePass.clear();
 }
 
 //============================================================
@@ -49,6 +53,9 @@ HRESULT CFont::Init(void)
 	// フォント連想配列を初期化
 	m_mapFont.clear();
 
+	// 読込済みファイルパスを初期化
+	m_vecFilePass.clear();
+
 	// 成功を返す
 	return S_OK;
 }
@@ -64,12 +71,34 @@ void CFont::Uninit(void)
 		// フォント文字の破棄
 		SAFE_REF_RELEASE(rMap.second.pFontChar);
 
-		// フォントの破棄
+		// フォントハンドルの破棄
 		SAFE_DEL_OBJECT(rMap.second.pFont);
+	}
+
+	for (auto& rVec : m_vecFilePass)
+	{ // フォントパスの要素数分繰り返す
+
+		// フォントの破棄
+		int nError = RemoveFontResourceEx
+		( // 引数
+			rVec.c_str(),	// フォントファイルパス
+			FR_PRIVATE,		// フォント特性
+			nullptr
+		);
+		if (nError == 0)
+		{ // 破棄に失敗した場合
+
+			// ウインドウの破棄
+			assert(false);
+			CManager::ReleaseWindow();
+		}
 	}
 
 	// フォント連想配列をクリア
 	m_mapFont.clear();
+
+	// 読込済みファイルパスをクリア
+	m_vecFilePass.clear();
 }
 
 //============================================================
@@ -91,13 +120,45 @@ HRESULT CFont::LoadAll(void)
 }
 
 //============================================================
-//	フォント登録処理 (名前)
+//	フォント読込処理
 //============================================================
-CFont::SFont CFont::RegistName
-(
-	std::string sFontName,	// フォント名
-	bool bItalic			// イタリック
-)
+HRESULT CFont::Load(std::string sFilePass)
+{
+	// 既に読込済みかを検索
+	auto itr = std::find(m_vecFilePass.begin(), m_vecFilePass.end(), sFilePass);	// 引数のフォントパスを検索
+	if (itr != m_vecFilePass.end())
+	{ // 読込済みの場合
+
+		// 成功を返す
+		return S_OK;
+	}
+
+	// フォントの読込
+	int nError = AddFontResourceEx
+	( // 引数
+		sFilePass.c_str(),	// フォントファイルパス
+		FR_PRIVATE,			// フォント特性
+		nullptr
+	);
+	if (nError == 0)
+	{ // 読込に失敗した場合
+
+		// 失敗を返す
+		assert(false);
+		return E_FAIL;
+	}
+
+	// 読み込んだフォントパスを保存
+	m_vecFilePass.push_back(sFilePass);
+
+	// 成功を返す
+	return S_OK;
+}
+
+//============================================================
+//	フォント登録処理
+//============================================================
+CFont::SFont CFont::Regist(std::string sFontName, bool bItalic)
 {
 	// 既に生成済みかを検索
 	auto itr = m_mapFont.find(SKey(sFontName, bItalic));	// 引数のフォントを検索
@@ -131,7 +192,7 @@ CFont::SFont CFont::RegistName
 	// フォント情報を初期化
 	SFont tempFont = ZERO_FONT;
 
-	// フォントの生成
+	// フォントハンドルの生成
 	tempFont.pFont = CreateFontIndirectA(&lf);
 	if (tempFont.pFont == nullptr)
 	{ // 生成に失敗した場合
@@ -169,7 +230,7 @@ CFontChar::SChar CFont::RegistChar
 )
 {
 	// 生成したフォントの文字テクスチャインデックスを返す
-	return RegistName(sFontName, bItalic).pFontChar->Regist(uChar);
+	return Regist(sFontName, bItalic).pFontChar->Regist(uChar);
 }
 
 //============================================================
@@ -219,7 +280,6 @@ void CFont::Release(CFont *&prFont)
 //============================================================
 HRESULT CFont::SearchFolderAll(std::string sFolderPath)
 {
-#if 0
 	// 変数を宣言
 	HANDLE hFile;	// 検索ハンドル
 	WIN32_FIND_DATA findFileData;	// ファイル情報
@@ -256,15 +316,20 @@ HRESULT CFont::SearchFolderAll(std::string sFolderPath)
 		else
 		{ // ファイルだった場合
 
-			// フォントを登録
-			Regist(sFullPath.c_str());
+			// フォントを読込
+			if (FAILED(Load(sFullPath.c_str())))
+			{ // 登録に失敗した場合
+
+				// 失敗を返す
+				assert(false);
+				return E_FAIL;
+			}
 		}
 
 	} while (FindNextFile(hFile, &findFileData));	// 次のファイルを検索
 
 	// 検索ハンドルを閉じる
 	FindClose(hFile);
-#endif
 
 	// 成功を返す
 	return S_OK;

@@ -311,8 +311,6 @@ HRESULT CManager::Load(void)
 		return E_FAIL;
 	}
 
-	// TODO：フォント全読込
-#if 0
 	// フォントの全読込
 	assert(m_pFont != nullptr);
 	if (FAILED(m_pFont->LoadAll()))
@@ -322,7 +320,6 @@ HRESULT CManager::Load(void)
 		assert(false);
 		return E_FAIL;
 	}
-#endif
 
 	// 成功を返す
 	return S_OK;

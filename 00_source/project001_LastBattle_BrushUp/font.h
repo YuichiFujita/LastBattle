@@ -60,11 +60,9 @@ public:
 	HRESULT Init(void);		// フォント初期化
 	void Uninit(void);		// フォント終了
 	HRESULT LoadAll(void);	// フォント全読込
-	SFont RegistName		// フォント登録 (名前)
-	( // 引数
-		std::string sFontName,	// フォント名
-		bool bItalic = false	// イタリック
-	);
+	HRESULT Load(std::string sFilePass);	// フォント読込
+
+	SFont Regist(std::string sFontName, bool bItalic = false);	// フォント登録
 	CFontChar::SChar RegistChar	// フォント文字登録 (名前)
 	( // 引数
 		const UINT uChar,		// 指定文字
@@ -81,7 +79,8 @@ private:
 	HRESULT SearchFolderAll(std::string sFolderPath);	// フォルダ全検索
 
 	// メンバ変数
-	std::map<SKey, SFont> m_mapFont;	// フォント連想配列
+	std::map<SKey, SFont> m_mapFont;		// フォント連想配列
+	std::vector<std::string> m_vecFilePass;	// 読込済みファイルパス
 };
 
 #endif	// _FONT_H_
