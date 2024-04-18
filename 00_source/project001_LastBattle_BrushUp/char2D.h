@@ -1,14 +1,14 @@
 //============================================================
 //
-//	フォント2Dヘッダー [font2D.h]
+//	文字2Dヘッダー [char2D.h]
 //	Author：藤田勇一
 //
 //============================================================
 //************************************************************
 //	二重インクルード防止
 //************************************************************
-#ifndef _FONT2D_H_
-#define _FONT2D_H_
+#ifndef _CHAR2D_H_
+#define _CHAR2D_H_
 
 //************************************************************
 //	インクルードファイル
@@ -19,15 +19,15 @@
 //************************************************************
 //	クラス定義
 //************************************************************
-// フォント2Dクラス
-class CFont2D : public CObject2D
+// 文字2Dクラス
+class CChar2D : public CObject2D
 {
 public:
 	// コンストラクタ
-	CFont2D();
+	CChar2D();
 
 	// デストラクタ
-	~CFont2D() override;
+	~CChar2D() override;
 
 	// オーバーライド関数
 	HRESULT Init(void) override;	// 初期化
@@ -38,7 +38,7 @@ public:
 	void SetHeight(const float fHeight) override;			// 縦幅設定
 
 	// 静的メンバ関数
-	static CFont2D *Create	// 生成
+	static CChar2D *Create	// 生成
 	( // 引数
 		CFontChar *pFontChar,		// フォント文字情報
 		const UINT uChar,			// 指定文字
@@ -60,9 +60,9 @@ public:
 private:
 	// メンバ変数
 	CFontChar::SChar m_infoChar;	// 文字情報
-	UINT m_uChar;			// 指定文字
+	UINT  m_uChar;			// 指定文字
 	float m_fSizeRate;		// 縦幅の割合
 	float m_fAbsOriginX;	// X原点オフセットの絶対値
 };
 
-#endif	// _FONT2D_H_
+#endif	// _CHAR2D_H_

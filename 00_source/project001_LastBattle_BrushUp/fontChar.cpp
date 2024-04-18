@@ -13,6 +13,11 @@
 #include "texture.h"
 
 //************************************************************
+//	マクロ定義
+//************************************************************
+#define SAFE_DEL_DC(p)	if ((p) != nullptr) { ReleaseDC(nullptr, (p)); (p) = nullptr; }	// DeleteDC関数の破棄マクロ
+
+//************************************************************
 //	定数宣言
 //************************************************************
 namespace
@@ -121,11 +126,8 @@ CFontChar::SChar CFontChar::Regist(const UINT uChar)
 	// ビットマップを破棄
 	SAFE_DEL_ARRAY(pBitMap);
 
-	if (pDC != nullptr)
-	{
-		// デバイスコンテキストを破棄
-		ReleaseDC(nullptr, pDC);
-	}
+	// デバイスコンテキストを破棄
+	SAFE_DEL_DC(pDC);
 
 	// フォント文字情報を保存
 	m_mapChar.insert(std::make_pair(uChar, tempChar));
@@ -239,15 +241,15 @@ BYTE *CFontChar::CreateBitMap(SChar *pChar, HDC pDC, const UINT uChar)
 //============================================================
 HRESULT CFontChar::CreateTexture(SChar *pChar, BYTE *pBitMap)
 {
-	int nAbsOrigin = std::abs(pChar->glyph.gmptGlyphOrigin.x);	// 原点オフセットの絶対値
-	int nPlusSize = nAbsOrigin * 4;	// テクスチャ横幅の大きさ加算量
+	int nAbsOffset = std::abs(pChar->glyph.gmptGlyphOrigin.x);	// 原点オフセットの絶対値
+	int nPlusSize = nAbsOffset * 4;	// テクスチャ横幅の大きさ加算量
 
 	POSGRID2 sizeBlackBox;	// ブラックボックスの大きさ
 	sizeBlackBox.x = (pChar->glyph.gmBlackBoxX + 3) / 4 * 4;	// ブラックボックス横幅
 	sizeBlackBox.y = pChar->glyph.gmBlackBoxY;					// ブラックボックス縦幅
 
 	POSGRID2 offsetOrigin;	// 原点のオフセット
-	offsetOrigin.x = pChar->glyph.gmptGlyphOrigin.x + nAbsOrigin + 1;			// 原点オフセットX
+	offsetOrigin.x = pChar->glyph.gmptGlyphOrigin.x + nAbsOffset + 1;			// 原点オフセットX
 	offsetOrigin.y = pChar->text.tmAscent - pChar->glyph.gmptGlyphOrigin.y + 1;	// 原点オフセットY
 
 	// 空のテクスチャを生成・テクスチャインデックスを保存

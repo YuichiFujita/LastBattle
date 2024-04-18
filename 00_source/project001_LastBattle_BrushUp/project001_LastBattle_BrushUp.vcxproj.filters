@@ -378,10 +378,10 @@
     <ClCompile Include="fontChar.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="font2D.cpp">
+    <ClCompile Include="objectSkinMesh3D.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
-    <ClCompile Include="objectSkinMesh3D.cpp">
+    <ClCompile Include="char2D.cpp">
       <Filter>ソース ファイル</Filter>
     </ClCompile>
   </ItemGroup>
@@ -752,10 +752,10 @@
     <ClInclude Include="fontChar.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="font2D.h">
+    <ClInclude Include="objectSkinMesh3D.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
-    <ClInclude Include="objectSkinMesh3D.h">
+    <ClInclude Include="char2D.h">
       <Filter>ヘッダー ファイル</Filter>
     </ClInclude>
   </ItemGroup>

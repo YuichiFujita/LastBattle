@@ -159,6 +159,7 @@
     <ClCompile Include="attackThunder.cpp" />
     <ClCompile Include="blur.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="char2D.cpp" />
     <ClCompile Include="cinemaScope.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="collSphere.cpp" />
@@ -185,7 +186,6 @@
     <ClCompile Include="fire.cpp" />
     <ClCompile Include="flash.cpp" />
     <ClCompile Include="font.cpp" />
-    <ClCompile Include="font2D.cpp" />
     <ClCompile Include="fontChar.cpp" />
     <ClCompile Include="gameManager.cpp" />
     <ClCompile Include="gauge2D.cpp" />
@@ -287,6 +287,7 @@
     <ClInclude Include="attackThunder.h" />
     <ClInclude Include="blur.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="char2D.h" />
     <ClInclude Include="cinemaScope.h" />
     <ClInclude Include="collision.h" />
     <ClInclude Include="collSphere.h" />
@@ -313,7 +314,6 @@
     <ClInclude Include="fire.h" />
     <ClInclude Include="flash.h" />
     <ClInclude Include="font.h" />
-    <ClInclude Include="font2D.h" />
     <ClInclude Include="fontChar.h" />
     <ClInclude Include="gameManager.h" />
     <ClInclude Include="gauge2D.h" />

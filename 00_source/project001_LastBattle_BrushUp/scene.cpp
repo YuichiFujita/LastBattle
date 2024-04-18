@@ -29,7 +29,7 @@
 #include "manager.h"
 #include "font.h"
 #include "fontChar.h"
-#include "font2D.h"
+#include "char2D.h"
 
 //************************************************************
 //	定数宣言
@@ -163,8 +163,8 @@ HRESULT CScene::Init(void)
 			//D3DXVECTOR3 pos = D3DXVECTOR3(40.0f + (nWidth * 60.0f), 50.0f + (nHeight * 100.0f), 0.0f);
 			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 30.0f + (nHeight * 55.0f), 0.0f);
 
-			// フォント2Dの生成
-			CFont2D *ppsx = CFont2D::Create
+			// 文字2Dの生成
+			CChar2D *ppsx = CChar2D::Create
 			( // 引数
 				pFontChar,
 				uChar,
