@@ -28,9 +28,8 @@ namespace
 //	コンストラクタ
 //============================================================
 CString2D::CString2D() : CObject(CObject::LABEL_UI, CObject::DIM_2D, PRIORITY),
-	m_ppChar	(nullptr),		// 文字ポリゴンの情報
-	m_pos		(VEC3_ZERO),	// 文字列の原点位置
-	m_nStrLen	(0)				// 文字列の長さ
+	m_ppChar	(nullptr),	// 文字ポリゴンの情報
+	m_pos		(VEC3_ZERO)	// 文字列の原点位置
 {
 
 }
@@ -51,7 +50,6 @@ HRESULT CString2D::Init(void)
 	// メンバ変数を初期化
 	m_ppChar	= nullptr;		// 文字ポリゴンの情報
 	m_pos		= VEC3_ZERO;	// 文字列の原点位置
-	m_nStrLen	= 0;			// 文字列の長さ
 
 	// 成功を返す
 	return S_OK;
@@ -62,8 +60,9 @@ HRESULT CString2D::Init(void)
 //============================================================
 void CString2D::Uninit(void)
 {
-	for (int i = 0; i < m_nStrLen; i++)
-	{
+	for (int i = 0; i < (int)m_wsStr.size(); i++)
+	{ // 文字数分繰り返す
+
 		// 文字を破棄
 		SAFE_UNINIT(m_ppChar[i]);
 	}
@@ -145,7 +144,7 @@ float CString2D::GetHeight(void) const
 CString2D *CString2D::Create
 (
 	CFontChar *pFontChar,		// フォント文字情報
-	std::string sString,		// 指定文字列
+	std::wstring wsStr,			// 指定文字列
 	const D3DXVECTOR3 &rPos,	// 原点位置
 	const float fHeight			// 文字縦幅
 )
@@ -176,7 +175,7 @@ CString2D *CString2D::Create
 		pString2D->SetHeight(fHeight);
 
 		// フォント・文字列を設定
-		if (FAILED(pString2D->SetFontString(pFontChar, sString, fHeight)))
+		if (FAILED(pString2D->SetFontString(pFontChar, wsStr, fHeight)))
 		{ // 設定に失敗した場合
 
 			// 文字列2Dの破棄
@@ -195,12 +194,23 @@ CString2D *CString2D::Create
 HRESULT CString2D::SetFontString
 (
 	CFontChar *pFontChar,	// フォント文字情報
-	std::string sString,	// 指定文字列
+	std::wstring wsStr,		// 指定文字列
 	const float fHeight		// 文字縦幅
 )
 {
-	for (int i = 0; i < m_nStrLen; i++)
-	{
+	// 文字数を保存する
+	int nOldStrLen = (int)m_wsStr.size();	// 破棄する文字数
+	int nCurStrLen = (int)wsStr.size();		// 生成する文字数
+
+	// 指定文字列を変更
+	m_wsStr = wsStr;
+
+	//--------------------------------------------------------
+	//	既に使用している文字を破棄
+	//--------------------------------------------------------
+	for (int i = 0; i < nOldStrLen; i++)
+	{ // 破棄する文字数分繰り返す
+
 		// 文字を破棄
 		SAFE_UNINIT(m_ppChar[i]);
 	}
@@ -208,27 +218,23 @@ HRESULT CString2D::SetFontString
 	// 文字列を破棄
 	SAFE_DEL_ARRAY(m_ppChar);
 
-	// 指定文字列を変更
-	m_sString = sString;
+	//--------------------------------------------------------
+	//	新しい文字を生成
+	//--------------------------------------------------------
+	// 文字を格納する配列を生成
+	m_ppChar = new CChar2D*[nCurStrLen];
 
-	m_nStrLen = MultiByteToWideChar(CP_ACP, 0, m_sString.c_str(), NONE_IDX, nullptr, 0);
-	std::wstring wideStr = std::wstring(m_nStrLen, L'\0');
-	MultiByteToWideChar(CP_ACP, 0, m_sString.c_str(), NONE_IDX, &wideStr[0], m_nStrLen);
-
-	// 文字列を生成
-	m_ppChar = new CChar2D*[m_nStrLen];
-
-#if 1
+	// 最初の文字のX座標
 	float fPosX = m_pos.x;
-	for (int i = 0; i < m_nStrLen; i++)
-	{
-		D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, m_pos.y, 0.0f);
+	for (int i = 0; i < nCurStrLen; i++)
+	{ // 生成する文字数分繰り返す
 
 		// 文字を生成
+		D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, m_pos.y, 0.0f);
 		m_ppChar[i] = CChar2D::Create
 		( // 引数
 			pFontChar,
-			wideStr[i],
+			m_wsStr[i],
 			pos,
 			fHeight
 		);
@@ -240,6 +246,7 @@ HRESULT CString2D::SetFontString
 			return E_FAIL;
 		}
 
+		// オフセット分ずらす
 		D3DXVECTOR3 old = m_ppChar[i]->GetVec3Position();
 		old.x += m_ppChar[i]->GetOffset();
 		m_ppChar[i]->SetVec3Position(old);
@@ -247,7 +254,6 @@ HRESULT CString2D::SetFontString
 		// 次の位置設定用に原点を保存
 		fPosX = m_ppChar[i]->GetVec3Position().x - m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext();
 	}
-#endif
 
 	// 成功を返す
 	return S_OK;

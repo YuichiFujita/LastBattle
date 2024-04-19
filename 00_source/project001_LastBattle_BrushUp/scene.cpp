@@ -117,10 +117,10 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
-	CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
+	CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
 
-	CString2D::Create(pFontChar, "Jo:Bi:aaaあああ！！？？πα官憲誤球漢検ゴ級", D3DXVECTOR3(10.0f, 30.0f, 0.0f), 40.0f);
+	CString2D::Create(pFontChar, L"あいうえお！aiueo!", D3DXVECTOR3(10.0f, 30.0f, 0.0f), 60.0f);
 #else
 	UINT aChar[] =
 	{

@@ -48,7 +48,7 @@ public:
 	static CString2D *Create	// 生成
 	( // 引数
 		CFontChar *pFontChar,		// フォント文字情報
-		std::string sString,		// 指定文字列
+		std::wstring wsStr,			// 指定文字列
 		const D3DXVECTOR3 &rPos,	// 原点位置
 		const float fHeight			// 文字縦幅
 	);
@@ -57,7 +57,7 @@ public:
 	HRESULT SetFontString	// フォント・文字列の設定
 	( // 引数
 		CFontChar *pFontChar,	// フォント文字情報
-		std::string sString,	// 指定文字列
+		std::wstring wsStr,		// 指定文字列
 		const float fHeight		// 文字縦幅
 	);
 
@@ -68,8 +68,7 @@ private:
 	// メンバ変数
 	CChar2D **m_ppChar;		// 文字ポリゴンの情報
 	D3DXVECTOR3 m_pos;		// 文字列の原点位置
-	std::string m_sString;	// 指定文字列
-	int m_nStrLen;			// 文字列の長さ
+	std::wstring m_wsStr;	// 指定文字列
 };
 
 #endif	// _STRING2D_H_
