@@ -42,7 +42,7 @@ public:
 	( // 引数
 		CFontChar *pFontChar,		// フォント文字情報
 		const wchar_t wcChar,		// 指定文字
-		const D3DXVECTOR3& rPos,	// 位置
+		const D3DXVECTOR3& rPos = VEC3_ZERO,	// 位置
 		const float fHeight = 100.0f,			// 縦幅
 		const D3DXVECTOR3& rRot = VEC3_ZERO,	// 向き
 		const D3DXCOLOR& rCol = XCOL_WHITE		// 色

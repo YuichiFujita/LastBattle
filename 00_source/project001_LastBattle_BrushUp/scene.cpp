@@ -121,15 +121,15 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
 	CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
 
-	//CString2D::Create(pFontChar, L"あいうえお！aiueo!アバダケダブラ？",					D3DXVECTOR3(10.0f, 30.0f, 0.0f),  60.0f);
-	//CString2D::Create(pFontChar, L"abcdefghijlmnopqrstuvwxyz",							D3DXVECTOR3(10.0f, 90.0f, 0.0f),  60.0f);
-	//CString2D::Create(pFontChar, L"あいうえおかきくけこさしすせそたちつてとなにぬねの",	D3DXVECTOR3(10.0f, 150.0f, 0.0f), 60.0f);
-	//CString2D::Create(pFontChar, L"はひふへほまみむめもやゆよらりるれろわをん",			D3DXVECTOR3(10.0f, 210.0f, 0.0f), 60.0f);
+	CString2D::Create(pFontChar, L"あいうえお！aiueo!アバダケダブラ？",					D3DXVECTOR3(10.0f, 30.0f, 0.0f),  60.0f);
+	CString2D::Create(pFontChar, L"abcdefghijlmnopqrstuvwxyz",							D3DXVECTOR3(10.0f, 90.0f, 0.0f),  60.0f);
+	CString2D::Create(pFontChar, L"あいうえおかきくけこさしすせそたちつてとなにぬねの",	D3DXVECTOR3(10.0f, 150.0f, 0.0f), 60.0f);
+	CString2D::Create(pFontChar, L"はひふへほまみむめもやゆよらりるれろわをん",			D3DXVECTOR3(10.0f, 210.0f, 0.0f), 60.0f);
 
-	CString2D::Create(pFontChar, L"バッドランドに生まれた",				D3DXVECTOR3(10.0f, 30.0f, 0.0f),  60.0f);
-	CString2D::Create(pFontChar, L"だけでバッドライフがデフォとか",		D3DXVECTOR3(10.0f, 90.0f, 0.0f),  60.0f);
-	CString2D::Create(pFontChar, L"くだらないけど、それが理なんだって",	D3DXVECTOR3(10.0f, 150.0f, 0.0f), 60.0f);
-	CString2D::Create(pFontChar, L"もう参っちゃうね",					D3DXVECTOR3(10.0f, 210.0f, 0.0f), 60.0f);
+	//CString2D::Create(pFontChar, L"バッドランドに生まれた",				D3DXVECTOR3(10.0f, 30.0f, 0.0f),  60.0f);
+	//CString2D::Create(pFontChar, L"だけでバッドライフがデフォとか",		D3DXVECTOR3(10.0f, 90.0f, 0.0f),  60.0f);
+	//CString2D::Create(pFontChar, L"くだらないけど、それが理なんだって",	D3DXVECTOR3(10.0f, 150.0f, 0.0f), 60.0f);
+	//CString2D::Create(pFontChar, L"もう参っちゃうね",					D3DXVECTOR3(10.0f, 210.0f, 0.0f), 60.0f);
 
 #else
 	UINT aChar[] =

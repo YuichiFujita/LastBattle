@@ -57,13 +57,15 @@ public:
 	HRESULT SetFontString	// フォント・文字列の設定
 	( // 引数
 		CFontChar *pFontChar,	// フォント文字情報
-		std::wstring wsStr,		// 指定文字列
-		const float fHeight		// 文字縦幅
+		std::wstring wsStr		// 指定文字列
 	);
 
 private:
 	// オーバーライド関数
 	void Release(void) override;	// 破棄
+
+	// メンバ関数
+	void SetPositionRelative(void);	// 相対位置設定
 
 	// メンバ変数
 	CChar2D **m_ppChar;		// 文字ポリゴンの情報
