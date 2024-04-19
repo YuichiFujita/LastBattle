@@ -65,7 +65,7 @@ public:
 	SFont Regist(std::string sFontName, bool bItalic = false);	// フォント登録
 	CFontChar::SChar RegistChar	// フォント文字登録 (名前)
 	( // 引数
-		const UINT uChar,		// 指定文字
+		const wchar_t wcChar,	// 指定文字
 		std::string sFontName,	// フォント名
 		bool bItalic = false	// イタリック
 	);

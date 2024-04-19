@@ -74,10 +74,10 @@ void CFontChar::Uninit(void)
 //============================================================
 //	フォント文字登録処理 (名前)
 //============================================================
-CFontChar::SChar CFontChar::Regist(const UINT uChar)
+CFontChar::SChar CFontChar::Regist(const wchar_t wcChar)
 {
 	// 既に生成済みかを検索
-	auto itr = m_mapChar.find(uChar);	// 引数の文字を検索
+	auto itr = m_mapChar.find(wcChar);	// 引数の文字を検索
 	if (itr != m_mapChar.end())
 	{ // 生成済みの場合
 
@@ -102,7 +102,7 @@ CFontChar::SChar CFontChar::Regist(const UINT uChar)
 	HFONT pOldFont = (HFONT)SelectObject(pDC, m_pFont);
 
 	// ビットマップの生成・文字情報の保存
-	BYTE *pBitMap = CreateBitMap(&tempChar, pDC, uChar);
+	BYTE *pBitMap = CreateBitMap(&tempChar, pDC, wcChar);
 	if (pBitMap == nullptr)
 	{ // 生成に失敗した場合
 
@@ -130,7 +130,7 @@ CFontChar::SChar CFontChar::Regist(const UINT uChar)
 	SAFE_DEL_DC(pDC);
 
 	// フォント文字情報を保存
-	m_mapChar.insert(std::make_pair(uChar, tempChar));
+	m_mapChar.insert(std::make_pair(wcChar, tempChar));
 
 	// 生成したフォント文字情報を返す
 	return tempChar;
@@ -181,10 +181,10 @@ void CFontChar::Release(CFontChar *&prFontChar)
 //============================================================
 //	ビットマップの生成・文字情報の保存
 //============================================================
-BYTE *CFontChar::CreateBitMap(SChar *pChar, HDC pDC, const UINT uChar)
+BYTE *CFontChar::CreateBitMap(SChar *pChar, HDC pDC, const wchar_t wcChar)
 {
 	// ビットマップのサイズを取得
-	DWORD dwGlyphSize = GetGlyphOutlineW(pDC, uChar, FORMAT_BITMAP, &pChar->glyph, 0, nullptr, &INIT_MATRIX);
+	DWORD dwGlyphSize = GetGlyphOutlineW(pDC, wcChar, FORMAT_BITMAP, &pChar->glyph, 0, nullptr, &INIT_MATRIX);
 	if (dwGlyphSize == GDI_ERROR)
 	{ // 取得に失敗した場合
 
@@ -204,7 +204,7 @@ BYTE *CFontChar::CreateBitMap(SChar *pChar, HDC pDC, const UINT uChar)
 	}
 
 	// ビットマップ内の情報を取得
-	dwGlyphSize = GetGlyphOutlineW(pDC, uChar, FORMAT_BITMAP, &pChar->glyph, dwGlyphSize, pBitMap, &INIT_MATRIX);
+	dwGlyphSize = GetGlyphOutlineW(pDC, wcChar, FORMAT_BITMAP, &pChar->glyph, dwGlyphSize, pBitMap, &INIT_MATRIX);
 	if (dwGlyphSize == GDI_ERROR)
 	{ // 取得に失敗した場合
 

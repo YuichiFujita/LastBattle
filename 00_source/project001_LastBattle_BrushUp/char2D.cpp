@@ -26,7 +26,7 @@ namespace
 //	コンストラクタ
 //============================================================
 CChar2D::CChar2D() : CObject2D(CObject::LABEL_UI, CObject::DIM_2D, PRIORITY),
-	m_uChar			(0),	// 指定文字
+	m_wcChar		(0),	// 指定文字
 	m_fSizeRate		(0.0f),	// 縦幅の割合
 	m_fAbsOriginX	(0.0f)	// X原点オフセットの絶対値
 {
@@ -49,7 +49,7 @@ HRESULT CChar2D::Init(void)
 {
 	// メンバ変数を初期化
 	memset(&m_infoChar, 0, sizeof(m_infoChar));	// 文字情報
-	m_uChar			= 0;	// 指定文字
+	m_wcChar		= 0;	// 指定文字
 	m_fSizeRate		= 1.0f;	// 縦幅の割合
 	m_fAbsOriginX	= 0.0f;	// X原点オフセットの絶対値
 
@@ -130,7 +130,7 @@ void CChar2D::SetHeight(const float fHeight)
 CChar2D *CChar2D::Create
 (
 	CFontChar *pFontChar,		// フォント文字情報
-	const UINT uChar,			// 指定文字
+	const wchar_t wcChar,		// 指定文字
 	const D3DXVECTOR3& rPos,	// 位置
 	const float fHeight,		// 縦幅
 	const D3DXVECTOR3& rRot,	// 向き
@@ -157,7 +157,7 @@ CChar2D *CChar2D::Create
 		}
 
 		// フォント・文字を設定
-		pChar2D->SetFontChar(pFontChar, uChar);
+		pChar2D->SetFontChar(pFontChar, wcChar);
 
 		// 位置を設定
 		pChar2D->SetVec3Position(rPos);
@@ -182,14 +182,14 @@ CChar2D *CChar2D::Create
 void CChar2D::SetFontChar
 (
 	CFontChar *pFontChar,	// フォント文字情報
-	const UINT uChar		// 指定文字
+	const wchar_t wcChar	// 指定文字
 )
 {
 	// フォント文字の取得
-	m_infoChar = pFontChar->Regist(uChar);
+	m_infoChar = pFontChar->Regist(wcChar);
 
 	// 指定文字を保存
-	m_uChar = uChar;
+	m_wcChar = wcChar;
 
 	// X原点オフセットの絶対値を保存
 	m_fAbsOriginX = fabsf((float)m_infoChar.glyph.gmptGlyphOrigin.x);

@@ -224,13 +224,13 @@ CFont::SFont CFont::Regist(std::string sFontName, bool bItalic)
 //============================================================
 CFontChar::SChar CFont::RegistChar
 (
-	const UINT uChar,		// 指定文字
+	const wchar_t wcChar,	// 指定文字
 	std::string sFontName,	// フォント名
 	bool bItalic			// イタリック
 )
 {
 	// 生成したフォントの文字テクスチャインデックスを返す
-	return Regist(sFontName, bItalic).pFontChar->Regist(uChar);
+	return Regist(sFontName, bItalic).pFontChar->Regist(wcChar);
 }
 
 //============================================================
