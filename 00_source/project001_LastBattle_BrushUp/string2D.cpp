@@ -84,7 +84,7 @@ void CString2D::Update(void)
 {
 	// TODO
 	D3DXVECTOR3 rot = GetVec3Rotation();
-	//rot.z += 0.01f;
+	rot.z += 0.01f;
 	SetVec3Rotation(rot);
 
 	// 相対位置の設定
@@ -442,8 +442,8 @@ void CString2D::SetPositionRelative(void)
 
 #if 1
 	D3DXVECTOR3 posStart;
-	posStart.x = m_pos.x + sinf(fHeadRot) * (fStrWidth - (fHeadWidth + m_ppChar[0]->GetOffset()) + (fStrWidth * (m_origin - 1)));
-	posStart.y = m_pos.y + cosf(fHeadRot) * (fStrWidth - (fHeadWidth + m_ppChar[0]->GetOffset()) + (fStrWidth * (m_origin - 1)));
+	posStart.x = m_pos.x + sinf(fHeadRot) * (fStrWidth - (fHeadWidth - m_ppChar[0]->GetOffset()) + (fStrWidth * (m_origin - 1)));
+	posStart.y = m_pos.y + cosf(fHeadRot) * (fStrWidth - (fHeadWidth - m_ppChar[0]->GetOffset()) + (fStrWidth * (m_origin - 1)));
 #else
 	float fStartPosX = fStrWidth + (fHeadWidth - m_ppChar[0]->GetOffset());	// 開始X座標
 
@@ -462,16 +462,15 @@ void CString2D::SetPositionRelative(void)
 #if 1
 		// 設定座標に原点オフセットを与える
 		assert(m_ppChar[i] != nullptr);
-		D3DXVECTOR3 posChar = posStart;
-		posChar.x += sinf(fHeadRot) * m_ppChar[i]->GetOffset();
-		posChar.y += cosf(fHeadRot) * m_ppChar[i]->GetOffset();
+		posStart.x -= sinf(fHeadRot) * m_ppChar[i]->GetOffset();
+		posStart.y -= cosf(fHeadRot) * m_ppChar[i]->GetOffset();
 
 		// 位置を反映
-		m_ppChar[i]->SetVec3Position(posChar);
+		m_ppChar[i]->SetVec3Position(posStart);
 
 		// 次の設定座標の開始点を保存
-		posStart.x = m_ppChar[i]->GetVec3Position().x - sinf(fHeadRot) * (m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext());
-		posStart.y = m_ppChar[i]->GetVec3Position().y - cosf(fHeadRot) * (m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext());
+		posStart.x += sinf(fHeadRot) * (m_ppChar[i]->GetOffset() - m_ppChar[i]->GetNext());
+		posStart.y += cosf(fHeadRot) * (m_ppChar[i]->GetOffset() - m_ppChar[i]->GetNext());
 #else
 
 #endif

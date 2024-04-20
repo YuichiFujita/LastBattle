@@ -121,7 +121,7 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
 
-#if 1
+#if 0
 #if 1
 	CString2D::Create(pFontChar, L"あいうえお！aiueo!アバダケダブラ？",					D3DXVECTOR3(SCREEN_CENT.x, 30.0f, 0.0f),  60.0f);
 	CString2D::Create(pFontChar, L"abcdefghijlmnopqrstuvwxyz",							D3DXVECTOR3(SCREEN_CENT.x, 90.0f, 0.0f),  60.0f);
