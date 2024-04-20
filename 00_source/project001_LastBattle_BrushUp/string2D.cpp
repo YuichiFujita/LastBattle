@@ -79,7 +79,25 @@ void CString2D::Uninit(void)
 //============================================================
 void CString2D::Update(void)
 {
+	// TODO
+	if (GET_INPUTKEY->IsPress(DIK_W))
+	{
+		m_pos.y -= 1.0f;
+	}
+	if (GET_INPUTKEY->IsPress(DIK_S))
+	{
+		m_pos.y += 1.0f;
+	}
+	if (GET_INPUTKEY->IsPress(DIK_A))
+	{
+		m_pos.x -= 1.0f;
+	}
+	if (GET_INPUTKEY->IsPress(DIK_D))
+	{
+		m_pos.x += 1.0f;
+	}
 
+	SetPositionRelative();
 }
 
 //============================================================
@@ -122,6 +140,9 @@ void CString2D::SetHeight(const float fHeight)
 		// 文字縦幅の設定
 		assert(m_ppChar[i] != nullptr);
 		m_ppChar[i]->SetHeight(fHeight);
+
+		// TODO
+		m_ppChar[i]->BindTexture(-1);
 	}
 
 	// 相対位置の設定
@@ -261,6 +282,7 @@ void CString2D::Release(void)
 //============================================================
 void CString2D::SetPositionRelative(void)
 {
+#if 0
 	float fPosX = m_pos.x;	// 最初の文字のX座標
 	for (int i = 0; i < (int)m_wsStr.size(); i++)
 	{ // 文字数分繰り返す
@@ -273,4 +295,76 @@ void CString2D::SetPositionRelative(void)
 		// 次の位置設定用に原点を保存
 		fPosX = m_ppChar[i]->GetVec3Position().x - m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext();
 	}
+#else
+	float fPosX = m_pos.x - (GetStrWidth() * 0.5f) + ((m_ppChar[0]->GetVec3Sizing().x * 0.5f) - m_ppChar[0]->GetOffset());	// 最初の文字のX座標
+	for (int i = 0; i < (int)m_wsStr.size(); i++)
+	{ // 文字数分繰り返す
+
+		// オフセット分ずらす
+		D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, m_pos.y, 0.0f);
+		pos.x += m_ppChar[i]->GetOffset();
+		m_ppChar[i]->SetVec3Position(pos);
+
+		// 次の位置設定用に原点を保存
+		fPosX = m_ppChar[i]->GetVec3Position().x - m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext();
+	}
+#endif
+}
+
+//============================================================
+//	文字列の横幅取得処理
+//============================================================
+float CString2D::GetStrWidth(void)
+{
+	float fWidth = 0.0f;
+
+#if 1
+#if 0
+	for (int i = 0; i < (int)m_wsStr.size(); i++)
+	{ // 文字数分繰り返す
+
+		assert(m_ppChar[i] != nullptr);
+		fWidth += m_ppChar[i]->GetNext();
+	}
+
+	// 先頭文字の無視した大きさを加算
+	fWidth -= m_ppChar[0]->GetVec3Sizing().x * 0.5f - m_ppChar[0]->GetOffset();
+
+	// 終端文字の減算
+	int n = (int)m_wsStr.size() - 1;
+	float f = m_ppChar[n]->GetVec3Sizing().x * 0.5f - m_ppChar[n]->GetOffset();
+	fWidth -= m_ppChar[n]->GetNext() - m_ppChar[n]->GetVec3Sizing().x - f - 1.0f;
+#else
+	for (int i = 0; i < (int)m_wsStr.size() - 1; i++)
+	{ // 文字数分繰り返す
+
+		assert(m_ppChar[i] != nullptr);
+		fWidth += m_ppChar[i]->GetNext();
+	}
+
+	// 先頭文字の無視した大きさを加算
+	fWidth += m_ppChar[0]->GetVec3Sizing().x * 0.5f - m_ppChar[0]->GetOffset();
+
+	// 
+	int n = (int)m_wsStr.size() - 1;
+	float f = m_ppChar[n]->GetVec3Sizing().x * 0.5f - m_ppChar[n]->GetOffset();
+	fWidth += m_ppChar[n]->GetVec3Sizing().x - f;
+
+	//// 終端文字の減算
+	//int n = (int)m_wsStr.size() - 1;
+	//float f = m_ppChar[n]->GetVec3Sizing().x * 0.5f - m_ppChar[n]->GetOffset();
+	//fWidth -= m_ppChar[n]->GetNext() - m_ppChar[n]->GetVec3Sizing().x - f - 1.0f;
+#endif
+#else
+	float fMinPosX = 0.0f;
+	float fMaxPosX = 0.0f;
+	for (int i = 0; i < (int)m_wsStr.size(); i++)
+	{ // 文字数分繰り返す
+
+		assert(m_ppChar[i] != nullptr);
+		fWidth += m_ppChar[i]->GetNext();
+	}
+#endif
+
+	return fWidth;
 }

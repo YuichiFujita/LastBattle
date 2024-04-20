@@ -59,6 +59,7 @@ public:
 		CFontChar *pFontChar,	// フォント文字情報
 		std::wstring wsStr		// 指定文字列
 	);
+	float GetStrWidth(void);	// 文字列の横幅取得
 
 private:
 	// オーバーライド関数

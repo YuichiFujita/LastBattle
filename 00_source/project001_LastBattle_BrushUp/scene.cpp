@@ -112,24 +112,28 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
+	CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
-	CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
 
+#if 0
 	CString2D::Create(pFontChar, L"あいうえお！aiueo!アバダケダブラ？",					D3DXVECTOR3(10.0f, 30.0f, 0.0f),  60.0f);
 	CString2D::Create(pFontChar, L"abcdefghijlmnopqrstuvwxyz",							D3DXVECTOR3(10.0f, 90.0f, 0.0f),  60.0f);
 	CString2D::Create(pFontChar, L"あいうえおかきくけこさしすせそたちつてとなにぬねの",	D3DXVECTOR3(10.0f, 150.0f, 0.0f), 60.0f);
 	CString2D::Create(pFontChar, L"はひふへほまみむめもやゆよらりるれろわをん",			D3DXVECTOR3(10.0f, 210.0f, 0.0f), 60.0f);
-
-	//CString2D::Create(pFontChar, L"バッドランドに生まれた",				D3DXVECTOR3(10.0f, 30.0f, 0.0f),  60.0f);
+#else
+	CString2D *p = CString2D::Create(pFontChar, L"あいうえお！aiueoみ", SCREEN_CENT,  60.0f);
+	CObject2D *pp = CObject2D::Create(SCREEN_CENT + D3DXVECTOR3(0.0f, 100.0f, 0.0f), D3DXVECTOR3(p->GetStrWidth(), 60.0f, 0.0f));
+	pp->SetLabel(CObject::LABEL_EFFECT);
 	//CString2D::Create(pFontChar, L"だけでバッドライフがデフォとか",		D3DXVECTOR3(10.0f, 90.0f, 0.0f),  60.0f);
 	//CString2D::Create(pFontChar, L"くだらないけど、それが理なんだって",	D3DXVECTOR3(10.0f, 150.0f, 0.0f), 60.0f);
 	//CString2D::Create(pFontChar, L"もう参っちゃうね",					D3DXVECTOR3(10.0f, 210.0f, 0.0f), 60.0f);
+#endif
 
 #else
 	UINT aChar[] =
