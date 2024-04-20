@@ -84,7 +84,7 @@ void CString2D::Update(void)
 {
 	// TODO
 	D3DXVECTOR3 rot = GetVec3Rotation();
-	rot.z += 0.01f;
+	//rot.z += 0.01f;
 	SetVec3Rotation(rot);
 
 	// 相対位置の設定
@@ -442,8 +442,8 @@ void CString2D::SetPositionRelative(void)
 
 #if 1
 	D3DXVECTOR3 posStart;
-	posStart.x = m_pos.x + sinf(fHeadRot) * (fStrWidth - (fHeadWidth + m_ppChar[0]->GetOffset()) - (fStrWidth * (m_origin - 1)));
-	posStart.y = m_pos.y + cosf(fHeadRot) * (fStrWidth - (fHeadWidth + m_ppChar[0]->GetOffset()) - (fStrWidth * (m_origin - 1)));
+	posStart.x = m_pos.x + sinf(fHeadRot) * (fStrWidth - (fHeadWidth + m_ppChar[0]->GetOffset()) + (fStrWidth * (m_origin - 1)));
+	posStart.y = m_pos.y + cosf(fHeadRot) * (fStrWidth - (fHeadWidth + m_ppChar[0]->GetOffset()) + (fStrWidth * (m_origin - 1)));
 #else
 	float fStartPosX = fStrWidth + (fHeadWidth - m_ppChar[0]->GetOffset());	// 開始X座標
 
