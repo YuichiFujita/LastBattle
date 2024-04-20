@@ -127,12 +127,10 @@ HRESULT CScene::Init(void)
 	CString2D::Create(pFontChar, L"あいうえおかきくけこさしすせそたちつてとなにぬねの",	D3DXVECTOR3(10.0f, 150.0f, 0.0f), 60.0f);
 	CString2D::Create(pFontChar, L"はひふへほまみむめもやゆよらりるれろわをん",			D3DXVECTOR3(10.0f, 210.0f, 0.0f), 60.0f);
 #else
-	CString2D *p = CString2D::Create(pFontChar, L"あいうえお！aiueoみ", SCREEN_CENT,  60.0f);
-	CObject2D *pp = CObject2D::Create(SCREEN_CENT + D3DXVECTOR3(0.0f, 100.0f, 0.0f), D3DXVECTOR3(p->GetStrWidth(), 60.0f, 0.0f));
-	pp->SetLabel(CObject::LABEL_EFFECT);
-	//CString2D::Create(pFontChar, L"だけでバッドライフがデフォとか",		D3DXVECTOR3(10.0f, 90.0f, 0.0f),  60.0f);
-	//CString2D::Create(pFontChar, L"くだらないけど、それが理なんだって",	D3DXVECTOR3(10.0f, 150.0f, 0.0f), 60.0f);
-	//CString2D::Create(pFontChar, L"もう参っちゃうね",					D3DXVECTOR3(10.0f, 210.0f, 0.0f), 60.0f);
+	CString2D::Create(pFontChar, L"バッドランドに生まれた",				D3DXVECTOR3(SCREEN_CENT.x, 30.0f, 0.0f),  60.0f);
+	CString2D::Create(pFontChar, L"だけでバッドライフがデフォとか",		D3DXVECTOR3(SCREEN_CENT.x, 90.0f, 0.0f),  60.0f);
+	CString2D::Create(pFontChar, L"くだらないけど、それが理なんだって",	D3DXVECTOR3(SCREEN_CENT.x, 150.0f, 0.0f), 60.0f);
+	CString2D::Create(pFontChar, L"もう参っちゃうね",					D3DXVECTOR3(SCREEN_CENT.x, 210.0f, 0.0f), 60.0f);
 #endif
 
 #else

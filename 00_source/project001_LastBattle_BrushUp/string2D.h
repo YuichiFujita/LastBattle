@@ -28,6 +28,15 @@ class CChar2D;		// 文字2Dクラス
 class CString2D : public CObject
 {
 public:
+	// 原点列挙
+	enum EOrigin
+	{
+		ORIGIN_LEFT = 0,	// 左原点
+		ORIGIN_CENTER,		// 中心原点
+		ORIGIN_RIGHT,		// 右原点
+		ORIGIN_MAX,			// この列挙型の総数
+	};
+
 	// コンストラクタ
 	CString2D();
 
@@ -50,7 +59,8 @@ public:
 		CFontChar *pFontChar,		// フォント文字情報
 		std::wstring wsStr,			// 指定文字列
 		const D3DXVECTOR3 &rPos,	// 原点位置
-		const float fHeight			// 文字縦幅
+		const float fHeight,		// 文字縦幅
+		const EOrigin origin = ORIGIN_CENTER	// 原点
 	);
 
 	// メンバ関数
@@ -60,6 +70,8 @@ public:
 		std::wstring wsStr		// 指定文字列
 	);
 	float GetStrWidth(void);	// 文字列の横幅取得
+	void SetOrigin(const EOrigin origin);	// 原点設定
+	EOrigin GetOrigin(void) const;			// 原点取得
 
 private:
 	// オーバーライド関数
@@ -70,7 +82,8 @@ private:
 
 	// メンバ変数
 	CChar2D **m_ppChar;		// 文字ポリゴンの情報
-	D3DXVECTOR3 m_pos;		// 文字列の原点位置
+	D3DXVECTOR3 m_pos;		// 位置
+	EOrigin m_origin;		// 原点
 	std::wstring m_wsStr;	// 指定文字列
 };
 

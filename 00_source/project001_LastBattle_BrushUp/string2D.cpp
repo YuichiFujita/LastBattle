@@ -28,8 +28,10 @@ namespace
 //	コンストラクタ
 //============================================================
 CString2D::CString2D() : CObject(CObject::LABEL_UI, CObject::DIM_2D, PRIORITY),
-	m_ppChar	(nullptr),	// 文字ポリゴンの情報
-	m_pos		(VEC3_ZERO)	// 文字列の原点位置
+	m_ppChar	(nullptr),		// 文字ポリゴンの情報
+	m_pos		(VEC3_ZERO),	// 位置
+	m_origin	(ORIGIN_CENTER)	// 原点
+
 {
 
 }
@@ -48,8 +50,9 @@ CString2D::~CString2D()
 HRESULT CString2D::Init(void)
 {
 	// メンバ変数を初期化
-	m_ppChar	= nullptr;		// 文字ポリゴンの情報
-	m_pos		= VEC3_ZERO;	// 文字列の原点位置
+	m_ppChar	= nullptr;			// 文字ポリゴンの情報
+	m_pos		= VEC3_ZERO;		// 位置
+	m_origin	= ORIGIN_CENTER;	// 原点
 
 	// 成功を返す
 	return S_OK;
@@ -79,25 +82,7 @@ void CString2D::Uninit(void)
 //============================================================
 void CString2D::Update(void)
 {
-	// TODO
-	if (GET_INPUTKEY->IsPress(DIK_W))
-	{
-		m_pos.y -= 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_S))
-	{
-		m_pos.y += 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_A))
-	{
-		m_pos.x -= 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_D))
-	{
-		m_pos.x += 1.0f;
-	}
 
-	SetPositionRelative();
 }
 
 //============================================================
@@ -109,7 +94,7 @@ void CString2D::Draw(CShader * /*pShader*/)
 }
 
 //============================================================
-//	原点位置の設定処理
+//	位置の設定処理
 //============================================================
 void CString2D::SetVec3Position(const D3DXVECTOR3& rPos)
 {
@@ -121,7 +106,7 @@ void CString2D::SetVec3Position(const D3DXVECTOR3& rPos)
 }
 
 //============================================================
-//	原点位置の取得処理
+//	位置の取得処理
 //============================================================
 D3DXVECTOR3 CString2D::GetVec3Position(void) const
 {
@@ -140,9 +125,6 @@ void CString2D::SetHeight(const float fHeight)
 		// 文字縦幅の設定
 		assert(m_ppChar[i] != nullptr);
 		m_ppChar[i]->SetHeight(fHeight);
-
-		// TODO
-		m_ppChar[i]->BindTexture(-1);
 	}
 
 	// 相対位置の設定
@@ -170,7 +152,8 @@ CString2D *CString2D::Create
 	CFontChar *pFontChar,		// フォント文字情報
 	std::wstring wsStr,			// 指定文字列
 	const D3DXVECTOR3 &rPos,	// 原点位置
-	const float fHeight			// 文字縦幅
+	const float fHeight,		// 文字縦幅
+	const EOrigin origin		// 原点
 )
 {
 	// 文字列2Dの生成
@@ -206,6 +189,9 @@ CString2D *CString2D::Create
 
 		// 文字縦幅を設定
 		pString2D->SetHeight(fHeight);
+
+		// 原点を設定
+		pString2D->SetOrigin(origin);
 
 		// 確保したアドレスを返す
 		return pString2D;
@@ -269,6 +255,59 @@ HRESULT CString2D::SetFontString
 }
 
 //============================================================
+//	文字列の横幅取得処理
+//============================================================
+float CString2D::GetStrWidth(void)
+{
+	// 文字列がない場合抜ける
+	if ((int)m_wsStr.size() <= 0) { assert(false); return 0.0f; }
+
+	float fStrWidth = 0.0f;	// 文字列の横幅
+	int nEndCharID = (int)m_wsStr.size() - 1;	// 終端文字のインデックス
+
+	for (int i = 0; i < nEndCharID; i++)
+	{ // 終端文字を抜いた文字数分繰り返す
+
+		// 次の文字までの距離を加算
+		assert(m_ppChar[i] != nullptr);
+		fStrWidth += m_ppChar[i]->GetNext();
+	}
+
+	// 先頭文字の無視した大きさを加算
+	assert(m_ppChar[0] != nullptr);
+	fStrWidth += (m_ppChar[0]->GetVec3Sizing().x * 0.5f) - m_ppChar[0]->GetOffset();
+
+	// 終端文字の大きさを加算
+	assert(m_ppChar[nEndCharID] != nullptr);
+	float fEndCharWidth = m_ppChar[nEndCharID]->GetVec3Sizing().x;	// 終端文字の横幅
+	fStrWidth += fEndCharWidth - ((fEndCharWidth * 0.5f) - m_ppChar[nEndCharID]->GetOffset());
+
+	// 文字列の横幅を返す
+	return fStrWidth;
+}
+
+//============================================================
+//	原点の設定処理
+//============================================================
+void CString2D::SetOrigin(const EOrigin origin)
+{
+	// 引数の原点を設定
+	m_origin = origin;
+
+	// 相対位置の設定
+	SetPositionRelative();
+}
+
+//============================================================
+//	原点取得処理
+//============================================================
+CString2D::EOrigin CString2D::GetOrigin(void) const
+{
+	// 原点を返す
+	return m_origin;
+}
+
+//============================================================
 //	破棄処理
 //============================================================
 void CString2D::Release(void)
@@ -282,89 +321,31 @@ void CString2D::Release(void)
 //============================================================
 void CString2D::SetPositionRelative(void)
 {
-#if 0
-	float fPosX = m_pos.x;	// 最初の文字のX座標
+	// 文字列がない場合抜ける
+	if ((int)m_wsStr.size() <= 0) { assert(false); return; }
+
+	assert(m_ppChar[0] != nullptr);
+	float fStrWidth = GetStrWidth() * 0.5f;	// 文字列全体の横幅
+	float fHeadWidth = m_ppChar[0]->GetVec3Sizing().x * 0.5f;	// 先頭文字の横幅
+	float fStartPosX = m_pos.x - fStrWidth + (fHeadWidth - m_ppChar[0]->GetOffset());	// 開始X座標
+
+	// 開始X座標を原点に応じてずらす
+	fStartPosX -= fStrWidth * (m_origin - 1);
+
 	for (int i = 0; i < (int)m_wsStr.size(); i++)
 	{ // 文字数分繰り返す
 
-		// オフセット分ずらす
-		D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, m_pos.y, 0.0f);
-		pos.x += m_ppChar[i]->GetOffset();
-		m_ppChar[i]->SetVec3Position(pos);
+		// 文字の設定座標
+		D3DXVECTOR3 posChar = D3DXVECTOR3(fStartPosX, m_pos.y, 0.0f);
 
-		// 次の位置設定用に原点を保存
-		fPosX = m_ppChar[i]->GetVec3Position().x - m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext();
-	}
-#else
-	float fPosX = m_pos.x - (GetStrWidth() * 0.5f) + ((m_ppChar[0]->GetVec3Sizing().x * 0.5f) - m_ppChar[0]->GetOffset());	// 最初の文字のX座標
-	for (int i = 0; i < (int)m_wsStr.size(); i++)
-	{ // 文字数分繰り返す
-
-		// オフセット分ずらす
-		D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, m_pos.y, 0.0f);
-		pos.x += m_ppChar[i]->GetOffset();
-		m_ppChar[i]->SetVec3Position(pos);
-
-		// 次の位置設定用に原点を保存
-		fPosX = m_ppChar[i]->GetVec3Position().x - m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext();
-	}
-#endif
-}
-
-//============================================================
-//	文字列の横幅取得処理
-//============================================================
-float CString2D::GetStrWidth(void)
-{
-	float fWidth = 0.0f;
-
-#if 1
-#if 0
-	for (int i = 0; i < (int)m_wsStr.size(); i++)
-	{ // 文字数分繰り返す
-
+		// 設定座標に原点オフセットを与える
 		assert(m_ppChar[i] != nullptr);
-		fWidth += m_ppChar[i]->GetNext();
+		posChar.x += m_ppChar[i]->GetOffset();
+
+		// 位置を反映
+		m_ppChar[i]->SetVec3Position(posChar);
+
+		// 次の設定座標の開始点を保存
+		fStartPosX = m_ppChar[i]->GetVec3Position().x - m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext();
 	}
-
-	// 先頭文字の無視した大きさを加算
-	fWidth -= m_ppChar[0]->GetVec3Sizing().x * 0.5f - m_ppChar[0]->GetOffset();
-
-	// 終端文字の減算
-	int n = (int)m_wsStr.size() - 1;
-	float f = m_ppChar[n]->GetVec3Sizing().x * 0.5f - m_ppChar[n]->GetOffset();
-	fWidth -= m_ppChar[n]->GetNext() - m_ppChar[n]->GetVec3Sizing().x - f - 1.0f;
-#else
-	for (int i = 0; i < (int)m_wsStr.size() - 1; i++)
-	{ // 文字数分繰り返す
-
-		assert(m_ppChar[i] != nullptr);
-		fWidth += m_ppChar[i]->GetNext();
-	}
-
-	// 先頭文字の無視した大きさを加算
-	fWidth += m_ppChar[0]->GetVec3Sizing().x * 0.5f - m_ppChar[0]->GetOffset();
-
-	// 
-	int n = (int)m_wsStr.size() - 1;
-	float f = m_ppChar[n]->GetVec3Sizing().x * 0.5f - m_ppChar[n]->GetOffset();
-	fWidth += m_ppChar[n]->GetVec3Sizing().x - f;
-
-	//// 終端文字の減算
-	//int n = (int)m_wsStr.size() - 1;
-	//float f = m_ppChar[n]->GetVec3Sizing().x * 0.5f - m_ppChar[n]->GetOffset();
-	//fWidth -= m_ppChar[n]->GetNext() - m_ppChar[n]->GetVec3Sizing().x - f - 1.0f;
-#endif
-#else
-	float fMinPosX = 0.0f;
-	float fMaxPosX = 0.0f;
-	for (int i = 0; i < (int)m_wsStr.size(); i++)
-	{ // 文字数分繰り返す
-
-		assert(m_ppChar[i] != nullptr);
-		fWidth += m_ppChar[i]->GetNext();
-	}
-#endif
-
-	return fWidth;
 }
