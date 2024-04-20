@@ -50,6 +50,8 @@ public:
 	void Draw(CShader *pShader = nullptr) override;			// 描画
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
+	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
+	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
 	void SetHeight(const float fHeight) override;			// 縦幅設定
 	float GetHeight(void) const override;					// 縦幅取得
 
@@ -60,7 +62,9 @@ public:
 		std::wstring wsStr,			// 指定文字列
 		const D3DXVECTOR3 &rPos,	// 原点位置
 		const float fHeight,		// 文字縦幅
-		const EOrigin origin = ORIGIN_CENTER	// 原点
+		const EOrigin origin = ORIGIN_CENTER,	// 原点
+		const D3DXVECTOR3& rRot = VEC3_ZERO		// 原点向き
+
 	);
 
 	// メンバ関数
