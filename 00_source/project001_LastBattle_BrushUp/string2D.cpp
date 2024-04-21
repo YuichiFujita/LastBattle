@@ -181,7 +181,7 @@ float CString2D::GetHeight(void) const
 CString2D *CString2D::Create
 (
 	CFontChar *pFontChar,		// フォント文字情報
-	std::wstring wsStr,			// 指定文字列
+	const std::wstring &rStr,	// 指定文字列
 	const D3DXVECTOR3 &rPos,	// 原点位置
 	const float fHeight,		// 文字縦幅
 	const EOrigin origin,		// 原点
@@ -208,7 +208,7 @@ CString2D *CString2D::Create
 		}
 
 		// フォント・文字列を設定
-		if (FAILED(pString2D->SetFontString(pFontChar, wsStr)))
+		if (FAILED(pString2D->SetFontString(pFontChar, rStr)))
 		{ // 設定に失敗した場合
 
 			// 文字列2Dの破棄
@@ -238,16 +238,16 @@ CString2D *CString2D::Create
 //============================================================
 HRESULT CString2D::SetFontString
 (
-	CFontChar *pFontChar,	// フォント文字情報
-	std::wstring wsStr		// 指定文字列
+	CFontChar *pFontChar,		// フォント文字情報
+	const std::wstring &rStr	// 指定文字列
 )
 {
 	// 文字数を保存する
 	int nOldStrLen = (int)m_wsStr.size();	// 破棄する文字数
-	int nCurStrLen = (int)wsStr.size();		// 生成する文字数
+	int nCurStrLen = (int)rStr.size();		// 生成する文字数
 
 	// 指定文字列を変更
-	m_wsStr = wsStr;
+	m_wsStr = rStr;
 
 	//--------------------------------------------------------
 	//	既に使用している文字を破棄

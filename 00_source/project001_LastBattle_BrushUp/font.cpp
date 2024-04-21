@@ -117,10 +117,10 @@ HRESULT CFont::LoadAll(void)
 //============================================================
 //	フォント読込処理
 //============================================================
-HRESULT CFont::Load(std::string sFilePass)
+HRESULT CFont::Load(const std::string &rFilePass)
 {
 	// 既に読込済みかを検索
-	auto itr = std::find(m_vecFilePass.begin(), m_vecFilePass.end(), sFilePass);	// 引数のフォントパスを検索
+	auto itr = std::find(m_vecFilePass.begin(), m_vecFilePass.end(), rFilePass);	// 引数のフォントパスを検索
 	if (itr != m_vecFilePass.end())
 	{ // 読込済みの場合
 
@@ -131,7 +131,7 @@ HRESULT CFont::Load(std::string sFilePass)
 	// フォントの読込
 	int nError = AddFontResourceEx
 	( // 引数
-		sFilePass.c_str(),	// フォントファイルパス
+		rFilePass.c_str(),	// フォントファイルパス
 		FR_PRIVATE,			// フォント特性
 		nullptr
 	);
@@ -144,7 +144,7 @@ HRESULT CFont::Load(std::string sFilePass)
 	}
 
 	// 読み込んだフォントパスを保存
-	m_vecFilePass.push_back(sFilePass);
+	m_vecFilePass.push_back(rFilePass);
 
 	// 成功を返す
 	return S_OK;
@@ -153,10 +153,10 @@ HRESULT CFont::Load(std::string sFilePass)
 //============================================================
 //	フォント登録処理
 //============================================================
-CFont::SFont CFont::Regist(std::string sFontName, bool bItalic)
+CFont::SFont CFont::Regist(const std::string &rFontName, bool bItalic)
 {
 	// 既に生成済みかを検索
-	auto itr = m_mapFont.find(SKey(sFontName, bItalic));	// 引数のフォントを検索
+	auto itr = m_mapFont.find(SKey(rFontName, bItalic));	// 引数のフォントを検索
 	if (itr != m_mapFont.end())
 	{ // 生成済みの場合
 
@@ -179,10 +179,10 @@ CFont::SFont CFont::Regist(std::string sFontName, bool bItalic)
 	lf.lfClipPrecision	= CLIP_DEFAULT_PRECIS;			// クリッピング精度
 	lf.lfQuality		= PROOF_QUALITY;				// 出力品質
 	lf.lfPitchAndFamily	= (DEFAULT_PITCH | FF_MODERN);	// ピッチとファミリー
-	strcpy(&lf.lfFaceName[0], sFontName.c_str());		// フォント名
+	strcpy(&lf.lfFaceName[0], rFontName.c_str());		// フォント名
 
 	// キー情報を設定
-	SKey tempKey = SKey(sFontName, bItalic);
+	SKey tempKey = SKey(rFontName, bItalic);
 
 	// フォント情報を初期化
 	SFont tempFont = ZERO_FONT;
@@ -219,13 +219,13 @@ CFont::SFont CFont::Regist(std::string sFontName, bool bItalic)
 //============================================================
 CFontChar::SChar CFont::RegistChar
 (
-	const wchar_t wcChar,	// 指定文字
-	std::string sFontName,	// フォント名
-	bool bItalic			// イタリック
+	const wchar_t wcChar,			// 指定文字
+	const std::string &rFontName,	// フォント名
+	bool bItalic					// イタリック
 )
 {
 	// 生成したフォントの文字テクスチャインデックスを返す
-	return Regist(sFontName, bItalic).pFontChar->Regist(wcChar);
+	return Regist(rFontName, bItalic).pFontChar->Regist(wcChar);
 }
 
 //============================================================
@@ -273,14 +273,13 @@ void CFont::Release(CFont *&prFont)
 //============================================================
 //	フォルダ全検索処理
 //============================================================
-HRESULT CFont::SearchFolderAll(std::string sFolderPath)
+HRESULT CFont::SearchFolderAll(const std::string &rFolderPath)
 {
-	// 変数を宣言
 	HANDLE hFile;	// 検索ハンドル
 	WIN32_FIND_DATA findFileData;	// ファイル情報
 
 	// 引数パスのディレクトリを取得
-	std::string sAllLoadPath = sFolderPath + "\\*.*";	// 全読込パス
+	std::string sAllLoadPath = rFolderPath + "\\*.*";	// 全読込パス
 	hFile = FindFirstFile(sAllLoadPath.c_str(), &findFileData);
 	if (INVALID_HANDLE_VALUE == hFile)
 	{ // ハンドルが無効の場合
@@ -298,7 +297,7 @@ HRESULT CFont::SearchFolderAll(std::string sFolderPath)
 		if (strcmp(findFileData.cFileName, "..") == 0)	{ continue; }
 
 		// ファイル名を相対パスに変換
-		std::string sFullPath = sFolderPath;	// 現在の相対パスを設定
+		std::string sFullPath = rFolderPath;	// 現在の相対パスを設定
 		sFullPath += "\\";						// パス区切り文字を追加
 		sFullPath += findFileData.cFileName;	// ファイル名を追加
 

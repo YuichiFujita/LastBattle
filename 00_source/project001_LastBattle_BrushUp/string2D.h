@@ -59,7 +59,7 @@ public:
 	static CString2D *Create	// 生成
 	( // 引数
 		CFontChar *pFontChar,		// フォント文字情報
-		std::wstring wsStr,			// 指定文字列
+		const std::wstring &rStr,	// 指定文字列
 		const D3DXVECTOR3 &rPos,	// 原点位置
 		const float fHeight,		// 文字縦幅
 		const EOrigin origin = ORIGIN_CENTER,	// 原点
@@ -70,8 +70,8 @@ public:
 	// メンバ関数
 	HRESULT SetFontString	// フォント・文字列の設定
 	( // 引数
-		CFontChar *pFontChar,	// フォント文字情報
-		std::wstring wsStr		// 指定文字列
+		CFontChar *pFontChar,		// フォント文字情報
+		const std::wstring &rStr	// 指定文字列
 	);
 	float GetStrWidth(void);	// 文字列の横幅取得
 	void SetOrigin(const EOrigin origin);	// 原点設定
