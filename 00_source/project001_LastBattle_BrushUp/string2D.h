@@ -16,7 +16,7 @@
 #include "object.h"
 
 //************************************************************
-//	インクルードファイル
+//	前方宣言
 //************************************************************
 class CFontChar;	// フォント文字クラス
 class CChar2D;		// 文字2Dクラス
@@ -74,6 +74,7 @@ public:
 		const std::wstring &rStr	// 指定文字列
 	);
 	float GetStrWidth(void);	// 文字列の横幅取得
+	CChar2D *GetChar2D(const int nCharID) const;	// 文字取得
 	void SetOrigin(const EOrigin origin);	// 原点設定
 	EOrigin GetOrigin(void) const;			// 原点取得
 

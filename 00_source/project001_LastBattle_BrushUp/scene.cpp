@@ -112,15 +112,14 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
-	CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
+	CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
-
 #if 1
 #if 1
 	CString2D::Create(pFontChar, L"あいうえお！aiueo!アバダケダブラ？",					D3DXVECTOR3(SCREEN_CENT.x, 30.0f, 0.0f),  50.0f);
@@ -134,10 +133,25 @@ HRESULT CScene::Init(void)
 	CString2D::Create(pFontChar, L"もう参っちゃうね",					D3DXVECTOR3(SCREEN_CENT.x, 210.0f, 0.0f), 60.0f);
 #endif
 #else
-	CString2D::Create(pFontChar, L"agj", SCREEN_CENT, 60.0f, CString2D::ORIGIN_CENTER);
+#if 0
+	CString2D::Create(pFontChar, L"aiueo!かきこ！", SCREEN_CENT, 60.0f, CString2D::ORIGIN_CENTER);
 	CObject2D *p = CObject2D::Create(SCREEN_CENT, VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
 	p->SetPriority(7);
 	p->SetLabel(CObject::LABEL_EFFECT);
+#else
+	CString2D *p = CString2D::Create(pFontChar, L"aiueo!かきこ！", SCREEN_CENT, 60.0f, CString2D::ORIGIN_CENTER);
+	p->GetChar2D(0)->SetHeight(120.0f);
+	p->GetChar2D(5)->SetHeight(120.0f);
+	p->GetChar2D(9)->SetHeight(120.0f);
+
+	CObject2D *pp = CObject2D::Create(SCREEN_CENT, VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
+	pp->SetPriority(7);
+	pp->SetLabel(CObject::LABEL_EFFECT);
+
+	CObject2D *ppp = CObject2D::Create(D3DXVECTOR3(SCREEN_CENT.x, 500.0f, 0.0f), D3DXVECTOR3(p->GetStrWidth(), 60.0f, 0.0f), VEC3_ZERO, XCOL_GREEN);
+	ppp->SetPriority(7);
+	ppp->SetLabel(CObject::LABEL_EFFECT);
+#endif
 #endif
 
 #else

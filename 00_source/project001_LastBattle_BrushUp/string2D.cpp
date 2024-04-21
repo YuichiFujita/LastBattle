@@ -322,6 +322,22 @@ float CString2D::GetStrWidth(void)
 }
 
 //============================================================
+//	文字取得処理
+//============================================================
+CChar2D *CString2D::GetChar2D(const int nCharID) const
+{
+	// 文字列がない場合抜ける
+	int nStrLen = (int)m_wsStr.size();
+	if (nStrLen <= 0) { assert(false); return nullptr; }
+
+	// インデックスが範囲外の場合抜ける
+	if (nCharID <= NONE_IDX || nCharID >= nStrLen) { assert(false); return nullptr; }
+
+	// 引数インデックスの文字を返す
+	return m_ppChar[nCharID];
+}
+
+//============================================================
 //	原点の設定処理
 //============================================================
 void CString2D::SetOrigin(const EOrigin origin)
