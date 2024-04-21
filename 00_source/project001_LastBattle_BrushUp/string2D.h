@@ -73,8 +73,8 @@ public:
 		CFontChar *pFontChar,		// フォント文字情報
 		const std::wstring &rStr	// 指定文字列
 	);
-	float GetStrWidth(void);	// 文字列の横幅取得
 	CChar2D *GetChar2D(const int nCharID) const;	// 文字取得
+	float GetStrWidth(void) const;			// 文字列の横幅取得
 	void SetOrigin(const EOrigin origin);	// 原点設定
 	EOrigin GetOrigin(void) const;			// 原点取得
 

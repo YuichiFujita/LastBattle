@@ -31,6 +31,7 @@
 #include "fontChar.h"
 #include "char2D.h"
 #include "string2D.h"
+#include "text2D.h"
 
 //************************************************************
 //	定数宣言
@@ -107,6 +108,24 @@ HRESULT CScene::Init(void)
 #endif
 
 	// TODO：文字表示
+#if 1
+	CFont *pFont = GET_MANAGER->GetFont();
+	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
+	CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
+	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT, 60.0f, 120.0f);
+	p->AddString(L"あ");
+	p->AddString(L"　い");
+	p->AddString(L"　　う");
+#else
 #if 1
 	CFont *pFont = GET_MANAGER->GetFont();
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
@@ -236,6 +255,7 @@ HRESULT CScene::Init(void)
 			fPosX = ppsx->GetVec3Position().x - ppsx->GetOffset() + ppsx->GetNext();
 		}
 	}
+#endif
 #endif
 
 	// 成功を返す

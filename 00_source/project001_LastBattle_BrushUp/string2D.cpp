@@ -285,14 +285,33 @@ HRESULT CString2D::SetFontString
 		}
 	}
 
+	// 相対位置の設定
+	SetPositionRelative();
+
 	// 成功を返す
 	return S_OK;
 }
 
 //============================================================
+//	文字取得処理
+//============================================================
+CChar2D *CString2D::GetChar2D(const int nCharID) const
+{
+	// 文字列がない場合抜ける
+	int nStrLen = (int)m_wsStr.size();
+	if (nStrLen <= 0) { assert(false); return nullptr; }
+
+	// インデックスが範囲外の場合抜ける
+	if (nCharID <= NONE_IDX || nCharID >= nStrLen) { assert(false); return nullptr; }
+
+	// 引数インデックスの文字を返す
+	return m_ppChar[nCharID];
+}
+
+//============================================================
 //	文字列の横幅取得処理
 //============================================================
-float CString2D::GetStrWidth(void)
+float CString2D::GetStrWidth(void) const
 {
 	// 文字列がない場合抜ける
 	if ((int)m_wsStr.size() <= 0) { assert(false); return 0.0f; }
@@ -319,22 +338,6 @@ float CString2D::GetStrWidth(void)
 
 	// 文字列の横幅を返す
 	return fStrWidth;
-}
-
-//============================================================
-//	文字取得処理
-//============================================================
-CChar2D *CString2D::GetChar2D(const int nCharID) const
-{
-	// 文字列がない場合抜ける
-	int nStrLen = (int)m_wsStr.size();
-	if (nStrLen <= 0) { assert(false); return nullptr; }
-
-	// インデックスが範囲外の場合抜ける
-	if (nCharID <= NONE_IDX || nCharID >= nStrLen) { assert(false); return nullptr; }
-
-	// 引数インデックスの文字を返す
-	return m_ppChar[nCharID];
 }
 
 //============================================================
