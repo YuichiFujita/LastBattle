@@ -8,7 +8,6 @@
 //	インクルードファイル
 //************************************************************
 #include "font.h"
-#include <wingdi.h>
 #include "manager.h"
 #include "renderer.h"
 
@@ -85,13 +84,9 @@ void CFont::Uninit(void)
 			FR_PRIVATE,		// フォント特性
 			nullptr
 		);
-		if (nError == 0)
-		{ // 破棄に失敗した場合
 
-			// ウインドウの破棄
-			assert(false);
-			CManager::ReleaseWindow();
-		}
+		// 破棄失敗
+		if (nError == 0) { assert(false); }
 	}
 
 	// フォント連想配列をクリア

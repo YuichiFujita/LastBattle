@@ -40,8 +40,8 @@ public:
 	// 静的メンバ関数
 	static CChar2D *Create	// 生成
 	( // 引数
-		CFontChar *pFontChar,		// フォント文字情報
-		const wchar_t wcChar,		// 指定文字
+		CFontChar *pFontChar,	// フォント文字情報
+		const wchar_t wcChar,	// 指定文字
 		const D3DXVECTOR3& rPos = VEC3_ZERO,	// 位置
 		const float fHeight = 100.0f,			// 縦幅
 		const D3DXVECTOR3& rRot = VEC3_ZERO,	// 向き

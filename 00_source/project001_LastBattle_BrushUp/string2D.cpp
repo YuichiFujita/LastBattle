@@ -82,11 +82,6 @@ void CString2D::Uninit(void)
 //============================================================
 void CString2D::Update(void)
 {
-	// TODO
-	D3DXVECTOR3 rot = GetVec3Rotation();
-	rot.z += 0.01f;
-	SetVec3Rotation(rot);
-
 	// 相対位置の設定
 	SetPositionRelative();
 }
@@ -161,9 +156,6 @@ void CString2D::SetHeight(const float fHeight)
 		// 文字縦幅の設定
 		assert(m_ppChar[i] != nullptr);
 		m_ppChar[i]->SetHeight(fHeight);
-
-		// TODO
-		//m_ppChar[i]->BindTexture(-1);
 	}
 
 	// 相対位置の設定
@@ -367,114 +359,33 @@ void CString2D::SetPositionRelative(void)
 	// 文字列がない場合抜ける
 	if ((int)m_wsStr.size() <= 0) { assert(false); return; }
 
-#if 0
 	assert(m_ppChar[0] != nullptr);
-	float fStrWidth = GetStrWidth() * 0.5f;	// 文字列全体の横幅
-	float fHeadWidth = m_ppChar[0]->GetVec3Sizing().x * 0.5f;	// 先頭文字の横幅
-	float fStartPosX = m_pos.x - fStrWidth + (fHeadWidth - m_ppChar[0]->GetOffset());	// 開始X座標
+	float fStrWidth		= GetStrWidth() * 0.5f;		// 文字列全体の横幅
+	float fHeadOffset	= m_ppChar[0]->GetOffset();	// 先頭文字の原点オフセット
+	float fHeadRot		= m_ppChar[0]->GetVec3Rotation().z - HALF_PI;	// 先頭文字の向き
+	float fHeadWidth	= m_ppChar[0]->GetVec3Sizing().x * 0.5f;		// 先頭文字の横幅
+	float fStartOffset	= fStrWidth - (fHeadWidth - fHeadOffset) + (fStrWidth * (m_origin - 1));	// 文字の開始位置オフセット
 
-	// 開始X座標を原点に応じてずらす
-	fStartPosX -= fStrWidth * (m_origin - 1);
+	D3DXVECTOR3 posStart;	// 文字の開始位置
+	posStart.x = m_pos.x + sinf(fHeadRot) * fStartOffset;	// 開始位置X
+	posStart.y = m_pos.y + cosf(fHeadRot) * fStartOffset;	// 開始位置Y
 
 	for (int i = 0; i < (int)m_wsStr.size(); i++)
 	{ // 文字数分繰り返す
 
-		// 文字の設定座標
-		D3DXVECTOR3 posChar = D3DXVECTOR3(fStartPosX, m_pos.y, 0.0f);
+		assert(m_ppChar[i] != nullptr);
+		float fOffset = m_ppChar[i]->GetOffset();	// 原点オフセット
+		float fNext = m_ppChar[i]->GetNext();		// 次文字までの距離
 
 		// 設定座標に原点オフセットを与える
-		assert(m_ppChar[i] != nullptr);
-		posChar.x += m_ppChar[i]->GetOffset();
-
-		// 位置を反映
-		m_ppChar[i]->SetVec3Position(posChar);
-
-		// 次の設定座標の開始点を保存
-		fStartPosX = m_ppChar[i]->GetVec3Position().x - m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext();
-	}
-#else
-#if 0
-	assert(m_ppChar[0] != nullptr);
-	float fStrWidth = GetStrWidth() * 0.5f;	// 文字列全体の横幅
-	float fHeadRot = m_ppChar[0]->GetVec3Rotation().z - HALF_PI;	// 先頭文字の向き
-	float fHeadWidth = m_ppChar[0]->GetVec3Sizing().x * 0.5f;		// 先頭文字の横幅
-
-	D3DXVECTOR3 posStart = VEC3_ZERO;
-	posStart.x = m_pos.x - sinf(fHeadRot) * ((fStrWidth + fHeadWidth - m_ppChar[0]->GetOffset()) * (fStrWidth * (m_origin - 1)));
-	posStart.y = m_pos.y - cosf(fHeadRot) * ((fStrWidth + fHeadWidth - m_ppChar[0]->GetOffset()) * (fStrWidth * (m_origin - 1)));
-
-	for (int i = 0; i < (int)m_wsStr.size(); i++)
-	{ // 文字数分繰り返す
-
-#if 0
-		// 設定座標に原点オフセットを与える
-		assert(m_ppChar[i] != nullptr);
-		D3DXVECTOR3 posChar = VEC3_ZERO;
-		posChar.x = posStart.x + sinf(fHeadRot) * m_ppChar[i]->GetOffset();
-		posChar.y = posStart.y + cosf(fHeadRot) * m_ppChar[i]->GetOffset();
-
-		// 位置を反映
-		m_ppChar[i]->SetVec3Position(posChar);
-
-		// 次の設定座標の開始点を保存
-		posStart.x = posChar.x - sinf(fHeadRot) * (m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext());
-		posStart.y = posChar.y - cosf(fHeadRot) * (m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext());
-#else
-		// 設定座標に原点オフセットを与える
-		assert(m_ppChar[i] != nullptr);
-		D3DXVECTOR3 posChar;
-		posChar.x = posStart.x + sinf(fHeadRot) * m_ppChar[i]->GetOffset();
-		posChar.y = posStart.y + cosf(fHeadRot) * m_ppChar[i]->GetOffset();
-
-		// 位置を反映
-		m_ppChar[i]->SetVec3Position(posChar);
-
-		// 次の設定座標の開始点を保存
-		posStart.x = m_ppChar[i]->GetVec3Position().x - sinf(fHeadRot) * (m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext());
-		posStart.y = m_ppChar[i]->GetVec3Position().y - cosf(fHeadRot) * (m_ppChar[i]->GetOffset() + m_ppChar[i]->GetNext());
-#endif
-	}
-#else
-	assert(m_ppChar[0] != nullptr);
-	float fStrWidth = GetStrWidth() * 0.5f;	// 文字列全体の横幅
-	float fHeadRot = m_ppChar[0]->GetVec3Rotation().z - HALF_PI;	// 先頭文字の向き
-	float fHeadWidth = m_ppChar[0]->GetVec3Sizing().x * 0.5f;		// 先頭文字の横幅
-
-#if 1
-	D3DXVECTOR3 posStart;
-	posStart.x = m_pos.x + sinf(fHeadRot) * (fStrWidth - (fHeadWidth - m_ppChar[0]->GetOffset()) + (fStrWidth * (m_origin - 1)));
-	posStart.y = m_pos.y + cosf(fHeadRot) * (fStrWidth - (fHeadWidth - m_ppChar[0]->GetOffset()) + (fStrWidth * (m_origin - 1)));
-#else
-	float fStartPosX = fStrWidth + (fHeadWidth - m_ppChar[0]->GetOffset());	// 開始X座標
-
-	// 開始X座標を原点に応じてずらす
-	fStartPosX -= fStrWidth * (m_origin - 1);
-
-	D3DXVECTOR3 posStart = VEC3_ZERO;
-	posStart.x = m_pos.x + sinf(fHeadRot) * fStartPosX;
-	posStart.y = m_pos.y + cosf(fHeadRot) * fStartPosX;
-#endif
-
-	//for (int i = 0; i < 1; i++)
-	for (int i = 0; i < (int)m_wsStr.size(); i++)
-	{ // 文字数分繰り返す
-
-#if 1
-		// 設定座標に原点オフセットを与える
-		assert(m_ppChar[i] != nullptr);
-		posStart.x -= sinf(fHeadRot) * m_ppChar[i]->GetOffset();
-		posStart.y -= cosf(fHeadRot) * m_ppChar[i]->GetOffset();
+		posStart.x -= sinf(fHeadRot) * fOffset;
+		posStart.y -= cosf(fHeadRot) * fOffset;
 
 		// 位置を反映
 		m_ppChar[i]->SetVec3Position(posStart);
 
 		// 次の設定座標の開始点を保存
-		posStart.x += sinf(fHeadRot) * (m_ppChar[i]->GetOffset() - m_ppChar[i]->GetNext());
-		posStart.y += cosf(fHeadRot) * (m_ppChar[i]->GetOffset() - m_ppChar[i]->GetNext());
-#else
-
-#endif
+		posStart.x += sinf(fHeadRot) * (fOffset - fNext);
+		posStart.y += cosf(fHeadRot) * (fOffset - fNext);
 	}
-#endif
-#endif
 }
