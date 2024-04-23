@@ -114,27 +114,27 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
+	CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-	CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
 
 	// テキスト
-	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT - D3DXVECTOR3(240.0f, 0.0f, 0.0f), 80.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER);
-	p->AddString(L"ああああああ");
-	p->AddString(L"いいいいいいいいいいい");
-	p->AddString(L"うううう");
+	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT - D3DXVECTOR3(520.0f, 0.0f, 0.0f), 60.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER);
+	p->AddString(L"こんにちは！");
+	p->AddString(L"UNDERTALEみたいな表示です！");
+	p->AddString(L"どうかな？");
 
-	CObject2D *pp = CObject2D::Create(SCREEN_CENT - D3DXVECTOR3(240.0f, 0.0f, 0.0f), VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
-	pp->SetPriority(7);
-	pp->SetLabel(CObject::LABEL_EFFECT);
+	//CObject2D *pp = CObject2D::Create(SCREEN_CENT - D3DXVECTOR3(240.0f, 0.0f, 0.0f), VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
+	//pp->SetPriority(7);
+	//pp->SetLabel(CObject::LABEL_EFFECT);
 
-	CObject2D *ppp = CObject2D::Create(SCREEN_CENT + D3DXVECTOR3(240.0f, 0.0f, 0.0f), D3DXVECTOR3(250.0f, p->GetTextHeight(), 0.0f), VEC3_ZERO, XCOL_WHITE);
-	ppp->SetPriority(7);
-	ppp->SetLabel(CObject::LABEL_EFFECT);
+	//CObject2D *ppp = CObject2D::Create(SCREEN_CENT + D3DXVECTOR3(240.0f, 0.0f, 0.0f), D3DXVECTOR3(250.0f, p->GetTextHeight(), 0.0f), VEC3_ZERO, XCOL_WHITE);
+	//ppp->SetPriority(7);
+	//ppp->SetLabel(CObject::LABEL_EFFECT);
 
 	// 文字列
 #if 0

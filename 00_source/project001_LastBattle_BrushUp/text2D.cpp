@@ -18,7 +18,7 @@
 //************************************************************
 namespace
 {
-	const int PRIORITY = 5;	// テキスト2Dの優先順位
+	const int PRIORITY = 6;	// テキスト2Dの優先順位
 }
 
 //************************************************************
@@ -93,33 +93,6 @@ void CText2D::Uninit(void)
 //============================================================
 void CText2D::Update(void)
 {
-	// TODO
-#if 1
-	if (GET_INPUTKEY->IsPress(DIK_W))
-	{
-		m_pos.y += 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_S))
-	{
-		m_pos.y -= 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_A))
-	{
-		m_pos.x += 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_D))
-	{
-		m_pos.x -= 1.0f;
-	}
-#endif
-
-	// TODO
-#if 1
-	D3DXVECTOR3 rot = GetVec3Rotation();
-	rot.z += 0.005f;
-	SetVec3Rotation(rot);
-#endif
-
 	// 相対位置の設定
 	SetPositionRelative();
 }
