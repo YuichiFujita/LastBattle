@@ -30,8 +30,7 @@ namespace
 CString2D::CString2D() : CObject(CObject::LABEL_UI, CObject::DIM_2D, PRIORITY),
 	m_ppChar	(nullptr),		// 文字ポリゴンの情報
 	m_pos		(VEC3_ZERO),	// 位置
-	m_origin	(ORIGIN_CENTER)	// 原点
-
+	m_alignX	(XALIGN_CENTER)	// 横配置
 {
 
 }
@@ -52,7 +51,7 @@ HRESULT CString2D::Init(void)
 	// メンバ変数を初期化
 	m_ppChar	= nullptr;			// 文字ポリゴンの情報
 	m_pos		= VEC3_ZERO;		// 位置
-	m_origin	= ORIGIN_CENTER;	// 原点
+	m_alignX	= XALIGN_CENTER;	// 横配置
 
 	// 成功を返す
 	return S_OK;
@@ -184,7 +183,7 @@ CString2D *CString2D::Create
 	const std::wstring &rStr,	// 指定文字列
 	const D3DXVECTOR3 &rPos,	// 原点位置
 	const float fHeight,		// 文字縦幅
-	const EOrigin origin,		// 原点
+	const EAlignX alignX,		// 横配置
 	const D3DXVECTOR3& rRot		// 原点向き
 )
 {
@@ -225,8 +224,8 @@ CString2D *CString2D::Create
 		// 文字縦幅を設定
 		pString2D->SetHeight(fHeight);
 
-		// 原点を設定
-		pString2D->SetOrigin(origin);
+		// 横配置を設定
+		pString2D->SetAlignX(alignX);
 
 		// 確保したアドレスを返す
 		return pString2D;
@@ -341,24 +340,24 @@ float CString2D::GetStrWidth(void) const
 }
 
 //============================================================
-//	原点の設定処理
+//	横配置の設定処理
 //============================================================
-void CString2D::SetOrigin(const EOrigin origin)
+void CString2D::SetAlignX(const CString2D::EAlignX alignX)
 {
-	// 引数の原点を設定
-	m_origin = origin;
+	// 引数の横配置を設定
+	m_alignX = alignX;
 
 	// 相対位置の設定
 	SetPositionRelative();
 }
 
 //============================================================
-//	原点取得処理
+//	横配置の取得処理
 //============================================================
-CString2D::EOrigin CString2D::GetOrigin(void) const
+CString2D::EAlignX CString2D::GetAlignX(void) const
 {
-	// 原点を返す
-	return m_origin;
+	// 横配置を返す
+	return m_alignX;
 }
 
 //============================================================
@@ -383,7 +382,7 @@ void CString2D::SetPositionRelative(void)
 	float fHeadOffset	= m_ppChar[0]->GetOffset();	// 先頭文字の原点オフセット
 	float fHeadRot		= m_ppChar[0]->GetVec3Rotation().z - HALF_PI;	// 先頭文字の向き
 	float fHeadWidth	= m_ppChar[0]->GetVec3Sizing().x * 0.5f;		// 先頭文字の横幅
-	float fStartOffset	= fStrWidth - (fHeadWidth - fHeadOffset) + (fStrWidth * (m_origin - 1));	// 文字の開始位置オフセット
+	float fStartOffset	= fStrWidth - (fHeadWidth - fHeadOffset) + (fStrWidth * (m_alignX - 1));	// 文字の開始位置オフセット
 
 	D3DXVECTOR3 posStart;	// 文字の開始位置
 	posStart.x = m_pos.x + sinf(fHeadRot) * fStartOffset;	// 開始位置X

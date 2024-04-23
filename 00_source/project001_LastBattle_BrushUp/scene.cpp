@@ -121,10 +121,34 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
-	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT, 60.0f, 120.0f);
-	p->AddString(L"あ");
-	p->AddString(L"　い");
-	p->AddString(L"　　う");
+
+	// テキスト
+	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT - D3DXVECTOR3(240.0f, 0.0f, 0.0f), 80.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER);
+	p->AddString(L"ああああああ");
+	p->AddString(L"いいいいいいいいいいい");
+	p->AddString(L"うううう");
+
+	CObject2D *pp = CObject2D::Create(SCREEN_CENT - D3DXVECTOR3(240.0f, 0.0f, 0.0f), VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
+	pp->SetPriority(7);
+	pp->SetLabel(CObject::LABEL_EFFECT);
+
+	CObject2D *ppp = CObject2D::Create(SCREEN_CENT + D3DXVECTOR3(240.0f, 0.0f, 0.0f), D3DXVECTOR3(250.0f, p->GetTextHeight(), 0.0f), VEC3_ZERO, XCOL_WHITE);
+	ppp->SetPriority(7);
+	ppp->SetLabel(CObject::LABEL_EFFECT);
+
+	// 文字列
+#if 0
+	CString2D *pppp = CString2D::Create(pFontChar, L"aiueo!かきこ！", SCREEN_CENT, 60.0f, CString2D::ORIGIN_CENTER);
+
+	CObject2D *ppppp = CObject2D::Create(SCREEN_CENT, VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
+	ppppp->SetPriority(7);
+	ppppp->SetLabel(CObject::LABEL_EFFECT);
+
+	CObject2D *pppppp = CObject2D::Create(D3DXVECTOR3(SCREEN_CENT.x, 500.0f, 0.0f), D3DXVECTOR3(pppp->GetStrWidth(), 60.0f, 0.0f), VEC3_ZERO, XCOL_GREEN);
+	pppppp->SetPriority(7);
+	pppppp->SetLabel(CObject::LABEL_EFFECT);
+#endif
+
 #else
 #if 1
 	CFont *pFont = GET_MANAGER->GetFont();

@@ -36,6 +36,7 @@ public:
 	void Draw(CShader *pShader = nullptr) override;			// •`‰æ
 	void SetVec3Sizing(const D3DXVECTOR3& rSize) override;	// ‘å‚«‚³İ’è
 	void SetHeight(const float fHeight) override;			// c•İ’è
+	float GetHeight(void) const override;					// c•æ“¾
 
 	// Ã“Iƒƒ“ƒoŠÖ”
 	static CChar2D *Create	// ¶¬
