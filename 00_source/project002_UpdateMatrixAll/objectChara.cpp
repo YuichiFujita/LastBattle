@@ -111,15 +111,12 @@ void CObjectChara::Update(void)
 }
 
 //============================================================
-//	描画処理
+//	マトリックス更新処理
 //============================================================
-void CObjectChara::Draw(CShader *pShader)
+void CObjectChara::UpdateMatrix(void)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_mtxWorld);
@@ -131,15 +128,21 @@ void CObjectChara::Draw(CShader *pShader)
 	// 位置を反映
 	D3DXMatrixTranslation(&mtxTrans, m_pos.x, m_pos.y, m_pos.z);
 	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTrans);
+}
 
+//============================================================
+//	描画処理
+//============================================================
+void CObjectChara::Draw(void)
+{
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
+	GET_DEVICE->SetTransform(D3DTS_WORLD, &m_mtxWorld);
 
 	for (int nCntChara = 0; nCntChara < m_nNumModel; nCntChara++)
 	{ // パーツの総数分繰り返す
 
 		// パーツの描画
-		m_apMultiModel[nCntChara]->Draw(pShader);
+		m_apMultiModel[nCntChara]->Draw();
 	}
 }
 

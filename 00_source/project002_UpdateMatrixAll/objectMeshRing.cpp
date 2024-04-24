@@ -127,18 +127,12 @@ void CObjectMeshRing::Update(void)
 }
 
 //============================================================
-//	描画処理
+//	マトリックス更新処理
 //============================================================
-void CObjectMeshRing::Draw(CShader *pShader)
+void CObjectMeshRing::UpdateMatrix(void)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// レンダーステートを設定
-	m_pRenderState->Set();
 
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_meshRing.mtxWorld);
@@ -150,6 +144,18 @@ void CObjectMeshRing::Draw(CShader *pShader)
 	// 位置を反映
 	D3DXMatrixTranslation(&mtxTrans, m_meshRing.pos.x, m_meshRing.pos.y, m_meshRing.pos.z);
 	D3DXMatrixMultiply(&m_meshRing.mtxWorld, &m_meshRing.mtxWorld, &mtxTrans);
+}
+
+//============================================================
+//	描画処理
+//============================================================
+void CObjectMeshRing::Draw(void)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// レンダーステートを設定
+	m_pRenderState->Set();
 
 	// ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_meshRing.mtxWorld);
@@ -163,18 +169,19 @@ void CObjectMeshRing::Draw(CShader *pShader)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-	if (pShader == nullptr)
-	{ // シェーダーが使用されていない場合
+	// テクスチャの設定
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
 
-		// 通常描画
-		DrawNormal();
-	}
-	else
-	{ // シェーダーが使用されている場合
-
-		// シェーダー描画
-		DrawShader(pShader);
-	}
+	// ポリゴンの描画
+	pDevice->DrawIndexedPrimitive
+	( // 引数
+		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
+		0,
+		0,
+		m_nNumVtx,		// 使用する頂点数
+		0,				// インデックスバッファの開始地点
+		m_nNumIdx - 2	// プリミティブ (ポリゴン) 数
+	);
 
 	// レンダーステートを再設定
 	m_pRenderState->Reset();
@@ -697,73 +704,4 @@ void CObjectMeshRing::Release(void)
 {
 	// オブジェクトの破棄
 	CObject::Release();
-}
-
-//============================================================
-//	通常描画処理
-//============================================================
-void CObjectMeshRing::DrawNormal(void)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawIndexedPrimitive
-	( // 引数
-		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
-		0,
-		0,
-		m_nNumVtx,		// 使用する頂点数
-		0,				// インデックスバッファの開始地点
-		m_nNumIdx - 2	// プリミティブ (ポリゴン) 数
-	);
-}
-
-//============================================================
-//	シェーダー描画処理
-//============================================================
-void CObjectMeshRing::DrawShader(CShader *pShader)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// 描画開始
-	pShader->Begin();
-	pShader->BeginPass(0);
-
-	// マトリックス情報を設定
-	pShader->SetMatrix(&m_meshRing.mtxWorld);
-
-	// ライト方向を設定
-	pShader->SetLightDirect(&m_meshRing.mtxWorld, 0);
-
-	// 拡散光を設定
-	pShader->SetOnlyDiffuse(m_meshRing.col);
-
-	// テクスチャを設定
-	pShader->SetTexture(m_nTextureID);
-
-	// 状態変更の伝達
-	pShader->CommitChanges();
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawIndexedPrimitive
-	( // 引数
-		D3DPT_TRIANGLESTRIP,	// プリミティブの種類
-		0,
-		0,
-		m_nNumVtx,		// 使用する頂点数
-		0,				// インデックスバッファの開始地点
-		m_nNumIdx - 2	// プリミティブ (ポリゴン) 数
-	);
-
-	// 描画終了
-	pShader->EndPass();
-	pShader->End();
 }

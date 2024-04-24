@@ -170,15 +170,12 @@ void CObjectMeshCube::Update(void)
 }
 
 //============================================================
-//	描画処理
+//	マトリックス更新処理
 //============================================================
-void CObjectMeshCube::Draw(CShader *pShader)
+void CObjectMeshCube::UpdateMatrix(void)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_meshCube.mtxWorld);
@@ -190,6 +187,18 @@ void CObjectMeshCube::Draw(CShader *pShader)
 	// 位置を反映
 	D3DXMatrixTranslation(&mtxTrans, m_meshCube.pos.x, m_meshCube.pos.y, m_meshCube.pos.z);
 	D3DXMatrixMultiply(&m_meshCube.mtxWorld, &m_meshCube.mtxWorld, &mtxTrans);
+}
+
+//============================================================
+//	描画処理
+//============================================================
+void CObjectMeshCube::Draw(void)
+{
+	// 変数配列を宣言
+	int aTexType[NUM_CUBE_FACE];	// テクスチャ設定用
+
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_meshCube.mtxWorld);
@@ -203,17 +212,99 @@ void CObjectMeshCube::Draw(CShader *pShader)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-	if (pShader == nullptr)
-	{ // シェーダーが使用されていない場合
+	//--------------------------------------------------------
+	//	キューブの描画
+	//--------------------------------------------------------
+	// レンダーステートを設定
+	m_pRenderState->Set();
 
-		// 通常描画
-		DrawNormal();
+	switch (m_meshCube.texState)
+	{ // テクスチャ使用状態ごとの処理
+	case TEXSTATE_ONE:		// 同一テクスチャ
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_meshCube.texID.All));
+
+		// ポリゴンの描画
+		pDevice->DrawIndexedPrimitive
+		( // 引数
+			D3DPT_TRIANGLESTRIP,	// プリミティブの種類
+			0,
+			0,
+			NEED_VTX_CUBE,			// 使用する頂点数
+			0,						// インデックスバッファの開始地点
+			NEED_VTX_CUBE - 2		// プリミティブ (ポリゴン) 数
+		);
+
+		// 処理を抜ける
+		break;
+
+	case TEXSTATE_SELECT:	// 全選択テクスチャ
+
+		// テクスチャの種類を設定
+		aTexType[0] = m_meshCube.texID.Top;		// 上のテクスチャ
+		aTexType[1] = m_meshCube.texID.Right;	// 右のテクスチャ
+		aTexType[2] = m_meshCube.texID.Near;	// 前のテクスチャ
+		aTexType[3] = m_meshCube.texID.Left;	// 左のテクスチャ
+		aTexType[4] = m_meshCube.texID.Far;		// 後のテクスチャ
+		aTexType[5] = m_meshCube.texID.Bottom;	// 下のテクスチャ
+
+		for (int nCntFace = 0; nCntFace < NUM_CUBE_FACE; nCntFace++)
+		{ // 面の総数分繰り返す
+
+			// テクスチャの設定
+			pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(aTexType[nCntFace]));
+
+			// ポリゴンの描画
+			pDevice->DrawIndexedPrimitive
+			( // 引数
+				D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+				0,
+				0,
+				NUM_VTX_FACE,				// 使用する頂点数
+				nCntFace * NUM_VTX_FACE,	// インデックスバッファの開始地点
+				NUM_VTX_FACE - 2			// プリミティブ (ポリゴン) 数
+			);
+		}
+
+		// 処理を抜ける
+		break;
 	}
-	else
-	{ // シェーダーが使用されている場合
 
-		// シェーダー描画
-		DrawShader(pShader);
+	// レンダーステートを再設定
+	m_pRenderState->Reset();
+
+	//--------------------------------------------------------
+	//	縁取りの描画
+	//--------------------------------------------------------
+	if (m_meshCube.bordState == BORDER_ON)
+	{ // 縁取りがONの場合
+
+		// ポリゴンの裏面のみを表示状態にする
+		pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+
+		// ライティングを無効にする
+		pDevice->SetRenderState(D3DRS_LIGHTING, false);
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, nullptr);
+
+		// ポリゴンの描画
+		pDevice->DrawIndexedPrimitive
+		( // 引数
+			D3DPT_TRIANGLESTRIP,	// プリミティブの種類
+			0,
+			0,
+			NEED_VTX_CUBE,			// 使用する頂点数
+			NEED_VTX_CUBE,			// インデックスバッファの開始地点
+			NEED_VTX_CUBE - 2		// プリミティブ (ポリゴン) 数
+		);
+
+		// ポリゴンの表面のみを表示状態にする
+		pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+
+		// ライティングを有効にする
+		pDevice->SetRenderState(D3DRS_LIGHTING, true);
 	}
 }
 

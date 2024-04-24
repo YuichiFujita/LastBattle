@@ -93,9 +93,9 @@ void CObjectDivChara::Update(void)
 }
 
 //============================================================
-//	描画処理
+//	マトリックス更新処理
 //============================================================
-void CObjectDivChara::Draw(CShader *pShader)
+void CObjectDivChara::UpdateMatrix(void)
 {
 	// 変数を宣言
 	D3DXVECTOR3 pos = GetVec3Position();	// 下半身の位置
@@ -105,9 +105,6 @@ void CObjectDivChara::Draw(CShader *pShader)
 	// 変数配列を宣言
 	D3DXMATRIX *apMtxWorld[] = { &mtxWorld, GetMultiModel(BODY_LOWER, m_nUpperParentID)->GetPtrMtxWorld() };
 	static_assert(NUM_ARRAY(apMtxWorld) == BODY_MAX, "ERROR : Body Count Mismatch");
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&mtxWorld);
@@ -122,6 +119,22 @@ void CObjectDivChara::Draw(CShader *pShader)
 
 	// 下半身のワールドマトリックスの反映
 	m_apBody[BODY_LOWER]->SetMtxWorld(mtxWorld);
+}
+
+//============================================================
+//	描画処理
+//============================================================
+void CObjectDivChara::Draw(void)
+{
+	// 変数を宣言
+	D3DXMATRIX mtxWorld = m_apBody[BODY_LOWER]->GetMtxWorld();	// 下半身マトリックス
+
+	// 変数配列を宣言
+	D3DXMATRIX *apMtxWorld[] = { &mtxWorld, GetMultiModel(BODY_LOWER, m_nUpperParentID)->GetPtrMtxWorld() };
+	static_assert(NUM_ARRAY(apMtxWorld) == BODY_MAX, "ERROR : Body Count Mismatch");
+
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	for (int nCntChara = 0; nCntChara < BODY_MAX; nCntChara++)
 	{ // 分割した身体の数分繰り返す
@@ -133,7 +146,7 @@ void CObjectDivChara::Draw(CShader *pShader)
 		{ // パーツの総数分繰り返す
 
 			// パーツの描画
-			GetMultiModel((EBody)nCntChara, nCntParts)->Draw(pShader);
+			GetMultiModel((EBody)nCntChara, nCntParts)->Draw();
 		}
 	}
 }

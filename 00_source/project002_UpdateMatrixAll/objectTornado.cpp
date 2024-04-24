@@ -159,16 +159,13 @@ void CObjectTornado::Update(void)
 }
 
 //============================================================
-//	描画処理
+//	マトリックス更新処理
 //============================================================
-void CObjectTornado::Draw(CShader *pShader)
+void CObjectTornado::UpdateMatrix(void)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
 	D3DXMATRIX mtxOrigin;			// 発生源のマトリックス
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// レンダーステートを設定
 	m_pRenderState->Set();
@@ -209,10 +206,19 @@ void CObjectTornado::Draw(CShader *pShader)
 
 	// 発生源のマトリックスと掛け合わせる
 	D3DXMatrixMultiply(&m_tornado.mtxWorld, &m_tornado.mtxWorld, &mtxOrigin);
+}
 
-	//--------------------------------------------------------
-	//	竜巻を描画
-	//--------------------------------------------------------
+//============================================================
+//	描画処理
+//============================================================
+void CObjectTornado::Draw(void)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// レンダーステートを設定
+	m_pRenderState->Set();
+
 	// ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_tornado.mtxWorld);
 
@@ -222,18 +228,11 @@ void CObjectTornado::Draw(CShader *pShader)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-	if (pShader == nullptr)
-	{ // シェーダーが使用されていない場合
+	// テクスチャの設定
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
 
-		// 通常描画
-		DrawNormal();
-	}
-	else
-	{ // シェーダーが使用されている場合
-
-		// シェーダー描画
-		DrawShader(pShader);
-	}
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, m_nNumVtx - 2);
 
 	// レンダーステートを再設定
 	m_pRenderState->Reset();
@@ -709,57 +708,4 @@ void CObjectTornado::Release(void)
 {
 	// オブジェクトの破棄
 	CObject::Release();
-}
-
-//============================================================
-//	通常描画処理
-//============================================================
-void CObjectTornado::DrawNormal(void)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, m_nNumVtx - 2);
-}
-
-//============================================================
-//	シェーダー描画処理
-//============================================================
-void CObjectTornado::DrawShader(CShader *pShader)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// 描画開始
-	pShader->Begin();
-	pShader->BeginPass(0);
-
-	// マトリックス情報を設定
-	pShader->SetMatrix(&m_tornado.mtxWorld);
-
-	// ライト方向を設定
-	pShader->SetLightDirect(&m_tornado.mtxWorld, 0);
-
-	// 拡散光を設定
-	pShader->SetOnlyDiffuse(m_tornado.col);
-
-	// テクスチャを設定
-	pShader->SetTexture(m_nTextureID);
-
-	// 状態変更の伝達
-	pShader->CommitChanges();
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, m_nNumVtx - 2);
-
-	// 描画終了
-	pShader->EndPass();
-	pShader->End();
 }

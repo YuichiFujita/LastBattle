@@ -136,16 +136,13 @@ void CObjectBillboard::Update(void)
 }
 
 //============================================================
-//	描画処理
+//	マトリックス更新処理
 //============================================================
-void CObjectBillboard::Draw(CShader *pShader)
+void CObjectBillboard::UpdateMatrix(void)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxTrans;	// 計算用マトリックス
 	D3DXMATRIX mtxView;		// ビューマトリックス
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
 
 	// レンダーステートを設定
 	m_pRenderState->Set();
@@ -154,7 +151,7 @@ void CObjectBillboard::Draw(CShader *pShader)
 	D3DXMatrixIdentity(&m_mtxWorld);
 
 	// ビューマトリックスを取得
-	pDevice->GetTransform(D3DTS_VIEW, &mtxView);
+	GET_DEVICE->GetTransform(D3DTS_VIEW, &mtxView);
 
 	// ポリゴンをカメラに対して正面に向ける
 	D3DXMatrixInverse(&m_mtxWorld, nullptr, &mtxView);	// 逆行列を求める
@@ -188,6 +185,18 @@ void CObjectBillboard::Draw(CShader *pShader)
 	// 位置を反映
 	D3DXMatrixTranslation(&mtxTrans, m_pos.x, m_pos.y, m_pos.z);
 	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTrans);
+}
+
+//============================================================
+//	描画処理
+//============================================================
+void CObjectBillboard::Draw(void)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// レンダーステートを設定
+	m_pRenderState->Set();
 
 	// ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
@@ -198,18 +207,11 @@ void CObjectBillboard::Draw(CShader *pShader)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-	if (pShader == nullptr)
-	{ // シェーダーが使用されていない場合
+	// テクスチャの設定
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
 
-		// 通常描画
-		DrawNormal();
-	}
-	else
-	{ // シェーダーが使用されている場合
-
-		// シェーダー描画
-		DrawShader(pShader);
-	}
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 	// レンダーステートを再設定
 	m_pRenderState->Reset();
@@ -605,57 +607,4 @@ void CObjectBillboard::Release(void)
 {
 	// オブジェクトの破棄
 	CObject::Release();
-}
-
-//============================================================
-//	通常描画処理
-//============================================================
-void CObjectBillboard::DrawNormal(void)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-}
-
-//============================================================
-//	シェーダー描画処理
-//============================================================
-void CObjectBillboard::DrawShader(CShader *pShader)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// 描画開始
-	pShader->Begin();
-	pShader->BeginPass(0);
-
-	// マトリックス情報を設定
-	pShader->SetMatrix(&m_mtxWorld);
-
-	// ライト方向を設定
-	pShader->SetLightDirect(&m_mtxWorld, 0);
-
-	// 拡散光を設定
-	pShader->SetOnlyDiffuse(m_col);
-
-	// テクスチャを設定
-	pShader->SetTexture(m_nTextureID);
-
-	// 状態変更の伝達
-	pShader->CommitChanges();
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-
-	// 描画終了
-	pShader->EndPass();
-	pShader->End();
 }

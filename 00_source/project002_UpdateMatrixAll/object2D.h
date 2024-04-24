@@ -30,10 +30,11 @@ public:
 	~CObject2D() override;
 
 	// オーバーライド関数
-	HRESULT Init(void) override;	// 初期化
-	void Uninit(void) override;		// 終了
-	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;			// 描画
+	HRESULT Init(void) override;		// 初期化
+	void Uninit(void) override;			// 終了
+	void Update(void) override;			// 更新
+	void UpdateMatrix(void) override;	// マトリックス更新
+	void Draw(void) override;			// 描画
 	void BindTexture(const int nTextureID) override;		// テクスチャ割当 (インデックス)
 	void BindTexture(const char *pTexturePass) override;	// テクスチャ割当 (パス)
 	int GetTextureIndex(void) const override;				// テクスチャインデックス取得

@@ -51,10 +51,11 @@ public:
 	};
 
 	// オーバーライド関数
-	HRESULT Init(void) override;	// 初期化
-	void Uninit(void) override;		// 終了
-	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;			// 描画
+	HRESULT Init(void) override;		// 初期化
+	void Uninit(void) override;			// 終了
+	void Update(void) override;			// 更新
+	void UpdateMatrix(void) override;	// マトリックス更新
+	void Draw(void) override;			// 描画
 	void BindTexture(const int nTextureID) override;		// テクスチャ割当 (インデックス)
 	void BindTexture(const char *pTexturePass) override;	// テクスチャ割当 (パス)
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
@@ -105,10 +106,6 @@ protected:
 private:
 	// オーバーライド関数
 	void Release(void) override;	// 破棄
-
-	// メンバ関数
-	void DrawNormal(void);	// 通常描画
-	void DrawShader(CShader *pShader);	// シェーダー描画
 
 	// メンバ変数
 	LPDIRECT3DVERTEXBUFFER9 m_pVtxBuff;	// 頂点バッファへのポインタ

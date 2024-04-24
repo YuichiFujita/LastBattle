@@ -115,15 +115,23 @@ void CObjectMeshSphere::Update(void)
 }
 
 //============================================================
+//	マトリックス更新処理
+//============================================================
+void CObjectMeshSphere::UpdateMatrix(void)
+{
+
+}
+
+//============================================================
 //	描画処理
 //============================================================
-void CObjectMeshSphere::Draw(CShader *pShader)
+void CObjectMeshSphere::Draw(void)
 {
 	for (int i = 0; i < DOME_MAX; i++)
 	{ // 半球の総数分繰り返す
 
 		// メッシュドームの描画
-		m_apDome[i]->Draw(pShader);
+		m_apDome[i]->Draw();
 	}
 }
 

@@ -140,19 +140,27 @@ void CObjectMeshTube::Update(void)
 }
 
 //============================================================
+//	マトリックス更新処理
+//============================================================
+void CObjectMeshTube::UpdateMatrix(void)
+{
+
+}
+
+//============================================================
 //	描画処理
 //============================================================
-void CObjectMeshTube::Draw(CShader *pShader)
+void CObjectMeshTube::Draw(void)
 {
 	for (int i = 0; i < COVER_MAX; i++)
 	{ // 蓋の総数分繰り返す
 
 		// メッシュサークルの描画
-		m_apCover[i]->Draw(pShader);
+		m_apCover[i]->Draw();
 	}
 
 	// メッシュシリンダーの描画
-	m_pCylinder->Draw(pShader);
+	m_pCylinder->Draw();
 }
 
 //============================================================

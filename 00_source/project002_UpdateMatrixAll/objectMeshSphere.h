@@ -42,21 +42,22 @@ public:
 	~CObjectMeshSphere() override;
 
 	// オーバーライド関数
-	HRESULT Init(void) override;	// 初期化
-	void Uninit(void) override;		// 終了
-	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;			// 描画
+	HRESULT Init(void) override;		// 初期化
+	void Uninit(void) override;			// 終了
+	void Update(void) override;			// 更新
+	void UpdateMatrix(void) override;	// マトリックス更新
+	void Draw(void) override;			// 描画
 	void BindTexture(const int nTextureID) override;		// テクスチャ割当 (インデックス)
 	void BindTexture(const char *pTexturePass) override;	// テクスチャ割当 (パス)
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
-	void SetColor(const D3DXCOLOR& rCol) override;	// 色設定
-	D3DXCOLOR GetColor(void) const override;		// 色取得
-	void SetRadius(const float fRadius) override;	// 半径設定
-	float GetRadius(void) const override;			// 半径取得
-	void SetPriority(const int nPrio) override;		// 優先順位設定
+	void SetColor(const D3DXCOLOR& rCol) override;			// 色設定
+	D3DXCOLOR GetColor(void) const override;				// 色取得
+	void SetRadius(const float fRadius) override;			// 半径設定
+	float GetRadius(void) const override;					// 半径取得
+	void SetPriority(const int nPrio) override;				// 優先順位設定
 
 	// 静的メンバ関数
 	static CObjectMeshSphere *Create	// 生成

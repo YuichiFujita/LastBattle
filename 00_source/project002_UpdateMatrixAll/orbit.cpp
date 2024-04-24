@@ -141,9 +141,17 @@ void COrbit::Update(void)
 }
 
 //============================================================
+//	マトリックス更新処理
+//============================================================
+void COrbit::UpdateMatrix(void)
+{
+	// TODO：軌跡はここでけいさんしたい...
+}
+
+//============================================================
 //	描画処理
 //============================================================
-void COrbit::Draw(CShader *pShader)
+void COrbit::Draw(void)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxIdent;	// 単位マトリックス設定用
@@ -304,18 +312,11 @@ void COrbit::Draw(CShader *pShader)
 		// 頂点フォーマットの設定
 		pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-		if (pShader == nullptr)
-		{ // シェーダーが使用されていない場合
+		// テクスチャの設定
+		pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
 
-			// 通常描画
-			DrawNormal();
-		}
-		else
-		{ // シェーダーが使用されている場合
-
-			// シェーダー描画
-			DrawShader(pShader);
-		}
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, m_nNumVtx - 2);
 
 		// レンダーステートを再設定
 		m_pRenderState->Reset();
@@ -715,63 +716,4 @@ void COrbit::Release(void)
 {
 	// オブジェクトの破棄
 	CObject::Release();
-}
-
-//============================================================
-//	通常描画処理
-//============================================================
-void COrbit::DrawNormal(void)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, m_nNumVtx - 2);
-}
-
-//============================================================
-//	シェーダー描画処理
-//============================================================
-void COrbit::DrawShader(CShader *pShader)
-{
-	// 変数を宣言
-	D3DXMATRIX mtxIdent;	// 単位マトリックス設定用
-
-	// 単位マトリックスの初期化
-	D3DXMatrixIdentity(&mtxIdent);
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// 描画開始
-	pShader->Begin();
-	pShader->BeginPass(0);
-
-	// マトリックス情報を設定
-	pShader->SetMatrix(&mtxIdent);
-
-	// ライト方向を設定
-	pShader->SetLightDirect(&mtxIdent, 0);
-
-	// 拡散光を設定
-	pShader->SetOnlyDiffuse(m_orbit.pColPoint[0]);
-
-	// テクスチャを設定
-	pShader->SetTexture(m_nTextureID);
-
-	// 状態変更の伝達
-	pShader->CommitChanges();
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, m_nNumVtx - 2);
-
-	// 描画終了
-	pShader->EndPass();
-	pShader->End();
 }

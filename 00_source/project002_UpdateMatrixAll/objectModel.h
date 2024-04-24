@@ -31,10 +31,11 @@ public:
 	~CObjectModel() override;
 
 	// オーバーライド関数
-	HRESULT Init(void) override;	// 初期化
-	void Uninit(void) override;		// 終了
-	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;				// 描画
+	HRESULT Init(void) override;		// 初期化
+	void Uninit(void) override;			// 終了
+	void Update(void) override;			// 更新
+	void UpdateMatrix(void) override;	// マトリックス更新
+	void Draw(void) override;			// 描画
 	void BindModel(const int nModelID) override;				// モデル割当 (インデックス)
 	void BindModel(const char *pModelPass) override;			// モデル割当 (パス)
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;		// 位置設定
@@ -78,8 +79,6 @@ private:
 	void Release(void) override;	// 破棄
 
 	// メンバ関数
-	void DrawNormal(void);	// 通常描画
-	void DrawShader(CShader *pShader);	// シェーダー描画
 	HRESULT SetOriginMaterial(const LPD3DXBUFFER pBuffMat, const int nNumMat);	// 元マテリアル設定
 
 	// メンバ変数

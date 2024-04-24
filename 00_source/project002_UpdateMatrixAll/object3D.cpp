@@ -147,18 +147,12 @@ void CObject3D::Update(void)
 }
 
 //============================================================
-//	描画処理
+//	マトリックス更新処理
 //============================================================
-void CObject3D::Draw(CShader *pShader)
+void CObject3D::UpdateMatrix(void)
 {
 	// 変数を宣言
 	D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
-
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// レンダーステートを設定
-	m_pRenderState->Set();
 
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&m_mtxWorld);
@@ -170,6 +164,18 @@ void CObject3D::Draw(CShader *pShader)
 	// 位置を反映
 	D3DXMatrixTranslation(&mtxTrans, m_pos.x, m_pos.y, m_pos.z);
 	D3DXMatrixMultiply(&m_mtxWorld, &m_mtxWorld, &mtxTrans);
+}
+
+//============================================================
+//	描画処理
+//============================================================
+void CObject3D::Draw(void)
+{
+	// ポインタを宣言
+	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
+
+	// レンダーステートを設定
+	m_pRenderState->Set();
 
 	// ワールドマトリックスの設定
 	pDevice->SetTransform(D3DTS_WORLD, &m_mtxWorld);
@@ -180,18 +186,11 @@ void CObject3D::Draw(CShader *pShader)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(object::FVF_VERTEX_3D);
 
-	if (pShader == nullptr)
-	{ // シェーダーが使用されていない場合
+	// テクスチャの設定
+	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
 
-		// 通常描画
-		DrawNormal();
-	}
-	else
-	{ // シェーダーが使用されている場合
-
-		// シェーダー描画
-		DrawShader(pShader);
-	}
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
 
 	// レンダーステートを再設定
 	m_pRenderState->Reset();
@@ -653,59 +652,6 @@ void CObject3D::Release(void)
 {
 	// オブジェクトの破棄
 	CObject::Release();
-}
-
-//============================================================
-//	通常描画処理
-//============================================================
-void CObject3D::DrawNormal(void)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-}
-
-//============================================================
-//	シェーダー描画処理
-//============================================================
-void CObject3D::DrawShader(CShader *pShader)
-{
-	// ポインタを宣言
-	LPDIRECT3DDEVICE9 pDevice = GET_DEVICE;	// デバイスのポインタ
-
-	// 描画開始
-	pShader->Begin();
-	pShader->BeginPass(0);
-
-	// マトリックス情報を設定
-	pShader->SetMatrix(&m_mtxWorld);
-
-	// ライト方向を設定
-	pShader->SetLightDirect(&m_mtxWorld, 0);
-
-	// 拡散光を設定
-	pShader->SetOnlyDiffuse(m_col);
-
-	// テクスチャを設定
-	pShader->SetTexture(m_nTextureID);
-
-	// 状態変更の伝達
-	pShader->CommitChanges();
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, GET_MANAGER->GetTexture()->GetPtr(m_nTextureID));
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
-
-	// 描画終了
-	pShader->EndPass();
-	pShader->End();
 }
 
 //============================================================
