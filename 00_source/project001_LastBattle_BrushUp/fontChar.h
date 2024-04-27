@@ -23,6 +23,13 @@ public:
 	// デストラクタ
 	~CFontChar();
 
+	// 矩形の座標情報
+	struct SRectangle
+	{
+		POSGRID2 lu;	// 左上座標
+		POSGRID2 rd;	// 右下座標
+	};
+
 	// フォント文字構造体
 	struct SChar
 	{
@@ -32,7 +39,8 @@ public:
 		GLYPHMETRICS glyph;			// フォントグリフの情報
 		OUTLINETEXTMETRIC outline;	// フォントアウトラインの情報
 		TEXTMETRIC text;			// フォントテキストの情報
-		int nTexID;					// フォントテクスチャインデックス
+		SRectangle offsetBlackBox;	// ブラックボックスの中心からのオフセット
+		int nTexID;					// テクスチャインデックス
 	};
 
 	// メンバ関数

@@ -208,9 +208,35 @@ void CChar2D::SetFontChar
 }
 
 //============================================================
+//	ブラックボックスの左上オフセット取得処理
+//============================================================
+D3DXVECTOR2 CChar2D::GetOffsetBlackBoxLU(void)
+{
+	D3DXVECTOR2 tempOffset;	// float変換オフセット格納用
+	tempOffset.x = (float)m_infoChar.offsetBlackBox.lu.x;
+	tempOffset.y = (float)m_infoChar.offsetBlackBox.lu.y;
+
+	// ブラックボックスの左上オフセットを返す
+	return tempOffset * m_fSizeRate;
+}
+
+//============================================================
+//	ブラックボックスの右下オフセット取得処理
+//============================================================
+D3DXVECTOR2 CChar2D::GetOffsetBlackBoxRD(void)
+{
+	D3DXVECTOR2 tempOffset;	// float変換オフセット格納用
+	tempOffset.x = (float)m_infoChar.offsetBlackBox.rd.x;
+	tempOffset.y = (float)m_infoChar.offsetBlackBox.rd.y;
+
+	// ブラックボックスの右下オフセットを返す
+	return tempOffset * m_fSizeRate;
+}
+
+//============================================================
 //	原点のオフセット取得処理
 //============================================================
-float CChar2D::GetOffset(void)
+float CChar2D::GetOffsetOrigin(void)
 {
 	// 文字ブラックボックスの横幅
 	float fBlackBoxX = (float)m_infoChar.glyph.gmBlackBoxX;

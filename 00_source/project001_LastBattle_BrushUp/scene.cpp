@@ -108,7 +108,7 @@ HRESULT CScene::Init(void)
 #endif
 
 	// TODO：文字表示
-#if 1
+#if 0
 	CFont *pFont = GET_MANAGER->GetFont();
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
@@ -124,9 +124,9 @@ HRESULT CScene::Init(void)
 
 	// テキスト
 	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT - D3DXVECTOR3(520.0f, 0.0f, 0.0f), 60.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER);
-	p->AddString(L"こんにちは！");
-	p->AddString(L"UNDERTALEみたいな表示です！");
-	p->AddString(L"どうかな？");
+	p->AddString(L"こ");
+	p->AddString(L"U");
+	p->AddString(L"ど");
 
 	//CObject2D *pp = CObject2D::Create(SCREEN_CENT - D3DXVECTOR3(240.0f, 0.0f, 0.0f), VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
 	//pp->SetPriority(7);
@@ -156,14 +156,14 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
+	CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-	CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
+	//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
-#if 1
+#if 0
 #if 1
 	CString2D::Create(pFontChar, L"あいうえお！aiueo!アバダケダブラ？",					D3DXVECTOR3(SCREEN_CENT.x, 30.0f, 0.0f),  50.0f);
 	CString2D::Create(pFontChar, L"abcdefghijlmnopqrstuvwxyz",							D3DXVECTOR3(SCREEN_CENT.x, 90.0f, 0.0f),  50.0f);
@@ -182,10 +182,10 @@ HRESULT CScene::Init(void)
 	p->SetPriority(7);
 	p->SetLabel(CObject::LABEL_EFFECT);
 #else
-	CString2D *p = CString2D::Create(pFontChar, L"aiueo!かきこ！", SCREEN_CENT, 60.0f, CString2D::ORIGIN_CENTER);
-	p->GetChar2D(0)->SetHeight(120.0f);
-	p->GetChar2D(5)->SetHeight(120.0f);
-	p->GetChar2D(9)->SetHeight(120.0f);
+	CString2D *p = CString2D::Create(pFontChar, L"aaaa", SCREEN_CENT, 60.0f, CString2D::XALIGN_LEFT);
+	//p->GetChar2D(0)->SetHeight(120.0f);
+	//p->GetChar2D(5)->SetHeight(120.0f);
+	//p->GetChar2D(9)->SetHeight(120.0f);
 
 	CObject2D *pp = CObject2D::Create(SCREEN_CENT, VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
 	pp->SetPriority(7);
