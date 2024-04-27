@@ -214,9 +214,17 @@ void CBlur::Update(void)
 }
 
 //============================================================
+//	マトリックス更新処理
+//============================================================
+void CBlur::UpdateMatrix(void)
+{
+
+}
+
+//============================================================
 //	描画処理
 //============================================================
-void CBlur::Draw(CShader *pShader)
+void CBlur::Draw(void)
 {
 	if (m_state != STATE_NONE)
 	{ // 何もしない状態以外の場合
@@ -228,7 +236,7 @@ void CBlur::Draw(CShader *pShader)
 			{ // パーツ数分繰り返す
 
 				// パーツの描画
-				pBlur->apCharaParts[nCntParts]->Draw(pShader);
+				pBlur->apCharaParts[nCntParts]->Draw();
 			}
 		}
 	}

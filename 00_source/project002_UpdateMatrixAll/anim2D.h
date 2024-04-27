@@ -29,10 +29,11 @@ public:
 	~CAnim2D() override;
 
 	// オーバーライド関数
-	HRESULT Init(void) override;	// 初期化
-	void Uninit(void) override;		// 終了
-	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;			// 描画
+	HRESULT Init(void) override;		// 初期化
+	void Uninit(void) override;			// 終了
+	void Update(void) override;			// 更新
+	void UpdateMatrix(void) override;	// マトリックス更新
+	void Draw(void) override;			// 描画
 	void SetVec3Position(const D3DXVECTOR3& rPos) override;	// 位置設定
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 	void SetVec3Sizing(const D3DXVECTOR3& rSize) override;	// 大きさ設定

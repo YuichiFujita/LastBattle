@@ -76,12 +76,20 @@ void CDebugCollSphere::Update(void)
 }
 
 //============================================================
+//	マトリックス更新処理
+//============================================================
+void CDebugCollSphere::UpdateMatrix(void)
+{
+
+}
+
+//============================================================
 //	描画処理
 //============================================================
-void CDebugCollSphere::Draw(CShader *pShader)
+void CDebugCollSphere::Draw(void)
 {
 	// オブジェクトメッシュスフィアの描画
-	CObjectMeshSphere::Draw(pShader);
+	CObjectMeshSphere::Draw();
 }
 
 //============================================================

@@ -30,10 +30,11 @@ public:
 	~CChar2D() override;
 
 	// オーバーライド関数
-	HRESULT Init(void) override;	// 初期化
-	void Uninit(void) override;		// 終了
-	void Update(void) override;		// 更新
-	void Draw(CShader *pShader = nullptr) override;			// 描画
+	HRESULT Init(void) override;		// 初期化
+	void Uninit(void) override;			// 終了
+	void Update(void) override;			// 更新
+	void UpdateMatrix(void) override;	// マトリックス更新
+	void Draw(void) override;			// 描画
 	void SetVec3Sizing(const D3DXVECTOR3& rSize) override;	// 大きさ設定
 	void SetHeight(const float fHeight) override;			// 縦幅設定
 	float GetHeight(void) const override;					// 縦幅取得
