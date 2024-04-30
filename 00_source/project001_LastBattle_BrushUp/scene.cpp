@@ -108,7 +108,7 @@ HRESULT CScene::Init(void)
 #endif
 
 	// TODO：文字表示
-#if 0
+#if 1
 	CFont *pFont = GET_MANAGER->GetFont();
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
@@ -123,10 +123,10 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
 
 	// テキスト
-	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT - D3DXVECTOR3(520.0f, 0.0f, 0.0f), 60.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER);
-	p->AddString(L"こ");
-	p->AddString(L"U");
-	p->AddString(L"ど");
+	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT, 60.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER);
+	p->AddString(L"こんにちは！");
+	p->AddString(L"UNDERTALEみたいな表示です！");
+	p->AddString(L"どウでしょうか？");
 
 	//CObject2D *pp = CObject2D::Create(SCREEN_CENT - D3DXVECTOR3(240.0f, 0.0f, 0.0f), VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
 	//pp->SetPriority(7);
@@ -165,7 +165,7 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
 
 #if 1
-	CString2D *p = CString2D::Create(pFontChar, L"！！", SCREEN_CENT, 400.0f, CString2D::XALIGN_CENTER);
+	CString2D *p = CString2D::Create(pFontChar, L"！", SCREEN_CENT, 400.0f, CString2D::XALIGN_CENTER);
 	//p->GetChar2D(0)->SetHeight(120.0f);
 	//p->GetChar2D(5)->SetHeight(120.0f);
 	//p->GetChar2D(9)->SetHeight(120.0f);

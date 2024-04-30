@@ -406,10 +406,10 @@ void CString2D::SetPositionRelative(void)
 	if ((int)m_wsStr.size() <= 0) { assert(false); return; }
 
 	assert(m_ppChar[0] != nullptr);
-	float fStrWidth		= GetStrWidth() * 0.5f;	// 文字列全体の横幅
+	float fStrWidth = GetStrWidth() * 0.5f;	// 文字列全体の横幅
 
 	// TODO
-#if 0
+#if 1
 	float fHeadOffset = m_ppChar[0]->GetOffsetOrigin();	// 先頭文字の原点オフセット
 #else
 	float fHeadOffset = m_ppChar[0]->GetOffsetBlackBoxLU().x;	// 先頭文字の原点オフセット
@@ -419,8 +419,13 @@ void CString2D::SetPositionRelative(void)
 	float fHeadWidth	= m_ppChar[0]->GetVec3Sizing().x * 0.5f;		// 先頭文字の横幅
 
 	// TODO
-#if 0
+#if 1
 	float fStartOffset	= fStrWidth - (fHeadWidth - fHeadOffset) + (fStrWidth * (m_alignX - 1));	// 文字の開始位置オフセット
+
+	//fStartOffset += fHeadWidth - m_ppChar[0]->GetOffsetOrigin();
+	fStartOffset += fHeadWidth + m_ppChar[0]->GetOffsetBlackBoxLU().x;
+
+	//float fStartOffset	= fStrWidth - (fHeadWidth - fHeadOffset) + (fStrWidth * (m_alignX - 1));	// 文字の開始位置オフセット
 #else
 	float fStartOffset	= (fHeadWidth - fHeadOffset - 1.0f) + (fStrWidth * (m_alignX - 1));	// 文字の開始位置オフセット
 #endif
