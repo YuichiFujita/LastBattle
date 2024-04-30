@@ -150,7 +150,7 @@ HRESULT CScene::Init(void)
 #endif
 
 #else
-#if 1
+
 	CFont *pFont = GET_MANAGER->GetFont();
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
@@ -163,26 +163,9 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
-#if 0
+
 #if 1
-	CString2D::Create(pFontChar, L"あいうえお！aiueo!アバダケダブラ？",					D3DXVECTOR3(SCREEN_CENT.x, 30.0f, 0.0f),  50.0f);
-	CString2D::Create(pFontChar, L"abcdefghijlmnopqrstuvwxyz",							D3DXVECTOR3(SCREEN_CENT.x, 90.0f, 0.0f),  50.0f);
-	CString2D::Create(pFontChar, L"あいうえおかきくけこさしすせそたちつてとなにぬねの",	D3DXVECTOR3(SCREEN_CENT.x, 150.0f, 0.0f), 50.0f);
-	CString2D::Create(pFontChar, L"はひふへほまみむめもやゆよらりるれろわをん",			D3DXVECTOR3(SCREEN_CENT.x, 210.0f, 0.0f), 50.0f);
-#else
-	CString2D::Create(pFontChar, L"バッドランドに生まれた",				D3DXVECTOR3(SCREEN_CENT.x, 30.0f, 0.0f),  60.0f);
-	CString2D::Create(pFontChar, L"だけでバッドライフがデフォとか",		D3DXVECTOR3(SCREEN_CENT.x, 90.0f, 0.0f),  60.0f);
-	CString2D::Create(pFontChar, L"くだらないけど、それが理なんだって",	D3DXVECTOR3(SCREEN_CENT.x, 150.0f, 0.0f), 60.0f);
-	CString2D::Create(pFontChar, L"もう参っちゃうね",					D3DXVECTOR3(SCREEN_CENT.x, 210.0f, 0.0f), 60.0f);
-#endif
-#else
-#if 0
-	CString2D::Create(pFontChar, L"aiueo!かきこ！", SCREEN_CENT, 60.0f, CString2D::ORIGIN_CENTER);
-	CObject2D *p = CObject2D::Create(SCREEN_CENT, VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
-	p->SetPriority(7);
-	p->SetLabel(CObject::LABEL_EFFECT);
-#else
-	CString2D *p = CString2D::Create(pFontChar, L"aaaa", SCREEN_CENT, 60.0f, CString2D::XALIGN_LEFT);
+	CString2D *p = CString2D::Create(pFontChar, L"！！", SCREEN_CENT, 400.0f, CString2D::XALIGN_CENTER);
 	//p->GetChar2D(0)->SetHeight(120.0f);
 	//p->GetChar2D(5)->SetHeight(120.0f);
 	//p->GetChar2D(9)->SetHeight(120.0f);
@@ -191,95 +174,19 @@ HRESULT CScene::Init(void)
 	pp->SetPriority(7);
 	pp->SetLabel(CObject::LABEL_EFFECT);
 
-	CObject2D *ppp = CObject2D::Create(D3DXVECTOR3(SCREEN_CENT.x, 500.0f, 0.0f), D3DXVECTOR3(p->GetStrWidth(), 60.0f, 0.0f), VEC3_ZERO, XCOL_GREEN);
+	CObject2D *ppp = CObject2D::Create(D3DXVECTOR3(SCREEN_CENT.x, 500.0f, 0.0f), D3DXVECTOR3(p->GetStrWidth(), 60.0f, 0.0f), VEC3_ZERO, XCOL_WHITE);
 	ppp->SetPriority(7);
 	ppp->SetLabel(CObject::LABEL_EFFECT);
-#endif
-#endif
-
 #else
-	UINT aChar[] =
-	{
-		/*L'a', L'b', L'c', L'd', L'e', L'f',*/ L'g', L'h', L'i', L'j', L'k',
 
-	};
-	CFont *pFont = GET_MANAGER->GetFont();
+	CChar2D *p = CChar2D::Create(pFontChar, L'j', SCREEN_CENT, 600.0f);
 
-	for (int nHeight = 0; nHeight < 1; nHeight++)
-	{
-		float fPosX = 10.0f;
-		//int nWMax = 26;
-		int nWMax = NUM_ARRAY(aChar);
+	CObject2D *pp = CObject2D::Create(p->GetVec3Position() + D3DXVECTOR3(-p->GetOffsetOrigin(), 0.0f, 0.0f), D3DXVECTOR3(1.0f, 720.0f, 0.0f), VEC3_ZERO, XCOL_BLUE);
+	pp->SetPriority(7);
+	pp->SetLabel(CObject::LABEL_EFFECT);
 
-		for (int nWidth = 0; nWidth < nWMax; nWidth++)
-		{
-			//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
-			//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
-			//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
-			//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
-			//CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
-			//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
-			//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-			//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
-			//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
-			CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
-
-			//UINT uChar = L'a' + nWidth + (nHeight * nWMax);
-			//UINT uChar = L'あ' + nWidth + (nHeight * nWMax);
-			UINT uChar = aChar[nWidth + (nHeight * nWMax)];
-			//D3DXVECTOR3 pos = D3DXVECTOR3(40.0f + (nWidth * 60.0f), 50.0f + (nHeight * 100.0f), 0.0f);
-			D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, 30.0f + (nHeight * 55.0f), 0.0f);
-
-			// 文字2Dの生成
-			CChar2D *p = CChar2D::Create
-			( // 引数
-				pFontChar,
-				uChar,
-				pos,
-				60.0f,
-				VEC3_ZERO,
-				XCOL_BLACK
-			);
-			if (p == nullptr)
-			{ // 生成に失敗した場合
-
-				// 失敗を返す
-				assert(false);
-				return E_FAIL;
-			}
-
-			D3DXVECTOR3 olddd = p->GetVec3Position();
-			olddd.x += p->GetOffset();
-			p->SetVec3Position(olddd);
-			p->BindTexture(-1);
-
-			// 文字2Dの生成
-			CChar2D *ppsx = CChar2D::Create
-			( // 引数
-				pFontChar,
-				uChar,
-				pos,
-				60.0f,
-				VEC3_ZERO,
-				XCOL_WHITE
-			);
-			if (ppsx == nullptr)
-			{ // 生成に失敗した場合
-
-				// 失敗を返す
-				assert(false);
-				return E_FAIL;
-			}
-
-			D3DXVECTOR3 old = ppsx->GetVec3Position();
-			old.x += ppsx->GetOffset();
-			ppsx->SetVec3Position(old);
-
-			// 次の位置設定用に原点を保存
-			fPosX = ppsx->GetVec3Position().x - ppsx->GetOffset() + ppsx->GetNext();
-		}
-	}
 #endif
+
 #endif
 
 	// 成功を返す
