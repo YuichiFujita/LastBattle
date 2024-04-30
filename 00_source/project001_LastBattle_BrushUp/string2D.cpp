@@ -81,26 +81,6 @@ void CString2D::Uninit(void)
 //============================================================
 void CString2D::Update(void)
 {
-	// TODO
-#if 1
-	if (GET_INPUTKEY->IsPress(DIK_W))
-	{
-		m_pos.y -= 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_S))
-	{
-		m_pos.y += 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_A))
-	{
-		m_pos.x -= 1.0f;
-	}
-	if (GET_INPUTKEY->IsPress(DIK_D))
-	{
-		m_pos.x += 1.0f;
-	}
-#endif
-
 	// 相対位置の設定
 	SetPositionRelative();
 }
@@ -175,11 +155,6 @@ void CString2D::SetHeight(const float fHeight)
 		// 文字縦幅の設定
 		assert(m_ppChar[i] != nullptr);
 		m_ppChar[i]->SetHeight(fHeight);
-
-		// TODO
-#if 0
-		m_ppChar[i]->BindTexture(-1);
-#endif
 	}
 
 	// 相対位置の設定
@@ -351,17 +326,17 @@ float CString2D::GetStrWidth(void) const
 		fStrWidth += m_ppChar[i]->GetNext();
 	}
 
-	// 先頭文字の無視した大きさを加算
+	// 先頭文字のサイズをブラックボックス左からの大きさに補正
 	assert(m_ppChar[0] != nullptr);
-	float fStartCharWidth = m_ppChar[0]->GetVec3Sizing().x * 0.5f;
-	fStrWidth += fStartCharWidth - m_ppChar[0]->GetOffsetOrigin();
-	fStrWidth -= fStartCharWidth + m_ppChar[0]->GetOffsetBlackBoxLU().x;
+	float fHeadWidth = m_ppChar[0]->GetVec3Sizing().x * 0.5f;		// 先頭文字の横幅
+	fStrWidth += fHeadWidth - m_ppChar[0]->GetOffsetOrigin();		// 原点より前の空間を加算
+	fStrWidth -= fHeadWidth + m_ppChar[0]->GetOffsetBlackBoxLU().x;	// ブラックボックス開始より前の空間を減算
 
-	// 終端文字の大きさを加算
+	// 終端文字のサイズをブラックボックス右までの大きさに補正
 	assert(m_ppChar[nEndCharID] != nullptr);
-	float fEndCharWidth = m_ppChar[nEndCharID]->GetVec3Sizing().x * 0.5f;
-	fStrWidth += fEndCharWidth - (fEndCharWidth - m_ppChar[nEndCharID]->GetOffsetOrigin());
-	fStrWidth += m_ppChar[nEndCharID]->GetOffsetBlackBoxRD().x;
+	float fTailWidth = m_ppChar[nEndCharID]->GetVec3Sizing().x * 0.5f;			// 終端文字の横幅
+	fStrWidth -= m_ppChar[nEndCharID]->GetOffsetOrigin();						// 原点より前の空間を減算
+	fStrWidth += fTailWidth + m_ppChar[nEndCharID]->GetOffsetBlackBoxRD().x;	// ブラックボックス終了より前の空間を加算
 
 	// 文字列の横幅を返す
 	return fStrWidth;
@@ -406,29 +381,16 @@ void CString2D::SetPositionRelative(void)
 	if ((int)m_wsStr.size() <= 0) { assert(false); return; }
 
 	assert(m_ppChar[0] != nullptr);
-	float fStrWidth = GetStrWidth() * 0.5f;	// 文字列全体の横幅
-
-	// TODO
-#if 1
-	float fHeadOffset = m_ppChar[0]->GetOffsetOrigin();	// 先頭文字の原点オフセット
-#else
-	float fHeadOffset = m_ppChar[0]->GetOffsetBlackBoxLU().x;	// 先頭文字の原点オフセット
-#endif
-
+	float fHeadOffsetOrigin	= m_ppChar[0]->GetOffsetOrigin();			// 先頭文字の原点オフセット
+	float fHeadOffsetLU	= m_ppChar[0]->GetOffsetBlackBoxLU().x;			// 先頭文字のブラックボックスオフセット
 	float fHeadRot		= m_ppChar[0]->GetVec3Rotation().z - HALF_PI;	// 先頭文字の向き
 	float fHeadWidth	= m_ppChar[0]->GetVec3Sizing().x * 0.5f;		// 先頭文字の横幅
+	float fStrWidth		= GetStrWidth() * 0.5f;							// 文字列全体の横幅
 
-	// TODO
-#if 1
-	float fStartOffset	= fStrWidth - (fHeadWidth - fHeadOffset) + (fStrWidth * (m_alignX - 1));	// 文字の開始位置オフセット
-
-	//fStartOffset += fHeadWidth - m_ppChar[0]->GetOffsetOrigin();
-	fStartOffset += fHeadWidth + m_ppChar[0]->GetOffsetBlackBoxLU().x;
-
-	//float fStartOffset	= fStrWidth - (fHeadWidth - fHeadOffset) + (fStrWidth * (m_alignX - 1));	// 文字の開始位置オフセット
-#else
-	float fStartOffset	= (fHeadWidth - fHeadOffset - 1.0f) + (fStrWidth * (m_alignX - 1));	// 文字の開始位置オフセット
-#endif
+	float fStartOffset = fStrWidth;	// 文字の開始位置オフセット
+	fStartOffset -= fHeadWidth - fHeadOffsetOrigin;	// 先頭文字の原点分ずらす
+	fStartOffset += fHeadWidth + fHeadOffsetLU;		// 先頭文字のブラックボックス分ずらす
+	fStartOffset += (fStrWidth * (m_alignX - 1));	// 指定された横配置にする
 
 	D3DXVECTOR3 posStart;	// 文字の開始位置
 	posStart.x = m_pos.x + sinf(fHeadRot) * fStartOffset;	// 開始位置X

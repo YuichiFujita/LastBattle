@@ -55,7 +55,6 @@ public:
 		CFontChar *pFontChar,	// フォント文字情報
 		const wchar_t wcChar	// 指定文字
 	);
-	CFontChar::SChar GetCharInfo(void) { return m_infoChar; }	// 文字情報取得
 	D3DXVECTOR2 GetOffsetBlackBoxLU(void);	// ブラックボックスの左上オフセット取得
 	D3DXVECTOR2 GetOffsetBlackBoxRD(void);	// ブラックボックスの右下オフセット取得
 	float GetOffsetOrigin(void);			// 原点のオフセット取得
