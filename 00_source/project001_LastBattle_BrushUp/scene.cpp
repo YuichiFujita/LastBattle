@@ -25,14 +25,6 @@
 // TODO：スキンメッシュ
 #include "objectSkinMesh3D.h"
 
-// TODO：文字表示
-#include "manager.h"
-#include "font.h"
-#include "fontChar.h"
-#include "char2D.h"
-#include "string2D.h"
-#include "text2D.h"
-
 //************************************************************
 //	定数宣言
 //************************************************************
@@ -105,88 +97,6 @@ HRESULT CScene::Init(void)
 	CObjectSkinMesh3D *p = CObjectSkinMesh3D::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
 	p->SetLabel(CObject::LABEL_EFFECT);
 	p->SetPriority(7);
-#endif
-
-	// TODO：文字表示
-#if 1
-	CFont *pFont = GET_MANAGER->GetFont();
-	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
-	CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
-
-	// テキスト
-	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT, 60.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER, D3DXVECTOR3(0.0f, 0.0f, 0.4f), XCOL_BLUE);
-	p->AddString(L"こんにちは！");
-	p->AddString(L"UNDERTALEみたいな表示です！");
-	p->AddString(L"どウでしょうか？");
-
-	//CObject2D *pp = CObject2D::Create(SCREEN_CENT - D3DXVECTOR3(240.0f, 0.0f, 0.0f), VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
-	//pp->SetPriority(7);
-	//pp->SetLabel(CObject::LABEL_EFFECT);
-
-	//CObject2D *ppp = CObject2D::Create(SCREEN_CENT + D3DXVECTOR3(240.0f, 0.0f, 0.0f), D3DXVECTOR3(250.0f, p->GetTextHeight(), 0.0f), VEC3_ZERO, XCOL_WHITE);
-	//ppp->SetPriority(7);
-	//ppp->SetLabel(CObject::LABEL_EFFECT);
-
-	// 文字列
-#if 0
-	CString2D *pppp = CString2D::Create(pFontChar, L"aiueo!かきこ！", SCREEN_CENT, 60.0f, CString2D::ORIGIN_CENTER);
-
-	CObject2D *ppppp = CObject2D::Create(SCREEN_CENT, VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
-	ppppp->SetPriority(7);
-	ppppp->SetLabel(CObject::LABEL_EFFECT);
-
-	CObject2D *pppppp = CObject2D::Create(D3DXVECTOR3(SCREEN_CENT.x, 500.0f, 0.0f), D3DXVECTOR3(pppp->GetStrWidth(), 60.0f, 0.0f), VEC3_ZERO, XCOL_GREEN);
-	pppppp->SetPriority(7);
-	pppppp->SetLabel(CObject::LABEL_EFFECT);
-#endif
-
-#else
-
-	CFont *pFont = GET_MANAGER->GetFont();
-	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐ明朝").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("ＭＳ Ｐゴシック").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("わんぱくルイカ").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("零ゴシック").pFontChar;
-	CFontChar *pFontChar = pFont->Regist("JFドットK14-2004").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("BIZ UDPゴシック").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("HGP創英角ﾎﾟｯﾌﾟ体").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("あんずもじ湛").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("たぬき油性マジック").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("Unifont-JP").pFontChar;
-	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
-
-#if 1
-	CString2D *p = CString2D::Create(pFontChar, L"！", SCREEN_CENT, 400.0f, CString2D::XALIGN_CENTER);
-	//p->GetChar2D(0)->SetHeight(120.0f);
-	//p->GetChar2D(5)->SetHeight(120.0f);
-	//p->GetChar2D(9)->SetHeight(120.0f);
-
-	CObject2D *pp = CObject2D::Create(SCREEN_CENT, VEC3_ONE * 10.0f, VEC3_ZERO, XCOL_BLUE);
-	pp->SetPriority(7);
-	pp->SetLabel(CObject::LABEL_EFFECT);
-
-	CObject2D *ppp = CObject2D::Create(D3DXVECTOR3(SCREEN_CENT.x, 500.0f, 0.0f), D3DXVECTOR3(p->GetStrWidth(), 60.0f, 0.0f), VEC3_ZERO, XCOL_WHITE);
-	ppp->SetPriority(7);
-	ppp->SetLabel(CObject::LABEL_EFFECT);
-#else
-
-	CChar2D *p = CChar2D::Create(pFontChar, L'j', SCREEN_CENT, 600.0f);
-
-	CObject2D *pp = CObject2D::Create(p->GetVec3Position() + D3DXVECTOR3(-p->GetOffsetOrigin(), 0.0f, 0.0f), D3DXVECTOR3(1.0f, 720.0f, 0.0f), VEC3_ZERO, XCOL_BLUE);
-	pp->SetPriority(7);
-	pp->SetLabel(CObject::LABEL_EFFECT);
-
-#endif
-
 #endif
 
 	// 成功を返す
