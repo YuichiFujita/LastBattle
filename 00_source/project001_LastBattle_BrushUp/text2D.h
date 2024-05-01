@@ -52,6 +52,8 @@ public:
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
+	void SetColor(const D3DXCOLOR& rCol) override;			// 色設定
+	D3DXCOLOR GetColor(void) const override;				// 色取得
 
 	// 静的メンバ関数
 	static CText2D *Create	// 生成
@@ -62,13 +64,14 @@ public:
 		const float fLineHeight,	// 行間縦幅
 		const CString2D::EAlignX alignX = CString2D::XALIGN_CENTER,	// 横配置
 		const EAlignY alignY = YALIGN_CENTER,	// 縦配置
-		const D3DXVECTOR3& rRot = VEC3_ZERO		// 原点向き
-
+		const D3DXVECTOR3& rRot = VEC3_ZERO,	// 原点向き
+		const D3DXCOLOR& rCol = XCOL_WHITE		// 色
 	);
 
 	// メンバ関数
 	void SetFont(CFontChar *pFontChar);				// フォントの設定
 	HRESULT AddString(const std::wstring& rStr);	// 文字列の追加
+	CString2D *GetString2D(const int nStrID) const;	// 文字列の取得
 	float GetTextHeight(void) const;				// テキストの縦幅取得
 	void SetCharHeight(const float fHeight);		// 文字の縦幅設定
 	float GetCharHeight(void) const;				// 文字の縦幅取得
@@ -91,6 +94,7 @@ private:
 	CFontChar *m_pFontChar;				// フォント文字
 	D3DXVECTOR3 m_pos;					// 位置
 	D3DXVECTOR3 m_rot;					// 向き
+	D3DXCOLOR m_col;					// 色
 	CString2D::EAlignX m_alignX;		// 横配置
 	EAlignY m_alignY;					// 縦配置
 	float m_fCharHeight;				// 文字の縦幅

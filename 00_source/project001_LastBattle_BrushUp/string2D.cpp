@@ -145,6 +145,33 @@ D3DXVECTOR3 CString2D::GetVec3Rotation(void) const
 }
 
 //============================================================
+//	色の設定処理
+//============================================================
+void CString2D::SetColor(const D3DXCOLOR& rCol)
+{
+	for (int i = 0; i < (int)m_wsStr.size(); i++)
+	{ // 文字数分繰り返す
+
+		// 文字色の設定
+		assert(m_ppChar[i] != nullptr);
+		m_ppChar[i]->SetColor(rCol);
+	}
+}
+
+//============================================================
+//	色取得処理
+//============================================================
+D3DXCOLOR CString2D::GetColor(void) const
+{
+	// 文字列がない場合抜ける
+	if ((int)m_wsStr.size() <= 0) { assert(false); return XCOL_WHITE; }
+
+	// 先頭の色を返す
+	assert(m_ppChar[0] != nullptr);
+	return m_ppChar[0]->GetColor();
+}
+
+//============================================================
 //	文字縦幅の設定処理
 //============================================================
 void CString2D::SetHeight(const float fHeight)
@@ -184,7 +211,8 @@ CString2D *CString2D::Create
 	const D3DXVECTOR3 &rPos,	// 原点位置
 	const float fHeight,		// 文字縦幅
 	const EAlignX alignX,		// 横配置
-	const D3DXVECTOR3& rRot		// 原点向き
+	const D3DXVECTOR3& rRot,	// 原点向き
+	const D3DXCOLOR& rCol		// 色
 )
 {
 	// 文字列2Dの生成
@@ -220,6 +248,9 @@ CString2D *CString2D::Create
 
 		// 原点向きを設定
 		pString2D->SetVec3Rotation(rRot);
+
+		// 色を設定
+		pString2D->SetColor(rCol);
 
 		// 文字縦幅を設定
 		pString2D->SetHeight(fHeight);
@@ -292,7 +323,7 @@ HRESULT CString2D::SetFontString
 }
 
 //============================================================
-//	文字取得処理
+//	文字の取得処理
 //============================================================
 CChar2D *CString2D::GetChar2D(const int nCharID) const
 {

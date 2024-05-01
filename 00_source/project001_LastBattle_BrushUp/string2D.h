@@ -52,6 +52,8 @@ public:
 	D3DXVECTOR3 GetVec3Position(void) const override;		// 位置取得
 	void SetVec3Rotation(const D3DXVECTOR3& rRot) override;	// 向き設定
 	D3DXVECTOR3 GetVec3Rotation(void) const override;		// 向き取得
+	void SetColor(const D3DXCOLOR& rCol) override;			// 色設定
+	D3DXCOLOR GetColor(void) const override;				// 色取得
 	void SetHeight(const float fHeight) override;			// 縦幅設定
 	float GetHeight(void) const override;					// 縦幅取得
 
@@ -63,8 +65,8 @@ public:
 		const D3DXVECTOR3 &rPos,	// 原点位置
 		const float fHeight = 100.0f,			// 文字縦幅
 		const EAlignX alignX = XALIGN_CENTER,	// 横配置
-		const D3DXVECTOR3& rRot = VEC3_ZERO		// 原点向き
-
+		const D3DXVECTOR3& rRot = VEC3_ZERO,	// 原点向き
+		const D3DXCOLOR& rCol = XCOL_WHITE		// 色
 	);
 
 	// メンバ関数
@@ -73,7 +75,7 @@ public:
 		CFontChar *pFontChar,		// フォント文字情報
 		const std::wstring &rStr	// 指定文字列
 	);
-	CChar2D *GetChar2D(const int nCharID) const;	// 文字取得
+	CChar2D *GetChar2D(const int nCharID) const;	// 文字の取得
 	float GetStrWidth(void) const;					// 文字列の横幅取得
 	void SetAlignX(const EAlignX align);			// 横配置設定
 	EAlignX GetAlignX(void) const;					// 横配置取得

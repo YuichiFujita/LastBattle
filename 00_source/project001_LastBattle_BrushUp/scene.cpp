@@ -123,7 +123,7 @@ HRESULT CScene::Init(void)
 	//CFontChar *pFontChar = pFont->Regist("クラフト明朝").pFontChar;
 
 	// テキスト
-	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT, 60.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER);
+	CText2D *p = CText2D::Create(pFontChar, SCREEN_CENT, 60.0f, 20.0f, CString2D::XALIGN_LEFT, CText2D::YALIGN_CENTER, D3DXVECTOR3(0.0f, 0.0f, 0.4f), XCOL_BLUE);
 	p->AddString(L"こんにちは！");
 	p->AddString(L"UNDERTALEみたいな表示です！");
 	p->AddString(L"どウでしょうか？");

@@ -31,6 +31,7 @@ CText2D::CText2D() : CObject(CObject::LABEL_UI, CObject::DIM_2D, PRIORITY),
 	m_pFontChar		(nullptr),					// フォント文字
 	m_pos			(VEC3_ZERO),				// 位置
 	m_rot			(VEC3_ZERO),				// 向き
+	m_col			(XCOL_WHITE),				// 色
 	m_alignX		(CString2D::XALIGN_CENTER),	// 横配置
 	m_alignY		(YALIGN_CENTER),			// 縦配置
 	m_fCharHeight	(0.0f),						// 文字の縦幅
@@ -57,6 +58,7 @@ HRESULT CText2D::Init(void)
 	m_pFontChar		= nullptr;					// フォント文字
 	m_pos			= VEC3_ZERO;				// 位置
 	m_rot			= VEC3_ZERO;				// 向き
+	m_col			= XCOL_WHITE;				// 色
 	m_alignX		= CString2D::XALIGN_CENTER;	// 横配置
 	m_alignY		= YALIGN_CENTER;			// 縦配置
 	m_fCharHeight	= 0.0f;						// 文字の縦幅
@@ -156,6 +158,32 @@ D3DXVECTOR3 CText2D::GetVec3Rotation(void) const
 }
 
 //============================================================
+//	色の設定処理
+//============================================================
+void CText2D::SetColor(const D3DXCOLOR& rCol)
+{
+	// 設定する色を保存
+	m_col = rCol;
+
+	for (auto& rList : m_listString)
+	{ // 文字列の格納数分繰り返す
+
+		// 文字列色の設定
+		assert(rList != nullptr);
+		rList->SetColor(rCol);
+	}
+}
+
+//============================================================
+//	色取得処理
+//============================================================
+D3DXCOLOR CText2D::GetColor(void) const
+{
+	// 保存された色を返す
+	return m_col;
+}
+
+//============================================================
 //	生成処理
 //============================================================
 CText2D *CText2D::Create
@@ -166,7 +194,8 @@ CText2D *CText2D::Create
 	const float fLineHeight,			// 行間縦幅
 	const CString2D::EAlignX alignX,	// 横配置
 	const EAlignY alignY,				// 縦配置
-	const D3DXVECTOR3& rRot				// 原点向き
+	const D3DXVECTOR3& rRot,			// 原点向き
+	const D3DXCOLOR& rCol				// 色
 )
 {
 	// テキスト2Dの生成
@@ -196,6 +225,9 @@ CText2D *CText2D::Create
 
 		// 原点向きを設定
 		pText2D->SetVec3Rotation(rRot);
+
+		// 色を設定
+		pText2D->SetColor(rCol);
 
 		// 文字縦幅を設定
 		pText2D->SetCharHeight(fCharHeight);
@@ -237,7 +269,8 @@ HRESULT CText2D::AddString(const std::wstring& rStr)
 		m_pos,			// 原点位置
 		m_fCharHeight,	// 文字縦幅
 		m_alignX,		// 横配置
-		m_rot			// 原点向き
+		m_rot,			// 原点向き
+		m_col			// 色
 	);
 	if (pStr == nullptr)
 	{ // 生成に失敗した場合
@@ -255,6 +288,24 @@ HRESULT CText2D::AddString(const std::wstring& rStr)
 
 	// 成功を返す
 	return S_OK;
+}
+
+//============================================================
+//	文字列の取得処理
+//============================================================
+CString2D *CText2D::GetString2D(const int nStrID) const
+{
+	// 文字列がない場合抜ける
+	int nStrSize = (int)m_listString.size();
+	if (nStrSize <= 0) { assert(false); return nullptr; }
+
+	// インデックスが範囲外の場合抜ける
+	if (nStrID <= NONE_IDX || nStrID >= nStrSize) { assert(false); return nullptr; }
+
+	// 引数インデックスの文字列を返す
+	auto itr = m_listString.begin();	// 先頭イテレーター
+	std::advance(itr, nStrID);			// イテレーターを進める
+	return *itr;						// イテレーターの中身を返す
 }
 
 //============================================================
