@@ -254,6 +254,17 @@ void CText2D::SetFont(CFontChar *pFontChar)
 	// 引数のフォントを保存
 	assert(pFontChar != nullptr);
 	m_pFontChar = pFontChar;
+
+	for (auto& rList : m_listString)
+	{ // 文字列の格納数分繰り返す
+
+		// 文字列フォントの設定
+		assert(rList != nullptr);
+		rList->SetFont(pFontChar);
+	}
+
+	// 相対位置の設定
+	SetPositionRelative();
 }
 
 //============================================================

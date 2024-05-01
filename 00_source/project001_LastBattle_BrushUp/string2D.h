@@ -70,11 +70,8 @@ public:
 	);
 
 	// メンバ関数
-	HRESULT SetFontString	// フォント・文字列の設定
-	( // 引数
-		CFontChar *pFontChar,		// フォント文字情報
-		const std::wstring &rStr	// 指定文字列
-	);
+	void SetFont(CFontChar *pFontChar);				// フォントの設定
+	HRESULT SetString(const std::wstring& rStr);	// 文字列の設定
 	CChar2D *GetChar2D(const int nCharID) const;	// 文字の取得
 	float GetStrWidth(void) const;					// 文字列の横幅取得
 	void SetAlignX(const EAlignX align);			// 横配置設定
@@ -89,9 +86,13 @@ private:
 
 	// メンバ変数
 	CChar2D **m_ppChar;		// 文字ポリゴンの情報
-	D3DXVECTOR3 m_pos;		// 位置
-	EAlignX m_alignX;		// 横配置
+	CFontChar *m_pFontChar;	// フォント文字
 	std::wstring m_wsStr;	// 指定文字列
+	D3DXVECTOR3 m_pos;		// 位置
+	D3DXVECTOR3 m_rot;		// 向き
+	D3DXCOLOR m_col;		// 色
+	EAlignX m_alignX;		// 横配置
+	float m_fCharHeight;	// 文字の縦幅
 };
 
 #endif	// _STRING2D_H_
