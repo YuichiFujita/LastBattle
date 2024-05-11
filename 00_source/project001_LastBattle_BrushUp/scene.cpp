@@ -22,9 +22,6 @@
 #include "player.h"
 #include "enemy.h"
 
-// TODO：スキンメッシュ
-#include "objectSkinMesh3D.h"
-
 //************************************************************
 //	定数宣言
 //************************************************************
@@ -91,13 +88,6 @@ HRESULT CScene::Init(void)
 
 	// プレイヤーの生成
 	CPlayer::Create(m_mode);
-
-	// TODO：スキンメッシュ
-#if 0
-	CObjectSkinMesh3D *p = CObjectSkinMesh3D::Create(D3DXVECTOR3(0.0f, 0.0f, 0.0f));
-	p->SetLabel(CObject::LABEL_EFFECT);
-	p->SetPriority(7);
-#endif
 
 	// 成功を返す
 	return S_OK;
